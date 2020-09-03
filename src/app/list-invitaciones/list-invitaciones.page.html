@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button autoHide="false"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>List Invitaciones</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content style="margin-top: 50px;">
+  <ion-list lines="none">     
+    <ion-item  class="item-card" *ngFor="let item of items" (click)="seleccionar(item)">
+      <ion-avatar slot="start">
+        <img src="{{item.foto}}" *ngIf="item.foto">
+        <ion-icon name="people-circle-outline" *ngIf="!item.foto"></ion-icon>
+      </ion-avatar>      
+      <ion-label text-wrap>
+        <ion-text color="primary">
+          El usuario {{item.remitente}} quiere invitarte al comercio {{item.comercio_nombre}} como {{item.rol}}
+        </ion-text>
+
+        <ion-button size="large" (click)="eliminarInvitacion(item)"  expand="block">Eliminar</ion-button>                 
+      </ion-label>         
+    </ion-item>    
+  </ion-list>
+  
+
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="showMore($event)">
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Cargando...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+  <div class="space">
+    
+  </div> 
+</ion-content>

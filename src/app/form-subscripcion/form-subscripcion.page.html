@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Form Subscripción</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content>
+  <div class="ion-padding">
+    <form [formGroup]="datosForm">
+     <ion-button size="large" (click)="seleccionarCliente()"  expand="block">Seleccionar Cliente * </ion-button>
+     
+     <ion-button size="large" (click)="seleccionarServicio()"  expand="block">Seleccionar Servicio * </ion-button>
+
+     <span *ngIf="cliente">
+        {{cliente.nombre}}
+        <ion-button  (click)="eliminarCliente()">Eliminar</ion-button>
+      </span>
+      <br>
+      <span *ngIf="servicio">
+        > {{servicio.nombre}} <br>
+        {{servicio.planes[servicio.plan].nombre}}, {{servicio.planes[servicio.plan].dias}} días por {{servicio.planes[servicio.plan].precio}}<br>
+        {{servicio.descripcion_venta}}
+        <ion-button  (click)="eliminarServicio()">Eliminar</ion-button>
+      </span>
+
+     <div *ngIf="servicio">
+        
+      </div>
+     
+    </form>
+  </div>
+</ion-content>
+<ion-toolbar>
+  <ion-button size="large" (click)="guardar()"  expand="block">Guardar</ion-button>
+  
+</ion-toolbar>

@@ -1,0 +1,132 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{titulo}}</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+    
+  <div class="container-foto" *ngIf="croppedImagepath" >
+      <img class="portada-foto" src="{{croppedImagepath}}" alt="" (click)="selectImage()">
+  </div>
+  <div class="container-foto" *ngIf="!croppedImagepath" >
+    <div class="portada-foto" (click)="selectImage()"></div>
+  </div>
+
+  <form [formGroup]="datosForm">
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Nombre *</h4>      
+      </ion-text>       
+      <ion-item [class.invalid]="submitted && !datosForm.controls.nombre.valid">
+        <ion-input name="nombre" type="text" formControlName="nombre" required></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.nombre.errors" class="invalid-feedback">
+          <div *ngIf="f.nombre.errors.required"><h5>Ingresa un nombre</h5></div>
+      </div>  
+    </div> 
+
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Seleccionar Categorías *</h4>      
+      </ion-text> 
+
+      <ion-item [class.invalid]="submitted && !datosForm.controls.categorias.valid">
+        <ion-select multiple="true" formControlName="categorias" cancelText="Cancelar" okText="Listo">
+          <ion-select-option *ngFor="let categoria of categorias" [value]="categoria.id" selected>{{categoria.nombre}}</ion-select-option>
+        </ion-select>
+        
+      </ion-item>   
+      <ion-button size="large"   expand="block" (click)="openAddCategoria()">Agregar Nueva Categoria</ion-button>
+      <div *ngIf="submitted && f.categorias.errors" class="invalid-feedback">
+          <div *ngIf="f.categorias.errors.required"><h5>Seleccione una o más categorías</h5></div>
+      </div>  
+    </div>  
+
+
+    <h4>Habilitar para:</h4>  
+       
+    <ion-item>
+      <ion-label>Subscripciones</ion-label>
+      <ion-toggle formControlName="recibirSubscripciones"></ion-toggle>
+    </ion-item>
+    <div class="form-card" *ngIf="datosForm.controls.recibirSubscripciones.value">
+      <ion-text color="primary">
+        <h4>Planes *</h4>      
+      </ion-text> 
+      <ion-list lines="none" class="item-card">        
+        <ion-item  *ngFor="let plan of planes;let i=index">       
+          <ion-label>
+            <b>{{plan.nombre}}</b> 
+            <span *ngIf="plan.tipo == 'dias'">
+              {{plan.dias}} días 
+            </span>
+            <span *ngIf="plan.tipo == 'mensual'">
+              Mensual 
+            </span>
+            <span *ngIf="plan.tipo == 'anual'">
+              Anual 
+            </span>
+            por {{plan.precio | currency}}
+          </ion-label>
+          <ion-button color="primary" slot="end" (click)="editarPlan(plan)"><ion-icon name="create"></ion-icon></ion-button>                
+        </ion-item>    
+      </ion-list>   
+      <ion-button size="large"   expand="block" (click)="openNewPlan()">Agregar Nuevo Plan</ion-button>
+    </div>
+
+    <ion-item>
+      <ion-label>Recibir Reservas</ion-label>
+      <ion-toggle formControlName="recibirReservas"></ion-toggle>
+    </ion-item>
+    
+
+    <div class="form-card" *ngIf="datosForm.controls.recibirReservas.value">
+        
+      <ion-item-sliding *ngFor="let profesional of servicio.profesionales;let i= index" class="item-card" >    
+        <ion-item>
+          <div slot="start">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>   
+          <ion-label>
+            <h3>{{profesional.email}}</h3>
+          </ion-label>            
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option (click)="editarProfesional(index,profesional)"><ion-icon name="create" ></ion-icon>Editar</ion-item-option>
+        </ion-item-options>  
+      </ion-item-sliding>       
+      <ion-button size="large"   expand="block" (click)="openAgregarProfesional()">Agregar Calendario Profesional</ion-button>
+    </div>
+
+
+
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Descripcion adicional</h4>      
+      </ion-text> 
+      
+      <ion-item>
+        <ion-textarea formControlName="descripcion"></ion-textarea>
+      </ion-item>
+    </div>
+   
+  </form>  
+
+  <div class="form-card" *ngIf="updating">
+    <ion-text color="danger">
+      <h5 color="danger">zona de riesgo</h5>
+    </ion-text>
+    
+    <ion-button  color="danger" (click)="elimiar()">Eliminar Comercio</ion-button>
+  </div>
+  <ion-toolbar>
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-content>

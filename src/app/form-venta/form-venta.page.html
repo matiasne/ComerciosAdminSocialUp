@@ -1,0 +1,45 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Form Venta</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content>
+  <div class="ion-padding">
+    <form [formGroup]="datosForm" >
+      <ion-button size="large" (click)="seleccionarCliente()"  expand="block">Seleccionar Cliente * </ion-button>
+     
+      <ion-button size="large" (click)="elegirProducto()"  expand="block">Agregar Producto * </ion-button>
+
+      <span *ngIf="cliente">
+        {{cliente.nombre}}
+        <ion-button  (click)="eliminarCliente()">Eliminar</ion-button>
+      </span>
+      
+      <ion-list lines="none">     
+        <ion-list-header>
+          Productos
+        </ion-list-header>        
+        <ion-item  *ngFor="let producto of productos;let i= index">       
+          <ion-label>
+            <b>{{producto.cantidad}}</b> 
+            <b>{{producto.nombre}}</b> 
+            
+              {{producto.precio | currency}} <br>
+              {{producto.descripcion_venta}}
+            <ion-button  (click)="eliminarProducto(i)">Eliminar</ion-button>
+          </ion-label>         
+        </ion-item>    
+      </ion-list>   
+      
+      
+    </form>
+  </div>
+</ion-content>
+<ion-toolbar>
+  <ion-button size="large" (click)="guardar()"  expand="block">Guardar</ion-button>
+</ion-toolbar>

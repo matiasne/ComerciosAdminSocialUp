@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Configurar Pedidos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-item>
+    <ion-label>Habilitar Pedidos</ion-label>
+    <ion-toggle [(ngModel)]="comercio.recibirPedidos" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>
+  <ion-item  class="item-card" *ngIf="comercio.recibirPedidos">
+    <ion-button  size="large" (click)="agregarCadete()"  expand="block">Agregar Cadete *</ion-button>
+  </ion-item>
+  
+  <div *ngIf="comercio.recibirPedidos">
+    <ion-item-sliding *ngFor="let cadete of cadetes;let i= index" class="item-card" >    
+      <ion-item>
+        <div slot="start">
+          <ion-icon name="person-outline"></ion-icon>
+        </div>   
+        <ion-label>
+          <h3>{{cadete.user_email}}</h3>
+          <p>Estado invitacion: 
+            <span *ngIf="cadete.estado == 'pendiente'" style="color:blue">{{cadete.estado}}</span>
+            <span *ngIf="cadete.estado == 'aceptado'" style="color:green">{{cadete.estado}}</span>
+            <span *ngIf="cadete.estado == 'rechazado'" style="color:red">{{cadete.estado}}</span>
+           </p>
+        </ion-label>            
+      </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option (click)="eliminarCadete(i)"><ion-icon name="trash" ></ion-icon>Destituir</ion-item-option>
+      </ion-item-options>
+
+    </ion-item-sliding>
+  </div>
+</ion-content>

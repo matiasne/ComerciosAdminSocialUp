@@ -1,0 +1,24 @@
+
+
+<input #fileInput  type="file" multiple="multiple" name="files[]" accept="image/*;" (change)="seleccionarImagenWeb($event)" style="display:none;" /> 
+<div *ngIf="croppedImage">
+  <img  src="{{croppedImage}}" alt="" (click)="fileInput.click()" *ngIf="!IsMobile" >
+  <img  src="{{croppedImage}}" alt="" (click)="selectImage()" *ngIf="IsMobile">
+</div>
+
+<div *ngIf="!croppedImage">
+  <div *ngIf="!IsMobile" (click)="fileInput.click()">
+    <div style="padding: 30px;">
+      <ion-icon name="camera-outline" style="font-size: 20px;"></ion-icon><br>
+      Haz click para insertar imagen
+    </div>
+  </div>  
+  <div *ngIf="IsMobile" (click)="selectImage()">
+    <div style="padding: 30px;">
+      <ion-icon name="camera-outline" style="font-size: 20px;"></ion-icon><br>
+      Haz click para insertar imagen
+    </div>
+  </div>
+</div>
+
+

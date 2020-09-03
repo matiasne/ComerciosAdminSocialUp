@@ -1,0 +1,182 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{titulo}}</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div class="portada-foto">
+    <app-seleccionar-imagen
+    [aspectRatio] = "2/1"
+    [croppedImage]="croppedImagePortada"
+    (onSelectValue)=imagenSeleccionadaPortada($event)>
+    </app-seleccionar-imagen>
+  </div>
+  <div class="icono-foto">
+    <app-seleccionar-imagen
+      [aspectRatio] = "1/1"
+      [croppedImage]="croppedImageIcono"
+      (onSelectValue)=imagenSeleccionadaIcono($event)>
+    </app-seleccionar-imagen>
+  </div>
+
+  
+  
+  
+  <div class="ion-padding">
+
+    <div *ngIf="submitted && f.portada.errors" class="invalid-feedback">
+      <div *ngIf="f.portada.errors.required"><h5>Ingresa una foto de portada</h5></div>
+    </div>
+    <div *ngIf="submitted && f.icono.errors" class="invalid-feedback">
+      <div *ngIf="f.icono.errors.required"><h5>Ingresa el logo de tu negocio</h5></div>
+    </div>
+
+  <form [formGroup]="datosForm">
+    
+    <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.nombre.valid}">
+      <ion-text color="primary">
+        <h4>Nombre *</h4>
+      </ion-text>  
+      <ion-item>
+        <ion-input name="nombre" type="text" formControlName="nombre" required></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.nombre.errors" class="invalid-feedback">
+          <div *ngIf="f.nombre.errors.required"><h5>Ingresa un nombre</h5></div>
+      </div> 
+    </div>
+
+    <h4>Habilitar mi comercio para:</h4>   
+    <ion-item>
+      <ion-label>Recibir Pedidos</ion-label>
+      <ion-toggle [(ngModel)]="comercio.recibirPedidos"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+    </ion-item>
+    <ion-item>
+      <ion-label>Recibir Reservas</ion-label>
+      <ion-toggle [(ngModel)]="comercio.recibirReservas"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+    </ion-item>
+
+    
+    
+
+    <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.direccion.valid}">
+      <ion-text color="primary">
+        <h4>Dirección *</h4>
+      </ion-text>
+      <ion-item>
+        <ion-input id="pac-input" formControlName="direccion" type="text"></ion-input>
+      </ion-item>
+      <ion-row>
+        <ion-col>
+          <h4 color="primary">Piso</h4>
+          <ion-item>
+            <ion-input name="piso" type="text" [(ngModel)]="comercio.piso" required [ngModelOptions]="{standalone: true}"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <h4 color="primary">Puerta</h4>
+          <ion-item>
+            <ion-input name="puerta" type="text" [(ngModel)]="comercio.puerta" required [ngModelOptions]="{standalone: true}"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <div *ngIf="submitted && f.direccion.errors" class="invalid-feedback">
+        <div *ngIf="f.direccion.errors.required"><h5>Ingresa una dirección</h5></div>
+      </div>
+      <div class="map-container">
+        <div id="map2" class="map"></div>
+      </div>
+    </div>
+
+    <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.telefono.valid}">
+      <ion-text color="primary">
+        <h4>Teléfono *</h4>
+      </ion-text>  
+      <ion-item>
+        <ion-input name="telefono" type="number" formControlName="telefono" required></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.telefono.errors" class="invalid-feedback">
+          <div *ngIf="f.telefono.errors.required"><h5>Ingresa un telefono</h5></div>
+      </div> 
+    </div>
+
+    <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.descripcion.valid}">
+      <ion-text color="primary" >
+        <h4>Descripcion</h4>    
+      </ion-text> 
+          
+      <ion-item>
+        <ion-textarea formControlName="descripcion"></ion-textarea>
+      </ion-item>
+      <div *ngIf="submitted && f.descripcion.errors" class="invalid-feedback">
+        <div *ngIf="f.descripcion.errors.required"><h5>Ingresa la descripción de tu negocio</h5></div>
+      </div>
+    </div>
+
+    <!--ion-list lines="none" [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.horarios.valid}"> 
+      <ion-text color="primary">
+        <h4>Horarios Disponibles</h4>
+      </ion-text>    
+      <ion-item  *ngFor="let horario of comercio.horarios;let i=index">       
+        <ion-label>
+          {{horario.nombre}} desde  {{horario.desde | date: 'h:mm a'}} hasta {{horario.hasta | date: 'h:mm a'}}        
+        </ion-label> 
+        <ion-button color="danger" slot="end" (click)="eliminarHorario(i)"><ion-icon name="trash-outline"></ion-icon></ion-button>        
+      </ion-item>    
+      <ion-button size="large"   expand="block" (click)="openAddHorario()">Agregar Nuevo Horario</ion-button>
+      <div *ngIf="submitted && f.horarios.errors" class="invalid-feedback">
+        <div *ngIf="f.horarios.errors.required"><h5>Ingresa los horarios de apertura de tu negocio</h5></div>
+      </div>
+    </ion-list>    
+    
+    <ion-list lines="none" [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.categorias.valid}">     
+      <ion-text color="primary">
+        <h4>Categorias</h4>
+      </ion-text>    
+      <ion-item  *ngFor="let categoria of categorias;let i=index">       
+        <ion-label>
+          <b>{{categoria.nombre}}</b>         
+        </ion-label> 
+        <ion-button color="primary" slot="end" (click)="openEditCategoria(categoria)"><ion-icon name="create-outline"></ion-icon></ion-button>        
+      </ion-item>    
+      <ion-button size="large"   expand="block" (click)="openAddCategoria()">Agregar Nueva Categoria</ion-button>
+      <div *ngIf="submitted && f.categorias.errors" class="invalid-feedback">
+        <div *ngIf="f.categorias.errors.required"><h5>Ingresa una o más categorias de tus porductos o servicios</h5></div>
+      </div>
+    </ion-list>
+    
+    <ion-list lines="none" [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.cajas.valid}">     
+      <ion-text color="primary">
+        <h4>Cajas</h4>
+      </ion-text>    
+      <ion-item  *ngFor="let caja of cajas;let i=index">       
+        <ion-label>
+          <b>{{caja.nombre}}</b>         
+        </ion-label> 
+        <ion-button color="primary" slot="end" (click)="openEditCaja(caja)"><ion-icon name="create-outline"></ion-icon></ion-button>        
+      </ion-item>    
+      <ion-button size="large"   expand="block" (click)="openAddCaja()">Agregar Nueva Caja</ion-button>
+    </ion-list-->
+
+
+    <div [ngClass]="{'form-card': true}" *ngIf="updating">
+      <ion-text color="danger">
+        <h5 color="danger">zona de riesgo</h5>
+      </ion-text>      
+      <ion-button  color="danger" (click)="elimiar()">Eliminar Comercio</ion-button>
+    </div>
+    
+  </form>
+
+  <ion-toolbar>
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</div>
+</ion-content>
+

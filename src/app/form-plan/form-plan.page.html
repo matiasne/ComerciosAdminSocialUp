@@ -1,0 +1,88 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Agregar Plan</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="datosForm">
+
+    <div class="form-card"> 
+      <ion-text color="primary">
+        <h4>Nombre *</h4>     
+      </ion-text> 
+      
+          
+      <ion-item [class.invalid]="submitted && !datosForm.controls.nombre.valid">
+        <ion-input name="nombre" type="text" formControlName="nombre" required></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.nombre.errors" class="invalid-feedback">
+          <div *ngIf="f.nombre.errors.required"><h5>Ingresa un nombre</h5></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Seleccionar periodo</h4>
+      </ion-text> 
+      
+      <h5></h5>  
+      <ion-item [class.invalid]="submitted && !datosForm.controls.tipo.valid" (ionChange)="tipoChange()">                    
+        <ion-select  formControlName="tipo" value="datosForm.controls.tipo.value">        
+          <ion-select-option [value]="'mensual'" selected>mensual</ion-select-option>
+          <ion-select-option [value]="'anual'" selected>anual</ion-select-option>
+          <ion-select-option [value]="'dias'" selected>dias</ion-select-option>
+        </ion-select>        
+      </ion-item>
+      <div *ngIf="submitted && f.tipo.errors" class="invalid-feedback">
+          <div *ngIf="f.tipo.errors.required"><h5>Seleccione un tipo</h5></div>
+      </div>
+    </div>
+    
+   
+    <div class="form-card" *ngIf="datosForm.controls.tipo.value == 'dias'">
+      <ion-text color="primary">
+        <h4>Cantidad de días *</h4>     
+      </ion-text> 
+          
+      <ion-item [class.invalid]="submitted && !datosForm.controls.dias.valid">
+        <ion-input name="dias" type="number" formControlName="dias" required></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.dias.errors" class="invalid-feedback">
+          <div *ngIf="f.dias.errors.required"><h5>Ingresa una cantidad de días</h5></div>
+      </div>
+    </div>
+    
+    
+    <div class="form-card">
+      
+      <ion-text color="primary">
+        <h4>Precio * </h4>  
+      </ion-text>  
+      <ion-item [class.invalid]="submitted && !datosForm.controls.precio.valid">
+        <ion-input name="precio" type="number" formControlName="precio" required></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.precio.errors" class="invalid-feedback">
+          <div *ngIf="f.precio.errors.required"><h5>Ingresa un precio</h5></div>
+      </div>
+    </div>
+    
+    <div class="form-card" *ngIf="updating">
+      <ion-text color="danger">
+        <h5 color="danger">zona de riesgo</h5>
+      </ion-text>      
+      <ion-button  color="danger" (click)="eliminar()">Eliminar Plan</ion-button>
+    </div>
+
+   
+  </form>
+  <ion-toolbar>
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+    
+    <ion-button slot="start"  color="light" (click)="cerrar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-content>
+

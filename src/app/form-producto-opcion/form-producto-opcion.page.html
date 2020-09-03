@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Nueva Opción</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="datosForm">
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Nombre *</h4> 
+      </ion-text>              
+      <ion-item [class.invalid]="submitted && !datosForm.controls.nombre.valid">
+        <ion-input name="nombre" type="text" formControlName="nombre" required></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.nombre.errors" class="invalid-feedback">
+          <div *ngIf="f.nombre.errors.required"><h5>Ingresa un nombre</h5></div>
+      </div>  
+    </div>
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Variación al precio del producto: *</h4> 
+      </ion-text>              
+      <ion-item [class.invalid]="submitted && !datosForm.controls.precioVariacion.valid">
+        <ion-input name="precioVariacion" type="number" formControlName="precioVariacion"></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.precioVariacion.errors" class="invalid-feedback">
+          <div *ngIf="f.nombre.errors.required"><h5>Ingresa un nombre</h5></div>
+      </div>  
+    </div>
+  </form>
+  <ion-toolbar>
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-content>

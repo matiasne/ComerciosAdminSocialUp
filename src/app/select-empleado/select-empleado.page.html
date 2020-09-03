@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar>    
+    <ion-title>Seleccionar Empleado</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content style="margin-top: 50px;" class="ion-padding">  
+  
+  <ion-row>    
+    <ion-input placeholder="Buscar" style="border:1px solid rgb(206, 206, 206); border-radius: 5px;"
+    [(ngModel)]="palabraFiltro" (ionChange)="buscar()"
+    ></ion-input>
+  </ion-row>
+
+  <ion-list lines="none">
+    <ion-item *ngFor="let item of items" (click)="seleccionar(item)" class="item-card">
+      <div slot="start">
+        <img src="{{item.foto}}" *ngIf="item.foto">
+        <ion-icon name="person-outline" *ngIf="!item.foto"></ion-icon>
+      </div>      
+      <ion-label text-wrap>
+        <h2><b>{{item.nombre}}</b> </h2>   
+        <p>{{item.email}}</p>         
+      </ion-label>  
+    </ion-item>
+  </ion-list>
+
+  <div class="space">
+    
+  </div> 
+  
+</ion-content>
+<ion-footer class="ion-no-border ion-padding">
+  <ion-toolbar>    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-footer>

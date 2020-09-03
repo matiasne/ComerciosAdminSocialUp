@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1050852063833",
+    "firebase_url": "https://comercios-admin-socialup.firebaseio.com",
+    "project_id": "comercios-admin-socialup",
+    "storage_bucket": "comercios-admin-socialup.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1050852063833:android:f3961179822434d05ccf48",
+        "android_client_info": {
+          "package_name": "ionic.socialup.comercioadmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1050852063833-6h7nfk9a8ithssi498f5c2h6odj6ci1k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHplqek5lyWNLi1_0LwkkrKAWwrKa0qHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1050852063833-6h7nfk9a8ithssi498f5c2h6odj6ci1k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

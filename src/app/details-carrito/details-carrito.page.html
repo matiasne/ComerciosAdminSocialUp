@@ -1,0 +1,165 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button  (click)="atras()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle Carrito</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">   
+ 
+    <ion-item *ngIf="!carrito.cliente.id" class="item-card">
+      <ion-button  size="large" (click)="seleccionarCliente()"  expand="block">Seleccionar Cliente * </ion-button>
+    </ion-item>
+    <ion-item *ngIf="carrito.cliente.id" class="item-card">
+      <ion-avatar slot="start" (click)="seleccionarCliente()">
+        <img src="{{carrito.cliente.foto}}" *ngIf="carrito.cliente.foto">
+        <ion-icon name="person" *ngIf="!carrito.cliente.foto"></ion-icon>
+      </ion-avatar>
+      <ion-label (click)="seleccionarCliente()">
+        <h2>{{carrito.cliente.nombre}}</h2>
+        <h3>{{carrito.cliente.email}}</h3>
+      </ion-label>      
+      <ion-button color="danger" slot="end" (click)="eliminarCliente()"><ion-icon name="trash"></ion-icon></ion-button>       
+    </ion-item>
+
+    <ion-item *ngIf="cajas.length > 0" class="item-card">
+      <ion-label>Seleccionar Caja</ion-label>
+      <ion-select [(ngModel)]="cajaSeleccionadaIndex" (ionChange)="setearCaja()">
+        <ion-select-option *ngFor="let caja of cajas;let i=index" [value]="i" selected>{{caja.nombre}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item class="item-card" *ngIf="cajas.length > 0">
+      <ion-label>Seleccione Método de Pago</ion-label>
+        <ion-select [(ngModel)]="metodoPagoSeleccionado" (ionChange)="setearMetodoPago()">
+          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].efectivo" [value]="efectivo">Efectivo</ion-select-option>
+          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].debito" [value]="debito">Débito</ion-select-option>
+          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].credito" [value]="credito">Crédito</ion-select-option>
+          <ion-select-option *ngIf="ctasCorrientes.length > 0" [value]="ctaCorriente">Cta. Corriente</ion-select-option>
+        </ion-select>    
+    </ion-item>    
+
+    <ion-item class="item-card" *ngIf="metodoPagoSeleccionado == 'Cta. Corriente'">
+      <ion-label >Seleccione Cuenta Corriente:</ion-label>
+      <ion-select  [(ngModel)]="ctaCorrienteSelecccionadaId" (ionChange)="setearCtaCorriente()">
+        <ion-select-option *ngFor="let cta of ctasCorrientes" [value]="cta.id">{{cta.nombre}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!--ion-item *ngIf="cantidadMetodos == '1'" class="item-card">
+      {{metodoTexto}}
+    </ion-item-->
+
+
+    
+
+    
+    
+    <div  class="form-card" *ngIf="carrito.productos.length > 0">
+      <ion-text color="primary">
+        <h4>Productos</h4>
+      </ion-text> 
+   
+      
+    <ion-list>                   
+      <ion-item *ngFor="let producto of carrito.productos; let i = index">
+        <ion-avatar slot="start">
+          <img src="{{producto.foto}}" *ngIf="producto.foto">
+          <ion-icon name="cube" *ngIf="!producto.foto"></ion-icon>
+        </ion-avatar>
+        <ion-label>
+          <h2>{{producto.cantidad}} X {{producto.nombre}} = {{producto.precio}}</h2>
+          <h3>{{producto.descripcion_venta}}</h3>
+          <div *ngFor="let opcion of producto.opcionesSeleccionadas">
+            <h3>{{opcion.cantidad}} X {{opcion.nombre}} <span *ngIf="opcion.precioVariacion != 0">{{opcion.precioVariacion | currency}}</span></h3>
+          </div>
+          <h3>cantidad :{{producto.cantidad}} {{producto.unidad}} </h3>
+          <h3>subtotal: {{producto.precioTotal * producto.cantidad | currency}}</h3>
+        </ion-label>
+        
+        <ion-button color="danger" slot="end" (click)="eliminarProducto(i)"><ion-icon name="trash"></ion-icon></ion-button>       
+
+
+
+      </ion-item>
+    
+    </ion-list>
+    </div>
+
+    <div  class="form-card" *ngIf="carrito.servicios.length > 0">
+      <ion-text color="primary">
+        <h4>Servicios</h4>
+      </ion-text> 
+      
+      <ion-list>                   
+        <ion-item *ngFor="let servicio of carrito.servicios; let i = index">
+          <ion-avatar slot="start">
+            <img src="{{servicio.foto}}" *ngIf="servicio.foto">
+            <ion-icon name="document-attach-outline" *ngIf="!servicio.foto"></ion-icon>
+          </ion-avatar>
+          <ion-label text-wrap>
+            <h2>{{servicio.nombre}}</h2>
+            <h3>{{servicio.plan.nombre}}, 
+              <span *ngIf="servicio.tipo == 'dias'">{{servicio.plan.dias}} días por </span>
+              <span *ngIf="servicio.tipo == 'mensual'">el mes por </span>
+              <span *ngIf="servicio.tipo == 'anual'">el año por </span>
+              {{servicio.plan.precio | currency}}
+            </h3>
+            <h3>{{servicio.descripcion_venta}}</h3>
+            <h3 *ngIf="servicio.pagoAdelantado == 'false'" style="color:red">El abono se pagará al finalizar el periodo</h3>
+          </ion-label>
+          <ion-button color="danger" slot="end" (click)="eliminarServicio(i)"><ion-icon name="trash"></ion-icon></ion-button>       
+
+
+
+        </ion-item>
+      
+      </ion-list>
+    </div>
+
+
+    <!--div  class="form-card" *ngIf="carrito.pagare.servicio">
+      <ion-text color="primary">
+        <h4>Abono</h4>
+      </ion-text> 
+      
+      <ion-list>                   
+        <ion-item>
+          <ion-avatar slot="start">
+            <img src="{{carrito.pagare.servicio.foto}}" *ngIf="carrito.pagare.ervicio.foto">
+            <ion-icon name="document-attach-outline" *ngIf="!carrito.pagare.servicio.foto"></ion-icon>
+          </ion-avatar>
+          <ion-label text-wrap>
+            <h2>{{carrito.pagare.servicio.nombre}}</h2>
+            <h3>{{carrito.pagare.servicio.plan.nombre}}, 
+              <span *ngIf="servicio.tipo == 'dias'">{{carrito.pagare.servicio.plan.dias}} días por </span>
+              <span *ngIf="servicio.tipo == 'mensual'">el mes por </span>
+              <span *ngIf="servicio.tipo == 'anual'">el año por </span>
+              {{carrito.pagare.servicio.plan.precio | currency}}
+            </h3>      
+          </ion-label>
+        </ion-item>
+      
+      </ion-list>
+    </div-->
+
+    <div  class="form-card">
+      <ion-text color="primary">
+        <h2>Total: {{carrito.totalProductos+carrito.totalServicios | currency}}</h2>
+      </ion-text> 
+    </div>
+    
+     
+
+
+</ion-content>
+
+<ion-footer class="ion-no-border ion-padding">
+  <ion-toolbar>
+    <ion-button *ngIf="habilitadoCobro == 'true'" class="btn-footer-atras" color="danger" (click)="cancelar()">Cancelar</ion-button>
+    <ion-button *ngIf="habilitadoComanda == 'true'" class="btn-footer-agregar" color="primary" slot="end" (click)="comanda()">Comanda</ion-button>
+    <ion-button class="btn-footer-agregar" color="success" slot="end" (click)="confirmar()">Cobrar</ion-button>
+  </ion-toolbar>
+</ion-footer>

@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button autoHide="false"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Configuración</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!--ion-item>
+    <ion-label>Habilitar Comandas</ion-label>
+    <ion-toggle [(ngModel)]="comercio.recibirComandas"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>
+  <ion-item  class="item-card">
+    <ion-button  size="large" (click)="agregarComandatario()"  expand="block">Seleccionar Comandatarios *</ion-button>
+  </ion-item>
+  <ion-item class="item-card" *ngFor="let comandatario of comercio.comadatarios">
+    <ion-avatar slot="start">
+      <img src="{{comandatario.foto}}" *ngIf="comandatario.foto">
+      <ion-icon name="person" *ngIf="!comandatario.foto"></ion-icon>
+    </ion-avatar>
+    <ion-label>
+      <h2>{{comandatario.nombre}}</h2>
+      <h3>{{comandatario.email}}</h3>
+    </ion-label>      
+    <ion-button color="danger" slot="end" (click)="eliminarComandatario()"><ion-icon name="trash"></ion-icon></ion-button>       
+  </ion-item-->
+
+  <ion-button size="large"   expand="block" (click)="openEditComandas()">Configurar Comandas</ion-button>
+
+  <ion-button size="large"   expand="block" (click)="openEditPedidos()">Configurar Pedidos</ion-button>
+
+  <ion-button size="large"   expand="block" (click)="openEditCajas()">Editar Cajas</ion-button>
+  <ion-button size="large"   expand="block" (click)="openEditHorarios()">Editar Horarios</ion-button>
+  <ion-button size="large"   expand="block" (click)="openEditMesas()">Editar Mesas</ion-button>
+  <ion-button size="large"   expand="block" (click)="linkWhatsapp()">Link Whatsapp</ion-button>
+  <ion-button size="large"   expand="block" (click)="openEditCategorias()">Editar Categorias</ion-button>
+  <ion-button size="large"   expand="block" (click)="verPersonal()">Usuarios</ion-button>
+  
+  
+</ion-content>

@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle Subscripción</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>           
+    <ion-label>
+      <h2><b>{{subscripcion.cliente.nombre}} </b> </h2>
+      <p>
+        {{subscripcion.servicio.nombre}}
+      </p>
+      <p>
+        Plan: {{subscripcion.plan.nombre}} &nbsp; <b>{{subscripcion.plan.precio | currency}}</b>
+      </p>      
+      <p>
+        proximo pago: {{subscripcion.proximoPago | date:'dd/MM/yyyy'}}
+      </p>       
+    </ion-label>         
+  </ion-item>
+  <ion-item *ngFor="let pagare of pagares">
+    <ion-label>
+      {{pagare.createdAt | date:'dd/MM/yyyy'}} {{pagare.monto | currency}} 
+    </ion-label>
+    
+
+      <ion-button  slot="end" *ngIf="pagare.estado == 'debe'" size="large"  (click)="cobrar(pagare)"  expand="block">Cobrar</ion-button>
+
+  </ion-item>
+</ion-content>

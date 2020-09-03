@@ -1,0 +1,36 @@
+import { GrupoOpciones } from './grupoOpciones';
+import { Opcion } from './opcion';
+import { OpcionSeleccionada } from './opcionSeleccionada';
+
+export class Producto {
+
+    public id="";
+    public nombre = "";
+    public barcode="";
+    public precio = 0;
+    public precioTotal = 0;
+    public promocion="";
+    public destacado = false;
+    public unidad="";
+    public stock = "";
+    public descripcion="";
+    public categorias=[];
+    public foto="";
+    public createdAt=""; 
+    public cantidad =0;
+    public descripcion_venta="";
+    public recibirPedidos=true;
+    public gruposOpciones:GrupoOpciones[];
+    public opcionesSeleccionadas:OpcionSeleccionada[];
+
+	public constructor() {
+        this.gruposOpciones = [];
+        this.opcionesSeleccionadas =[];
+    }
+
+    public asignarValores(init?: Partial<Producto>) {
+        Object.assign(this, init);
+    }
+    
+    
+}

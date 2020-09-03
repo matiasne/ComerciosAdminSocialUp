@@ -1,0 +1,80 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Form Mesa</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  
+    <form [formGroup]="datosForm" >
+
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.nombre.valid}">
+        <ion-text color="primary">
+          <h4>Nombre *</h4>        
+        </ion-text>            
+        <ion-item>
+          <ion-input name="nombre" type="text" formControlName="nombre" required></ion-input>
+        </ion-item>
+        <div *ngIf="submitted && f.nombre.errors" class="invalid-feedback">
+            <div *ngIf="f.nombre.errors.required"><h5>Ingresa el nombre de la mesa</h5></div>
+        </div> 
+      </div>
+    </form>   
+
+
+    <ion-item>
+      <ion-label>Habilitar Notificaciones QR:</ion-label>
+      <ion-toggle [(ngModel)]="mesa.habilitaNotificaciones"></ion-toggle>
+    </ion-item>
+
+    <div *ngIf="mesa.habilitaNotificaciones">
+      <ion-item  class="item-card">
+        <ion-button  size="large" (click)="agregarEncargado()"  expand="block">Asignar Usuario * </ion-button>
+      </ion-item>
+
+      <ion-item-sliding *ngFor="let encargado of encargados;let i= index" class="item-card" >    
+        <ion-item>
+          <div slot="start">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>   
+          <ion-label>
+            <h3>{{encargado.user_email}}</h3>
+            <p>Estado invitacion: 
+              <span *ngIf="encargado.estado == 'pendiente'" style="color:blue">{{encargado.estado}}</span>
+              <span *ngIf="encargado.estado == 'aceptado'" style="color:green">{{encargado.estado}}</span>
+              <span *ngIf="encargado.estado == 'rechazado'" style="color:red">{{encargado.estado}}</span>
+            </p>
+          </ion-label>            
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option (click)="eliminarEncargado(i)"><ion-icon name="trash" ></ion-icon>Destituir</ion-item-option>
+        </ion-item-options>
+
+      </ion-item-sliding>
+    </div>
+  
+    <ion-card *ngIf="mesa.habilitaNotificaciones">
+        <ngx-qrcode 
+            [elementType]="elementType" 
+            [value] = "value"
+            cssClass = "aclass"
+            errorCorrectionLevel = "L">
+      </ngx-qrcode>
+    </ion-card>
+
+    <div class="form-card" *ngIf="updating">
+      <ion-text color="danger">
+        <h5 color="danger">zona de riesgo</h5>
+      </ion-text>    
+      <ion-button  color="danger" (click)="elimiar()">Eliminar Mesa</ion-button>
+    </div>
+    <ion-toolbar>
+      <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+      
+      <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+    </ion-toolbar>
+</ion-content>

@@ -1,0 +1,173 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{titulo}}</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" >
+      
+  
+  <div class="icono-foto-producto">
+    <app-seleccionar-imagen
+      [aspectRatio] = "1/1"
+      [croppedImage]="cliente.foto"
+      (onSelectValue)=imagenSeleccionadaIcono($event)>
+    </app-seleccionar-imagen>
+  </div>
+
+  
+
+    <form [formGroup]="datosForm">
+
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.nombre.valid}">
+        <ion-text color="primary">
+          <h4>Nombre *</h4>         
+        </ion-text> 
+        
+        <ion-item>
+          <ion-input name="nombre" type="text" formControlName="nombre" required></ion-input>
+        </ion-item>
+        <div *ngIf="submitted && f.nombre.errors" class="invalid-feedback">
+            <div *ngIf="f.nombre.errors.required"><h5>Ingresa un nombre</h5></div>
+        </div>
+      </div>
+     
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.documento_tipo.valid}">
+        
+        <ion-text color="primary">
+          <h4>Tipo de Documento</h4>       
+        </ion-text> 
+        <h5></h5>  
+        <ion-item>                    
+          <ion-select  formControlName="documento_tipo">   
+            
+            <ion-select-option [value]="1" selected>D.N.I.</ion-select-option>
+            <ion-select-option [value]="2" selected>CUIT</ion-select-option>
+          </ion-select>        
+        </ion-item>
+        <div *ngIf="submitted && f.documento_tipo.errors" class="invalid-feedback">
+          <div *ngIf="f.documento_tipo.errors.required"><h5>Selecciona el tipo de documento</h5></div>
+        </div>
+      </div>
+      
+
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.documento.valid}">
+        <ion-text color="primary">
+          <h4>Número de Documento</h4>    
+        </ion-text>
+        
+        <ion-item>
+          <ion-input name="documento" type="number" formControlName="documento" required></ion-input>
+        </ion-item>
+        <div *ngIf="submitted && f.documento.errors" class="invalid-feedback">
+          <div *ngIf="f.documento.errors.required"><h5>Ingresa el documento</h5></div>
+        </div>
+      </div>
+     
+      
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.fecha_nacimiento.valid}">
+        <ion-text color="primary">
+          <h4>Fecha de Nacimiento</h4>
+        </ion-text>
+        
+        <ion-item>                  
+            <ion-datetime picker-format="YYYY-MM-DD" formControlName="fecha_nacimiento" placeholder="Nacimiento"></ion-datetime>
+        </ion-item>
+        
+      </div>
+      
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.direccion.valid}">
+        <ion-text color="primary">
+          <h4>Direccion *</h4>
+        </ion-text>
+        
+        <ion-item >
+          <ion-input id="pac-input" formControlName="direccion" type="text"></ion-input>
+        </ion-item>
+        <div *ngIf="submitted && f.direccion.errors" class="invalid-feedback">
+          <div *ngIf="f.direccion.errors.required"><h5>Ingresa una dirección</h5></div>
+        </div>
+        <div class="map-container">
+          <div id="map3" class="map"></div>
+        </div>
+        <ion-row>
+          <ion-col>
+            <ion-text color="primary">
+              <h4>Piso</h4>
+            </ion-text>
+           
+            <ion-item>
+              <ion-input name="piso" type="text" formControlName="direccion_piso"></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col>
+            <ion-text color="primary">
+              <h4>Puerta</h4>
+            </ion-text>
+            
+            <ion-item>
+              <ion-input name="puerta" type="text" formControlName="direccion_puerta"></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </div>
+
+      
+
+     
+      
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.telefono.valid}">
+        <ion-text color="primary">
+          <h4>Teléfono *</h4>      
+        </ion-text>
+           
+        <ion-item>
+          <ion-input name="telefono" type="number" formControlName="telefono" required></ion-input>
+        </ion-item>
+        <div *ngIf="submitted && f.telefono.errors" class="invalid-feedback">
+            <div *ngIf="f.telefono.errors.required"><h5>Ingresa un teléfono</h5></div>
+        </div>
+      </div>
+      
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.email.valid}">
+        <ion-text color="primary">
+          <h4>Mail *</h4>         
+        </ion-text>
+        
+        <ion-item >
+          <ion-input name="email" type="text" formControlName="email" required></ion-input>
+        </ion-item>
+        <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+            <div *ngIf="f.email.errors.required"><h5>Ingresa un mail</h5></div>
+        </div>
+      </div>
+      
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.descripcion.valid}">
+        <ion-text color="primary">
+          <h4>Descripcion adicional</h4>        
+        </ion-text>
+        
+        <ion-item>
+          <ion-textarea formControlName="descripcion"></ion-textarea>
+        </ion-item>
+      </div>
+     
+     
+     
+    </form>  
+    <div class="form-card" *ngIf="updating">
+      <ion-text color="danger">
+        <h5 color="danger">zona de riesgo</h5>
+      </ion-text>        
+      <ion-button  color="danger" (click)="elimiar()">Eliminar Cliente</ion-button>
+    </div>
+    <ion-toolbar>
+      <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+      
+      <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+    </ion-toolbar>
+ </ion-content>
+

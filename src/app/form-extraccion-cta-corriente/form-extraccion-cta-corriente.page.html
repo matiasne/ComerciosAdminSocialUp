@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>form-extraccion-cta-corriente</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="datosForm" >
+    <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.monto.valid}">
+      <ion-text color="primary">
+        <h4>Monto *</h4>        
+      </ion-text>        
+      <ion-item class="item-card">
+        <ion-input name="monto" type="number" formControlName="monto" required></ion-input>
+      </ion-item>
+    </div>
+    
+    <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.clienteId.monto.valid}">
+      <ion-item *ngIf="!cliente" class="item-card">
+        <ion-button  size="large" (click)="seleccionarCliente()"  expand="block">Seleccionar Cliente * </ion-button>
+      </ion-item>
+      <ion-item *ngIf="cliente" class="item-card">
+        <ion-avatar slot="start" (click)="seleccionarCliente()">
+          <img src="{{cliente.foto}}" *ngIf="cliente.foto">
+          <ion-icon name="person" *ngIf="!cliente.foto"></ion-icon>
+        </ion-avatar>
+        <ion-label (click)="seleccionarCliente()">
+          <h2>{{cliente.nombre}}</h2>
+          <h3>{{cliente.email}}</h3>
+        </ion-label>      
+        <ion-button color="danger" slot="end" (click)="eliminarCliente()"><ion-icon name="trash"></ion-icon></ion-button>       
+      </ion-item>
+    </div>
+
+    <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.clienteId.motivo.valid}">
+      <ion-text color="primary">
+        <h4>Motivo</h4>
+      </ion-text> 
+      <ion-item>
+        <ion-textarea formControlName="motivo"></ion-textarea>
+      </ion-item>     
+    </div>
+  </form>
+</ion-content>

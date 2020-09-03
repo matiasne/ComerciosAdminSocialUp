@@ -1,0 +1,52 @@
+<ion-header>  
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button autoHide="false"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Cuentas Corrientes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-row>
+    <ion-col size="10">
+      <ion-input placeholder="Buscar" style="border:1px solid rgb(206, 206, 206); border-radius: 5px;"
+      [(ngModel)]="palabraFiltro"
+      ></ion-input>
+    </ion-col>
+    <ion-col size="2">
+      <ion-button color="primary" style="margin-top: -1px; height: 42px;"  (click)="buscar()">
+          <ion-icon name="search"></ion-icon>
+      </ion-button>
+    </ion-col>
+  </ion-row>
+
+  <ion-item-sliding *ngFor="let item of itemsView" class="item-card">
+    
+    <ion-item (click)="seleccionar(item)">
+      <div slot="start">
+        <ion-icon name="wallet-outline" *ngIf="!item.foto"></ion-icon>
+      </div>      
+      <ion-label>
+        <h2><b>{{item.nombre}}</b> {{item.montoTotal | currency}}</h2>         
+        <p *ngFor="let cliente of item.clientes">
+          {{cliente.nombre}} - DNI: {{cliente.documento}}
+        </p>           
+      </ion-label>  
+    </ion-item>     
+  
+    <ion-item-options side="end">
+      <ion-item-option (click)="editarCtaCorriente(item)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
+    </ion-item-options>
+
+  </ion-item-sliding>
+
+  <!-- fab placed to the bottom end -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" (click)="nuevaCtaCorriente()">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

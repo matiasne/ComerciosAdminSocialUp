@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Realizar Depósito</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="datosForm" >
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Monto *</h4>        
+      </ion-text>        
+      <ion-item class="item-card">
+        <ion-input name="monto" type="number" formControlName="monto" required></ion-input>
+      </ion-item>
+    </div>
+
+    <ion-item class="item-card">
+      <ion-label>Seleccionar Caja</ion-label>
+      <ion-select [(ngModel)]="cajaSeleccionada" (ionChange)="seleccionarCaja()" [ngModelOptions]="{standalone: true}">
+        <ion-select-option *ngFor="let caja of cajas" [value]="caja" selected>{{caja.nombre}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item class="item-card">
+      <ion-label>Seleccione Método de Pago</ion-label>
+        <ion-select [(ngModel)]="metodoPagoSeleccionado" (ionChange)="setearMetodoPago()" [ngModelOptions]="{standalone: true}">
+          <ion-select-option *ngIf="caja.efectivo" [value]="efectivo">Efectivo</ion-select-option>
+          <ion-select-option *ngIf="caja.debito" [value]="debito">Débito</ion-select-option>
+          <ion-select-option *ngIf="caja.credito" [value]="credito">Crédito</ion-select-option>
+        </ion-select>    
+    </ion-item>
+
+    <ion-item *ngIf="!cliente.id" class="item-card">
+      <ion-button  size="large" (click)="seleccionarCliente()"  expand="block">Seleccionar Cliente * </ion-button>
+    </ion-item>
+    <ion-item *ngIf="cliente.id" class="item-card">
+      <ion-avatar slot="start" (click)="seleccionarCliente()">
+        <img src="{{cliente.foto}}" *ngIf="cliente.foto">
+        <ion-icon name="person" *ngIf="!cliente.foto"></ion-icon>
+      </ion-avatar>
+      <ion-label (click)="seleccionarCliente()">
+        <h2>{{cliente.nombre}}</h2>
+        <h3>{{cliente.email}}</h3>
+      </ion-label>      
+      <ion-button color="danger" slot="end" (click)="eliminarCliente()"><ion-icon name="trash"></ion-icon></ion-button>       
+    </ion-item>
+
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Motivo</h4>
+      </ion-text> 
+      <ion-item>
+        <ion-textarea formControlName="motivo"></ion-textarea>
+      </ion-item>     
+    </div>
+  
+  </form>
+  <ion-toolbar>
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+
+</ion-content>

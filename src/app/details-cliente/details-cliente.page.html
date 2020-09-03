@@ -1,0 +1,75 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle Cliente</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+   
+  <div class="container-foto" *ngIf="cliente.foto" >
+    <img class="portada-foto" src="{{cliente.foto}}" alt="" (click)="selectImage()">
+  </div>
+
+
+  <!--h4>
+      <ion-icon class="menu-icon" name="mail"></ion-icon>
+      Calle: {{usuario.address.street_name}} Número {{usuario.address.street_number}}<br>
+      Piso: {{usuario.address.floor_number}} Puerta: Piso: {{usuario.address.door_number}}
+  </h4-->
+  
+  <ion-item (click)="enviarMail()" class="item-card">
+    <div slot="start">      
+      <ion-icon name="person-outline"></ion-icon>
+    </div>      
+    <ion-label text-wrap>
+      <h2><b>{{cliente.nombre}}</b></h2>           
+      <p>documento: {{cliente.documento}}</p>  
+      <p>fecha nacimiento: {{cliente.fecha_nacimiento}}</p>  
+      <p>Cliente desde: {{cliente.createdAt}}</p>    
+    </ion-label>  
+  </ion-item>
+
+  <ion-item (click)="enviarMail()" class="item-card">
+    <div slot="start">      
+      <ion-icon name="mail-outline"></ion-icon>
+    </div>      
+    <ion-label>
+      <h2><b>{{cliente.email}}</b></h2>        
+    </ion-label>  
+  </ion-item>
+
+  <ion-item (click)="llamar()" class="item-card">
+    <div slot="start">      
+      <ion-icon name="call-outline"></ion-icon>
+    </div>      
+    <ion-label>
+      <h2><b>{{cliente.telefono}}</b></h2>        
+    </ion-label>  
+  </ion-item>
+
+  <ion-item (click)="verMapa()" class="item-card">
+    <div slot="start">      
+      <ion-icon name="location-outline"></ion-icon>
+    </div>      
+    <ion-label>
+      <h2><b>{{cliente.direccion}}</b></h2>        
+    </ion-label>    
+  </ion-item>
+  <div id="mapA" class="map"></div>
+  
+
+  <ion-item (click)="llamar()" class="item-card">
+    <div slot="start">      
+      <ion-icon name="create-outline"></ion-icon>
+    </div>      
+    <ion-label>
+      <h2><b>{{cliente.descripcion}}</b></h2>        
+    </ion-label>  
+  </ion-item>
+
+  <ion-button size="large" (click)="editar()"  expand="block">Editar</ion-button>
+  
+</ion-content>

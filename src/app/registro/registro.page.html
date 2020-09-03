@@ -1,0 +1,49 @@
+
+<ion-content class="ion-padding">
+  <form [formGroup]="datosForm" (ngSubmit)="registrar()">
+    <div text-center>
+      <h3>Registrate</h3>
+    </div>    
+    
+
+    <h4>Email *</h4>    
+    <ion-item [class.invalid]="submitted && !datosForm.controls.email.valid">
+      <ion-input name="email" type="text" formControlName="email"  required></ion-input>
+    </ion-item>
+    <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+        <div *ngIf="f.email.errors.required"><h5>Ingresa tu email</h5></div>
+    </div>
+
+    
+
+    <h4>Contraseña *</h4>    
+    <ion-item [class.invalid]="submitted && !datosForm.controls.password.valid">
+      <ion-input name="password" type="password" formControlName="password"  required></ion-input>
+    </ion-item>
+    <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+        <div *ngIf="f.password.errors.required"><h5>Ingresa una contraseña</h5></div>
+    </div>
+
+    <h4>Confirmar Contraseña *</h4>    
+    <ion-item [class.invalid]="submitted && !datosForm.controls.password_confirmation.valid">
+      <ion-input name="password_confirmation" type="password" formControlName="password_confirmation"  required></ion-input>
+    </ion-item>
+    <div *ngIf="submitted && f.password_confirmation.errors" class="invalid-feedback">
+        <div *ngIf="f.password_confirmation.errors.required"><h5>Confirmar contraseña</h5></div>
+    </div>
+    <div class="ion-padding">
+      <ion-button size="large" type="submit" [disabled]="datosForm.invalid" expand="block">Registrarse</ion-button>
+    </div> 
+    <ion-row justify-content-center>
+      <a routerLink="/recuperar-contrasena">Olvidaste tu contraseña?</a>
+    </ion-row>
+    <ion-row justify-content-center>
+      <div text-center>
+          <p> Ya tienes cuenta? <a routerLink="/login">Logueate</a> </p>     
+      </div>                 
+    </ion-row>
+
+  </form>         
+</ion-content>
+
+

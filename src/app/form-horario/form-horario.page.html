@@ -1,0 +1,68 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Agregar Horarios</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="datosForm">
+    <ion-item class="form-card"> 
+    <ion-text color="primary">
+      <h4>Día *</h4>
+    </ion-text>
+    <ion-select formControlName="dia" >
+      <ion-select-option [value]="1">
+        Lunes
+      </ion-select-option>
+      <ion-select-option [value]="2">
+        Martes
+      </ion-select-option>
+      <ion-select-option [value]="3">
+        Miércoles
+      </ion-select-option>
+      <ion-select-option [value]="4">
+        Jueves
+      </ion-select-option>
+      <ion-select-option [value]="5">
+        Viernes
+      </ion-select-option>
+      <ion-select-option [value]="6">
+        Sábado
+      </ion-select-option>
+      <ion-select-option [value]="0">
+        Domingo
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+  <div *ngIf="submitted && f.dia.errors" class="invalid-feedback">
+    <div *ngIf="f.dia.errors.required"><h5>Ingrese un día</h5></div>
+  </div>
+  
+  
+  <ion-row>
+    <ion-col class="form-card">
+      <h4>Desde las</h4>
+      <ion-item [class.invalid]="submitted && !datosForm.controls.desde.valid">
+        <ion-datetime  display-format="h:mm A" picker-format="h:mm A" formControlName="desde"></ion-datetime>
+      </ion-item>
+      <div *ngIf="submitted && f.desde.errors" class="invalid-feedback">
+        <div *ngIf="f.desde.errors.required"><h5>Ingrese un horario de comienzo</h5></div>
+      </div>
+    </ion-col>
+    <ion-col class="form-card">
+      <h4>Hasta las</h4>
+      <ion-item [class.invalid]="submitted && !datosForm.controls.hasta.valid">
+        <ion-datetime  display-format="h:mm A" picker-format="h:mm A" formControlName="hasta"></ion-datetime>
+      </ion-item>
+      <div *ngIf="submitted && f.hasta.errors" class="invalid-feedback">
+        <div *ngIf="f.hasta.errors.required"><h5>Ingrese un horario de final</h5></div>
+      </div>
+    </ion-col>
+  </ion-row>
+  </form>
+  <ion-toolbar>
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-content>

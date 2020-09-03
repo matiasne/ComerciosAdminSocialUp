@@ -1,0 +1,180 @@
+<ion-header>
+  <ion-buttons slot="start">
+    <ion-back-button></ion-back-button>
+  </ion-buttons>
+  <ion-toolbar>
+    <ion-title>Agregar Servicio</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+    <ion-list lines="none" >     
+      <ion-item  class="list-item">
+        <ion-avatar slot="start">
+          <img src="{{servicio.foto}}" *ngIf="servicio.foto">
+          <ion-icon name="document-attach-outline" *ngIf="!servicio.foto"></ion-icon>
+        </ion-avatar>      
+        <ion-label>
+          <h2><b>{{servicio.nombre}}</b></h2>
+          <p>
+            {{servicio.descripcion}}
+          </p>           
+        </ion-label>         
+      </ion-item>    
+    </ion-list>
+
+
+    <form [formGroup]="datosForm" >
+
+   
+
+    
+
+    <div>
+      <ion-item *ngIf="!cliente.id" class="item-card">
+        <ion-button  size="large" (click)="seleccionarCliente()"  expand="block">Seleccionar Cliente * </ion-button>
+      </ion-item>
+
+      <ion-item *ngIf="cliente.id" class="item-card">
+        <ion-avatar slot="start" (click)="seleccionarCliente()">
+          <img src="{{cliente.foto}}" *ngIf="cliente.foto">
+          <ion-icon name="person" *ngIf="!cliente.foto"></ion-icon>
+        </ion-avatar>
+        <ion-label (click)="seleccionarCliente()">
+          <h2>{{cliente.nombre}}</h2>
+          <h3>{{cliente.email}}</h3>
+        </ion-label>      
+        <ion-button color="danger" slot="end" (click)="eliminarCliente()"><ion-icon name="trash"></ion-icon></ion-button>       
+      </ion-item>
+    </div>
+
+    <div class="form-card">
+      <ion-button  size="large" (click)="crearNuevoPlan()"  expand="block">Crear Nuevo Plan</ion-button>
+      
+    
+      <ion-radio-group formControlName="plan">
+        <ion-text color="primary">
+          <h4>Seleccione un plan *</h4>
+        </ion-text> 
+        <ion-card *ngFor="let plan of planes;let i=index">
+          <ion-item>
+            <ion-radio slot="start" name ="true"  [value]="plan" selected></ion-radio>                      
+            <ion-label text-wrap>
+              <b>{{plan.nombre}}</b> 
+              <span *ngIf="plan.tipo == 'dias'">
+                {{plan.dias}} días 
+              </span>
+              <span *ngIf="plan.tipo == 'mensual'">
+                Mensual 
+              </span>
+              <span *ngIf="plan.tipo == 'anual'">
+                Anual 
+              </span>
+              por {{plan.precio | currency}}
+            </ion-label>
+          </ion-item>                  
+        </ion-card>
+        <ion-card>
+          <ion-item>
+            <ion-radio slot="start" name ="true"  [value]="'personal'" selected></ion-radio>                      
+            <ion-label text-wrap>
+              Presonalizado
+            </ion-label>
+          </ion-item>                  
+        </ion-card>
+      </ion-radio-group>
+
+      <div class="form-card" *ngIf="datosForm.controls.plan.value == 'personal'">
+        <ion-text color="primary">
+          <h4>Seleccionar periodo</h4>
+        </ion-text> 
+        
+        <h5></h5>  
+        <ion-item>                    
+          <ion-select  [(ngModel)]="subscripcion.tipo" [ngModelOptions]="{standalone: true}">        
+            <ion-select-option [value]="'mensual'" selected>mensual</ion-select-option>
+            <ion-select-option [value]="'anual'" selected>anual</ion-select-option>
+            <ion-select-option [value]="'dias'" selected>dias</ion-select-option>
+          </ion-select>        
+        </ion-item>
+  
+        <ion-text color="primary">
+          <h4>Cantidad de días *</h4>     
+        </ion-text> 
+            
+        <ion-item>
+          <ion-input type="number" [(ngModel)]="subscripcion.dias" [ngModelOptions]="{standalone: true}"></ion-input>
+        </ion-item>
+  
+        <ion-text color="primary">
+          <h4>Precio</h4>     
+        </ion-text>           
+        <ion-item>
+          <ion-input type="number" [(ngModel)]="subscripcion.precio" [ngModelOptions]="{standalone: true}"></ion-input>
+        </ion-item>
+      </div>
+
+    
+      
+     
+      
+      <div *ngIf="submitted && f.pagoAdelantado.errors" class="invalid-feedback">
+        <div *ngIf="f.pagoAdelantado.errors.required"><h5>Seleccione una de las opciones</h5></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <ion-radio-group formControlName="pagoAdelantado" [(ngModel)]="pagoAdelantado">
+        <ion-text color="primary">
+          <h4>Cuando es realizado el primer pago? *</h4>
+        </ion-text> 
+        <ion-card>
+          <ion-item [class.invalid]="submitted && !datosForm.controls.pagoAdelantado.valid">
+            <ion-radio slot="start" name ="true"  value="true" selected></ion-radio>                      
+            <ion-label>Adelantado</ion-label>
+          </ion-item>                  
+          <ion-card-content>
+              Seleccioná esta opción si el pago es realizado por adelantado
+          </ion-card-content>
+        </ion-card>
+        <ion-card>
+          <ion-item [class.invalid]="submitted && !datosForm.controls.pagoAdelantado.valid">
+            <ion-radio slot="start" name ="false"  value="false"></ion-radio>                      
+            <ion-label>Final del periodo</ion-label>
+          </ion-item>                  
+          <ion-card-content>
+              Seleccioná esta opción si el pago es relizado al finalizar el periodo
+          </ion-card-content>
+        </ion-card>
+      </ion-radio-group>
+      <div *ngIf="submitted && f.pagoAdelantado.errors" class="invalid-feedback">
+        <div *ngIf="f.pagoAdelantado.errors.required"><h5>Seleccione una de las opciones</h5></div>
+      </div>
+    </div>
+    
+    <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.fechaInicio.valid}">
+      <ion-text color="primary">
+        <h4>Fecha de Inicio *</h4>
+      </ion-text>
+      
+      <ion-item>                  
+          <ion-datetime picker-format="YYYY-MM-DD" formControlName="fechaInicio"></ion-datetime>
+      </ion-item>
+      
+    </div>
+
+      <div class="form-card">
+        <ion-text color="primary">
+          <h4>Descripcion adicional</h4>
+        </ion-text>       
+        <ion-item>
+          <ion-textarea [(ngModel)]="servicio.descripcion_venta" [ngModelOptions]="{standalone: true}"></ion-textarea>
+        </ion-item>
+      </div>      
+    </form>
+    <ion-toolbar> 
+      <ion-button slot="end" (click)="agregar()">Guardar</ion-button>  
+      <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+    </ion-toolbar>
+</ion-content>

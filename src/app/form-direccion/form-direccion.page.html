@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>form-direccion</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-input id="pac-input" name="ubicacion" type="text" [(ngModel)]="ubicacion" [ngModelOptions]="{standalone: true}" ></ion-input>
+  </ion-item>
+
+  <div id="map" class="map"></div>
+
+</ion-content>
+<ion-toolbar>
+  <ion-button size="large" (click)="guardar()"  expand="block">Guardar</ion-button>
+  
+  <ion-button size="large"   expand="block" color="danger" (click)="cancelar()">Cancelar</ion-button>
+</ion-toolbar>

@@ -1,0 +1,56 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Egreso de caja</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content  class="ion-padding">
+
+  <ion-text color="primary">
+    <h4>Total Efectivo {{totalActual | currency}}</h4>
+  </ion-text>
+  
+
+  <form [formGroup]="datosForm">
+
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Monto *</h4> 
+      </ion-text> 
+              
+      <ion-item [class.invalid]="submitted && !datosForm.controls.monto.valid">
+        <ion-input name="monto" type="number" formControlName="monto" required></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.monto.errors" class="invalid-feedback">
+          <div *ngIf="f.monto.errors.required"><h5>Ingresa un monto</h5></div>
+      </div>  
+    </div>
+            
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Motivo</h4>    
+      </ion-text> 
+
+      <ion-item [class.invalid]="submitted && !datosForm.controls.motivo.valid">
+        <ion-textarea formControlName="motivo" required></ion-textarea>
+      </ion-item>
+      <div *ngIf="submitted && f.motivo.errors" class="invalid-feedback">
+        <div *ngIf="f.motivo.errors.required"><h5>Ingresa un motivo</h5></div>
+      </div> 
+    </div>
+    
+   
+   
+  </form>  
+
+
+  <ion-toolbar>
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+
+</ion-content>

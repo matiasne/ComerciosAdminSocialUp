@@ -1,0 +1,68 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Cierre de caja</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content  class="ion-padding">
+
+  
+
+  <div class="form-card">
+    <ion-text color="primary">
+      <h4>Fecha de Cierre </h4> 
+    </ion-text>             
+    {{fecha | date: 'dd/MM/yyyy h:mm a'}}
+  </div>
+
+  <ion-text color="primary">
+    <h4>Total Efectivo {{caja.totalEfectivo | currency}}</h4>
+  </ion-text>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Extracción Efectivo*</h4> 
+    </ion-text>             
+    <ion-item>
+      <ion-input name="extraccion" type="number" [(ngModel)]="extraccionEfectivo" required></ion-input>
+    </ion-item>    
+  </div>
+
+  <ion-text color="primary">
+    <h4>Total Debito {{caja.totalDebito | currency}}</h4>
+  </ion-text>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Extracción Débito*</h4> 
+    </ion-text>            
+    <ion-item>
+      <ion-input name="extraccion" type="number" [(ngModel)]="extraccionDebito" required></ion-input>
+    </ion-item>    
+  </div>
+
+  <ion-text color="primary">
+    <h4>Total Credito {{caja.totalCredito | currency}}</h4>
+  </ion-text>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Extracción Crédito*</h4> 
+    </ion-text>            
+    <ion-item>
+      <ion-input name="extraccion" type="number" [(ngModel)]="extraccionCredito" required></ion-input>
+    </ion-item>    
+  </div>
+   
+  
+
+  <ion-toolbar>
+    <ion-button slot="end" (click)="cerrar()">Cerrar</ion-button>
+    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+
+</ion-content>

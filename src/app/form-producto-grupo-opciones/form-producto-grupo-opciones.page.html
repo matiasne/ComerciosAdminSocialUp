@@ -1,0 +1,84 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Nuevo Grupo de Opciones</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="datosForm">
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Nombre *</h4> 
+      </ion-text>              
+      <ion-item [class.invalid]="submitted && !datosForm.controls.nombre.valid">
+        <ion-input name="nombre" type="text" formControlName="nombre" required></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.nombre.errors" class="invalid-feedback">
+          <div *ngIf="f.nombre.errors.required"><h5>Ingresa un nombre</h5></div>
+      </div>  
+    </div>
+
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Cantidad de selecciones que debe realizar el usuario *</h4>     
+      </ion-text>  
+      <ion-row>
+        <ion-col>
+          <p>Mínimo</p>
+          <ion-item>
+            <ion-input name="minimo" type="number" min="1" formControlName="minimo" required></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <p>Máximo</p>
+          <ion-item>
+            <ion-input name="maximo" type="number" min="1" formControlName="maximo" required></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>   
+        
+    </div>
+
+    <ion-list lines="none"> 
+      <ion-text color="primary">
+        <h4>Opciones</h4>
+      </ion-text> 
+      
+      <ion-item-sliding  *ngFor="let opcion of grupoOpciones.opciones;let i=index" class="item-card">
+        <ion-item text-wrap>       
+        
+          <ion-label>
+            {{opcion.nombre}}  - {{opcion.precioVariacion | currency}}      
+          </ion-label> 
+          <ion-item>
+            <ion-label>Habilitado</ion-label>
+            <ion-toggle [(ngModel)]="opcion.habilitado" [ngModelOptions]="{standalone: true}"></ion-toggle>
+          </ion-item>
+          
+        </ion-item>    
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="eliminarOpcion(i)"><ion-icon name="trash-outline" ></ion-icon> Eliminar</ion-item-option>
+        </ion-item-options>
+
+      </ion-item-sliding>
+
+     
+      <ion-button size="large"   expand="block" (click)="openAddOpcion()">Agregar Opcion</ion-button>
+    </ion-list>
+  </form>
+
+  <div class="form-card" *ngIf="updating">
+    <ion-text color="danger">
+      <h5 color="danger">zona de riesgo</h5>
+    </ion-text>
+    
+    <ion-button  color="danger" (click)="eliminar()">Eliminar Grupo de Opciones</ion-button>
+  </div>
+
+  <ion-toolbar>
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-content>
+
