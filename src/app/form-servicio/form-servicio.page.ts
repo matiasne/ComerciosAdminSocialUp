@@ -18,6 +18,8 @@ import { FormCategoriaPage } from '../form-categoria/form-categoria.page';
 import { LoadingService } from '../Services/loading.service';
 import { FormAddProfesionalPage } from '../form-add-profesional/form-add-profesional.page';
 import { ToastService } from '../Services/toast.service';
+import { FormCalendarioPage } from '../form-calendario/form-calendario.page';
+import { CalendariosService } from '../Services/calendarios.service';
 
 
 @Component({
@@ -36,8 +38,9 @@ export class FormServicioPage implements OnInit {
     quality: 5
   };
 
-  public planes = []
-  public categorias =[]
+  public planes = [];
+  public categorias =[];
+  public calendarios = [];
 
   public datosForm: FormGroup;
   
@@ -68,6 +71,7 @@ export class FormServicioPage implements OnInit {
     private firestore: AngularFirestore,
     private loadingService:LoadingService,
     private toastServices:ToastService,
+    private calendariosServices:CalendariosService
   ) { 
 
     this.servicio = new Servicio();
@@ -86,20 +90,19 @@ export class FormServicioPage implements OnInit {
       
       this.updating = true;
       this.titulo = "Editar Servicio";
-      this.subs = this.serviciosService.get(this.route.snapshot.params.id).subscribe(data=>{
+      this.subs = this.serviciosService.get(this.route.snapshot.params.id).subscribe(resp=>{
         this.loadingService.dismissLoading();
-        this.datosForm.patchValue(data.payload.data())
-        this.servicio.asignarValores(data.payload.data());
-        this.servicio.id = data.payload.id;
-
+        this.datosForm.patchValue(resp)
+        this.servicio.asignarValores(resp);        
         this.obtnerPlanes();
-
+        this.obtnerCalendarios();
 
       });
     }
     else{
-      this.servicio.id = this.firestore.createId();
-      this.obtnerPlanes();
+    //  this.servicio.id = this.firestore.createId();
+    //  this.obtnerPlanes();
+    //  this.obtnerCalendarios();
     }
 
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
@@ -133,12 +136,17 @@ export class FormServicioPage implements OnInit {
     });
   }
 
+  obtnerCalendarios(){
+    this.loadingService.presentLoading();   
+    this.calendariosServices.setPathIds(this.servicio.id); 
+    this.planesSubs = this.calendariosServices.list().subscribe(items=>{                 
+      this.calendarios = items;
+      this.loadingService.dismissLoading();
+    });
+  }
+
   ionViewDidLeave(){
-    if(this.updating)
-      this.subs.unsubscribe();
-
-    this.planesSubs.unsubscribe();
-
+ 
   }
 
   get f() { return this.datosForm.controls; }
@@ -155,12 +163,45 @@ export class FormServicioPage implements OnInit {
     }   
     
     this.servicio.asignarValores(this.datosForm.value);
-
     if(this.updating){
-      this.serviciosService.update(this.servicio);
+      const serv = JSON.parse(JSON.stringify(this.servicio));
+      this.serviciosService.update(serv).then((data:any)=>{
+        console.log(data.id);
+        this.planes.forEach(plan =>{
+          plan.servicioId = data.id;
+          this.planesServices.create(plan).then(data=>{
+            console.log(data);
+          })          
+        })
+        console.log(this.calendarios)
+        this.calendarios.forEach(calendario =>{
+          calendario.servicioId = data.id;
+          this.calendariosServices.set(calendario).then(data=>{
+            console.log(data);
+          })
+        })
+      });
     }
     else{
-      this.serviciosService.create(this.servicio);
+      const serv = JSON.parse(JSON.stringify(this.servicio));
+      this.serviciosService.add(serv).then((data:any)=>{
+        console.log(data.id);
+        this.planes.forEach(plan =>{
+          plan.servicioId = data.id;
+          this.planesServices.create(plan).then(data=>{
+            console.log(data);
+          })
+        })
+        this.calendarios.forEach(calendarios =>{
+          calendarios.servicioId = data.id;
+          this.calendariosServices.set(calendarios).then(data=>{
+            console.log(data);
+          })
+        })
+      })
+      .catch(err=>{
+        console.log(err);
+      });
     } 
 
     this.navCtrl.back();
@@ -261,16 +302,75 @@ export class FormServicioPage implements OnInit {
       component: FormPlanPage,
       componentProps: { servicioId: this.servicio.id}
     });
+
+    modal.onDidDismiss().then((retorno) => {
+      if(retorno.data){
+        this.planes.push(retorno.data);
+      }        
+    });
+
     return await modal.present();
   }
 
-  async editarPlan(plan){
+  async editarPlan(plan,index){
     const modal = await this.modalController.create({
       component: FormPlanPage,
       componentProps: { plan: plan }
     });
+
+    modal.onDidDismiss().then((retorno) => {
+      if(retorno.data == 'eliminar'){
+        this.planesServices.delete(this.planes[index]);        
+      }
+
+      if(retorno.data){
+        this.planes[index] = retorno.data;
+        console.log(this.planes);        
+      }  
+    });
+
     return await modal.present();
   }
+
+  async openNewCalendario(){
+    const modal = await this.modalController.create({
+      component: FormCalendarioPage,
+      componentProps: { servicioId: this.servicio.id}
+    });
+    modal.onDidDismiss().then((retorno) => {
+      if(retorno.data){
+        this.calendarios.push(retorno.data);
+      }        
+    });
+    return await modal.present();
+  }
+
+  async editarCalendario(calendario,index){
+    const modal = await this.modalController.create({
+      component: FormCalendarioPage,
+      componentProps: { 
+        calendario: calendario,
+        servicioId: this.servicio.id
+      }
+    });
+    modal.onDidDismiss().then((retorno) => {
+
+      if(retorno.data == 'eliminar'){
+        this.calendariosServices.delete(this.calendarios[index].id);  
+      }
+
+      if(retorno.data){
+        this.calendarios[index] = retorno.data;
+        console.log(this.planes);        
+      } 
+      
+      
+      
+    });
+    return await modal.present();
+  }
+
+  
 
   async openAgregarProfesional(){
     const modal = await this.modalController.create({
@@ -309,7 +409,6 @@ export class FormServicioPage implements OnInit {
   }
 
   cancelar(){
-    this.serviciosService.delete(this.servicio.id);
     this.navCtrl.back();
   }
 

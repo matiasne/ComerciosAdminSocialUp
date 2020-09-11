@@ -73,7 +73,7 @@
             </span>
             por {{plan.precio | currency}}
           </ion-label>
-          <ion-button color="primary" slot="end" (click)="editarPlan(plan)"><ion-icon name="create"></ion-icon></ion-button>                
+          <ion-button color="primary" slot="end" (click)="editarPlan(plan,i)"><ion-icon name="create"></ion-icon></ion-button>                
         </ion-item>    
       </ion-list>   
       <ion-button size="large"   expand="block" (click)="openNewPlan()">Agregar Nuevo Plan</ion-button>
@@ -83,7 +83,20 @@
       <ion-label>Recibir Reservas</ion-label>
       <ion-toggle formControlName="recibirReservas"></ion-toggle>
     </ion-item>
-    
+    <div class="form-card" *ngIf="datosForm.controls.recibirReservas.value">
+      <ion-text color="primary">
+        <h4>Calendarios *</h4>      
+      </ion-text> 
+      <ion-list lines="none" class="item-card">        
+        <ion-item  *ngFor="let calendario of calendarios;let i=index">       
+          <ion-label>
+            {{calendario.nombre}}
+          </ion-label>
+          <ion-button color="primary" slot="end" (click)="editarCalendario(calendario,i)"><ion-icon name="create"></ion-icon></ion-button>                
+        </ion-item>    
+      </ion-list>   
+      <ion-button size="large"   expand="block" (click)="openNewCalendario()">Agregar Nuevo Calendario</ion-button>
+    </div>
 
     <div class="form-card" *ngIf="datosForm.controls.recibirReservas.value">
         

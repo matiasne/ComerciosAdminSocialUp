@@ -22,6 +22,7 @@ export class FormProductoOpcionPage implements OnInit {
     this.datosForm = this.formBuilder.group({
       nombre: ['', Validators.required],
       precioVariacion:[0,Validators.required],
+      maximaSeleccion:['',Validators.required],
       habilitado:['true']
     });
 

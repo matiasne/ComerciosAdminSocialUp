@@ -52,6 +52,10 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { SeleccionarImagenComponent } from './Components/seleccionar-imagen/seleccionar-imagen.component';
 import { ComponentsModule } from './Components/components.module';
 import { FormProductoGrupoOpcionesPage } from './form-producto-grupo-opciones/form-producto-grupo-opciones.page';
+import { FullCalendarModule } from '@fullcalendar/angular'; // the main connector. must go first
+import dayGridPlugin from '@fullcalendar/daygrid'; // a plugin
+import timeGridPlugin from '@fullcalendar/timegrid'; // a plugin
+import interactionPlugin from '@fullcalendar/interaction'; // a plugin
 
 const firebaseConfig = {
   apiKey: "AIzaSyAenr8VfNta7u8NL5J4jpMtosnENy-Gcqc",
@@ -63,6 +67,13 @@ const firebaseConfig = {
   appId: "1:1050852063833:web:a2db077836d55afc5ccf48",
   measurementId: "G-29X2FKN2TL"
 };
+
+
+FullCalendarModule.registerPlugins([ // register FullCalendar plugins
+  dayGridPlugin,
+  timeGridPlugin,
+  interactionPlugin
+]);
 
 @NgModule({
   declarations: [
@@ -105,6 +116,7 @@ const firebaseConfig = {
     NgxQRCodeModule,
     HttpClientModule,
     ImageCropperModule,
+    FullCalendarModule, 
     IonicModule.forRoot(),
     AppRoutingModule,  
     AngularFireModule.initializeApp(firebaseConfig),
@@ -128,6 +140,7 @@ const firebaseConfig = {
     CallNumber,
     EmailComposer,
     SpeechRecognition,
+    
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
   ],
   bootstrap: [AppComponent]

@@ -10,13 +10,12 @@ export class Servicio {
     foto="";
     createdAt="";
     fechaInicio ="";
-    plan:Plan;
+    plan:any;
     pagoAdelantado= "true" ;
     descripcion_venta="";
     recibirReservas=true;
 
 	public constructor() {
-       this.plan = new Plan();
     }
 
     public asignarValores(init?: Partial<Servicio>) {

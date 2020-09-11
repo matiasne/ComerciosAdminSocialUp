@@ -23,13 +23,24 @@ export class PlanesService {
   public create(data:Plan) { 
     this.servicioId = data.servicioId;  
     const param = JSON.parse(JSON.stringify(data));
-    return this.firestore.collection(this.getCollection()).add(param);
+
+    let id =""; //El id es el primer nombre! logica pensada para que reemplace al cambiarse el nombre del plan
+    if(param.id != ""){
+      id = param.id;
+    }
+    else{
+      id=param.nombre;
+    }
+    console.log(param);
+    return this.firestore.collection(this.getCollection()).doc(id).set(param);
   }
 
   public get(servicioId:any,documentId: string) {
     this.servicioId = servicioId;
     return this.firestore.collection(this.getCollection()).doc(documentId).snapshotChanges();
   }
+
+  
 
   public getAll(servicioId:any) {   
     this.servicioId = servicioId;

@@ -25,7 +25,18 @@
         <ion-input name="precioVariacion" type="number" formControlName="precioVariacion"></ion-input>
       </ion-item>
       <div *ngIf="submitted && f.precioVariacion.errors" class="invalid-feedback">
-          <div *ngIf="f.nombre.errors.required"><h5>Ingresa un nombre</h5></div>
+          <div *ngIf="f.nombre.errors.required"><h5>Ingresa un Numero</h5></div>
+      </div>  
+    </div>
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Numero máximo de veces que se puede seleccionar</h4> 
+      </ion-text>              
+      <ion-item [class.invalid]="submitted && !datosForm.controls.maximaSeleccion.valid">
+        <ion-input name="maximaSeleccion" type="number" formControlName="maximaSeleccion"></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.maximaSeleccion.errors" class="invalid-feedback">
+          <div *ngIf="f.nombre.errors.required"><h5>Ingresa un Numero</h5></div>
       </div>  
     </div>
   </form>

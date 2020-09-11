@@ -15,10 +15,9 @@ export class FormPlanPage implements OnInit {
   datosForm: FormGroup;
   submitted = false;
   public titulo ="Nuevo Plan";
-  public updating = false;
+  public canEliminar = false;
   public serviceId = "";
 
-  public plan:Plan;
   constructor(
     private formBuilder: FormBuilder,
     private modalCtrl: ModalController,
@@ -28,27 +27,27 @@ export class FormPlanPage implements OnInit {
     private toastServices:ToastService,
   ) {
 
-    this.plan = new Plan();
+
 
     this.datosForm = this.formBuilder.group({
+      id:[''],
       nombre: ['', Validators.required],
       tipo :['', Validators.required],  
       dias :[''],  
       precio :['', Validators.required],      
     });
 
-    console.log(this.navParams.get('plan'))
-    if( this.navParams.get('plan')){
-
-      this.plan = this.navParams.get('plan');
-      console.log(this.plan)
-      this.datosForm.patchValue(this.plan);
+    
+    if(this.navParams.get('plan')){
+      this.datosForm.patchValue(this.navParams.get('plan'));
+      
+      if(this.navParams.get('plan').id)
+        this.canEliminar = true;
       this.titulo = "Editar Plan";
     }   
-    else{
-      this.plan.servicioId = this.navParams.get('servicioId');
-    } 
 
+    
+    
 
     
 
@@ -78,19 +77,7 @@ export class FormPlanPage implements OnInit {
       this.toastServices.alert('Por favor completar todos los campos marcados con * antes de continuar',"");
       return;
     } 
-
-   
-    this.plan.asignarValores(this.datosForm.value);
-    
-
-    if(this.updating){
-      this.planesServices.update(this.plan);
-    }
-    else{
-      this.planesServices.create(this.plan);
-    }
-
-    this.modalCtrl.dismiss(this.plan);
+    this.modalCtrl.dismiss(this.datosForm.value);
   }
 
 
@@ -111,10 +98,9 @@ export class FormPlanPage implements OnInit {
           }
         }, {
           text: 'Eliminar',
-          handler: () => {  
+          handler: () => {      
         
-              this.planesServices.delete(this.plan);
-              this.modalCtrl.dismiss();
+              this.modalCtrl.dismiss('eliminar');
           }
         }
       ]

@@ -31,10 +31,14 @@ export class LoadingService {
   }
 
   async dismissLoading() {
-    this.isLoading = false;
-    return await this.loadingController.dismiss().then(() => {
+   
+    if(this.isLoading){
+      this.isLoading = false;
+      return await this.loadingController.dismiss().then(() => {
       
-    });
+      });
+    }
+    
   }
 
 }

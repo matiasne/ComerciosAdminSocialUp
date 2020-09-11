@@ -82,7 +82,7 @@ export class AddProductoVentaPage implements OnInit {
   }
 
   ionViewDidLeave(){
-    this.opcionesSubs.unsubscribe();
+    //this.opcionesSubs.unsubscribe();
   }
 
   seleccionarOpcion(grupo:GrupoOpciones,opcion:Opcion){

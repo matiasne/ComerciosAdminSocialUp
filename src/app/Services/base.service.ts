@@ -75,10 +75,10 @@ export class BaseService {
             );          
       }     
   
-      add(item) {  
+    add(item) {  
         delete item.id;  
         console.log('[BaseService] adding item'+this.path);
-    
+        console.log(item);
         const promise = new Promise((resolve, reject) => {
             this.collection.add({...item, createdAt: firebase.firestore.FieldValue.serverTimestamp()}).then(ref => {
                 const newItem = {
@@ -90,13 +90,12 @@ export class BaseService {
             });
         });
         return promise;
-    }
-    
+    }   
     
     update(data) {
   
         console.log(`[BaseService] updating item ${data.id}`);
-    
+        console.log(data);
         const promise = new Promise((resolve, reject) => {
         const docRef = this.collection
             .doc(data.id)

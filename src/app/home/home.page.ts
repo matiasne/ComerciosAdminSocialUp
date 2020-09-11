@@ -54,13 +54,14 @@ export class HomePage implements OnInit {
     this.loadingService.presentLoading();
     this.subsItems = this.rolesService.getAllRolesbyUser().subscribe(snapshot =>{        
       this.loadingService.dismissLoading();
-     
+      
       snapshot.forEach(snap =>{
-        var rol:any = snap;            
+        var rol:any = snap;    
+        console.log(rol);        
         this.loadingService.presentLoading();
         this.comercios = [];
         this.comercioSubs = this.comerciosService.get(rol.comercioId).subscribe(data =>{  
-          
+          console.log(data);
           if(data.payload){
             var comercio:any = data.payload.data();   
             comercio.id = data.payload.id;
@@ -69,16 +70,19 @@ export class HomePage implements OnInit {
             this.comercios.push(comercio);
           }         
           this.loadingService.dismissLoading();
-          this.comercioSubs.unsubscribe();
           
         });
+        
       });
-      this.subsItems.unsubscribe(); 
+      
+     
     });
+   
   }
 
   ionViewDidLeave(){
-    
+    this.comercioSubs.unsubscribe();
+    this.subsItems.unsubscribe(); 
   }
 
   async nuevoComercio(){

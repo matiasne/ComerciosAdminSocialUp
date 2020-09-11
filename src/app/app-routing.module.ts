@@ -292,6 +292,18 @@ const routes: Routes = [
     path: 'details-whatsapp',
     loadChildren: () => import('./details-whatsapp/details-whatsapp.module').then( m => m.DetailsWhatsappPageModule)
   },
+  {
+    path: 'servicio-calendario',
+    loadChildren: () => import('./servicio-calendario/servicio-calendario.module').then( m => m.ServicioCalendarioPageModule)
+  },
+  {
+    path: 'form-reserva',
+    loadChildren: () => import('./form-reserva/form-reserva.module').then( m => m.FormReservaPageModule)
+  },
+  {
+    path: 'form-calendario',
+    loadChildren: () => import('./form-calendario/form-calendario.module').then( m => m.FormCalendarioPageModule)
+  },
   
 ];
 

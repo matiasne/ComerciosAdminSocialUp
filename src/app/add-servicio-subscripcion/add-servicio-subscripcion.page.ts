@@ -75,10 +75,9 @@ export class AddServicioSubscripcionPage implements OnInit {
     })
 
     if(this.route.snapshot.params.id){
-      var subs = this.servicioService.get(this.route.snapshot.params.id).subscribe(snapshot=>{
+      var subs = this.servicioService.get(this.route.snapshot.params.id).subscribe(servicio=>{
         
-        this.servicio.asignarValores(snapshot.payload.data());
-        this.servicio.id = snapshot.payload.id;
+        this.servicio.asignarValores(servicio);
         this.servicio.pagoAdelantado = "true";
 
         this.loadingService.dismissLoading();

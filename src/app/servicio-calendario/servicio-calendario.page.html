@@ -1,0 +1,10 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>servicio-calendario</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-button color="light" (click)="agregarTurno()">Agregar</ion-button>
+  <full-calendar #fullcalendar deepChangeDetection="true" [options]="calendarOptions"></full-calendar>
+</ion-content>

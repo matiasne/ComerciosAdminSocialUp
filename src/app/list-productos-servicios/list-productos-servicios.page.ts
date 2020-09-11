@@ -65,7 +65,6 @@ export class ListProductosServiciosPage implements OnInit {
     public cargaPorVoz:CargaPorVozService,
     public changeRef:ChangeDetectorRef,
     public toastServices:ToastService,
-    private loaadingService:LoadingService,
     private categoriasService:CategoriasService
   ) { 
 
@@ -77,13 +76,9 @@ export class ListProductosServiciosPage implements OnInit {
     this.itemsServicios = [];
     this.comercio = {
       cajas:['']
-    }
-    
-    
+    }   
 
-    this.cargaPorVoz.getPermission();
-
-    
+    this.cargaPorVoz.getPermission(); 
       
   }
 
@@ -232,12 +227,12 @@ export class ListProductosServiciosPage implements OnInit {
   }
 
   editarProducto(item){
-    this.loaadingService.presentLoading();
+    this.loadingService.presentLoading();
     this.router.navigate(['form-producto',{id:item.id}]);
   }
     
   editarServicio(item){  
-    this.loaadingService.presentLoading();
+    this.loadingService.presentLoading();
     this.router.navigate(['form-servicio',{id:item.id}]);
   }
 
@@ -255,7 +250,8 @@ export class ListProductosServiciosPage implements OnInit {
           producto.id = snapP.payload.doc.id;  
           producto.producto = true;
           this.itemsAllProductos.push(producto);         
-      });     
+      }); 
+      this.buscar();    
       
     });
 
@@ -264,12 +260,11 @@ export class ListProductosServiciosPage implements OnInit {
    
 
     this.loadingService.presentLoading();
-      this.subsItemsServ = this.serviciosService.getAll().subscribe((snapshotServ) => {
+      this.subsItemsServ = this.serviciosService.list().subscribe((snapshotServ) => {
         this.loadingService.dismissLoading();
         this.itemsAllServicios = [];
         snapshotServ.forEach((snaps: any) => {         
-            var servicio = snaps.payload.doc.data();
-            servicio.id = snaps.payload.doc.id;  
+            var servicio = snaps;
             servicio.producto = false;
             this.itemsAllServicios.push(servicio);                 
         });  

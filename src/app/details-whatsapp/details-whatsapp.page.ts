@@ -14,7 +14,7 @@ export class DetailsWhatsappPage implements OnInit {
 
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
 
-    this.link = "https://pedidossocialup.web.app/details-comercio;id="+comercio_seleccionadoId+";porWhatsapp=true;comercioUnico=true";
+    this.link = "https://comercios-admin-socialup.web.app/details-comercio;id="+comercio_seleccionadoId+";porWhatsapp=true;comercioUnico=true";
   }
 
 }
