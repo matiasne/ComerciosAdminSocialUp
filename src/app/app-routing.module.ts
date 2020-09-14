@@ -304,6 +304,10 @@ const routes: Routes = [
     path: 'form-calendario',
     loadChildren: () => import('./form-calendario/form-calendario.module').then( m => m.FormCalendarioPageModule)
   },
+  {
+    path: 'list-calendarios',
+    loadChildren: () => import('./list-calendarios/list-calendarios.module').then( m => m.ListCalendariosPageModule)
+  },
   
 ];
 

@@ -21,13 +21,8 @@ export class ListCajasPage implements OnInit {
 
   ngOnInit() {
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.cajasSubs = this.cajasService.getAll(comercio_seleccionadoId).subscribe(snapshot=>{                 
-      this.cajas = [];
-      snapshot.forEach((snap: any) => {           
-          var item = snap.payload.doc.data();
-          item.id = snap.payload.doc.id;              
-          this.cajas.push(item);             
-      });
+    this.cajasSubs = this.cajasService.list().subscribe((caja:any)=>{                 
+      this.cajas = caja;      
     });
 
   }

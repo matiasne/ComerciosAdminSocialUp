@@ -6,48 +6,24 @@ import * as firebase from 'firebase';
 import { CtaCorrientesService } from './cta-corrientes.service';
 import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';
 import { MaxLengthValidator } from '@angular/forms';
+import { BaseService } from './base.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CajasService {
+export class CajasService extends BaseService{
 
-  
   constructor(
-    private firestore: AngularFirestore
-  ) {
-    
+    protected afs: AngularFirestore
+  ) {     
+    super(afs); 
+    let comercioId = localStorage.getItem('comercio_seleccionadoId');
+    console.log(comercioId);
+    if(comercioId)
+      this.setPath('comercios/'+comercioId+'/cajas')   
   }
 
-  getCollection(comercioId:any){
-
-    console.log(comercioId)
-    return 'comercios/'+comercioId+'/cajas';
-  }
   
-  public create(data:Caja) {   
-
-    console.log(data);
-    const param = JSON.parse(JSON.stringify(data));
-    return this.firestore.collection(this.getCollection(data.comercioId)).doc(data.id).set(param);
-  }
-
-  public get(comercioId:any,documentId: string) {
-    return this.firestore.collection(this.getCollection(comercioId)).doc(documentId).snapshotChanges();
-  }
-
-  public getAll(comercioId:any) {   
-    return this.firestore.collection(this.getCollection(comercioId)).snapshotChanges();
-  } 
-
-  public update(data:Caja) {
-    const param = JSON.parse(JSON.stringify(data));
-    return this.firestore.collection(this.getCollection(data.comercioId)).doc(data.id).set(param);
-  }
-
-  public delete(data:Caja){    
-    this.firestore.collection(this.getCollection(data.comercioId)).doc(data.id).delete();
-  } 
 
 }
 

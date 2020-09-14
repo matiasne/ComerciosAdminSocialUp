@@ -54,13 +54,11 @@ export class DashboardCajasPage implements OnInit {
   }
 
   ionViewDidEnter(){
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.cajasSubs  = this.cajasService.getAll(comercio_seleccionadoId).subscribe(snapshot=>{
-      this.cajas = [];      
-      snapshot.forEach((snap: any) => {           
-          var item = snap.payload.doc.data();
-          item.id = snap.payload.doc.id;   
-              
+    this.cajasSubs  = this.cajasService.list().subscribe(cajas=>{
+      console.log(cajas);
+      this.cajas = cajas;      
+      this.cajas.forEach((item: any) => {           
+         
           
           this.movSubs = this.movimientosService.getMovimientosCaja(item.id).subscribe(snapshot =>{
       
@@ -83,7 +81,7 @@ export class DashboardCajasPage implements OnInit {
               item.movimientos.push(mov);  
             });         
           }); 
-          this.cajas.push(item); 
+         
           console.log(item); 
       });
      

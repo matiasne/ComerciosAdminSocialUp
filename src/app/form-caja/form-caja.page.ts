@@ -91,7 +91,7 @@ export class FormCajaPage implements OnInit {
     if(this.updating)
       this.cajasService.update(this.caja);
     else{
-      this.cajasService.create(this.caja);
+      this.cajasService.add(this.caja);
     }
 
 
@@ -116,7 +116,7 @@ export class FormCajaPage implements OnInit {
         }, {
           text: 'Eliminar',
           handler: () => {           
-            this.cajasService.delete(this.caja);     
+            this.cajasService.delete(this.caja.id);     
             this.modalCtrl.dismiss();
           }
         }

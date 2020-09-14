@@ -40,7 +40,7 @@ export class FormCierreCajaPage implements OnInit {
     this.caja = new Caja();
 
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.cajasServices.get(comercio_seleccionadoId,this.route.snapshot.params.cajaId).subscribe(snap =>{
+    this.cajasServices.get(this.route.snapshot.params.cajaId).subscribe(snap =>{
       this.caja.asignarValores(snap.payload.data());
       this.caja.id = snap.payload.id;
     })

@@ -42,11 +42,8 @@ export class FormEgresoCajaPage implements OnInit {
     this.totalActual = this.route.snapshot.params.totalActual;
 
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    var cSub = this.cajasService.get(comercio_seleccionadoId,this.route.snapshot.params.cajaId).subscribe(snap =>{
-
-      this.caja.asignarValores(snap.payload.data());
-      this.caja.id = snap.payload.id;
-      cSub.unsubscribe();
+    this.cajasService.get(this.route.snapshot.params.cajaId).subscribe(caja =>{
+      this.caja.id = caja;
     })
     
     this.datosForm = this.formBuilder.group({

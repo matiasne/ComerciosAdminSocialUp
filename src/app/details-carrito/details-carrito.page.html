@@ -70,13 +70,12 @@
           <ion-icon name="cube" *ngIf="!producto.foto"></ion-icon>
         </ion-avatar>
         <ion-label>
-          <h2>{{producto.cantidad}} X {{producto.nombre}} = {{producto.precio}}</h2>
+          <h2>{{producto.cantidad}} X {{producto.nombre}}</h2>
           <h3>{{producto.descripcion_venta}}</h3>
           <div *ngFor="let opcion of producto.opcionesSeleccionadas">
-            <h3>{{opcion.cantidad}} X {{opcion.nombre}} <span *ngIf="opcion.precioVariacion != 0">{{opcion.precioVariacion | currency}}</span></h3>
-          </div>
-          <h3>cantidad :{{producto.cantidad}} {{producto.unidad}} </h3>
-          <h3>subtotal: {{producto.precioTotal * producto.cantidad | currency}}</h3>
+            <h3>&nbsp;&nbsp;{{opcion.cantidad}}X{{opcion.nombre}} <span *ngIf="opcion.precioVariacion!= 0">{{opcion.precioVariacion | currency}}</span></h3>
+          </div>          
+          <h3>subtotal: {{producto.precioTotal | currency}}</h3>
         </ion-label>
         
         <ion-button color="danger" slot="end" (click)="eliminarProducto(i)"><ion-icon name="trash"></ion-icon></ion-button>       
@@ -120,30 +119,6 @@
     </div>
 
 
-    <!--div  class="form-card" *ngIf="carrito.pagare.servicio">
-      <ion-text color="primary">
-        <h4>Abono</h4>
-      </ion-text> 
-      
-      <ion-list>                   
-        <ion-item>
-          <ion-avatar slot="start">
-            <img src="{{carrito.pagare.servicio.foto}}" *ngIf="carrito.pagare.ervicio.foto">
-            <ion-icon name="document-attach-outline" *ngIf="!carrito.pagare.servicio.foto"></ion-icon>
-          </ion-avatar>
-          <ion-label text-wrap>
-            <h2>{{carrito.pagare.servicio.nombre}}</h2>
-            <h3>{{carrito.pagare.servicio.plan.nombre}}, 
-              <span *ngIf="servicio.tipo == 'dias'">{{carrito.pagare.servicio.plan.dias}} días por </span>
-              <span *ngIf="servicio.tipo == 'mensual'">el mes por </span>
-              <span *ngIf="servicio.tipo == 'anual'">el año por </span>
-              {{carrito.pagare.servicio.plan.precio | currency}}
-            </h3>      
-          </ion-label>
-        </ion-item>
-      
-      </ion-list>
-    </div-->
 
     <div  class="form-card">
       <ion-text color="primary">
@@ -158,7 +133,7 @@
 
 <ion-footer class="ion-no-border ion-padding">
   <ion-toolbar>
-    <ion-button *ngIf="habilitadoCobro == 'true'" class="btn-footer-atras" color="danger" (click)="cancelar()">Cancelar</ion-button>
+    <ion-button *ngIf="habilitadoCobro == 'true'" class="btn-footer-atras" color="light" (click)="cancelar()">Atras</ion-button>
     <ion-button *ngIf="habilitadoComanda == 'true'" class="btn-footer-agregar" color="primary" slot="end" (click)="comanda()">Comanda</ion-button>
     <ion-button class="btn-footer-agregar" color="success" slot="end" (click)="confirmar()">Cobrar</ion-button>
   </ion-toolbar>

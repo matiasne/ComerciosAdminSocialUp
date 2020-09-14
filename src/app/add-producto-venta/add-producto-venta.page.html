@@ -17,7 +17,7 @@
         <ion-icon name="cube" *ngIf="!producto.foto"></ion-icon>
       </ion-avatar>      
       <ion-label>
-        <h2><b>{{producto.nombre}}</b><br> {{producto.precio | currency}} por {{producto.unidad}}</h2>
+        <h2><b>{{producto.nombre}}</b><br> <h1 [class.cambiando]="totalCambiando"><b>{{precioShow | currency}}</b></h1></h2>
         <p>
           {{producto.descripcion}}
         </p>           
@@ -25,8 +25,19 @@
     </ion-item>    
   </ion-list> 
 
+  <div class="container-producto" *ngIf="producto.id != ''">  
+    <ion-item class="item-producto-cantidad" lines="none">
+      <ion-button class="btn-agregar" slot="start" (click)="restarCantidad()"><ion-icon name="remove"></ion-icon></ion-button>
+      Cantidad: {{producto.cantidad}}
+      <ion-button class="btn-agregar"  slot="end" (click)="sumarCantidad()">
+        <ion-icon name="add"> </ion-icon>
+      </ion-button>
+    </ion-item>
+   
+  </div>
+
   <div *ngFor="let grupo of producto.gruposOpciones; let grupoIndex=index" class="form-card">
-    <ion-text color="primary">
+    <ion-text color="primary" id="{{grupo.nombre}}">
       <h4>{{grupo.nombre}} </h4>
     </ion-text> 
     <div *ngIf="grupo.maximo == 1">      
@@ -55,33 +66,15 @@
             {{opcion.precioVariacion | currency}}  
           </span>
         </ion-label>
-        <ion-button class="btn-agregar-opcion" color="light" (click)="restarCantidadOpcion(grupoIndex,i)"><ion-icon name="remove"></ion-icon></ion-button>
+        <ion-button class="btn-agregar-opcion" color="light" (click)="restarCantidadOpcion(grupoIndex,i)" [disabled]="opcion.cantidad == 0"><ion-icon name="remove"></ion-icon></ion-button>
         &nbsp;&nbsp;{{opcion.cantidad}}&nbsp;&nbsp;
-        <ion-button class="btn-agregar-opcion" color="light" (click)="sumarCantidadOpcion(grupoIndex,i)" [disabled]="grupo.cantidadHabilitada"><ion-icon name="add"></ion-icon></ion-button>
+        <ion-button class="btn-agregar-opcion" color="light" (click)="sumarCantidadOpcion(grupoIndex,i)" [disabled]="!opcion.sumaHabilitada"><ion-icon name="add"></ion-icon></ion-button>
     
       </ion-item>
     </div> 
   </div>
 
-  <div  class="form-card">
-    <ion-text color="primary">
-      <h4>Cantidad *</h4>
-    </ion-text> 
-    <ion-item>
-      <ion-col size="8">
-          <ion-input #cantidad name="cantidad" type="number" min="1" [(ngModel)]="producto.cantidad"></ion-input>
-      </ion-col>
-      <ion-col size="4">
-          <div *ngIf="producto.unidad == 'Unidad'">Unidades</div>
-          <div *ngIf="producto.unidad == 'Gramos'">Gramos</div>
-          <div *ngIf="producto.unidad == 'Kilogramos'">Kilogramos</div>
-          <div *ngIf="producto.unidad == 'Centímetros'">Centímetros</div>
-          <div *ngIf="producto.unidad == 'Metros'">Metros</div>
-          <div *ngIf="producto.unidad == 'Mililitros'">Mililitros</div>
-          <div *ngIf="producto.unidad == 'Litros'">Litros</div>
-      </ion-col>      
-    </ion-item>   
-  </div>
+  
 
   <div class="form-card">
     <ion-text color="primary">

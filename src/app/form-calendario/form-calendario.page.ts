@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NavController, ModalController, NavParams, AlertController } from '@ionic/angular';
-import { CajasService } from '../Services/cajas.service';
-import { Caja } from '../models/caja';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { ToastService } from '../Services/toast.service';
 import { Calendario } from '../models/calendario';

@@ -9,7 +9,6 @@ import { CtaCorrientesService } from '../Services/cta-corrientes.service';
 import { ClientesService } from '../Services/clientes.service';
 import { Subscribable, Subscription } from 'rxjs';
 import { CarritoService } from '../Services/global/carrito.service';
-import { CajasService } from '../Services/cajas.service';
 import { Carrito } from '../models/carrito';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';

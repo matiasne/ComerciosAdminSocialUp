@@ -11,13 +11,10 @@ import { CtaCorrientesService } from '../cta-corrientes.service';
 import { Venta } from 'src/app/models/venta';
 import { MovimientoCtaCorriente } from 'src/app/models/movimientoCtaCorriente';
 import { MovimientoCaja } from 'src/app/models/movimientoCaja';
-import { CajasService } from '../cajas.service';
 import { MovimientosService } from '../movimientos.service';
 import { Caja } from 'src/app/models/caja';
 import { Producto } from 'src/app/models/producto';
 import { OpcionSeleccionada } from 'src/app/models/opcionSeleccionada';
-import { ProductosService } from '../productos.service';
-import { FormProductoOpcionPage } from 'src/app/form-producto-opcion/form-producto-opcion.page';
 import { PedidoService } from '../pedido.service';
 import { NotificacionesService } from '../notificaciones.service';
 
@@ -37,8 +34,6 @@ export class CarritoService {
     private pagareService:PagaresService,
     private comandasService:ComandasService,
     private firestore: AngularFirestore,
-    private ctasCorreintesService:CtaCorrientesService,
-    private cajasService:CajasService,
     private movimientosService:MovimientosService,
     private pedidoServices:PedidoService,
     private notificacionesService:NotificacionesService
@@ -66,15 +61,10 @@ export class CarritoService {
   }
 
   public agregarProducto(producto:Producto){   
-    
-    producto.precioTotal = Number(producto.precio);
-    
+       
     producto.gruposOpciones.forEach(grupo =>{
       grupo.opciones.forEach(opcion => {
-        if(opcion.cantidad > 0){
-          
-          producto.precioTotal = Number(producto.precioTotal) + (Number(opcion.cantidad) * Number(opcion.precioVariacion));
-          console.log(producto.precio)
+        if(opcion.cantidad > 0){               
           var opcionSeleccionada:OpcionSeleccionada = new OpcionSeleccionada();
           opcionSeleccionada.nombreGrupo = grupo.nombre;
           opcionSeleccionada.nombre = opcion.nombre;
@@ -82,14 +72,13 @@ export class CarritoService {
           opcionSeleccionada.cantidad = opcion.cantidad;
           console.log(producto);
           producto.opcionesSeleccionadas.push(opcionSeleccionada);
-
         }
       });
     })
     
    
     producto.gruposOpciones =[];
-
+    console.log(producto);
     this.carrito.totalProductos += Number(producto.precioTotal);
     this.carrito.productos.push(producto);
     this.carrito.on = true;    

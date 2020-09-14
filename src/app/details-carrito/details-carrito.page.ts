@@ -69,24 +69,25 @@ export class DetailsCarritoPage implements OnInit {
       }
     })
 
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.cajasService.getAll(comercio_seleccionadoId).subscribe(snapshot=>{
-                 
-      this.cajas =[];
-      snapshot.forEach((snap: any) => {           
-          var item = snap.payload.doc.data();
-          item.id = snap.payload.doc.id;              
-          this.cajas.push(item);
-          console.log(this.cajas)             
-      });
+    
+    this.cajasService.list().subscribe((cajas:any)=>{
+      console.log(cajas);
+      this.cajas = cajas;
+    
       this.setSavedCaja();
     });
 
-   }
+    
+  }
 
   ngOnInit() {
     this.habilitadoComanda = this.route.snapshot.params.comanda;
     this.habilitadoCobro = this.route.snapshot.params.cobro;
+
+    if(this.carrito.productos.length == 0){
+      this.habilitadoComanda = false;
+    }
+
   } 
 
   vaciar(){
@@ -103,8 +104,8 @@ export class DetailsCarritoPage implements OnInit {
 
 
   async cancelar(item){
-
-    const alert = await this.alertController.create({
+    this.navCtrl.back();
+    /*const alert = await this.alertController.create({
       header: 'Está seguro que desea cancelar el pedido?',
       message: 'Se perderán los registros del mismo',
       buttons: [
@@ -122,7 +123,7 @@ export class DetailsCarritoPage implements OnInit {
         }
       ]
     });
-    await alert.present();    
+    await alert.present();    */
   }
 
   setSavedCaja(){
@@ -200,19 +201,12 @@ export class DetailsCarritoPage implements OnInit {
       return;
     }
 
-  /*  if(this.carrito.cliente.id == ""){
-      this.toastServices.alert("Por favor seleccione un cliente antes de continuar");
-      return;
-    }*/
-
     console.log(this.carrito.servicios.length+" "+this.carrito.productos.length)
 
     if(this.carrito.servicios.length == 0 && this.carrito.productos.length == 0 && this.carrito.pagare.id == ""){
       alert("Debes ingresar al menos un producto o servicio");      
       return;
-    }
-
-    
+    }    
     this.carritoService.setearCaja(this.cajas[this.cajaSeleccionadaIndex].id);
     this.carritoService.setearMetodoPago(this.metodoPagoSeleccionado);
     
@@ -227,7 +221,6 @@ export class DetailsCarritoPage implements OnInit {
       this.toastServices.alert("Debes ingresar al menos un producto o servicio","");      
       return;
     }
-
     this.comandasServices.create(this.carrito);
     this.carritoService.vaciar();
     this.navCtrl.back();

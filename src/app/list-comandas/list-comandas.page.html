@@ -15,25 +15,30 @@
       
       
       <div *ngIf="!item.isPedido">
-        <ion-item-sliding   class="item-card ion-padding" >    
+        <ion-item-sliding   class="item-card" >    
         
           <h3>Comanda</h3>  
           realizado: {{item.createdAt | date:'hh:mm aaa dd/MM/yyyy'}}
           <ion-item >  
             
-            <ion-label text-wrap>
-              Pedido por: {{item.empleado_email}} <span *ngIf="item.cliente_nombre">para {{item.cliente_nombre}}</span><br>                           
+            <ion-label>
+                <div *ngIf="item.empleado_email">
+                  Pedido por: {{item.empleado_email}} <span *ngIf="item.cliente_nombre">para {{item.cliente_nombre}}</span><br>                           
+                </div>
+                
                 <ion-item *ngFor="let producto of item.carrito.productos; let i = index">
                   <ion-avatar slot="start">
                     <img src="{{producto.foto}}" *ngIf="producto.foto">
                     <ion-icon name="cube" *ngIf="!producto.foto"></ion-icon>
-                  </ion-avatar>
+                  </ion-avatar>                 
                   <ion-label>
-                    <h2>{{producto.nombre}}</h2>
-                    <h3><b>{{producto.descripcion_venta}}</b></h3>
-                    <h3>cantidad :{{producto.cantidad}} {{producto.unidad}} </h3>
-                    <h3>{{producto.precio * producto.cantidad | currency}}</h3><br><br>
-                  </ion-label>            
+                    <h2>{{producto.cantidad}} X {{producto.nombre}}</h2>
+                    <h3>{{producto.descripcion_venta}}</h3>
+                    <p *ngFor="let opcion of producto.opcionesSeleccionadas">
+                      &nbsp;&nbsp;&nbsp;{{opcion.cantidad}} X {{opcion.nombre}} <span *ngIf="opcion.precioVariacion!= 0">{{opcion.precioVariacion | currency}}</span>
+                    </p>          
+                    <h3>subtotal: {{producto.precioTotal | currency}}</h3>
+                  </ion-label>
                 </ion-item> 
                 <ion-item *ngFor="let servicio of item.carrito.servicios; let i = index">
                   <ion-avatar slot="start">
@@ -42,11 +47,14 @@
                   </ion-avatar>
                   <ion-label text-wrap>
                     <h2>{{servicio.nombre}}</h2>
-                    <h3>{{servicio.plan.nombre}}, 
+                    <h3 *ngIf="servicio.plan.nombre">{{servicio.plan.nombre}}, 
                       <span *ngIf="servicio.plan.tipo == 'dias'">{{servicio.plan.dias}} días por </span>
                       <span *ngIf="servicio.plan.tipo == 'mensual'">el mes por </span>
                       <span *ngIf="servicio.plan.tipo == 'anual'">el año por </span>
                       {{servicio.plan.precio | currency}}
+                    </h3>
+                    <h3 *ngIf="servicio.plan == 'personal'">
+                      
                     </h3>
                     <h3>{{servicio.descripcion_venta}}</h3>
                     <h3 *ngIf="servicio.pagoAdelantado == 'false'" style="color:red">El abono se pagará al finalizar el periodo</h3>

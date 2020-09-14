@@ -51,13 +51,10 @@ export class FormHorarioPage implements OnInit {
   guardar(){
 
     this.submitted = true;
-
-
     if (this.datosForm.invalid) {
       this.toastServices.alert('Por favor completar todos los campos marcados con * antes de continuar',"");
       return;
-    }   
-
+    }  
     
     switch(this.datosForm.controls.dia.value){
       case 0:

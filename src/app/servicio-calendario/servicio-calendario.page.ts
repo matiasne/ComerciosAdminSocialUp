@@ -1,5 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CalendarOptions, EventAddArg, FullCalendarComponent, Calendar, EventInput } from '@fullcalendar/angular'; // useful for typechecking
+import { Comercio } from '../models/comercio';
+import { ComerciosService } from '../Services/comercios.service';
+import { HorariosService } from '../Services/horarios.service';
+import { Horario } from '../models/horario';
 
 @Component({
   selector: 'app-servicio-calendario',
@@ -36,12 +40,14 @@ export class ServicioCalendarioPage implements OnInit {
     
   };
 
+  public horarios = [];
   
-  constructor() { }
+  constructor(
+    private comerciosService:ComerciosService
+  ) { }
 
-  ngOnInit() {
-   
-
+  ngOnInit() {  
+    
   }
 
   gotoDate() {
@@ -56,27 +62,58 @@ export class ServicioCalendarioPage implements OnInit {
     if (this.calendarApi && !this.initialized) {
       this.initialized = true;
     }
+
+    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
+    console.log(comercio_seleccionadoId)
+    this.comerciosService.get(comercio_seleccionadoId).subscribe(snapshot =>{
+      let com:any = snapshot.payload.data();     
+      com.horarios.forEach((item: any) => {  
+        this.horarios.push(item);    
+        console.log(item);    
+      });
+      console.log(this.horarios);  
+      this.agregarFranjasAbierto();
+    });
+
+    
+  }
+
+  agregarFranjasAbierto(){
+
+    console.log(this.calendarApi.view.currentStart.getTime()+" "+this.calendarApi.view.currentEnd.getTime());
+
+    for (let loop = this.calendarApi.view.currentStart.getTime();
+      loop <= this.calendarApi.view.currentEnd.getTime();
+      loop = loop + (24 * 60 * 60 * 1000)) {
+      var test_date = new Date(loop);
+
+      this.horarios.forEach(horario =>{
+        if (test_date.getDay() == horario.dia) {
+          // we're in Moday, create the event
+          let calendarevent = {
+            startEditable: true,
+            id:"asd",
+            title: "titulo",
+            start: horario.desde,
+            end: horario.hasta,
+            editable: true,
+            display: 'background'
+          };
+      
+          this.calendarEvents =  this.eventsCalendar;
+          this.eventsCalendar.push(calendarevent);
+          this.calendarApi.addEventSource(this.calendarEvents);
+        }
+      })    
+    }
   }
 
   handleDateClick(arg) {
-    alert('date click! ' + arg.dateStr)
+    alert('date click! ' + arg.dateStr)    
   }
 
-  agregarTurno(){
+  agregarEspacios(){
 
-    let calendarevent = {
-      startEditable: false,
-      id:"asd",
-      title: "titulo",
-      start: new Date().getTime(),
-      end:new Date().getTime()+1,
-      allDay: true,
-    };
-
-    this.calendarEvents =  this.eventsCalendar
-
-    this.eventsCalendar.push(calendarevent);
-    this.calendarApi.addEventSource(this.calendarEvents); //obligatory
     
   }
 

@@ -4,7 +4,8 @@ export class Opcion{
     habilitado=true;    
     seleccionada = false;  
     cantidad: any;
-  
+    sumaHabilitada = true;
+    maximaSeleccion = 0;
 	constructor(){
         
     }

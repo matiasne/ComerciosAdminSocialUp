@@ -124,22 +124,18 @@ export class FormServicioPage implements OnInit {
   }
 
   obtnerPlanes(){
-    this.loadingService.presentLoading();
-    this.planesSubs = this.planesServices.getAll(this.servicio.id).subscribe(snapshot=>{                 
-      this.planes = [];
+    this.loadingService.presentLoading();   
+    this.planesServices.setPathIds(this.servicio.id); 
+    this.planesServices.list().subscribe(items=>{                 
+      this.planes = items;
       this.loadingService.dismissLoading();
-      snapshot.forEach((snap: any) => {           
-          var item = snap.payload.doc.data();
-          item.id = snap.payload.doc.id;              
-          this.planes.push(item);             
-      });
     });
   }
 
   obtnerCalendarios(){
     this.loadingService.presentLoading();   
     this.calendariosServices.setPathIds(this.servicio.id); 
-    this.planesSubs = this.calendariosServices.list().subscribe(items=>{                 
+    this.calendariosServices.list().subscribe(items=>{                 
       this.calendarios = items;
       this.loadingService.dismissLoading();
     });
@@ -167,31 +163,35 @@ export class FormServicioPage implements OnInit {
       const serv = JSON.parse(JSON.stringify(this.servicio));
       this.serviciosService.update(serv).then((data:any)=>{
         console.log(data.id);
+        
         this.planes.forEach(plan =>{
           plan.servicioId = data.id;
-          this.planesServices.create(plan).then(data=>{
+          this.planesServices.set(plan).then(data=>{
             console.log(data);
-          })          
+          })
         })
-        console.log(this.calendarios)
+        
         this.calendarios.forEach(calendario =>{
           calendario.servicioId = data.id;
           this.calendariosServices.set(calendario).then(data=>{
             console.log(data);
           })
         })
+
       });
     }
     else{
       const serv = JSON.parse(JSON.stringify(this.servicio));
       this.serviciosService.add(serv).then((data:any)=>{
         console.log(data.id);
+        
         this.planes.forEach(plan =>{
           plan.servicioId = data.id;
-          this.planesServices.create(plan).then(data=>{
+          this.planesServices.set(plan).then(data=>{
             console.log(data);
           })
         })
+        
         this.calendarios.forEach(calendarios =>{
           calendarios.servicioId = data.id;
           this.calendariosServices.set(calendarios).then(data=>{

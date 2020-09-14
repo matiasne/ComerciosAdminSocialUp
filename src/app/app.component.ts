@@ -159,9 +159,7 @@ export class AppComponent implements OnInit {
                 alert("Received in foreground");
               };
             });
-          }
-          
-          
+          }         
         } else {
           this.router.navigate(['login']);
         }

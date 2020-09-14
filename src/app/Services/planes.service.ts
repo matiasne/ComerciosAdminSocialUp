@@ -1,29 +1,31 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Plan } from '../models/plan';
+import { BaseService } from './base.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PlanesService {
+export class PlanesService extends BaseService{
 
-  public servicioId="";
+  private servicioId = "";
 
   constructor(
-    private firestore: AngularFirestore
-  ) {
-    
+    protected afs: AngularFirestore
+  ) {     
+    super(afs);    
   }
 
-  getCollection(){
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
-    return 'comercios/'+comercio_seleccionadoId+'/servicios/'+this.servicioId+'/planes';
+  setPathIds(servicioId){
+    this.servicioId = servicioId;
+    let comercioId = localStorage.getItem('comercio_seleccionadoId');
+    console.log("comercios/"+comercioId+"/servicios/"+this.servicioId+"/planes")
+    this.setPath("comercios/"+comercioId+"/servicios/"+this.servicioId+"/planes");
   }
-  
-  public create(data:Plan) { 
+
+  public set(data) { 
     this.servicioId = data.servicioId;  
     const param = JSON.parse(JSON.stringify(data));
-
     let id =""; //El id es el primer nombre! logica pensada para que reemplace al cambiarse el nombre del plan
     if(param.id != ""){
       id = param.id;
@@ -31,36 +33,9 @@ export class PlanesService {
     else{
       id=param.nombre;
     }
+    console.log(id);
     console.log(param);
-    return this.firestore.collection(this.getCollection()).doc(id).set(param);
-  }
-
-  public get(servicioId:any,documentId: string) {
-    this.servicioId = servicioId;
-    return this.firestore.collection(this.getCollection()).doc(documentId).snapshotChanges();
-  }
-
-  
-
-  public getAll(servicioId:any) {   
-    this.servicioId = servicioId;
-    return this.firestore.collection(this.getCollection()).snapshotChanges();
-  }
-
-  getRef(id){
-    return this.firestore.collection(this.getCollection()).doc(id).ref;
-  }
-  
-
-  public update(data:Plan) {
-    this.servicioId = data.servicioId;  
-    const param = JSON.parse(JSON.stringify(data));
-    return this.firestore.collection(this.getCollection()).doc(data.servicioId).set(param);
-  }
-
-  public delete(data:Plan){ 
-    this.servicioId = data.servicioId;    
-    this.firestore.collection(this.getCollection()).doc(data.id).delete();
-  } 
-  
+    console.log(this.path)
+    return this.afs.collection(this.path).doc(id).set(param);
+  }  
 }

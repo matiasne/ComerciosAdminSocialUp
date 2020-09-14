@@ -72,16 +72,10 @@ export class FormDepositoCtaCorrientePage implements OnInit {
       motivo:['']   
     });
 
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.cajasService.getAll(comercio_seleccionadoId).subscribe(snapshot=>{
-                 
-      this.cajas =[];
-      snapshot.forEach((snap: any) => {           
-          var item = snap.payload.doc.data();
-          item.id = snap.payload.doc.id;              
-          this.cajas.push(item);
-          console.log(this.cajas)             
-      });
+    
+    this.cajasService.list().subscribe((cajas:any)=>{                 
+      this.cajas =cajas;
+      
     });
     
   }
@@ -131,10 +125,8 @@ export class FormDepositoCtaCorrientePage implements OnInit {
   obtenerDatos(){
 
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    var csub = this.cajasService.get(comercio_seleccionadoId,this.datosForm.controls.cajaId.value).subscribe(snapshot=>{
-      var caja:any = snapshot.payload.data();
+    this.cajasService.get(this.datosForm.controls.cajaId.value).subscribe(caja=>{      
       this.caja = caja;
-      csub.unsubscribe();
     })
   }
 

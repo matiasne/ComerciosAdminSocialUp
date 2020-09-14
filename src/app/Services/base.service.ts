@@ -9,9 +9,7 @@ import { Timestamp } from 'rxjs/internal/operators/timestamp';
   providedIn: 'root'
 })
 export class BaseService {
-
-
-
+    
     private collection: AngularFirestoreCollection;
 
     public path:string ="";

@@ -58,9 +58,7 @@ export class AddServicioSubscripcionPage implements OnInit {
       plan: ['', Validators.required],
       pagoAdelantado :['true', Validators.required],
       fechaInicio:[this.currentDate()]
-    });
-
-    
+    }); 
 
   }
 
@@ -75,25 +73,16 @@ export class AddServicioSubscripcionPage implements OnInit {
     })
 
     if(this.route.snapshot.params.id){
-      var subs = this.servicioService.get(this.route.snapshot.params.id).subscribe(servicio=>{
-        
+      var subs = this.servicioService.get(this.route.snapshot.params.id).subscribe(servicio=>{        
         this.servicio.asignarValores(servicio);
         this.servicio.pagoAdelantado = "true";
-
         this.loadingService.dismissLoading();
-
         this.loadingService.presentLoading();
-        var subsplanes = this.planesService.getAll(this.servicio.id).subscribe(snapshot=>{
-          this.planes =[];
+        this.planesService.setPathIds(this.servicio.id); 
+        this.planesService.list().subscribe(items=>{                 
+          this.planes = items;
           this.loadingService.dismissLoading();
-          snapshot.forEach((snap: any) => {           
-              var item = snap.payload.doc.data();
-              item.id = snap.payload.doc.id;              
-              this.planes.push(item);
-              console.log(this.planes)             
-          });
-          subsplanes.unsubscribe();
-        })
+        });        
         subs.unsubscribe();
       })
     }

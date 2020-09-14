@@ -34,16 +34,6 @@ export class ComandasService {
 
   public create(carrito) {
    
-  /*  this.comerciosService.getSelectedCommerce().subscribe(data=>{
-      let comercio:any = data;
-      console.log(comercio)
-      comercio.rolComandatarios.forEach(comandatarioId => {
-        this.notificacionesService.enviarByRolId(comandatarioId,"Comandas","Nueva Comanda Generada!!!");
-      });      
-    }); 
-
-    
-        */
     var comanda = new Comanda(this.authService.getUID(),this.authService.getActualUser().displayName,this.authService.getActualUser().email);
     comanda.clienteId = "";
     comanda.clienteNombre = "";

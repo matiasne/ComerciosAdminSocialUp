@@ -3,9 +3,6 @@ import { ComerciosService } from '../Services/comercios.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Comercio } from '../models/comercio';
-import { CajasService } from '../Services/cajas.service';
-import { CategoriasService } from '../Services/categorias.service';
-import { HorariosService } from '../Services/horarios.service';
 
 @Component({
   selector: 'app-form-comercio-configuracion',

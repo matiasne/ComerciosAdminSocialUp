@@ -32,10 +32,7 @@ export class HomePage implements OnInit {
   ) { }
 
   ngOnInit() {
-    /*this.notificationWebService.enviar().subscribe(data=>{
-      console.log(data);
-    })*/
-   
+ 
   }
 
   refresh(event) {
