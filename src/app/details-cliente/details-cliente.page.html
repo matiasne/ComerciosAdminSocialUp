@@ -9,67 +9,108 @@
 
 <ion-content class="ion-padding">
    
-  <div class="container-foto" *ngIf="cliente.foto" >
-    <img class="portada-foto" src="{{cliente.foto}}" alt="" (click)="selectImage()">
+  <ion-segment (ionChange)="segmentChanged($event)">
+    <ion-segment-button value="info">
+      <ion-label>Info</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="estado">
+      <ion-label>Estado</ion-label>
+    </ion-segment-button>
+  </ion-segment>  
+
+  <div *ngIf="seccionActiva == 'info'">
+    <ion-item (click)="enviarMail()" class="item-card">
+      <div slot="start">      
+        <ion-icon name="person-outline"></ion-icon>
+      </div>      
+      <ion-label text-wrap>
+        <h2><b>{{cliente.nombre}}</b></h2>           
+        <p>documento: {{cliente.documento}}</p>  
+        <p>fecha nacimiento: {{cliente.fecha_nacimiento}}</p>  
+        <p>Cliente desde: {{cliente.createdAt}}</p>    
+      </ion-label>  
+    </ion-item>
+  
+    <ion-item (click)="enviarMail()" class="item-card">
+      <div slot="start">      
+        <ion-icon name="mail-outline"></ion-icon>
+      </div>      
+      <ion-label>
+        <h2><b>{{cliente.email}}</b></h2>        
+      </ion-label>  
+    </ion-item>
+  
+    <ion-item (click)="llamar()" class="item-card">
+      <div slot="start">      
+        <ion-icon name="call-outline"></ion-icon>
+      </div>      
+      <ion-label>
+        <h2><b>{{cliente.telefono}}</b></h2>        
+      </ion-label>  
+    </ion-item>
+  
+    <ion-item class="item-card">
+      <div slot="start">      
+        <ion-icon name="location-outline"></ion-icon>
+      </div>      
+      <ion-label>
+        <h2><b>{{cliente.direccion}}</b></h2>        
+      </ion-label>    
+    </ion-item>
+    <div id="mapA" class="map"></div>
+    
+  
+    <ion-item class="item-card"> 
+      <div slot="start">      
+        <ion-icon name="create-outline"></ion-icon>
+      </div>       
+      <ion-label> 
+        <h2><b>{{cliente.descripcion}}</b></h2>        
+      </ion-label>       
+    </ion-item>  
   </div>
-
-
-  <!--h4>
-      <ion-icon class="menu-icon" name="mail"></ion-icon>
-      Calle: {{usuario.address.street_name}} Número {{usuario.address.street_number}}<br>
-      Piso: {{usuario.address.floor_number}} Puerta: Piso: {{usuario.address.door_number}}
-  </h4-->
+  <div *ngIf="seccionActiva == 'estado'">
+ 
+    <h2>Cuentas Corrientes:</h2>
+    <div *ngIf="ctasCorrientes.length == 0">
+      <ion-button slot="start"  color="light" (click)="crearCuentaCorriente()">Crear Cuenta Corriente</ion-button>
+    </div>
+    <div *ngIf="ctasCorrientes.length != 0">
+      <ion-list lines="none">
+        <ion-item-sliding  class="item-card" *ngFor="let item of ctasCorrientes">
+          <ion-item (click)="seleccionarCuentaCorriente(item)">           
+            <ion-label>
+              <p>  
+                {{item.nombre}}
+              </p> 
+              <p>
+                <b>{{item.montoTotal | currency}}</b> 
+              </p>        
+            </ion-label>         
+          </ion-item>
   
-  <ion-item (click)="enviarMail()" class="item-card">
-    <div slot="start">      
-      <ion-icon name="person-outline"></ion-icon>
-    </div>      
-    <ion-label text-wrap>
-      <h2><b>{{cliente.nombre}}</b></h2>           
-      <p>documento: {{cliente.documento}}</p>  
-      <p>fecha nacimiento: {{cliente.fecha_nacimiento}}</p>  
-      <p>Cliente desde: {{cliente.createdAt}}</p>    
-    </ion-label>  
-  </ion-item>
+          <ion-button size="large" *ngFor="let pagare of item.pagares" color="danger"  (click)="cobrar(item)">
+            {{pagare.fecha}}  {{pagare.monto | currency}}
+          </ion-button>
+  
+        <ion-item-options side="end">
+          <ion-item-option color="primary" (click)="editarCtaCorriente(item)"><ion-icon name="trash" ></ion-icon> Editar</ion-item-option>
+        </ion-item-options>
+  
+        </ion-item-sliding>
+      </ion-list>
+    </div>
+    <h2>Subscripciones:</h2>
+    <ion-list lines="none">    
+      <div *ngFor="let item of subscripciones">
+        <app-card-subscription [item]="item"></app-card-subscription>
+      </div>     
+    </ion-list>
 
-  <ion-item (click)="enviarMail()" class="item-card">
-    <div slot="start">      
-      <ion-icon name="mail-outline"></ion-icon>
-    </div>      
-    <ion-label>
-      <h2><b>{{cliente.email}}</b></h2>        
-    </ion-label>  
-  </ion-item>
-
-  <ion-item (click)="llamar()" class="item-card">
-    <div slot="start">      
-      <ion-icon name="call-outline"></ion-icon>
-    </div>      
-    <ion-label>
-      <h2><b>{{cliente.telefono}}</b></h2>        
-    </ion-label>  
-  </ion-item>
-
-  <ion-item (click)="verMapa()" class="item-card">
-    <div slot="start">      
-      <ion-icon name="location-outline"></ion-icon>
-    </div>      
-    <ion-label>
-      <h2><b>{{cliente.direccion}}</b></h2>        
-    </ion-label>    
-  </ion-item>
-  <div id="mapA" class="map"></div>
+  </div>
+  
+  
+  
   
 
-  <ion-item (click)="llamar()" class="item-card">
-    <div slot="start">      
-      <ion-icon name="create-outline"></ion-icon>
-    </div>      
-    <ion-label>
-      <h2><b>{{cliente.descripcion}}</b></h2>        
-    </ion-label>  
-  </ion-item>
-
-  <ion-button size="large" (click)="editar()"  expand="block">Editar</ion-button>
-  
 </ion-content>

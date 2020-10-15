@@ -8,12 +8,13 @@
 </ion-header>
 
 <ion-content class="ion-padding" >
-  <ion-toolbar>
+  <ion-toolbar>  
     <ion-text slot="start" color="primary">
       <h4> {{ctaCorriente.montoTotal | currency}}</h4>        
     </ion-text>
+    <ion-button slot="end" color="danger" size="large" (click)="extraer()"  expand="block">Extraer</ion-button>
     <ion-button slot="end" color="success" size="large" (click)="depositar()"  expand="block">Depositar</ion-button>
-  </ion-toolbar>
+  </ion-toolbar> 
 
   
   <ion-item >
@@ -53,9 +54,9 @@
       <p>
         {{item.motivo}}
       </p>         
-      <!--p style="font-size: 12px;">
-        {{item.vendedorNombre}} - {{item.createdAt.seconds | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
-      </p-->           
+      <p style="font-size: 12px;">
+        {{item.vendedorNombre}} - {{item.createdAt | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
+      </p>           
     </ion-label> 
 
     <ion-label *ngIf="item.extraccion">
@@ -64,9 +65,9 @@
         {{item.motivo}}
       </p> 
       <p style="font-size: 12px;">
-        {{item.vendedorNombre}} 
+        {{item.vendedorNombre}} - {{item.createdAt | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
       </p>           
-    </ion-label>  
+    </ion-label>   
   </ion-item>
   <ion-item-options side="end">
     <ion-item-option color="danger" (click)="eliminar(item)"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>

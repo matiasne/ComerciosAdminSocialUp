@@ -58,8 +58,6 @@ export class SelectClientePage implements OnInit {
           this.items.push(item);
           return;
         }
-          
-
       });     
     }
     else{
@@ -68,7 +66,6 @@ export class SelectClientePage implements OnInit {
   }
 
   obtenerTodos(){
-   
     
     this.subsItems = this.clientesService.getAll().subscribe((snapshot) => {
      
@@ -79,13 +76,9 @@ export class SelectClientePage implements OnInit {
         console.log(this.items); 
         this.itemsAll.push(item);  
       });
-      console.log(this.itemsAll); 
-      
-  
-      this.loadingService.dismissLoading();  
-      
-      this.buscar();
-      
+      console.log(this.itemsAll);  
+      this.loadingService.dismissLoading();     
+      this.buscar();     
     });
   }
 
@@ -94,9 +87,7 @@ export class SelectClientePage implements OnInit {
       'item': item
     });
   }
-
-
-
+  
   nuevo(){
     this.router.navigate(['form-cliente']);
     this.modalCtrl.dismiss();

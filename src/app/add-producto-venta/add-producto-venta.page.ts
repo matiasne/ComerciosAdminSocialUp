@@ -50,6 +50,7 @@ export class AddProductoVentaPage implements OnInit {
   ngOnInit() {
 
     this.producto = new Producto();
+    this.loadingService.presentLoading();
     if(this.navParams.get('id')){
       var subs = this.productoService.get(this.navParams.get('id')).subscribe(snapshot=>{
         this.loadingService.dismissLoading();
@@ -107,8 +108,11 @@ export class AddProductoVentaPage implements OnInit {
     console.log("seleccionada");
     grupo.opciones.forEach(element => {
       opcion.seleccionada = false;
+      opcion.cantidad = 0;
     });
     opcion.seleccionada = true;
+    opcion.cantidad = 1;
+    
   }
 
   seleccionarOpcionCheck(grupo:GrupoOpciones, opcion:Opcion){

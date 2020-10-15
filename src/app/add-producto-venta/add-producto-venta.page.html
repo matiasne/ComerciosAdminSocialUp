@@ -17,7 +17,7 @@
         <ion-icon name="cube" *ngIf="!producto.foto"></ion-icon>
       </ion-avatar>      
       <ion-label>
-        <h2><b>{{producto.nombre}}</b><br> <h1 [class.cambiando]="totalCambiando"><b>{{precioShow | currency}}</b></h1></h2>
+        <h2><b>{{producto.nombre}}</b><br> <h1 [class.cambiando]="totalCambiando"><b>{{producto.precioTotal | currency}}</b></h1></h2>
         <p>
           {{producto.descripcion}}
         </p>           
@@ -28,7 +28,7 @@
   <div class="container-producto" *ngIf="producto.id != ''">  
     <ion-item class="item-producto-cantidad" lines="none">
       <ion-button class="btn-agregar" slot="start" (click)="restarCantidad()"><ion-icon name="remove"></ion-icon></ion-button>
-      Cantidad: {{producto.cantidad}}
+      Cantidad: {{producto.cantidad}} {{producto.unidad}}
       <ion-button class="btn-agregar"  slot="end" (click)="sumarCantidad()">
         <ion-icon name="add"> </ion-icon>
       </ion-button>

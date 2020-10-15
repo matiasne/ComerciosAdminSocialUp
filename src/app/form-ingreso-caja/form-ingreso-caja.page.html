@@ -43,40 +43,13 @@
   <ion-item class="item-card">
     <ion-label>Seleccione Método de Pago</ion-label>
       <ion-select [(ngModel)]="metodoPagoSeleccionado">
-        <ion-select-option  [value]="efectivo">Efectivo</ion-select-option>
-        <ion-select-option  [value]="debito">Débito</ion-select-option>
-        <ion-select-option  [value]="credito">Crédito</ion-select-option>
-        <ion-select-option  [value]="ctaCorriente">Cta. Corriente</ion-select-option>
+        <ion-select-option  [value]="'efectivo'">Efectivo</ion-select-option>
+        <ion-select-option  [value]="'debito'">Débito</ion-select-option>
+        <ion-select-option  [value]="'credito'">Crédito</ion-select-option>
       </ion-select>    
   </ion-item>
 
-  <ion-item *ngIf="metodoPagoSeleccionado == 'Cta. Corriente' && !cliente.id" class="item-card">
-    <ion-button  size="large" (click)="seleccionarCliente()"  expand="block">Seleccionar Cliente * </ion-button>
-  </ion-item> 
-  <ion-item *ngIf="metodoPagoSeleccionado == 'Cta. Corriente' && cliente.id" class="item-card">
-    <ion-avatar slot="start" (click)="seleccionarCliente()">
-      <img src="{{cliente.foto}}" *ngIf="cliente.foto">
-      <ion-icon name="person" *ngIf="!cliente.foto"></ion-icon>
-    </ion-avatar>
-    <ion-label (click)="seleccionarCliente()">
-      <h2>{{cliente.nombre}}</h2>
-      <h3>{{cliente.email}}</h3>
-    </ion-label>      
-    <ion-button color="danger" slot="end" (click)="eliminarCliente()"><ion-icon name="trash"></ion-icon></ion-button>       
-  </ion-item>
-          
-  <ion-item class="item-card" *ngIf="metodoPagoSeleccionado == 'Cta. Corriente'">
-    <ion-label >Seleccione Cuenta Corriente:</ion-label>
-    <ion-select  [(ngModel)]="ctaCorrienteSelecccionadaId" (ionChange)="setearCtaCorriente()">
-      <ion-select-option *ngFor="let cta of ctasCorrientes" [value]="cta.id">{{cta.nombre}}</ion-select-option>
-    </ion-select>
-  </ion-item>
-
-  <div *ngIf="metodoPagoSeleccionado == 'Cta. Corriente'">
-    Se depositarán en la cuenta corriente seleccionada el monto {{datosForm.controls.monto.value | currency}}
-  </div>
-    
-
+  
 
   <ion-toolbar>
     <ion-button slot="end" (click)="guardar()">Guardar</ion-button>

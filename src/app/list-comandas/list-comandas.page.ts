@@ -58,7 +58,7 @@ export class ListComandasPage implements OnInit {
       console.log(this.itemsComandas);
     });
 
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
+    /*let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
     this.subsPedidosComercio = this.pedidoService.getPedidoPendienteByCommerce(comercio_seleccionadoId).subscribe((snapshot) => { 
       this.itemsPedidos = [];  
       
@@ -73,7 +73,7 @@ export class ListComandasPage implements OnInit {
         }); 
         
         console.log(this.itemsPedidos)
-    });
+    });*/
   }
 
   toDateTime(secs) {
@@ -82,79 +82,7 @@ export class ListComandasPage implements OnInit {
     return t;
   }
 
-  async eliminar(item){
-
-    const alert = await this.alertController.create({
-      header: 'Está seguro que desea eliminar la comanda?',
-      message: 'Se perderán todos los movimientos y pagos de la misma.',
-      buttons: [
-        {
-          text: 'Cancelar',
-          handler: (blah) => {
-            
-          }
-        }, {
-          text: 'Eliminar',
-          handler: () => {           
-            this.comandasService.delete(item.id);  
-          }
-        }
-      ]
-    });
-    await alert.present();
-
-    
-  }
-
-  comandaTomada(item:Comanda){
-    console.log(item);
-    this.comandasService.setComandaTomada(item);
-  }
-
-  pedidoTomado(item:Pedido){
-    this.pedidoService.setPedidoTomado(item,0);
-  }
-
-  comandaLista(item:Comanda){
-    this.comandasService.setComandaLista(item);
-  }
-
-  pedidoListo(item:Pedido){
-    this.pedidoService.setPedidoListo(item);
-  }
-
-  pedidoEnviado(item:Pedido){
-    this.pedidoService.setPedidoEnviado(item);
-  }
-
-  pedidoCancelado(item:Pedido){
-    this.pedidoService.setPedidoCancelado(item);
-  }
-
-  noMostrar(pedido){
-    this.pedidoService.setPedidoNoMostrar(pedido);
-  }
-
-  cobrarComanda(item:Comanda){
-    console.log(item);
-    this.carritoService.agregarComanda(item);   
-    //this.carritoService.carrito =  item.carrito;
-    this.router.navigate(['details-carrito',{
-      comanda:false,
-      cobro:true
-    }]);
-  }
-
-  cobrarPedido(item:Pedido){
-    console.log(item);
-    this.carritoService.agregarPedido(item);
-
-    //this.carritoService.carrito =  item.carrito;
-    this.router.navigate(['details-carrito',{
-      comanda:false,
-      cobro:true
-    }]);
-  }
+  
 
 
 

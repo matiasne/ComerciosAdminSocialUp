@@ -44,7 +44,8 @@ export class FormProductoPage implements OnInit {
   public titulo = "Nuevo Producto";
 
   public producto:Producto;
-
+  public croppedImageIcono ="";
+  
   constructor(
     private formBuilder: FormBuilder,
     private imagePicker: ImagePicker,
@@ -100,7 +101,7 @@ export class FormProductoPage implements OnInit {
         this.datosForm.patchValue(data.payload.data());
         this.producto.asignarValores(data.payload.data())
         this.producto.id = data.payload.id;
-        
+        this.croppedImageIcono = this.producto.foto;
        
       })
     }
@@ -195,7 +196,7 @@ export class FormProductoPage implements OnInit {
       this.productosService.create(this.producto);
     }
 
-    this.modalController.dismiss();
+    this.navCtrl.back();
 
   }
 
@@ -232,7 +233,7 @@ export class FormProductoPage implements OnInit {
   
 
   cancelar(){
-    this.modalController.dismiss();
+    this.navCtrl.back();
   }
 
   elimiar(){
@@ -253,7 +254,7 @@ export class FormProductoPage implements OnInit {
           text: 'Eliminar',
           handler: () => {
             this.productosService.delete(this.route.snapshot.params.id);
-            this.modalController.dismiss();
+            this.navCtrl.back();
           }
         }
       ]

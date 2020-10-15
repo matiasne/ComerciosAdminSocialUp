@@ -22,6 +22,7 @@ export class CtaCorrientesService {
 
   getCollection(){  
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+    console.log("!!!"+comercio_seleccionadoId)
     return this.collection = 'comercios/'+comercio_seleccionadoId+'/ctascorrientes';
   }
   
@@ -61,8 +62,9 @@ export class CtaCorrientesService {
     return this.firestore.collection(this.getCollection(), ref =>ref.orderBy("createdAt")).snapshotChanges();
   } 
 
-
-
+  public getByClienteId(id) {   
+    return this.firestore.collection(this.getCollection(), ref =>ref.where(id,"==","clienteId")).snapshotChanges();
+  } 
  
   public update(data:CtaCorriente) {
     const param = JSON.parse(JSON.stringify(data));

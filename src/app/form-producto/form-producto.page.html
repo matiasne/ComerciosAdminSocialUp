@@ -66,13 +66,13 @@
       <ion-item [class.invalid]="submitted && !datosForm.controls.unidad.valid">
         <ion-label>Unidad de medida</ion-label>
         <ion-select formControlName="unidad">
-          <ion-select-option [value]="unidad" selected>Unidad</ion-select-option>
-          <ion-select-option [value]="gramos">Gramos</ion-select-option>
-          <ion-select-option [value]="kilogramos" >Kilogramos</ion-select-option>
-          <ion-select-option [value]="centimetros" >Centímetros</ion-select-option>
-          <ion-select-option [value]="metros" >Metros</ion-select-option>
-          <ion-select-option [value]="mililitros" >Mililitros</ion-select-option>
-          <ion-select-option [value]="litros" >Litros</ion-select-option>
+          <ion-select-option [value]="'unidad'" selected>Unidad</ion-select-option>
+          <ion-select-option [value]="'gramos'">Gramos</ion-select-option>
+          <ion-select-option [value]="'kilogramos'" >Kilogramos</ion-select-option>
+          <ion-select-option [value]="'centimetros'" >Centímetros</ion-select-option>
+          <ion-select-option [value]="'metros'" >Metros</ion-select-option>
+          <ion-select-option [value]="'mililitros'" >Mililitros</ion-select-option>
+          <ion-select-option [value]="'litros'" >Litros</ion-select-option>
         </ion-select>
       </ion-item> 
       <div *ngIf="submitted && f.unidad.errors" class="invalid-feedback">
@@ -182,7 +182,7 @@
   </div>
 
   <ion-toolbar>
-    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+    <ion-button slot="end" color="success" (click)="guardar()">Guardar</ion-button>
     
     <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
   </ion-toolbar>

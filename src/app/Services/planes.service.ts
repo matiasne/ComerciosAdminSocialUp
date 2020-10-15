@@ -24,7 +24,10 @@ export class PlanesService extends BaseService{
   }
 
   public set(data) { 
-    this.servicioId = data.servicioId;  
+     
+
+    this.setPathIds(data.servicioId);
+
     const param = JSON.parse(JSON.stringify(data));
     let id =""; //El id es el primer nombre! logica pensada para que reemplace al cambiarse el nombre del plan
     if(param.id != ""){
@@ -36,6 +39,8 @@ export class PlanesService extends BaseService{
     console.log(id);
     console.log(param);
     console.log(this.path)
-    return this.afs.collection(this.path).doc(id).set(param);
+    this.afs.collection(this.path).doc(id).set(param).then(data=>{
+      console.log("!!!")
+    });
   }  
 }

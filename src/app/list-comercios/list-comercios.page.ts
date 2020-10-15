@@ -63,4 +63,16 @@ export class ListComerciosPage implements OnInit {
     }
   }
 
+  editar(item){
+
+  }
+
+  seleccionar(item){
+
+  }
+
+  buscar(){
+    
+  }
+
 }

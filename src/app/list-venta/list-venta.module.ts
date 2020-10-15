@@ -15,6 +15,6 @@ import { ListVentaPage } from './list-venta.page';
     IonicModule,
     ListVentaPageRoutingModule
   ],
-  declarations: [ListVentaPage]
+  declarations: []
 })
 export class ListVentaPageModule {}

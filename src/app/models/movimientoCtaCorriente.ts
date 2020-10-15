@@ -11,7 +11,8 @@ export class MovimientoCtaCorriente{
     public metodoPago ="";
     public createdAt="";
     public pagoId="";
-
+    public fotoCtaCorriente:any;
+    
 	constructor(
 		public vendedorId:"", 
         public vendedorNombre:""

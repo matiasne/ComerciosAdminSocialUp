@@ -429,12 +429,12 @@ export class ListProductosServiciosPage implements OnInit {
   }
 
   async nuevoProducto(){
-    //this.router.navigate(['form-producto']);
-    let modal = await this.modalCtrl.create({
+    this.router.navigate(['form-producto']);
+    /*let modal = await this.modalCtrl.create({
       component: FormProductoPage
     });
 
-    return await modal.present();
+    return await modal.present();*/
     
   }
 }

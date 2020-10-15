@@ -17,6 +17,7 @@ export class FormCajaPage implements OnInit {
   submitted = false;
   public caja:Caja;
   public updating = false;
+  public titulo="";
   public comercioId = "";
 
   constructor(
@@ -40,11 +41,13 @@ export class FormCajaPage implements OnInit {
     if(this.navParams.get('caja')){
       this.caja = this.navParams.get('caja'); 
       this.updating = true;
+      this.titulo ="Editar Caja"
       this.datosForm = this.formBuilder.group({
         nombre: [this.caja.nombre, Validators.required],
       });
     }   
-    else{    
+    else{ 
+      this.titulo ="Nueva Caja"   
       this.caja.comercioId = this.navParams.get('comercioId'); 
     } 
     
@@ -116,7 +119,9 @@ export class FormCajaPage implements OnInit {
         }, {
           text: 'Eliminar',
           handler: () => {           
-            this.cajasService.delete(this.caja.id);     
+            this.cajasService.delete(this.caja.id).then(data=>{
+              console.log(data);
+            });     
             this.modalCtrl.dismiss();
           }
         }

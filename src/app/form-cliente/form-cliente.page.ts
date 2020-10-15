@@ -15,6 +15,7 @@ import { LoadingService } from '../Services/loading.service';
 import { Cliente } from '../models/cliente';
 import { Subscription } from 'rxjs';
 import { ToastService } from '../Services/toast.service';
+import { SelectClientePage } from '../select-cliente/select-cliente.page';
 
 declare var google: any;
 
@@ -228,7 +229,7 @@ export class FormClientePage implements OnInit {
 
   async verClientes(){
     const modal = await this.modalController.create({
-      component: ListClientesPage      
+      component: SelectClientePage      
     });
     modal.onDidDismiss()
     .then((retorno) => {

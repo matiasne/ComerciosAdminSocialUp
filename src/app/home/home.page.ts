@@ -49,23 +49,23 @@ export class HomePage implements OnInit {
     localStorage.setItem('comercio_seleccionadoId',null);
     this.comerciosService.setSelectedCommerce("");
     this.loadingService.presentLoading();
+    this.comercios = [];
+
+    console.log("!entrando a home");
     this.subsItems = this.rolesService.getAllRolesbyUser().subscribe(snapshot =>{        
-      this.loadingService.dismissLoading();
-      
+      this.loadingService.dismissLoading();      
       snapshot.forEach(snap =>{
-        var rol:any = snap;    
-        console.log(rol);        
+        var rol:any = snap;     
         this.loadingService.presentLoading();
-        this.comercios = [];
+        console.log(rol);
         this.comercioSubs = this.comerciosService.get(rol.comercioId).subscribe(data =>{  
-          console.log(data);
           if(data.payload){
             var comercio:any = data.payload.data();   
             comercio.id = data.payload.id;
             comercio.rol = rol;  
-            console.log(comercio);
             this.comercios.push(comercio);
-          }         
+          }       
+          console.log(comercio);  
           this.loadingService.dismissLoading();
           
         });
@@ -78,8 +78,8 @@ export class HomePage implements OnInit {
   }
 
   ionViewDidLeave(){
-    this.comercioSubs.unsubscribe();
-    this.subsItems.unsubscribe(); 
+    //this.comercioSubs.unsubscribe();
+    //this.subsItems.unsubscribe(); 
   }
 
   async nuevoComercio(){
@@ -87,20 +87,12 @@ export class HomePage implements OnInit {
   }
 
   seleccionar(comercio){
-
-    if(comercio.rol.estado == "pendiente"){
-      this.preguntaInvitacion(comercio.rol);
-    }
-    else{
-      if(comercio.rol.rol == "owner"){
+      if(comercio.rol.rol == "owner" || comercio.rol.rol == "admin"){
         console.log(comercio);
         this.comerciosService.setSelectedCommerce(comercio.id);
         this.authService.setRol(comercio.rol);
         this.router.navigate(['dashboard-comercio',{id:comercio.id}]);
-      }
-      
-    }
-    
+      }      
   }
 
   editarInvitacion(item){
@@ -113,8 +105,7 @@ export class HomePage implements OnInit {
     this.router.navigate(['form-comercio',{id:item.id}]);
   }
 
-  async desvincular(rolDocumentId){
-    
+  async desvincular(comercio){   
 
       const alert = await this.alertController.create({
         header: 'Eliminar',
@@ -128,7 +119,23 @@ export class HomePage implements OnInit {
           }, {
             text: 'Desvincular',
             handler: () => {
-              this.rolesService.delete(rolDocumentId);
+              console.log(comercio)
+              this.rolesService.delete(comercio.rol.id);
+              if(comercio.rol.rol =="comandatario"){
+                console.log("!!!!")
+                comercio.rolComandatarios.forEach((rolId,i) =>{
+                  console.log(rolId);
+                  if(rolId == comercio.rol.id){
+                    console.log(i)
+                    comercio.rolComandatarios.splice(i,1);
+                    delete comercio.rol;
+                    this.comerciosService.update(comercio).then(data=>{
+                      console.log("ok")
+                    });
+                  }
+                })  
+              }
+              
               this.ionViewDidEnter();
             }
           }
@@ -137,35 +144,4 @@ export class HomePage implements OnInit {
       await alert.present();
     }
 
-
-    async preguntaInvitacion(item){
-
-      const alert = await this.alertController.create({
-        header: 'Invitación',
-        message: 'Deseas aceptar ser miembro de este comercio?',
-        buttons: [
-          {
-            text: 'Rechazar',
-            handler: (blah) => {
-              item.estado = "aceptado";
-              this.rolesService.delete(item.id);
-              this.ionViewDidEnter();
-            }
-          }, {
-            text: 'Aceptar',
-            handler: () => {  
-               
-              item.estado = "aceptado";
-              item.userId = this.authService.getUID();
-              this.rolesService.update(item.id,item);  
-              this.ionViewDidEnter();
-            }
-          }
-        ]
-      });
-      await alert.present();    
-    }
-
-  
-
-}
+  }

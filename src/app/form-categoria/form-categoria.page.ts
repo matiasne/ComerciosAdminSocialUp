@@ -19,7 +19,7 @@ export class FormCategoriaPage implements OnInit {
   public updating:boolean = false;
   public comercioId = "";
   public categoria:Categoria;
-  
+  public titulo = "";
   constructor(
     private formBuilder: FormBuilder,
     private navCtrl: NavController,    
@@ -46,6 +46,7 @@ export class FormCategoriaPage implements OnInit {
       let categoria = this.navParams.get('categoria');
       console.log(categoria);
       this.updating = true;
+      this.titulo = "Editar Categoria";
       this.datosForm = this.formBuilder.group({
         nombre: [categoria.nombre, Validators.required],
       });
@@ -53,10 +54,9 @@ export class FormCategoriaPage implements OnInit {
       this.categoria.comercioId = categoria.comercioId;
       this.categoria.id = categoria.id;
       this.categoria.foto = categoria.foto;
-
-
     }   
     else{
+      this.titulo ="Nueva Categoria";
       this.categoria = new Categoria();
       this.categoria.comercioId = this.navParams.get('comercioId'); 
     }

@@ -9,7 +9,6 @@ import { FormComercioPageRoutingModule } from './form-comercio-routing.module';
 import { FormComercioPage } from './form-comercio.page';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { ComponentsModule } from '../Components/components.module';
-import { SeleccionarImagenComponent } from '../Components/seleccionar-imagen/seleccionar-imagen.component';
 
 @NgModule({
   imports: [

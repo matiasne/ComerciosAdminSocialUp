@@ -47,10 +47,14 @@ export class BaseService {
     getRef(id){
       return this.collection.doc(id).ref;
     }
+
+    getCollection(){
+        return this.collection;
+    }
   
   
     list() {
-        console.log('[BaseService] list');    
+        console.log('[BaseService] list: '+this.path);    
   
         return this.collection
             .snapshotChanges()

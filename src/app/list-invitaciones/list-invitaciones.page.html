@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
-    <ion-title>List Invitaciones</ion-title>    
+    <ion-title>Invitaciones</ion-title>    
   </ion-toolbar>
 </ion-header>
 
@@ -18,8 +18,11 @@
         <ion-text color="primary">
           El usuario {{item.remitente}} quiere invitarte al comercio {{item.comercio_nombre}} como {{item.rol}}
         </ion-text>
-
-        <ion-button size="large" (click)="eliminarInvitacion(item)"  expand="block">Eliminar</ion-button>                 
+        <ion-toolbar>
+          <ion-button slot="start" color="danger" size="large" (click)="eliminarInvitacion(item)"  expand="block">Rechazar</ion-button>   
+        <ion-button slot="end" color="success" size="large" (click)="aceptarInvitacion(item)"  expand="block">Aceptar</ion-button>              
+        </ion-toolbar>
+        
       </ion-label>         
     </ion-item>    
   </ion-list>

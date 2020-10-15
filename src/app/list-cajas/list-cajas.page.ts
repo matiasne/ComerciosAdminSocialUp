@@ -3,6 +3,7 @@ import { CajasService } from '../Services/cajas.service';
 import { Subscription } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FormCajaPage } from '../form-caja/form-caja.page';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-cajas',
@@ -16,7 +17,8 @@ export class ListCajasPage implements OnInit {
   
   constructor(
     private cajasService:CajasService,
-    private modalController:ModalController
+    private modalController:ModalController,
+    private router:Router
   ) { }
 
   ngOnInit() {
@@ -29,6 +31,12 @@ export class ListCajasPage implements OnInit {
 
   ionViewDidLeave(){
     this.cajasSubs.unsubscribe();
+  }
+
+  seleccionar(cajaId){
+    this.router.navigate(['details-caja',{
+      id: cajaId
+    }]);
   }
 
   async openAddCaja(){

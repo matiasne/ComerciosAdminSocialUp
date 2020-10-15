@@ -34,14 +34,14 @@
     <ion-item class="item-card" *ngIf="cajas.length > 0">
       <ion-label>Seleccione Método de Pago</ion-label>
         <ion-select [(ngModel)]="metodoPagoSeleccionado" (ionChange)="setearMetodoPago()">
-          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].efectivo" [value]="efectivo">Efectivo</ion-select-option>
-          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].debito" [value]="debito">Débito</ion-select-option>
-          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].credito" [value]="credito">Crédito</ion-select-option>
-          <ion-select-option *ngIf="ctasCorrientes.length > 0" [value]="ctaCorriente">Cta. Corriente</ion-select-option>
+          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].efectivo" [value]="'efectivo'">Efectivo</ion-select-option>
+          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].debito" [value]="'debito'">Débito</ion-select-option>
+          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].credito" [value]="'credito'">Crédito</ion-select-option>
+          <ion-select-option *ngIf="ctasCorrientes.length > 0" [value]="'ctaCorriente'">Cta. Corriente</ion-select-option>
         </ion-select>    
     </ion-item>    
 
-    <ion-item class="item-card" *ngIf="metodoPagoSeleccionado == 'Cta. Corriente'">
+    <ion-item class="item-card" *ngIf="metodoPagoSeleccionado == 'ctaCorriente'">
       <ion-label >Seleccione Cuenta Corriente:</ion-label>
       <ion-select  [(ngModel)]="ctaCorrienteSelecccionadaId" (ionChange)="setearCtaCorriente()">
         <ion-select-option *ngFor="let cta of ctasCorrientes" [value]="cta.id">{{cta.nombre}}</ion-select-option>
@@ -121,7 +121,7 @@
 
 
     <div  class="form-card">
-      <ion-text color="primary">
+      <ion-text color="primary" *ngIf="carrito.servicios.length > 0 || carrito.servicios.length > 0">
         <h2>Total: {{carrito.totalProductos+carrito.totalServicios | currency}}</h2>
       </ion-text> 
     </div>
@@ -133,6 +133,7 @@
 
 <ion-footer class="ion-no-border ion-padding">
   <ion-toolbar>
+    
     <ion-button *ngIf="habilitadoCobro == 'true'" class="btn-footer-atras" color="light" (click)="cancelar()">Atras</ion-button>
     <ion-button *ngIf="habilitadoComanda == 'true'" class="btn-footer-agregar" color="primary" slot="end" (click)="comanda()">Comanda</ion-button>
     <ion-button class="btn-footer-agregar" color="success" slot="end" (click)="confirmar()">Cobrar</ion-button>

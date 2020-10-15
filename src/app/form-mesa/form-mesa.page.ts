@@ -13,6 +13,7 @@ import { RolesService } from '../Services/roles.service';
 import { FormInvitacionPage } from '../form-invitacion/form-invitacion.page';
 import { Rol } from '../models/rol';
 import { ToastService } from '../Services/toast.service';
+import { InvitacionesService } from '../Services/invitaciones.service';
 
 @Component({
   selector: 'app-form-mesa',
@@ -32,10 +33,10 @@ export class FormMesaPage implements OnInit {
   public elementType = 'url';
   public value = 'Techiediaries';
 
-  public encargados =[];
-  
+  public encargados =[];  
   public rolesNuevos = [];
-
+  public titulo ="";
+  
   constructor(
     private formBuilder: FormBuilder,
     private navCtrl: NavController,    
@@ -48,6 +49,8 @@ export class FormMesaPage implements OnInit {
     private barcodeScanner: BarcodeScanner,
     private rolesServices:RolesService,
     private toastServices:ToastService,
+    public invitacionesService:InvitacionesService
+    
     
   ) {
     this.datosForm = this.formBuilder.group({
@@ -75,33 +78,24 @@ export class FormMesaPage implements OnInit {
         this.mesa.id = snap.payload.id;
         console.log(this.mesa)
         this.updating = true;
+        this.titulo = "Editar Mesa";
         this.datosForm = this.formBuilder.group({
           nombre: [this.mesa.nombre, Validators.required],
-        });
+        });       
 
-        this.encargados = [];
-        if(this.mesa.rolEncargados.length > 0){
-          this.mesa.rolEncargados.forEach(rolId =>{
-            var sub = this.rolesServices.get(rolId).subscribe(snap =>{
-              var encargado = snap.payload.data();
-              console.log(encargado);
-              if(encargado)
-                this.encargados.push(encargado);
-              sub.unsubscribe();
-            });
-          });
-        }
+        this.create("https://pwhatsapp.page.link/?link=https://socialup-pedidos-whatsapp.web.app/details-comercio;id="+comercio_seleccionadoId+"&id="+comercio_seleccionadoId+"&mesaId="+this.mesa.id);
 
-        this.create("pedidossocialup.web.app/details-comercio;id="+comercio_seleccionadoId+";enLocal=true;comercioUnico=true;mesaId="+this.mesa.id);
+        
         sub.unsubscribe();
 
       })
       
     }   
     else{
+      this.titulo = "Nueva Mesa";
       this.mesa.id = this.firestore.createId();
       this.mesa.comercioId = comercio_seleccionadoId; 
-      this.create("pedidossocialup.web.app/details-comercio;id="+comercio_seleccionadoId+";enLocal=true;comercioUnico=true;mesaId="+this.mesa.id);
+      this.create("https://pwhatsapp.page.link/?link=https://socialup-pedidos-whatsapp.web.app/details-comercio;id="+comercio_seleccionadoId+"&id="+comercio_seleccionadoId+"&mesaId="+this.mesa.id);
     }    
    
    
@@ -121,20 +115,7 @@ export class FormMesaPage implements OnInit {
     modal.onDidDismiss()
     .then((retorno) => {
       if(retorno.data){   
-
-        console.log(retorno.data)   
-        var rol:Rol = new Rol();
-        rol.id = this.firestore.createId();
-        rol.comercioId = this.comercioId;
-        rol.user_email = retorno.data;
-        rol.rol = "encargado";
-        rol.estado = "pendiente";
-        
-        this.rolesNuevos.push(rol);
-        //this.mesa.rolEncargados.push(rol.id);
-        this.encargados.unshift(rol);
-
-        console.log(this.mesa.rolEncargados);
+        this.invitacionesService.enviarInvitacion(retorno.data,"encargado");
       }        
     });
     return await modal.present();
@@ -142,52 +123,13 @@ export class FormMesaPage implements OnInit {
 
   eliminarEncargado(index){  
 
-    var encontrado = false;
-    var indice = -1;
     
-
-    this.rolesNuevos.forEach((rol,i)=>{
-      console.log(rol.id+" "+this.encargados[index].id)
-      if(rol.id == this.encargados[index].id){ 
-        this.encargados.splice(index,1);      
-        encontrado = true;
-        indice = i;
-      }
-    })
-     
-    if(encontrado){
-      console.log("borrando nuevo")
-      this.rolesNuevos.splice(indice,1);      
-    }
-    else{
-      console.log(this.encargados[index].id) 
-      
-      console.log("borrando cargado")
-      this.mesa.rolEncargados.forEach((enc,j) =>{
-        console.log(enc)
-        if(enc == this.encargados[index].id){
-          console.log("delete")
-          this.rolesServices.delete(enc);
-          this.mesa.rolEncargados.splice(j,1);
-          
-        }
-      })    
-    }
-
-    this.encargados.splice(index,1);
-     
-
-    console.log(this.rolesNuevos)
-    console.log(this.mesa.rolEncargados);
-
-  
   }
 
 
   public create(data) {
     this.value =data;
   }
-
 
   get f() { return this.datosForm.controls; }
 
@@ -203,11 +145,7 @@ export class FormMesaPage implements OnInit {
 
     this.mesa.nombre = this.datosForm.controls.nombre.value;
 
-    this.rolesNuevos.forEach(rol =>{
-      console.log(rol)
-      this.rolesServices.create(rol);
-      this.mesa.rolEncargados.push(rol.id);
-    })
+    
 
     if(this.updating){
       this.mesasServices.update(this.mesa);

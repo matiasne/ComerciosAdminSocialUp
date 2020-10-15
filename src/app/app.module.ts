@@ -30,10 +30,7 @@ import { FormCategoriaPage } from './form-categoria/form-categoria.page';
 import { FCM } from '@ionic-native/fcm/ngx';
 import { ListClientesPage } from './list-clientes/list-clientes.page';
 import { ListServiciosPage } from './list-servicios/list-servicios.page';
-import { ListSubscripcionesPage } from './list-subscripciones/list-subscripciones.page';
 import { ListVentaPage } from './list-venta/list-venta.page';
-import { AddProductoVentaPage } from './add-producto-venta/add-producto-venta.page';
-import { AddServicioSubscripcionPage } from './add-servicio-subscripcion/add-servicio-subscripcion.page';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { FormCajaPage } from './form-caja/form-caja.page';
 import { FormDireccionPage } from './form-direccion/form-direccion.page';
@@ -44,7 +41,6 @@ import { SpeechRecognition } from '@ionic-native/speech-recognition/ngx';
 import { ListComerciosOwnerPage } from './list-comercios-owner/list-comercios-owner.page';
 import { FormProductoOpcionPage } from './form-producto-opcion/form-producto-opcion.page';
 import { NgxQRCodeModule } from 'ngx-qrcode2';
-import { SelectEmpleadoPage } from './select-empleado/select-empleado.page';
 import { FormInvitacionPage } from './form-invitacion/form-invitacion.page';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { RecortarImagenPage } from './recortar-imagen/recortar-imagen.page';
@@ -56,6 +52,7 @@ import { FullCalendarModule } from '@fullcalendar/angular'; // the main connecto
 import dayGridPlugin from '@fullcalendar/daygrid'; // a plugin
 import timeGridPlugin from '@fullcalendar/timegrid'; // a plugin
 import interactionPlugin from '@fullcalendar/interaction'; // a plugin
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyAenr8VfNta7u8NL5J4jpMtosnENy-Gcqc",
@@ -87,7 +84,6 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     RecortarImagenPage,
     FormInvitacionPage,
     ListClientesPage,
-    SelectEmpleadoPage,
     ListServiciosPage,
     ListVentaPage,
     ListComerciosOwnerPage,
@@ -103,7 +99,6 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     FormCajaPage,
     RecortarImagenPage,
     ListClientesPage,
-    SelectEmpleadoPage,
     ListServiciosPage,
     ListVentaPage,
     ListComerciosOwnerPage

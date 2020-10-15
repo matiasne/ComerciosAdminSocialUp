@@ -5,6 +5,7 @@ import { AuthenticationService } from './authentication.service';
 import * as firebase from 'firebase';
 import { RolesService } from './roles.service';
 import { CajasService } from './cajas.service';
+import { Comercio } from '../Models/comercio';
 
 @Injectable({
   providedIn: 'root'
@@ -13,13 +14,14 @@ export class ComerciosService {
 
   private collection:string;
   public commerceSubject = new BehaviorSubject <any>("");
-  
+  public comercio:Comercio;
   constructor(
     private firestore: AngularFirestore,
     private auth:AuthenticationService,
     private cajasService:CajasService,
     private rolesService:RolesService
   ) {
+    this.comercio = new Comercio();
     this.collection = 'comercios';
     /*this.setSelectedCommerce(localStorage.getItem('comercio_seleccionadoId'));*/
   }
@@ -40,7 +42,7 @@ export class ComerciosService {
         const param = JSON.parse(JSON.stringify(data));      
 
         let user = this.auth.getActualUser();
-        this.rolesService.setUserAsOwner(user.email,data.id);
+        this.rolesService.setUserAsAdmin(user.email,data.id);
 
         this.firestore.doc(this.collection+'/'+data.id).set({...param,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -67,7 +69,9 @@ export class ComerciosService {
     return this.firestore.collection(this.collection).snapshotChanges();
   }
 
-  
+  getRef(id){
+    return this.firestore.collection(this.collection).doc(id).ref;
+  }
 
   public update(data: any) {
     
@@ -81,12 +85,7 @@ export class ComerciosService {
   public delete(comercio,cajas) {
 
     this.rolesService.deleteByComercio(comercio.id);
-  
-    cajas.forEach(element => {
-      this.cajasService.delete(element);
-    });
-
-   // this.firestore.collection(this.collection).doc(comercio.id).delete();
+    this.firestore.collection(this.collection).doc(comercio.id).delete();
   }
 
   public setSelectedCommerce(comercioId){    
@@ -96,6 +95,7 @@ export class ComerciosService {
           var commerce:any = data.payload.data();
           commerce.id = data.payload.id;        
           this.commerceSubject.next(commerce);
+          this.comercio.asignarValores(commerce);
         });
     }
     else{

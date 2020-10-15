@@ -67,8 +67,7 @@ export class ListClientesPage implements OnInit {
 
   obtenerTodos(){
     
-    this.subsItems = this.clientesService.getAll().subscribe((snapshot) => {
-     
+    this.subsItems = this.clientesService.getAll().subscribe((snapshot) => {     
       this.itemsAll = [];  
       snapshot.forEach((snap: any) => {        
         var item = snap.payload.doc.data();
@@ -83,30 +82,18 @@ export class ListClientesPage implements OnInit {
   }
 
   seleccionar(item){
-    this.modalCtrl.dismiss({
-      'item': item
-    });
+    this.router.navigate(['details-cliente',{"id":item.id}]);
   }
   
   nuevo(){
     this.router.navigate(['form-cliente']);
-    this.modalCtrl.dismiss();
   }
 
-  irDashboardClientes(){    
-    this.router.navigate(['dashboard-clientes']);
-    this.modalCtrl.dismiss();
-  }
-  
-  
+
 
   editar(item){
     this.router.navigate(['form-cliente',{id:item.id}]);
-    this.modalCtrl.dismiss();
   }
 
-  cancelar(){
-    this.modalCtrl.dismiss();
-  }
 
 }

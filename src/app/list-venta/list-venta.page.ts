@@ -72,4 +72,8 @@ export class ListVentaPage implements OnInit {
     }
   }
 
+  buscar(){
+    
+  }
+
 }

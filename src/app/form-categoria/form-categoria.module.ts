@@ -7,11 +7,10 @@ import { IonicModule } from '@ionic/angular';
 import { FormCategoriaPageRoutingModule } from './form-categoria-routing.module';
 
 import { FormCategoriaPage } from './form-categoria.page';
-import { SeleccionarImagenComponent } from '../Components/seleccionar-imagen/seleccionar-imagen.component';
 import { ComponentsModule } from '../Components/components.module';
 
 @NgModule({
-  imports: [
+  imports: [ 
     CommonModule,
     FormsModule,
     ComponentsModule,
@@ -20,6 +19,6 @@ import { ComponentsModule } from '../Components/components.module';
     IonicModule,
     FormCategoriaPageRoutingModule
   ],
-  declarations: [FormCategoriaPage]
+  declarations: []
 })
 export class FormCategoriaPageModule {}

@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar>  
+    <ion-buttons slot="start">
+      <ion-menu-button autoHide="false"></ion-menu-button>
+    </ion-buttons>  
+    <ion-title>Personal</ion-title>    
+  </ion-toolbar>
+</ion-header>  
+
+
+<ion-content style="margin-top: 50px;" class="ion-padding">  
+  
+  <ion-row>    
+    <ion-input placeholder="Buscar" style="border:1px solid rgb(206, 206, 206); border-radius: 5px;"
+    [(ngModel)]="palabraFiltro" (ionChange)="buscar()"
+    ></ion-input>
+  </ion-row>
+
+  <ion-list lines="none">
+    <ion-item-sliding *ngFor="let item of items" class="item-card" >    
+    
+      <ion-item>
+        <div slot="start">
+          <img src="{{item.foto}}" *ngIf="item.foto">
+          <ion-icon name="person-outline" *ngIf="!item.foto"></ion-icon>
+        </div>      
+        <ion-label text-wrap>
+          <p>{{item.user_email}}</p> 
+          <p>{{item.rol}}</p>       
+          <p>{{item.estado}}</p> 
+        </ion-label>  
+      </ion-item>
+      <ion-item-options side="end" *ngIf="user.email != item.email">
+        <ion-item-option color="danger" (click)="desvincular(item)"><ion-icon name="trash" ></ion-icon>Desvincular</ion-item-option>
+      </ion-item-options>
+
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- fab placed to the bottom end -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" (click)="invitar()">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <div class="space">
+    
+  </div> 
+  
+</ion-content>

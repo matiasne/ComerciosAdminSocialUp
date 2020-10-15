@@ -16,7 +16,7 @@ export class FormProductoGrupoOpcionesPage implements OnInit {
 
   public grupoOpciones:GrupoOpciones;
   public updating = false;
-  private submitted = false;
+  public submitted = false;
 
   datosForm: FormGroup;
 

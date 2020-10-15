@@ -1,18 +1,15 @@
 <ion-header>
   <ion-toolbar>    
-    <ion-title>Seleccionar Cliente</ion-title>    
+    <ion-title>Seleccionar Clientes</ion-title>    
   </ion-toolbar>
 </ion-header>
 
 
 <ion-content style="margin-top: 50px;" class="ion-padding">  
-  
-  <ion-row>
-    
+  <ion-row>    
       <ion-input placeholder="Buscar" style="border:1px solid rgb(206, 206, 206); border-radius: 5px;"
       [(ngModel)]="palabraFiltro" (ionChange)="buscar()"
-      ></ion-input>
- 
+      ></ion-input> 
   </ion-row>
 
   <ion-list lines="none">   
@@ -39,12 +36,13 @@
  
   </ion-list>
 
-  <ion-infinite-scroll threshold="100px" (ionInfinite)="showMore($event)">
-    <ion-infinite-scroll-content
-      loadingSpinner="bubbles"
-      loadingText="Cargando...">
-    </ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+  <!-- fab placed to the bottom end -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" (click)="nuevo()">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
   <div class="space">
     
   </div> 
@@ -55,4 +53,3 @@
     <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
   </ion-toolbar>
 </ion-footer>
-

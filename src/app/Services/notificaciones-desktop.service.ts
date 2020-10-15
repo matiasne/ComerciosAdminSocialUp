@@ -25,6 +25,7 @@ constructor(
  
 init(): Promise<void> {
   return new Promise<void>((resolve, reject) => {
+    console.log("......................");
       navigator.serviceWorker.ready.then((registration) => {
           // Don't crash an error if messaging not supported
           console.log("Desde init!!!");

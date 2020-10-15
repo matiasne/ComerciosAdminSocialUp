@@ -7,10 +7,12 @@ import { IonicModule } from '@ionic/angular';
 import { ListSubscripcionesPageRoutingModule } from './list-subscripciones-routing.module';
 
 import { ListSubscripcionesPage } from './list-subscripciones.page';
+import { ComponentsModule } from '../Components/components.module';
 
 @NgModule({
   imports: [
     CommonModule,
+    ComponentsModule,
     FormsModule,
     IonicModule,
     ListSubscripcionesPageRoutingModule

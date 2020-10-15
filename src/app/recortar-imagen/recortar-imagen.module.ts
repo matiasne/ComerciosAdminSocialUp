@@ -17,6 +17,6 @@ import { ImageCropperModule } from 'ngx-image-cropper';
     ImageCropperModule,
     RecortarImagenPageRoutingModule
   ],
-  declarations: [RecortarImagenPage]
+  declarations: []
 })
 export class RecortarImagenPageModule {}

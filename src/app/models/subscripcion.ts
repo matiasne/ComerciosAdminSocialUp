@@ -3,7 +3,9 @@ import { Cliente } from './cliente';
 import { DocumentReference } from 'angularfire2/firestore';
 export class Subscripcion{
     public id ="";
+    public clienteId =""; //necesario para la busqueda
     public clienteRef:DocumentReference;
+    public servicioId=""; //necesario para la busqueda
     public servicioRef:DocumentReference;
     public planRef:DocumentReference;
     public proximoPago:any;
@@ -12,7 +14,7 @@ export class Subscripcion{
     public vendedor_nombre= "";
     public tipo="";
     public dias="";
-    public precio="";
+    public precio=0;
     public pagoAdelantado= "";
     public descipcion_venta= "";
 
@@ -25,8 +27,10 @@ export class Subscripcion{
     }
 
     public plan = {
-        precio:"",
-        nombre:""
+        precio:0,
+        nombre:"",
+        tipo:"",
+        dias:""
     }
     
 	constructor(

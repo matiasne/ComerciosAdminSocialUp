@@ -10,6 +10,10 @@ import { ComerciosService } from './Services/comercios.service';
 import { NotificacionesDesktopService } from './Services/notificaciones-desktop.service';
 import { NotificacionesService } from './Services/notificaciones.service';
 import { NotifificacionesAppService } from './Services/notifificaciones-app.service';
+import { Comercio } from './Models/comercio';
+import { InvitacionesService } from './Services/invitaciones.service';
+import { ComandasService } from './Services/comandas.service';
+import { ToastService } from './Services/toast.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +22,7 @@ import { NotifificacionesAppService } from './Services/notifificaciones-app.serv
 })
 export class AppComponent implements OnInit {
   public selectedIndex = 0;
+  public cantComandas = 0;
 
   public appActions =[
     
@@ -31,6 +36,12 @@ export class AppComponent implements OnInit {
       title: 'Notificaciones',
       url: '/list-notificaciones',
       icon: 'notifications',
+      badge: 0
+    },
+    {
+      title: 'Invitaciones',
+      url: '/list-invitaciones',
+      icon: 'people',
       badge: 0
     },
    
@@ -76,9 +87,10 @@ export class AppComponent implements OnInit {
   ];
   public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
 
-  public comercioSeleccionado ="";
+  public comercioSeleccionado:Comercio;
   public usuario ={
-    uid:""
+    uid:"",
+    email:""
   };
 
   constructor(
@@ -91,9 +103,12 @@ export class AppComponent implements OnInit {
     public toastController: ToastController,
     private comerciosService:ComerciosService,
     private notifiacionesDesktopService:NotificacionesDesktopService,
-    private notificacionesAppService:NotifificacionesAppService
+    private notificacionesAppService:NotifificacionesAppService,
+    private invitacionesService:InvitacionesService,
+    private comandasService:ComandasService,
+    private toastService:ToastService
   ) {
-
+    this.comercioSeleccionado = new Comercio();
    
     this.initializeApp();    
     
@@ -108,7 +123,7 @@ export class AppComponent implements OnInit {
     this.notifiacionesDesktopService.init().then(data=>{
       console.log("OK")
     },error=>{
-      console.log("ERROR");
+      console.log("ERROR"); 
     });
 
     this.platform.ready().then(() => {
@@ -122,10 +137,22 @@ export class AppComponent implements OnInit {
         this.usuario = data;
         console.log(this.usuario);
 
-        this.notificacionesAppService.getSinLeer(this.usuario.uid).subscribe(snapshot =>{
-          this.appActions[1].badge = snapshot.length;
-          console.log(snapshot)
-        })
+        if(this.usuario){
+          this.notificacionesAppService.getSinLeer(this.authService.getUID()).subscribe(snapshot =>{
+            this.appActions[1].badge = snapshot.length;
+            console.log(snapshot)
+          })
+  
+          this.invitacionesService.getSinLeer(this.authService.getEmail()).subscribe(snapshot =>{
+            this.appActions[2].badge = snapshot.length;
+            console.log(snapshot)
+          });
+  
+          this.comandasService.getCantidad().subscribe((snapshot) => {
+            this.cantComandas = snapshot;
+          });
+        }
+        
       });
 
       this.comerciosService.getSelectedCommerce().subscribe(data=>{
@@ -154,9 +181,10 @@ export class AppComponent implements OnInit {
         
             this.fcm.onNotification().subscribe(data => {
               if(data.wasTapped){
-                alert("Received in background");
+                //alert("Received in background");
               } else {
-                alert("Received in foreground");
+                console.log(data);
+                this.toastService.mensaje(data.title,data.body);
               };
             });
           }         
@@ -179,7 +207,7 @@ export class AppComponent implements OnInit {
 
   cerrarSesion(){
     this.usuario = undefined;
-    this.comercioSeleccionado="";
+    this.comercioSeleccionado=new Comercio();
     this.authService.logout();
   }
 }

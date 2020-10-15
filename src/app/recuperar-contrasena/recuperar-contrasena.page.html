@@ -1,9 +1,32 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>recuperar-contrasena</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
+  <ion-row style="height: 100%;">
+    <ion-col size-md="8" size-xs="0" class="background">
+      
+    </ion-col>
+    <ion-col size-md="4" class="ion-padding">
+      <form #form="ngForm" (ngSubmit)="recuperarContrasena()">
+        <img width="200px" src="../../assets/img/logo.png" alt="">
+        <ion-item lines="none">
+          Ingresa tu email y te enviaremos un correo electronico con un link para que puedas recuperar tu contraseña
+        </ion-item>
+        
+        <ion-item class="input-item">
+            <ion-input name="email" type="email" placeholder="Mail" [(ngModel)]="email" required></ion-input>
+        </ion-item>
+            
+        <ion-button size="large" expand="block" (click)="recuperarContrasena()">
+            Recuperar Contraseña
+        </ion-button>
+        <ion-row justify-content-center>
+          <div text-center>
+             <a routerLink="/login">Volver al Login</a>  
+          </div>                 
+        </ion-row>     
+     
+      </form>
+    </ion-col>
+  </ion-row>
+  
+
 
 </ion-content>

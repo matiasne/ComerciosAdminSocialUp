@@ -8,6 +8,7 @@ import { Caja } from '../models/caja';
 import { MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientosService } from '../Services/movimientos.service';
 import { AngularFirestore } from 'angularfire2/firestore';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-cierre-caja',
@@ -26,6 +27,8 @@ export class FormCierreCajaPage implements OnInit {
   public extraccionEfectivo = 0;
   public extraccionDebito = 0;
   public extraccionCredito = 0;
+
+  public movSub:Subscription;
   
   constructor(
     private formBuilder: FormBuilder,
@@ -40,17 +43,20 @@ export class FormCierreCajaPage implements OnInit {
     this.caja = new Caja();
 
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.cajasServices.get(this.route.snapshot.params.cajaId).subscribe(snap =>{
-      this.caja.asignarValores(snap.payload.data());
-      this.caja.id = snap.payload.id;
+    this.movSub = this.cajasServices.get(this.route.snapshot.params.cajaId).subscribe(data =>{
+      this.caja = data;
     })
 
     
   }
 
-  ngOnInit() {
+  ngOnInit() { 
 
     //Cada caja puede extraer el efectivo y dejar el debito o el credito o retirar solo esos tickets
+  }
+
+  ionViewDidLeave(){
+    this.movSub.unsubscribe();
   }
 
   get f() { return this.datosForm.controls; }
@@ -74,27 +80,27 @@ export class FormCierreCajaPage implements OnInit {
       return;
     }
 
-    var cierreEfectivo = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getNombre());
+    var cierreEfectivo = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
     cierreEfectivo.id = this.firestore.createId();
     cierreEfectivo.cajaId = this.caja.id;
     cierreEfectivo.isCierre = true;
-    cierreEfectivo.metodoPago = "Efectivo";
+    cierreEfectivo.metodoPago = "efectivo";
     cierreEfectivo.monto = - Number(this.extraccionEfectivo);
     this.movimientosService.createMovimientoCaja(this.caja,cierreEfectivo);
 
-    var cierreDebito = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getNombre());
+    var cierreDebito = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
     cierreDebito.id = this.firestore.createId();
     cierreDebito.cajaId = this.caja.id;
     cierreDebito.isCierre = true;
-    cierreDebito.metodoPago = "Débito";
+    cierreDebito.metodoPago = "debito";
     cierreDebito.monto = - Number(this.extraccionDebito);
     this.movimientosService.createMovimientoCaja(this.caja,cierreDebito);
 
-    var cierreCredito = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getNombre());
+    var cierreCredito = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
     cierreCredito.id = this.firestore.createId();
     cierreCredito.cajaId = this.caja.id;
     cierreCredito.isCierre = true;
-    cierreCredito.metodoPago = "Crédito";
+    cierreCredito.metodoPago = "credito";
     cierreCredito.monto = - Number(this.extraccionCredito);
     this.movimientosService.createMovimientoCaja(this.caja,cierreCredito);
 

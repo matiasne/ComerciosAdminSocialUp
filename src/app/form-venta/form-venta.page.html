@@ -13,7 +13,7 @@
     <form [formGroup]="datosForm" >
       <ion-button size="large" (click)="seleccionarCliente()"  expand="block">Seleccionar Cliente * </ion-button>
      
-      <ion-button size="large" (click)="elegirProducto()"  expand="block">Agregar Producto * </ion-button>
+      <ion-button size="large"   expand="block">Agregar Producto * </ion-button>
 
       <span *ngIf="cliente">
         {{cliente.nombre}}

@@ -23,9 +23,9 @@
   <ion-list lines="none"> 
     <div *ngFor="let item of cajaSeleccionada.movimientos" >
     <ion-item-sliding *ngIf="item.monto != 0"
-    [ngClass]="{
+    [ngClass]="{  
       'item-card': true, 
-      'pago-card': item.pago,
+      'pago-card': item.pago, 
       'cierre-card': item.cierre,
       'egreso-card': item.egreso
     }"
@@ -45,7 +45,10 @@
       </div>
 
       <ion-label *ngIf="item.pago" class="ion-text-wrap">
-        <h2>Pago: <b>{{item.monto | currency}}</b> en {{item.metodoPago}}</h2>         
+        <h2>Pago: <b>{{item.monto | currency}}</b> en {{item.metodoPago}}</h2>     
+        <p>
+          {{item.motivo}}
+        </p>     
         <!--p style="font-size: 12px;" >
           {{item.vendedorNombre}} - {{item.createdAt.seconds | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
         </p-->           
@@ -63,9 +66,9 @@
 
       <ion-label *ngIf="item.cierre" class="ion-text-wrap">
         <h2>Cierre: <b>{{item.monto | currency}}</b> 
-          <span *ngIf="item.metodoPago == 'Efectivo'"> en efectivo</span>
-          <span *ngIf="item.metodoPago == 'Débito'"> en débito</span>
-          <span *ngIf="item.metodoPago == 'Crédito'"> en crédito</span>
+          <span *ngIf="item.metodoPago == 'efectivo'"> en efectivo</span>
+          <span *ngIf="item.metodoPago == 'debito'"> en débito</span>
+          <span *ngIf="item.metodoPago == 'credito'"> en crédito</span>
         </h2>         
         <p>
           Cierer de Caja

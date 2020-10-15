@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ComerciosService } from '../Services/comercios.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Comercio } from '../models/comercio';
+import { Comercio } from '../Models/comercio';
 
 @Component({
   selector: 'app-form-comercio-configuracion',
@@ -12,7 +12,7 @@ import { Comercio } from '../models/comercio';
 export class FormComercioConfiguracionPage implements OnInit {
 
   private subs:Subscription;
-  public comercio:Comercio;
+  public comercio:any;
 
   public cajas =[];
   public horarios =[];
@@ -25,13 +25,13 @@ export class FormComercioConfiguracionPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.comercio = new Comercio();
+    /*this.comercio = new Comercio();
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
     this.subs = this.comerciosService.get(comercio_seleccionadoId).subscribe(data=>{
       this.comercio.asignarValores(data.payload.data());
       this.comercio.id = data.payload.id;
       this.subs.unsubscribe();
-    });
+    });*/
   } 
   
   openEditCategorias(){
@@ -60,7 +60,7 @@ export class FormComercioConfiguracionPage implements OnInit {
   }
 
   verPersonal(){
-    this.router.navigate(['list-empleados']);
+    this.router.navigate(['list-personal']);
   }
 
 
@@ -68,6 +68,9 @@ export class FormComercioConfiguracionPage implements OnInit {
     this.router.navigate(['details-whatsapp']);
   }
   
+  verEstilos(){
+    this.router.navigate(['form-estilo-configuracion']);
+  }
 
 
 

@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AuthenticationService } from '../Services/authentication.service';
-import { AlertController } from '@ionic/angular';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
+import { ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { ToastService } from '../Services/toast.service';
+import { AuthenticationService } from '../Services/authentication.service';
+
 
 @Component({
   selector: 'app-registro',
@@ -12,51 +12,99 @@ import { ToastService } from '../Services/toast.service';
 })
 export class RegistroPage implements OnInit {
 
+  tipoRegistro: string = 'cliente';
+  // Importar el ViewChild para acceder a un elemento del DOM
+  @ViewChild('passwordEyeRegister') passwordEye;
+  @ViewChild('passwordEyeConfirmation') passwordEyeConfirm;
+  //@ViewChild('btnCliente') btnCliente;
+  //@ViewChild('btnAgente') btnAgente;
+  // Seleccionamos el elemento con el nombre que le pusimos con el #
+  passwordTypeInput1  =  'password';
+  passwordTypeInput2  =  'password';
+  // Variable para cambiar dinamicamente el tipo de Input que por defecto sera 'password'
+  iconpassword1  =  'eye-off';
+  iconpassword2  =  'eye-off';
+
   datosForm: FormGroup;
-  public submitted = false;
+  submitted = false;
   
   constructor(
     private formBuilder: FormBuilder,
-    private authService:AuthenticationService,
-    public alertController: AlertController,
-    private toastServices:ToastService,
+    private toastCtrl: ToastController,
     private router: Router,
+    private authFirestoreService:AuthenticationService,
   ) { 
-
-    this.datosForm = this.formBuilder.group({     
+    this.datosForm = this.formBuilder.group({
+      firstName: ['', Validators.required],
+      lastName : ['', Validators.required],
       email: ['', Validators.required],
-      password: ['', Validators.required],
-      password_confirmation: ['', Validators.required],
-      accepted:['true']
+      password: ['', Validators.required],      
+      passwordConfirmation:['', Validators.required],
+      accepted: [false, Validators.required]    
     });
-
+    
   }
 
   ngOnInit() {
   }
 
+  get f() { return this.datosForm.controls; }
+
   registrar(){
 
     this.submitted = true;
-    // stop here if form is invalid
-    if (this.datosForm.invalid) {
-        this.toastServices.alert('Por favor completar todos los campos marcados con * antes de continuar',"");
-        return;
+    if(this.f.password.value == ''){
+      this.presentToast("Debe ingresar una contraseña");
+      return;
+    }
+    if(this.f.password.value != this.f.passwordConfirmation.value){
+      this.presentToast("La contraseña y su confirmación no coinciden");
+      return;
+    }
+    if(this.f.accepted.value != true){
+      this.presentToast("Debe leer y aceptar los términos y condiciones");
+      return;
     }   
     
-    this.authService.signup(this.datosForm.controls.email.value,this.datosForm.controls.password.value);    
+    this.authFirestoreService.signup(this.datosForm.value);
   }
 
-  get f() { return this.datosForm.controls; }
-
-  async presentAlert(message) {
-    const alert = await this.alertController.create({
-      header: 'Mensaje',
-      message: message,
-      buttons: ['OK']
+  async presentToast(mensaje: string) {
+    const toast = await this.toastCtrl.create({
+      message: mensaje,
+      color: 'danger',
+      duration: 3000
     });
-
-    await alert.present();
+    toast.present();
   }
 
+  /*segmentChanged(event){
+    const registro: string = event.target.value;
+    if(registro == 'Soy Agente inmobiliario'){
+      this.tipoRegistro = 'agente';
+      this.datosForm.addControl('cuit', new FormControl('', Validators.required));
+    }else{
+      this.tipoRegistro = 'cliente';
+      this.datosForm.removeControl('cuit');
+    } 
+  }*/
+
+  // Esta función verifica si el tipo de campo es texto lo cambia a password y viceversa, 
+  //además verificara el icono si es 'eye-off' lo cambiara a 'eye' y viceversa
+  togglePasswordMode() {
+    this.passwordTypeInput1  =  this.passwordTypeInput1  ===  'text'  ?  'password'  :  'text';
+    this.iconpassword1  =  this.iconpassword1  ===  'eye-off'  ?  'eye'  :  'eye-off';
+    this.passwordEye.el.setFocus();
+  }
+
+  togglePasswordConfirmMode() {
+    this.passwordTypeInput2  =  this.passwordTypeInput2  ===  'text'  ?  'password'  :  'text';
+    this.iconpassword2  =  this.iconpassword2  ===  'eye-off'  ?  'eye'  :  'eye-off';
+    this.passwordEyeConfirm.el.setFocus();
+  }
+
+  /*onChange(){
+    
+  }*/
 }
+

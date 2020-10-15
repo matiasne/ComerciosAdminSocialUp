@@ -1,49 +1,84 @@
 
-<ion-content class="ion-padding">
-  <form [formGroup]="datosForm" (ngSubmit)="registrar()">
-    <div text-center>
-      <h3>Registrate</h3>
-    </div>    
+<ion-content>
+  <ion-row style="height: 100%;">
+    <ion-col size-md="8" size-xs="0" class="background">
+      
+    </ion-col>
+    <ion-col size-md="4" class="ion-padding">
+      <form [formGroup]="datosForm">
+        <img width="200px" src="../../assets/img/logo.png" alt="">
+        <!--nombre-->
+        <ion-item [class.invalid]="submitted && !datosForm.controls.firstName.valid">
+          <ion-label position="floating">Nombre</ion-label>     
+          <ion-input name="nombre" type="text" formControlName="firstName" 
+                      required ></ion-input>
+          <div *ngIf="submitted && f.firstName.errors" class="invalid-feedback">
+              <div *ngIf="f.firstName.errors.required"><h5>Ingresa un Nombre</h5></div>
+          </div>
+        </ion-item>
+           
+        <!--apellido-->
+        <ion-item [class.invalid]="submitted && !datosForm.controls.lastName.valid">
+          <ion-label position="floating">Apellido</ion-label>
+          <ion-input name="apellido" type="text" formControlName="lastName" required ></ion-input>
+          <div *ngIf="submitted && f.lastName.errors" class="invalid-feedback">
+              <div *ngIf="f.lastName.errors.required"><h5>Ingresa un Apellido</h5></div>
+          </div>
+        </ion-item>
     
+        <!--email-->
+        <ion-item [class.invalid]="submitted && !datosForm.controls.email.valid">
+          <ion-label position="floating">E-mail</ion-label>
+          <ion-input name="email" type="text" formControlName="email" required ></ion-input>
+          <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+              <div *ngIf="f.email.errors.required"><h5>Ingresa un Email</h5></div>
+          </div>
+        </ion-item> 
+        <!--contraseña-->
+        <ion-item [class.invalid]="submitted && !datosForm.controls.password.valid">
+          <ion-label position="floating">Contraseña</ion-label>
+          <ion-input name="password" [type]="passwordTypeInput1" #passwordEyeRegister  
+                formControlName="password" required clear-on-edit="true"></ion-input>
+          <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+              <div *ngIf="f.password.errors.required"><h5>Ingresa una Contraseña</h5></div>
+          </div>
+          <button  item-end  class="btn_eye_icon"  (click)="togglePasswordMode()">
+            <ion-icon  [name]="iconpassword1"></ion-icon>
+          </button>
+        </ion-item>    
+        <!--repetir contraseña-->
+        <ion-item [class.invalid]="submitted && !datosForm.controls.passwordConfirmation.valid">
+          <ion-label position="floating">Confirmación de contraseña</ion-label>
+          <ion-input name="passwordConfirmation" [type]="passwordTypeInput2"  #passwordEyeConfirmation 
+                formControlName="passwordConfirmation" required clear-on-edit="true"></ion-input>
+          <button  item-end  class="btn_eye_icon"  (click)="togglePasswordConfirmMode()">
+            <ion-icon  [name]="iconpassword2"></ion-icon>
+          </button>   
+          <div *ngIf="submitted && f.passwordConfirmation.errors" class="invalid-feedback">
+              <div *ngIf="f.passwordConfirmation.errors.required"><h5>Ingresa una Contraseña</h5></div>
+          </div>  
+        </ion-item>
+        <p></p>
+        <!--acepto los terminos-->
+        <div [class.invalid]="submitted && !datosForm.controls.accepted.valid">      
+          <ion-checkbox color="primary" slot="start" formControlName="accepted"></ion-checkbox>
+          <ion-label> &nbsp;&nbsp; Acepto los Términos y Condiciones y la Política de Privacidad </ion-label>
+        </div>    
+        <div *ngIf="submitted && f.accepted.errors" class="invalid-feedback">
+          <div *ngIf="f.accepted.errors.required">
+            <h5>Debes leer y aceptar los términos y condiciones</h5>
+          </div>
+        </div>
+        
+        <ion-button type="submit" expand="block" (click)="registrar()">Registrarme</ion-button>
+       
+        <div class="div100">
+          <a routerLink="/login" class="text-center">Ya tengo cuenta creada</a>   
+        </div>      
+      </form>
+    </ion-col>
+  </ion-row>
+  
 
-    <h4>Email *</h4>    
-    <ion-item [class.invalid]="submitted && !datosForm.controls.email.valid">
-      <ion-input name="email" type="text" formControlName="email"  required></ion-input>
-    </ion-item>
-    <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
-        <div *ngIf="f.email.errors.required"><h5>Ingresa tu email</h5></div>
-    </div>
 
-    
-
-    <h4>Contraseña *</h4>    
-    <ion-item [class.invalid]="submitted && !datosForm.controls.password.valid">
-      <ion-input name="password" type="password" formControlName="password"  required></ion-input>
-    </ion-item>
-    <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
-        <div *ngIf="f.password.errors.required"><h5>Ingresa una contraseña</h5></div>
-    </div>
-
-    <h4>Confirmar Contraseña *</h4>    
-    <ion-item [class.invalid]="submitted && !datosForm.controls.password_confirmation.valid">
-      <ion-input name="password_confirmation" type="password" formControlName="password_confirmation"  required></ion-input>
-    </ion-item>
-    <div *ngIf="submitted && f.password_confirmation.errors" class="invalid-feedback">
-        <div *ngIf="f.password_confirmation.errors.required"><h5>Confirmar contraseña</h5></div>
-    </div>
-    <div class="ion-padding">
-      <ion-button size="large" type="submit" [disabled]="datosForm.invalid" expand="block">Registrarse</ion-button>
-    </div> 
-    <ion-row justify-content-center>
-      <a routerLink="/recuperar-contrasena">Olvidaste tu contraseña?</a>
-    </ion-row>
-    <ion-row justify-content-center>
-      <div text-center>
-          <p> Ya tienes cuenta? <a routerLink="/login">Logueate</a> </p>     
-      </div>                 
-    </ion-row>
-
-  </form>         
 </ion-content>
-
-

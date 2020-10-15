@@ -7,6 +7,7 @@ import * as firebase from 'firebase';
 import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';
 import { Mock } from 'protractor/built/driverProviders';
 import { Caja } from '../models/caja';
+import { CtaCorriente } from '../models/ctacorriente';
 
 @Injectable({
   providedIn: 'root'
@@ -39,70 +40,68 @@ export class MovimientosService {
   }
 
 
-  public createMovimientoCaja(caja:Caja,data:MovimientoCaja) {
+  public createMovimientoCaja(caja:Caja,mov:MovimientoCaja) {
 
     var comercioId = localStorage.getItem('comercio_seleccionadoId');
 
+    //this.firestore.firestore.collection('comercios/'+caja.comercioId+'/cajas').doc(caja.id).get().then(doc=>{
+      
+      //let caja:Caja = new Caja();
+      //caja.asignarValores(doc.data())
+      //caja.id = doc.id;
+
+      mov.fotoCaja = caja;
+
+      if(mov.metodoPago == "efectivo"){
+        caja.totalEfectivo = Number(caja.totalEfectivo)+ Number(mov.monto);
+      }
+      if(mov.metodoPago == "credito"){
+        caja.totalCredito = Number(caja.totalCredito)+ Number(mov.monto);
+      }
+      if(mov.metodoPago == "debito"){
+        caja.totalDebito = Number(caja.totalDebito) + Number(mov.monto);
+      }
+     
+      const param1 = JSON.parse(JSON.stringify(caja));
+      this.cajasService.update(param1);
+
+      console.log(mov)
+    
+      const param = JSON.parse(JSON.stringify(mov));
+      this.firestore.collection('comercios/'+comercioId+'/cajas/'+mov.cajaId+'/movimientos').doc(mov.id).set(
+        {...param,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      })  
+
+    //})
      
 
-    console.log(data)
     
-    const param = JSON.parse(JSON.stringify(data));
-    this.firestore.collection('comercios/'+comercioId+'/cajas/'+data.cajaId+'/movimientos').doc(data.id).set(
-      {...param,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    }).then(resp=>{
-      this.sumarTotalCaja(caja,data.metodoPago,data.monto);  
-    });  
   }
 
   eliminarMovimientoCaja(caja:Caja,data:MovimientoCaja){  
 
-    var comercioId = localStorage.getItem('comercio_seleccionadoId');
+    var comercioId = localStorage.getItem('comercio_seleccionadoId');   
 
-   
-
-    this.firestore.collection('comercios/'+comercioId+'/cajas/'+data.cajaId+'/movimientos').doc(data.id).delete().then(resp=>{
+    this.firestore.collection('comercios/'+comercioId+'/cajas/'+data.cajaId+'/movimientos').doc(data.id).delete();
       
-      this.restarTotalCaja(data.cajaId,data.metodoPago,data.monto);
+    this.restarTotalCaja(data.cajaId,data.metodoPago,data.monto);
 
-      if(data.depositoId != ""){  
-        console.log("Eliminando Deposito también "+data.ctaCorrienteId+" "+data.depositoId)
-        this.restarTotalCtaCorriente(data.ctaCorrienteId,data.monto);       
-        this.firestore.collection('comercios/'+comercioId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.depositoId).delete();
-      }
-    });
+    if(data.depositoId != ""){  
+      console.log("Eliminando Deposito también "+data.ctaCorrienteId+" "+data.depositoId)
+      this.restarTotalCtaCorriente(data.ctaCorrienteId,data.monto);       
+      this.firestore.collection('comercios/'+comercioId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.depositoId).delete();
+    }
+
+    if(data.extraccionId != ""){  
+      console.log("Eliminando Extracción también "+data.ctaCorrienteId+" "+data.extraccionId)
+      this.restarTotalCtaCorriente(data.ctaCorrienteId,data.monto);       
+      this.firestore.collection('comercios/'+comercioId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.extraccionId).delete();
+    }
+
   }
 
-  public sumarTotalCaja(caja:Caja,metodo,monto){
-
-    
-    const sfDocRef = this.firestore.firestore.collection('comercios/'+caja.comercioId+'/cajas').doc(caja.id);
   
-    this.firestore.firestore.runTransaction(transaction => 
-      // This code may get re-run multiple times if there are conflicts.
-      transaction.get(sfDocRef)
-      .then(sfDoc => {
-        // const newPopulation = sfDoc.data().population + 1;
-        
-        if(metodo == "Efectivo"){
-          console.log(monto)
-          transaction.update(sfDocRef, { totalEfectivo: sfDoc.data().totalEfectivo + monto });
-        }
-        if(metodo == "Débito"){
-          transaction.update(sfDocRef, { totalDebito: sfDoc.data().totalDebito + monto });
-        }
-        if(metodo == "Crédito"){
-          transaction.update(sfDocRef, { totalCredito: sfDoc.data().totalCredito + monto });
-        }
-
-        if(metodo =="Cta. Corriente"){
-          transaction.update(sfDocRef, { totalCtaCorriente: sfDoc.data().totalCtaCorriente + monto });
-        }
-
-      })).then(() => console.log("Transaction successfully committed!"))
-    .catch(error => console.log("Transaction failed: ", error));
-  }
  
   public restarTotalCaja(cajaId,metodo,monto){       
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
@@ -114,22 +113,21 @@ export class MovimientosService {
         transaction.get(sfDocRef)
         .then(sfDoc => {
           // const newPopulation = sfDoc.data().population + 1;
-          if(metodo == "Efectivo"){
+          if(metodo == "efectivo"){
             transaction.update(sfDocRef, { totalEfectivo: sfDoc.data().totalEfectivo - monto });
           }
-          if(metodo == "Débito"){
+          if(metodo == "debito"){
             transaction.update(sfDocRef, { totalDebito: sfDoc.data().totalDebito - monto });
           }
-          if(metodo == "Crédito"){
+          if(metodo == "credito"){
             transaction.update(sfDocRef, { totalCredito: sfDoc.data().totalCredito - monto });
           }
   
-          if(metodo =="Cta. Corriente"){
+          if(metodo =="ctaCorriente"){
             transaction.update(sfDocRef, { totalCtaCorriente: sfDoc.data().totalCtaCorriente - monto });
           }
   
-        })).then(() => console.log("Transaction successfully committed!"))
-      .catch(error => console.log("Transaction failed: ", error));
+        }))
     }
 
     public getMovimientosCtaCorriente(ctaCorrienteId){
@@ -137,24 +135,6 @@ export class MovimientosService {
       return this.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes/'+ctaCorrienteId+'/movimientos/', ref=>ref.orderBy('createdAt','asc')).snapshotChanges();
     }  
     
-    public sumarTotalCtaCorriente(ctaCorrienteId,monto){
-  
-      let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-      
-      const sfDocRef = this.firestore.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes').doc(ctaCorrienteId);
-    
-      this.firestore.firestore.runTransaction(transaction => 
-        // This code may get re-run multiple times if there are conflicts.
-        transaction.get(sfDocRef)
-        .then(sfDoc => {
-          // const newPopulation = sfDoc.data().population + 1;
-         
-          transaction.update(sfDocRef, { montoTotal: sfDoc.data().montoTotal + monto });
-          
-  
-        })).then(() => console.log("Transaction successfully committed!"))
-      .catch(error => console.log("Transaction failed: ", error));
-    }
   
     public restarTotalCtaCorriente(ctaCorrienteId,monto){
         let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
@@ -170,19 +150,39 @@ export class MovimientosService {
             transaction.update(sfDocRef, { montoTotal: sfDoc.data().montoTotal - monto });
             
     
-          })).then(() => console.log("Transaction successfully committed!"))
-        .catch(error => console.log("Transaction failed: ", error));
+          }))
     }
   
     crearMovimientoCtaCorriente(data:MovimientoCtaCorriente){
       let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
 
-      this.sumarTotalCtaCorriente(data.ctaCorrienteId,data.monto);
+      console.log(data.ctaCorrienteId)
+     
+      this.firestore.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes').doc(data.ctaCorrienteId).get().then(doc=>{
+      
+       
+        let cta:CtaCorriente = new CtaCorriente("","");
+        cta.asignarValores(doc.data())
+        cta.id = doc.id;
   
-      const param = JSON.parse(JSON.stringify(data));
-      this.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.id).set({...param,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
+        data.fotoCtaCorriente = doc.data();
+
+        cta.montoTotal = Number(cta.montoTotal) + Number(data.monto);
+  
+        
+        const param1 = JSON.parse(JSON.stringify(cta));
+        this.ctaCorrienteService.update(param1).then(data=>{
+          
+        });
+
+        
+        const param2 = JSON.parse(JSON.stringify(data));
+        this.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.id).set({...param2,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+  
+      })
+  
     }
   
     eliminarMovimientoCtaCorriente(data:MovimientoCtaCorriente){  

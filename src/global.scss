@@ -192,11 +192,10 @@ ion-button{
   text-align: center;
   width: 150px;
   height: 150px;
-  border-radius: 100px;
+  border-radius: 10px;
   background-color: blue;
   font-size: 12px;
   margin: auto;
-  margin-top: -70px;
   z-index:999;
 }
 
@@ -240,7 +239,7 @@ ion-button{
   text-align: center;
   width: 100%;
   height: 100%;
-  border-radius: 100px;   
+  border-radius: 10px;   
   z-index:999;
 }
 

@@ -4,6 +4,7 @@ import { AuthenticationService } from './authentication.service';
 import * as firebase from 'firebase';
 import { map } from 'rxjs/operators';
 import { Rol } from '../models/rol';
+import { ComerciosService } from './comercios.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,13 +15,14 @@ export class RolesService {
   
   constructor(
     private firestore: AngularFirestore,
-    private auth:AuthenticationService
+    private auth:AuthenticationService,
   ) {
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
     this.collection = 'roles';
   }
   
-  public create(data:Rol) {   
+  public create(data:Rol) {    
+    console.log(this.collection);
     const param = JSON.parse(JSON.stringify(data));    
     return this.firestore.collection(this.collection).doc(data.id).set({...param,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -74,12 +76,12 @@ export class RolesService {
     )*/
   }
 
-  public setUserAsOwner(user_email,comercioId){   
+  public setUserAsAdmin(user_email,comercioId){   
  
     let params = {
       user_email : user_email,
       comercioId : comercioId,
-      rol : "owner"
+      rol : "admin"
     }
     this.firestore.collection(this.collection).add(Object.assign({}, params));       
   } 
@@ -95,8 +97,13 @@ export class RolesService {
     });
   }
 
-  public delete(documentId: string) {
-    return this.firestore.collection(this.collection).doc(documentId).delete();
+  public delete(rolId) {
+
+      
+
+  
+
+    return this.firestore.collection('roles').doc(rolId).delete();
   }
 
   deleteByComercio(comercioId){

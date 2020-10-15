@@ -17,6 +17,7 @@ import { FormPlanPage } from '../form-plan/form-plan.page';
 import { ToastService } from '../Services/toast.service';
 import { ClientesService } from '../Services/clientes.service';
 import { Subscripcion } from '../models/subscripcion';
+import { SelectClientePage } from '../select-cliente/select-cliente.page';
 
 @Component({
   selector: 'app-add-servicio-subscripcion',
@@ -32,7 +33,7 @@ export class AddServicioSubscripcionPage implements OnInit {
   public cliente:Cliente;
   public subscripcionOn = false;
   public subscripcion:Subscripcion;
-
+  public submitted = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -100,7 +101,7 @@ export class AddServicioSubscripcionPage implements OnInit {
 
   async seleccionarCliente(){
     const modal = await this.modalController.create({
-      component: ListClientesPage      
+      component: SelectClientePage      
     });
     modal.onDidDismiss()
     .then((retorno) => {
@@ -123,7 +124,7 @@ export class AddServicioSubscripcionPage implements OnInit {
   async crearNuevoPlan(){    
     const modal = await this.modalController.create({
       component: FormPlanPage,
-      componentProps: { servicioId: this.servicio.id}
+      componentProps: {servicioId: this.servicio.id}
     });
     return await modal.present();
   }
@@ -132,7 +133,7 @@ export class AddServicioSubscripcionPage implements OnInit {
 
   agregar(){
 
-    
+    this.submitted = true;
 
     if (this.datosForm.invalid) {
       this.toastServices.alert('Por favor completar todos los campos marcados con * antes de continuar',"");
@@ -144,16 +145,20 @@ export class AddServicioSubscripcionPage implements OnInit {
       return;
     }
 
-    this.servicio.asignarValores(this.datosForm.value);
-    console.log(this.servicio);  
+    this.servicio.pagoAdelantado = this.datosForm.controls.pagoAdelantado.value;
+    this.servicio.fechaInicio = this.datosForm.controls.fechaInicio.value; 
 
+    this.subscripcion.clienteId = this.cliente.id;
     this.subscripcion.clienteRef= this.clientesService.getRef(this.cliente.id);
     this.subscripcion.vendedorRef=this.authenticationService.getRef(this.authenticationService.getUID());
-    this.subscripcion.vendedor_nombre=this.authenticationService.getNombre();
+    this.subscripcion.vendedor_nombre=this.authenticationService.getEmail();
+    this.subscripcion.servicioId= this.servicio.id;
     this.subscripcion.servicioRef=this.servicioService.getRef(this.servicio.id);
     this.subscripcion.fechaInicio=this.servicio.fechaInicio;
-    if(this.datosForm.controls.plan.value != 'personal')
+    if(this.datosForm.controls.plan.value != 'personal'){
+      this.servicio.plan = this.datosForm.controls.plan.value;
       this.subscripcion.planRef=this.planesService.getRef(this.servicio.plan.id);
+    }
     this.subscripcion.pagoAdelantado= this.servicio.pagoAdelantado;
     this.subscripcion.descipcion_venta= this.servicio.descripcion_venta;
     
@@ -166,10 +171,13 @@ export class AddServicioSubscripcionPage implements OnInit {
     
     if(this.servicio.pagoAdelantado == "true"){
       this.carritoService.setearCliente(this.cliente);
-      if(this.datosForm.controls.plan.value != 'personal')
-        this.carritoService.agregarServicio(this.servicio,this.servicio.plan.precio);
-      else
-        this.carritoService.agregarServicio(this.servicio,this.subscripcion.precio);
+      if(this.datosForm.controls.plan.value == 'personal'){ 
+        this.servicio.plan.nombre = 'Personal';
+        this.servicio.plan.precio = this.subscripcion.precio;
+        this.servicio.plan.tipo = this.subscripcion.tipo;
+        this.servicio.plan.dias = this.subscripcion.dias;       
+      }
+      this.carritoService.agregarServicio(this.servicio,this.servicio.plan.precio);  
 
       this.toastServices.mensaje("Se agregó la primer cuota al carrito","");
     }

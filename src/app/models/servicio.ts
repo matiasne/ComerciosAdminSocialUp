@@ -3,6 +3,13 @@ import { Plan } from './plan';
 export class Servicio {
 
     id="";
+    plan = {
+        id:"",
+        nombre:"",
+        precio:0,
+        tipo:"",
+        dias:""
+    }
     nombre ="";
     descripcion="";
     categorias=[];
@@ -10,10 +17,13 @@ export class Servicio {
     foto="";
     createdAt="";
     fechaInicio ="";
-    plan:any;
     pagoAdelantado= "true" ;
     descripcion_venta="";
     recibirReservas=true;
+
+    precio=0;
+    tipo="";
+    dias="";
 
 	public constructor() {
     }

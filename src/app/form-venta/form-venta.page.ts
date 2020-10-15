@@ -10,6 +10,7 @@ import { VentasService } from '../Services/ventas.service';
 import { AuthenticationService } from '../Services/authentication.service';
 import { AddProductoVentaPage } from '../add-producto-venta/add-producto-venta.page';
 import { ToastService } from '../Services/toast.service';
+import { SelectClientePage } from '../select-cliente/select-cliente.page';
 
 @Component({
   selector: 'app-form-venta',
@@ -48,7 +49,7 @@ export class FormVentaPage implements OnInit {
 
   async seleccionarCliente(){
     const modal = await this.modalController.create({
-      component: ListClientesPage      
+      component: SelectClientePage      
     });
     modal.onDidDismiss()
     .then((retorno) => {

@@ -7,10 +7,12 @@ import { IonicModule } from '@ionic/angular';
 import { DetailsSubscripcionPageRoutingModule } from './details-subscripcion-routing.module';
 
 import { DetailsSubscripcionPage } from './details-subscripcion.page';
+import { ComponentsModule } from '../Components/components.module';
 
 @NgModule({
   imports: [
     CommonModule,
+    ComponentsModule,
     FormsModule,
     IonicModule,
     DetailsSubscripcionPageRoutingModule

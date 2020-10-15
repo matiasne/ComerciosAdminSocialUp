@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CtaCorrientesService } from '../Services/cta-corrientes.service';
-import { Comercio } from '../models/comercio';
+import { Comercio } from '../Models/comercio';
 import { ClientesService } from '../Services/clientes.service';
 import { Router } from '@angular/router';
 import { CtaCorriente } from '../models/ctacorriente';
@@ -13,7 +13,6 @@ import { AuthenticationService } from '../Services/authentication.service';
 })
 export class ListCtaCorrientesPage implements OnInit {
 
-  private comercio:Comercio;
   public items =[];
   public palabraFiltro ="";
   public itemsView =[];
@@ -25,7 +24,6 @@ export class ListCtaCorrientesPage implements OnInit {
     private authenticationService:AuthenticationService
   ) {
 
-    this.comercio = new Comercio();
     this.ctasCorreintesService.getAll().subscribe(snapshot =>{
       this.items = [];
 
@@ -34,19 +32,21 @@ export class ListCtaCorrientesPage implements OnInit {
           var item:CtaCorriente = new CtaCorriente(this.authenticationService.getUID(), this.authenticationService.getNombre());
           item.asignarValores(snap.payload.doc.data());
           item.id = snap.payload.doc.id;              
-          this.items.push(item); 
           
-          item.coTitularesId.forEach(clienteId => {
+          
+          item.coTitularesId.forEach(async clienteId => {
+            console.log(clienteId);
             if(clienteId)
-              this.clientesServices.get(clienteId).subscribe(snap =>{
+              await this.clientesServices.get(clienteId).subscribe(snap =>{
                 item.clientes.push(snap.payload.data());
               })
           });
-         
+
+          this.items.push(item); 
+
+          console.log(item);
       });  
       this.buscar();
-
-
     })
   }
 

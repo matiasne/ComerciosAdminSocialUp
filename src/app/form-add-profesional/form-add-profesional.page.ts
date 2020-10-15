@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormInvitacionPage } from '../form-invitacion/form-invitacion.page';
 import { ModalController, AlertController, NavParams } from '@ionic/angular';
 import { Rol } from '../models/rol';
-import { Comercio } from '../models/comercio';
+import { Comercio } from '../Models/comercio';
 import { RolesService } from '../Services/roles.service';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { FormHorarioPage } from '../form-horario/form-horario.page';
 import { Horario } from '../models/horario';
 import { ProfesionalServicio } from '../models/profesionalServicio';
+import { InvitacionesService } from '../Services/invitaciones.service';
 
 @Component({
   selector: 'app-form-add-profesional',
@@ -25,7 +26,8 @@ export class FormAddProfesionalPage implements OnInit {
     private rolesServices:RolesService,
     private firestore: AngularFirestore,
     private alertController:AlertController,
-    private navParams:NavParams
+    private navParams:NavParams,
+    private invitacionService:InvitacionesService
   ) { 
   }
 
@@ -59,19 +61,7 @@ export class FormAddProfesionalPage implements OnInit {
     modal.onDidDismiss()
     .then((retorno) => {
       if(retorno.data){     
-        console.log(retorno.data)  
-        var rol:Rol = new Rol(); 
-        rol.id = this.firestore.createId();
-        let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-        rol.comercioId = comercio_seleccionadoId;
-        rol.user_email = retorno.data;
-        rol.rol = "empleado";
-        rol.estado = "pendiente";
-        this.rolesServices.create(rol); 
-
-        this.profesional.rolId = rol.id;     
-        this.profesional.email = rol.user_email;
-
+        this.invitacionService.enviarInvitacion(retorno.data,"empleado"); 
       }        
     });
     return await modal.present();

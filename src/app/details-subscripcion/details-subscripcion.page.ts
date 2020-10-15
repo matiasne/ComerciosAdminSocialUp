@@ -42,18 +42,24 @@ export class DetailsSubscripcionPage implements OnInit {
       });
 
       this.subscripcion.servicioRef.get().then(snap=>{
-        this.subscripcion["servicio"].nombre = snap.data().nombre;
+        if(snap)
+          this.subscripcion["servicio"].nombre = snap.data().nombre;
       });
     
       if(this.subscripcion.planRef){
         this.subscripcion.planRef.get().then(snap=>{
-          this.subscripcion['plan'].nombre = snap.data().nombre;
-          this.subscripcion['plan'].precio = snap.data().precio;
+          if(snap){ 
+            this.subscripcion['plan'].nombre = snap.data().nombre;
+            this.subscripcion['plan'].precio = snap.data().precio;
+          }
+          
         });
       }
       else{
         this.subscripcion['plan'] = {
           precio: this.subscripcion.precio,
+          tipo:this.subscripcion.tipo,
+          dias:this.subscripcion.dias,
           nombre: "Personalizado"
         }
       }

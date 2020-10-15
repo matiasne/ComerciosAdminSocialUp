@@ -1,29 +1,29 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
     <ion-title>Cajas</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-list lines="none">     
-    <ion-text color="primary">
-      <h4>Cajas</h4>
-    </ion-text>  
-    
+<ion-content class="ion-padding">
+  <ion-list lines="none">        
     <ion-item-sliding *ngFor="let caja of cajas" class="item-card">
-
-      <ion-item>       
+      <ion-item (click)="seleccionar(caja.id)">  
+        <div slot="start">
+          <ion-icon name="file-tray-full-outline"></ion-icon>
+        </div>      
         <ion-label>
           <b>{{caja.nombre}}</b>         
         </ion-label> 
        
       </ion-item>  
 
+      
+
       <ion-item-options side="end">
-        <ion-item-option (click)="openEditCaja(item)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
+        <ion-item-option (click)="openEditCaja(caja)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
       </ion-item-options>
 
     </ion-item-sliding>

@@ -16,6 +16,6 @@ import { FormInvitacionPage } from './form-invitacion.page';
     IonicModule,
     FormInvitacionPageRoutingModule
   ],
-  declarations: [FormInvitacionPage]
+  declarations: []
 })
 export class FormInvitacionPageModule {}

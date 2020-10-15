@@ -11,7 +11,7 @@ import { AuthenticationService } from '../Services/authentication.service';
 export class ListNotificacionesPage implements OnInit {
 
   private notiSub:Subscription;
-  private notificaciones = [];
+  public notificaciones = [];
   constructor(
     private notificacionesAppService:NotifificacionesAppService,
     private authService:AuthenticationService
@@ -37,7 +37,7 @@ export class ListNotificacionesPage implements OnInit {
 
   ionViewDidLeave(){
     this.notificaciones.forEach(element => {
-        if(element.estado == "enviada"){
+        if(element.estado == "pendiente"){
           element.estado = "leida";
           this.notificacionesAppService.update(element);
         }

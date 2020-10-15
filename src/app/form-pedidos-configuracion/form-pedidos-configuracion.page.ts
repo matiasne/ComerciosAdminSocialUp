@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ComerciosService } from '../Services/comercios.service';
-import { Comercio } from '../models/comercio';
+import { Comercio } from '../Models/comercio';
 import { SelectEmpleadoPage } from '../select-empleado/select-empleado.page';
 import { ModalController, NavController, AlertController } from '@ionic/angular';
 import { FormInvitacionPage } from '../form-invitacion/form-invitacion.page';
@@ -9,6 +9,7 @@ import { RolesService } from '../Services/roles.service';
 import { UsuariosService } from '../Services/usuarios.service';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Rol } from '../models/rol';
+import { InvitacionesService } from '../Services/invitaciones.service';
 
 @Component({
   selector: 'app-form-pedidos-configuracion',
@@ -18,8 +19,8 @@ import { Rol } from '../models/rol';
 export class FormPedidosConfiguracionPage implements OnInit {
 
   private subs:Subscription;
-  private comercio:Comercio;
-  private cadetes = [];
+  public comercio:Comercio;
+  public cadetes = [];
 
   constructor(
     private comerciosService:ComerciosService,
@@ -28,7 +29,8 @@ export class FormPedidosConfiguracionPage implements OnInit {
     private navCtrl:NavController,
     private usuariosService:UsuariosService,
     private firestore: AngularFirestore,
-    private alertController:AlertController
+    private alertController:AlertController,
+    private invitacionService:InvitacionesService
   ) { 
     this.comercio = new Comercio();
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
@@ -73,19 +75,8 @@ export class FormPedidosConfiguracionPage implements OnInit {
     modal.onDidDismiss()
     .then((retorno) => {
       if(retorno.data){     
-        var rol:Rol = new Rol();
-        rol.id = this.firestore.createId();
-        rol.comercioId = this.comercio.id;
-        rol.user_email = retorno.data;
-        rol.rol = "cadete";
-        rol.estado = "pendiente";
-        this.rolesServices.create(rol);
-
-        this.comercio.rolCadetes.push(rol.id);
-        this.cadetes.unshift(rol);
-
-        console.log("Agregando Cadete")
-        this.update();
+        this.invitacionService.enviarInvitacion(retorno.data,"cadete"); 
+        
       }        
     });
     return await modal.present();

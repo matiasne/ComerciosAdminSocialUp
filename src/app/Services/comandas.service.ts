@@ -4,10 +4,11 @@ import * as firebase from 'firebase';
 import { CarritoService } from './global/carrito.service';
 import { AuthenticationService } from './authentication.service';
 import { VentasService } from './ventas.service';
-import { Subscribable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscribable, Subscription } from 'rxjs';
 import { NotificacionesService } from './notificaciones.service';
 import { ComerciosService } from './comercios.service';
 import { Comanda } from '../models/comanda';
+import { RolesService } from './roles.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,13 +17,15 @@ export class ComandasService {
 
   private collection:string;
   private carritoSubs:Subscription;
+  public comandaCantidad = new BehaviorSubject <any>("");
 
   constructor(
     private firestore: AngularFirestore,
     private authService:AuthenticationService,
     private ventasService:VentasService,
     private notificacionesService:NotificacionesService,
-    private comerciosService:ComerciosService
+    private comercioService:ComerciosService,
+    private rolesService:RolesService
   ) {
     
   }
@@ -32,6 +35,14 @@ export class ComandasService {
     return 'comercios/'+comercio_seleccionadoId+'/comandas';
   } 
 
+  getCantidad(): Observable<any>{
+    return this.comandaCantidad.asObservable();
+  }
+
+  setCantidad(cant){
+    this.comandaCantidad.next(cant);
+  }
+
   public create(carrito) {
    
     var comanda = new Comanda(this.authService.getUID(),this.authService.getActualUser().displayName,this.authService.getActualUser().email);
@@ -39,16 +50,21 @@ export class ComandasService {
     comanda.clienteNombre = "";
     comanda.carrito = JSON.stringify(carrito);
         
-
-    if(carrito.cliente){
+    console.log(carrito);
+    if(carrito.cliente.id){
       comanda.clienteId = carrito.cliente.id;
       comanda.clienteNombre = carrito.cliente.nombre;
-
-   //   this.notificacionesService.enviarById(carrito.cliente.id,"Su pedido ha sido comandado!",new Date());
+      this.notificacionesService.enviarById(carrito.cliente.id,"Su pedido ha sido comandado!","Revisa tu panel de comandas para Tomarla");
     }
 
     console.log(comanda);
 
+    
+      this.comercioService.comercio.rolComandatarios.forEach(rolId => {
+        this.notificacionesService.enviarByRolId(rolId,"Comanda Nueva!","Revisa tu panel de comandas para Tomarla");
+      });           
+      
+    
     this.firestore.collection(this.getCollection()).add( {...comanda,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });       
@@ -81,7 +97,7 @@ export class ComandasService {
 
   public setComandaLista(comanda){
 
-    this.notificacionesService.enviarById(comanda.empleadoId,"Comanda Lista!",new Date());
+    this.notificacionesService.enviarById(comanda.empleadoId,"Comanda Lista!","");
 
     this.firestore.collection(this.getCollection()).doc(comanda.id).update({status: 2});
   }

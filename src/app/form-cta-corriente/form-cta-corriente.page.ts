@@ -11,6 +11,7 @@ import { ClientesService } from '../Services/clientes.service';
 import { ComerciosService } from '../Services/comercios.service';
 import { Subscription } from 'rxjs';
 import { ToastService } from '../Services/toast.service';
+import { SelectClientePage } from '../select-cliente/select-cliente.page';
 
 @Component({
   selector: 'app-form-cta-corriente',
@@ -50,9 +51,8 @@ export class FormCtaCorrientePage implements OnInit {
     this.datosForm = this.formBuilder.group({
       nombre: ['', Validators.required],          
       coTitularesId:['', Validators.required],
-      vendedorId:[this.authenticationService.getUID(), Validators.required],
-      vendedor_nombre:[this.authenticationService.getNombre(), Validators.required],
-      montoActual:[0],
+      vendedor_nombre:[this.authenticationService.getEmail(), Validators.required],
+      montoTotal:[0],
      
     });
 
@@ -103,7 +103,7 @@ export class FormCtaCorrientePage implements OnInit {
 
   async seleccionarCliente(){
     const modal = await this.modalController.create({
-      component: ListClientesPage      
+      component: SelectClientePage      
     });
     modal.onDidDismiss()
     .then((retorno) => {
@@ -111,6 +111,10 @@ export class FormCtaCorrientePage implements OnInit {
         this.clientes.push(retorno.data.item);        
     });
     return await modal.present();
+  }
+
+  eliminarCliente(i){
+    this.clientes.splice(i,1);
   }
 
  
@@ -140,8 +144,7 @@ export class FormCtaCorrientePage implements OnInit {
     else{
       console.log("update")
       this.ctaCorrienteService.update(this.ctaCorriente);
-    }
-      
+    }     
 
     this.navCtrl.back();
   }
@@ -152,6 +155,7 @@ export class FormCtaCorrientePage implements OnInit {
 
   eliminar(){
     this.ctasCorreintesService.delete(this.ctaCorriente);
+    this.navCtrl.back();
   }
 
 }

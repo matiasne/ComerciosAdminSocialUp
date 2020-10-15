@@ -53,6 +53,8 @@ export class FormServicioPage implements OnInit {
   public planesSubs:Subscription;
   public subs:Subscription;
 
+  public croppedImageIcono ="";
+
   constructor(
     private formBuilder: FormBuilder,
     private imagePicker: ImagePicker,
@@ -71,7 +73,8 @@ export class FormServicioPage implements OnInit {
     private firestore: AngularFirestore,
     private loadingService:LoadingService,
     private toastServices:ToastService,
-    private calendariosServices:CalendariosService
+    private calendariosServices:CalendariosService,
+    
   ) { 
 
     this.servicio = new Servicio();
@@ -93,7 +96,8 @@ export class FormServicioPage implements OnInit {
       this.subs = this.serviciosService.get(this.route.snapshot.params.id).subscribe(resp=>{
         this.loadingService.dismissLoading();
         this.datosForm.patchValue(resp)
-        this.servicio.asignarValores(resp);        
+        this.servicio.asignarValores(resp);    
+        this.croppedImageIcono = this.servicio.foto;    
         this.obtnerPlanes();
         this.obtnerCalendarios();
 
@@ -162,13 +166,10 @@ export class FormServicioPage implements OnInit {
     if(this.updating){
       const serv = JSON.parse(JSON.stringify(this.servicio));
       this.serviciosService.update(serv).then((data:any)=>{
-        console.log(data.id);
-        
+        console.log(this.planes);        
         this.planes.forEach(plan =>{
           plan.servicioId = data.id;
-          this.planesServices.set(plan).then(data=>{
-            console.log(data);
-          })
+          this.planesServices.set(plan);
         })
         
         this.calendarios.forEach(calendario =>{
@@ -177,7 +178,6 @@ export class FormServicioPage implements OnInit {
             console.log(data);
           })
         })
-
       });
     }
     else{
@@ -187,9 +187,7 @@ export class FormServicioPage implements OnInit {
         
         this.planes.forEach(plan =>{
           plan.servicioId = data.id;
-          this.planesServices.set(plan).then(data=>{
-            console.log(data);
-          })
+          this.planesServices.set(plan);          
         })
         
         this.calendarios.forEach(calendarios =>{
@@ -207,95 +205,7 @@ export class FormServicioPage implements OnInit {
     this.navCtrl.back();
   }
 
-  async selectImage() {
-    const actionSheet = await this.actionSheetController.create({
-      header: "Select Image source",
-      buttons: [{
-        text: 'Seleccionar de la Galería',
-        handler: () => {
-          this.pickImage(this.camera.PictureSourceType.PHOTOLIBRARY);
-        }
-      },
-      {
-        text: 'Sacar Foto',
-        handler: () => {
-          this.pickImage(this.camera.PictureSourceType.CAMERA);
-        }
-      },
-      {
-        text: 'Cancelar',
-        role: 'cancel'
-      }
-      ]
-    });
-    await actionSheet.present();
-  }
 
-  pickImage(sourceType) {
-
-    console.log(sourceType);
-
-    if(sourceType == 0){
-      this.imagePicker.getPictures(this.imagePickerOptions).then((results) => {
-        for (var i = 0; i < results.length; i++) {
-          this.cropImage(results[i]);          
-        }
-      }, (err) => {
-        alert(err);
-      });
-    }
-
-    if(sourceType == 1){
-      const options: CameraOptions = {
-        quality: 5,
-        sourceType: sourceType,
-        destinationType: this.camera.DestinationType.FILE_URI,
-        encodingType: this.camera.EncodingType.JPEG,
-        mediaType: this.camera.MediaType.PICTURE,
-        correctOrientation: true
-      }
-      this.camera.getPicture(options).then((imageData) => {
-        // imageData is either a base64 encoded string or a file URI
-        // If it's base64 (DATA_URL):
-        // let base64Image = 'data:image/jpeg;base64,' + imageData;
-        this.cropImage(imageData)
-      }, (err) => {
-        // Handle error
-      });
-    }
-    
-  }
-
-  cropImage(fileUrl) {
-    this.crop.crop(fileUrl, { quality: 5, targetHeight:0, targetWidth:0 })
-      .then(
-        newPath => {
-          this.showCroppedImage(newPath.split('?')[0])
-        },
-        error => {
-          alert('Error cropping image' + error);
-        }
-      );
-  }
-
-  showCroppedImage(ImagePath) {
-    this.isLoading = true;
-    var copyPath = ImagePath;
-    var splitPath = copyPath.split('/');
-    var imageName = splitPath[splitPath.length - 1];
-    var filePath = ImagePath.split(imageName)[0];
-
-    this.file.readAsDataURL(filePath, imageName).then(base64 => {
-      this.croppedImagepath = base64;
-      this.datosForm.patchValue({
-        foto: this.croppedImagepath
-      })
-      this.isLoading = false;
-    }, error => {
-      alert('Error in showing image' + error);
-      this.isLoading = false;
-    });
-  }
 
   async openNewPlan(){    
     const modal = await this.modalController.create({
@@ -303,7 +213,7 @@ export class FormServicioPage implements OnInit {
       componentProps: { servicioId: this.servicio.id}
     });
 
-    modal.onDidDismiss().then((retorno) => {
+    modal.onDidDismiss().then((retorno) => {     
       if(retorno.data){
         this.planes.push(retorno.data);
       }        
@@ -311,6 +221,13 @@ export class FormServicioPage implements OnInit {
 
     return await modal.present();
   }
+
+  imagenSeleccionadaIcono(newValue : any){
+    console.log(newValue);
+    this.datosForm.patchValue({
+      foto: newValue
+    })
+   }
 
   async editarPlan(plan,index){
     const modal = await this.modalController.create({
@@ -320,7 +237,7 @@ export class FormServicioPage implements OnInit {
 
     modal.onDidDismiss().then((retorno) => {
       if(retorno.data == 'eliminar'){
-        this.planesServices.delete(this.planes[index]);        
+        this.planesServices.delete(this.planes[index].id);        
       }
 
       if(retorno.data){
@@ -439,7 +356,8 @@ export class FormServicioPage implements OnInit {
         }, {
           text: 'Eliminar',
           handler: () => {
-            this.serviciosService.delete(this.route.snapshot.params.id);
+            this.serviciosService.deleteS(this.route.snapshot.params.id);
+            
             this.navCtrl.back();
           }
         }

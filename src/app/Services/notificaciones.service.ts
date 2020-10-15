@@ -6,6 +6,7 @@ import { retry, catchError } from 'rxjs/operators';
 import { RolesService } from './roles.service';
 import { NotifificacionesAppService } from './notifificaciones-app.service';
 import { Notificacion } from '../models/notificacion';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -45,8 +46,8 @@ export class NotificacionesService {
         console.log(usuario);
 
 
-        if(usuario.notification_token){
-          this.enviarHttp(usuario.notification_token,titulo,mensaje).subscribe(data=>{
+        if(usuario.notificationCelulartoken){
+          this.enviarHttp(usuario.notificationCelulartoken,titulo,mensaje).subscribe(data=>{
             console.log(data);
           });
         }
@@ -68,7 +69,7 @@ export class NotificacionesService {
         notificacion.titulo = titulo;
         notificacion.mensaje = mensaje;
         notificacion.tipo = "simple";
-        notificacion.estado = "enviada";
+        notificacion.estado = "pendiente";
 
         this.notificacionesAppService.create(notificacion);
 
@@ -84,21 +85,22 @@ export class NotificacionesService {
         usuario.id = snapshot.payload.id;   
         console.log(usuario);
 
+        if(usuario.notificationCelulartoken)
+          this.enviarHttp(usuario.notificationCelulartoken,titulo,mensaje).subscribe(data=>{
+            console.log(data);
+          });
 
-        this.enviarHttp(usuario.notification_token,titulo,mensaje).subscribe(data=>{
-          console.log(data);
-        });
-
-        this.enviarHttp(usuario.notificacionesWebToken,titulo,mensaje).subscribe(data=>{
-          console.log(data);
-        });
+        if(usuario.notificacionesWebToken)
+          this.enviarHttp(usuario.notificacionesWebToken,titulo,mensaje).subscribe(data=>{
+            console.log(data);
+          });
 
         let notificacion = new Notificacion();
         notificacion.userId = usuario.id;
         notificacion.titulo = titulo;
         notificacion.mensaje = mensaje;
         notificacion.tipo = "simple";
-        notificacion.estado = "enviada";
+        notificacion.estado = "pendiente";
 
         this.notificacionesAppService.create(notificacion);
       
@@ -110,12 +112,16 @@ export class NotificacionesService {
     this.rolesService.get(id).subscribe(snapshot=>{
       
         var rol:any = snapshot.payload.data();
-        rol.id = snapshot.payload.id;   
-        console.log(rol);
 
-        if(rol.estado == "aceptado"){
-          this.enviarById(rol.userId,titulo,mensaje);
-        }      
+        if(rol){
+          rol.id = snapshot.payload.id;   
+          console.log(rol);
+
+          if(rol.estado == "aceptado"){
+            this.enviarById(rol.userId,titulo,mensaje);
+          }    
+        }
+          
     })
   }
 
@@ -123,7 +129,7 @@ export class NotificacionesService {
     
     this.httpHeaders = new HttpHeaders({
       'Content-Type' : 'application/json',
-      'Authorization': 'key=AAAARtj4-6c:APA91bGXaI69tq_Uhs8rIvUcaOTZkBw7pVgg30FCBJcz4zAu_tOizyzGN61J1e0t4W-oGvxjxPWMMUyW_C7Xnqq0oS2AlkrvbT9VpdagcnXnXhDL80A-kLuXF325hqzg44CnSGUTwUCQ'
+      'Authorization': 'key='+environment.firebase.claveServidor
     });   
  
     let options = {

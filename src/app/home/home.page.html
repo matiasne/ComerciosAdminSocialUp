@@ -15,31 +15,31 @@
 
   <ion-list lines="none">   
     
-      <ion-item-sliding *ngFor="let item of comercios" class="item-card" >    
+    <ion-item-sliding *ngFor="let item of comercios" class="item-card">    
 
-          <ion-item (click)="seleccionar(item)" >
-            <div slot="start">
-              <img src="{{item.icono}}" *ngIf="item.icono">
-              <ion-icon name="home-outline" *ngIf="!item.icono"></ion-icon>
-            </div>      
-            <ion-label>
-              <h2><b>{{item.nombre}}</b> </h2>
-              <p>
-                {{item.rol.rol}}
-              </p>           
-            </ion-label>  
-            <ion-button *ngIf="item.rol.estado == 'pendiente'" color="danger" slot="end">Nuevo!</ion-button>       
-          </ion-item>
-        
-          <ion-item-options *ngIf="item.rol.rol == 'owner'" side="end">
-            <ion-item-option (click)="editar(item)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
-          </ion-item-options>
-
-          <ion-item-options *ngIf="item.rol.rol != 'owner'" side="end">
-            <ion-item-option color="danger" (click)="desvincular(item.rol.id)"><ion-icon name="trash" ></ion-icon>Desvincular</ion-item-option>
-          </ion-item-options>
+      <ion-item (click)="seleccionar(item)">
+        <div slot="start">
+          <img src="{{item.icono}}" *ngIf="item.icono">
+          <ion-icon name="home-outline" *ngIf="!item.icono"></ion-icon>
+        </div>      
+        <ion-label>
+          <h2><b>{{item.nombre}}</b> </h2>
+          <p>
+            {{item.rol.rol}}
+          </p>            
+        </ion-label>  
+        <ion-button *ngIf="item.rol.estado == 'pendiente'" color="danger" slot="end">Nuevo!</ion-button>       
+      </ion-item>
     
-        </ion-item-sliding>
+      <ion-item-options *ngIf="item.rol.rol == 'admin'" side="end">
+        <ion-item-option (click)="editar(item)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
+      </ion-item-options>
+
+      <ion-item-options *ngIf="item.rol.rol != 'admin'" side="end">
+        <ion-item-option color="danger" (click)="desvincular(item)"><ion-icon name="trash" ></ion-icon>Desvincular</ion-item-option>
+      </ion-item-options>
+
+    </ion-item-sliding>
 
    
   </ion-list>
@@ -48,6 +48,6 @@
     <ion-fab-button>
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
-  </ion-fab>
+  </ion-fab> 
 
 </ion-content>

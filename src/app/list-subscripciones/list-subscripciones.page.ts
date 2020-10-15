@@ -97,50 +97,15 @@ export class ListSubscripcionesPage implements OnInit {
     this.subscripcionesService.list().subscribe(snapshot =>{
       this.items = [];  
       console.log(snapshot)
-      snapshot.forEach(item =>{    
-        let subscripcion = new Subscripcion("","");
-        subscripcion.asignarValores(item);
-               
-        subscripcion.clienteRef.get().then(snap=>{
-          subscripcion["cliente"].nombre = snap.data().nombre;
-        });
-
-        subscripcion.servicioRef.get().then(snap=>{
-          subscripcion["servicio"].nombre = snap.data().nombre;
-        });
-
-        if(subscripcion.planRef){
-          subscripcion.planRef.get().then(snap=>{
-            subscripcion["plan"].nombre = snap.data().nombre;
-            subscripcion["plan"].precio = snap.data().precio;
-          });
-        }
-        else{
-          subscripcion["plan"].precio = subscripcion.precio;
-         
-        }
-        
-
-        let fechaActual = new Date();
-        let fechaAMesActual = new Date(item.fechaInicio);
-        fechaAMesActual.setMonth(fechaActual.getMonth());
-
-        if(fechaActual > fechaAMesActual){
-          fechaAMesActual.setMonth(fechaActual.getMonth()+1);
-        }
-
-        let fechaProximoPago = fechaAMesActual;
-        subscripcion.proximoPago = fechaProximoPago;
-
-        console.log(fechaProximoPago);
-
-        this.items.push(subscripcion);         
-        
+      snapshot.forEach(async item =>{    
+        this.items.push(item);                 
       });  
       this.buscar();
    
     })
   }
+
+  
 
  
 
@@ -161,52 +126,13 @@ export class ListSubscripcionesPage implements OnInit {
     }
   } 
 
-  delete(item){
-    this.subscripcionesService.delete(item.id);
-  }
 
-  async eliminar(item){
-
-    const alert = await this.alertController.create({
-      header: 'Está seguro que desea eliminar la subscripción?',
-      message: 'Se perderán todos los movimientos y pagos de la misma.',
-      buttons: [
-        {
-          text: 'Cancelar',
-          handler: (blah) => {
-            
-          }
-        }, {
-          text: 'Eliminar',
-          handler: () => {           
-            this.subscripcionesService.delete(item.id);  
-          }
-        }
-      ]
-    });
-    await alert.present();
-
-    
-  }
+  
   
 
 
-  cobrar(item){
+  
 
-    this.carritoService.vaciar();
-    this.carritoService.agregarPagare(item);
-    this.carritoService.setearCliente(item.cliente);
-    
-    this.router.navigate(['details-carrito',{
-      comanda:false,
-      cobro:true
-    }]);
-
-  }
-
-  verDetalles(id){
-    this.router.navigate(['details-subscripcion',{id:id}]);
-  }
 
   
 

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ListClientesPage } from '../list-clientes/list-clientes.page';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
+import { SelectClientePage } from '../select-cliente/select-cliente.page';
 
 @Component({
   selector: 'app-dashboard-clientes',
@@ -24,7 +25,7 @@ export class DashboardClientesPage implements OnInit {
 
   async buscar(){
     const modal = await this.modalController.create({
-      component: ListClientesPage      
+      component: SelectClientePage      
     });
     modal.onDidDismiss()
     .then((retorno) => {

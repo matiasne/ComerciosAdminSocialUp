@@ -16,7 +16,7 @@ import { FormCategoriaPage } from '../form-categoria/form-categoria.page';
 import { snapshotChanges } from 'angularfire2/database';
 import { CategoriasService } from '../Services/categorias.service';
 import { AngularFirestore } from 'angularfire2/firestore';
-import { Comercio } from '../models/comercio';
+import { Comercio } from '../Models/comercio';
 import { FormHorarioPage } from '../form-horario/form-horario.page';
 import { HorariosService } from '../Services/horarios.service';
 import { LoadingService } from '../Services/loading.service';
@@ -106,8 +106,6 @@ export class FormComercioPage implements OnInit {
       this.IsMobile = true;
     } 
 
-
-
     this.geo = geofirex.init(firebase);
 
     this.datosForm = this.formBuilder.group({
@@ -170,9 +168,7 @@ export class FormComercioPage implements OnInit {
     else{
 
       this.comercio.id = this.firestore.createId();
-      
-    //  this.obtenerCategorias(this.comercio.id);
-    //  this.obtnerCajas(this.comercio.id);         
+        
     }       
   }
 
@@ -186,27 +182,7 @@ export class FormComercioPage implements OnInit {
     this.croppedImageIcono = newValue;
   }
 
-/*  obtnerCajas(comercioId){
-    this.cajasSubs = this.cajasService.getAll(comercioId).subscribe(snapshot=>{                 
-      this.cajas = [];
-      snapshot.forEach((snap: any) => {           
-          var item = snap.payload.doc.data();
-          item.id = snap.payload.doc.id;              
-          this.cajas.push(item);             
-      });
-    });
-  }
 
-  obtenerCategorias(comercioId){
-    this.categoriasSubs = this.categoriaServices.getAll(comercioId).subscribe(snapshot=>{                 
-      this.categorias = [];
-      snapshot.forEach((snap: any) => {           
-          var item = snap.payload.doc.data();
-          item.id = snap.payload.doc.id;              
-          this.categorias.push(item);             
-      });
-    });  
-  } */
 
   ngOnInit() {
 
@@ -242,113 +218,7 @@ export class FormComercioPage implements OnInit {
       this.subs.unsubscribe();
 
   }
-/*
-  async openAddCaja(){
-    const modal = await this.modalController.create({
-      component: FormCajaPage,
-      componentProps: { 
-        comercioId: this.comercio.id 
-      }
-    });
 
-    return await modal.present();
-  }
-
-  async openEditCaja(item){
-    const modal = await this.modalController.create({
-      component: FormCajaPage,
-      componentProps: { 
-        caja: item
-      }
-    });  
-
-    return await modal.present();
-  }
-
-  
-  async openEditCategoria(categoria){
-    const modal = await this.modalController.create({
-      component: FormCategoriaPage, 
-      componentProps: { 
-        categoria: categoria
-      }   
-    });
-    return await modal.present();
-  }
-
-  async openAddCategoria(){
-    const modal = await this.modalController.create({
-      component: FormCategoriaPage,  
-      componentProps: { 
-        comercioId:this.comercio.id
-      }
-    });  
-    return await modal.present();
-  }*/
-
-/*  async openAddHorario(){
-    const modal = await this.modalController.create({
-      component: FormHorarioPage,   
-      componentProps: { 
-        comercioId:this.comercio.id
-      } 
-    });  
-    await modal.present();
-
-    modal.onDidDismiss()
-    .then((retorno) => {
-      console.log(retorno.data);
-      if(retorno.data)
-        this.comercio.horarios.push(retorno.data);
-      this.ordenarHorarios();
-    });
-  } 
-
-  async eliminarHorario(i,horario){
-
-    const alert = await this.alertController.create({
-      header: 'Está seguro que desea eliminar el horario?',
-      message: '',
-      buttons: [
-        {
-          text: 'Cancelar',
-          handler: (blah) => {
-            
-          }
-        }, {
-          text: 'Eliminar',
-          handler: () => {           
-            this.comercio.horarios.splice(i,1);
-            this.ordenarHorarios();
-          }
-        }
-      ]
-    });
-    await alert.present();
-
-    
-  }
-
-  ordenarHorarios(){
-   
-
-    this.comercio.horarios.sort((ob1,ob2) =>{
-      if (ob1.dia > ob2.dia) {
-          return 1;
-      } else if (ob1.dia < ob2.dia) { 
-          return -1;
-      }
-  
-      // Else go to the 2nd item
-      if (ob1.desde < ob2.desde) { 
-          return -1;
-      } else if (ob1.desde > ob2.desde) {
-          return 1
-      } else { // nothing to split them
-          return 0;
-      }
-    })
-  }*/
 
   
   get f() { return this.datosForm.controls; }

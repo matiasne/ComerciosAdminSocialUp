@@ -9,9 +9,9 @@
 
 <ion-content class="ion-padding">
   <form [formGroup]="datosForm" >
-    <div class="form-card">
+    <div class="form-card"> 
       <ion-text color="primary">
-        <h4>Monto *</h4>        
+        <h4>Monto *</h4>         
       </ion-text>        
       <ion-item class="item-card">
         <ion-input name="monto" type="number" formControlName="monto" required></ion-input>
@@ -28,9 +28,9 @@
     <ion-item class="item-card">
       <ion-label>Seleccione Método de Pago</ion-label>
         <ion-select [(ngModel)]="metodoPagoSeleccionado" (ionChange)="setearMetodoPago()" [ngModelOptions]="{standalone: true}">
-          <ion-select-option *ngIf="caja.efectivo" [value]="efectivo">Efectivo</ion-select-option>
-          <ion-select-option *ngIf="caja.debito" [value]="debito">Débito</ion-select-option>
-          <ion-select-option *ngIf="caja.credito" [value]="credito">Crédito</ion-select-option>
+          <ion-select-option *ngIf="caja.efectivo" [value]="'efectivo'">Efectivo</ion-select-option>
+          <ion-select-option *ngIf="caja.debito" [value]="'debito'">Débito</ion-select-option>
+          <ion-select-option *ngIf="caja.credito" [value]="'credito'">Crédito</ion-select-option>
         </ion-select>    
     </ion-item>
 

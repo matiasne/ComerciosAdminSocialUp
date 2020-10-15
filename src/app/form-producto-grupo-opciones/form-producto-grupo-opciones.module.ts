@@ -16,6 +16,6 @@ import { FormProductoGrupoOpcionesPage } from './form-producto-grupo-opciones.pa
     IonicModule,
     FormProductoGrupoOpcionesPageRoutingModule
   ],
-  declarations: [FormProductoGrupoOpcionesPage]
+  declarations: []
 })
 export class FormProductoGrupoOpcionesPageModule {}

@@ -4,8 +4,8 @@
       <ion-back-button></ion-back-button>
     </ion-buttons>
     <ion-title>Configurar Comandas</ion-title>
-  </ion-toolbar>
-</ion-header>
+  </ion-toolbar>  
+</ion-header> 
 
 <ion-content class="ion-padding">
 
@@ -14,7 +14,7 @@
     <ion-toggle [(ngModel)]="comercio.recibirComandas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
   </ion-item>
   <ion-item  class="item-card" *ngIf="comercio.recibirComandas">
-    <ion-button  size="large" (click)="agregarComandatario()"  expand="block">Agregar Comandatarios *</ion-button>
+    <ion-button  size="large" (click)="agregarComandatario()"  expand="block">Invitar Comandatarios *</ion-button>
   </ion-item>
   
   <div *ngIf="comercio.recibirComandas">

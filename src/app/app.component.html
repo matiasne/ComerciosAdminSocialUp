@@ -1,5 +1,5 @@
 <ion-app>
-  <ion-split-pane when="(min-width: 1400px)" contentId="main-content">
+  <ion-split-pane when="(min-width: 3400px)" contentId="main-content">
     <ion-menu contentId="main-content" type="overlay">
       <ion-content>
         <ion-list id="inbox-list" >
@@ -16,16 +16,15 @@
               <ion-label>Catálogo</ion-label>
             </ion-item>
 
-            
-            <ion-item [routerLink]="['/dashboard-clientes']" lines="none" detail="false">
+            <ion-item [routerLink]="['/list-clientes']" lines="none" detail="false">
               <ion-icon slot="start" name="people-outline"></ion-icon>
               <ion-label>Clientes</ion-label>
             </ion-item>
-
            
             <ion-item *ngIf="comercioSeleccionado.recibirComandas" [routerLink]="['/list-comandas']" lines="none" detail="false">
               <ion-icon slot="start" name="receipt-outline"></ion-icon>
               <ion-label>Comandas</ion-label>
+              <ion-badge color="primary" *ngIf="cantComandas != 0" slot="end">{{cantComandas}}</ion-badge>
             </ion-item>
 
             <ion-item [routerLink]="['/list-subscripciones']" lines="none" detail="false">
@@ -38,10 +37,10 @@
               <ion-label>Calendarios</ion-label>
             </ion-item>
 
-            <ion-item [routerLink]="['/dashboard-cajas']" lines="none" detail="false">
-              <ion-icon slot="start" name="wallet-outline"></ion-icon>
-              <ion-label>Cajas</ion-label>
-            </ion-item>
+            <ion-item [routerLink]="['/list-cajas']" lines="none" detail="false">
+              <ion-icon slot="start" name="file-tray-full-outline"></ion-icon>
+              <ion-label>Cajas</ion-label> 
+            </ion-item> 
 
             <ion-item [routerLink]="['/list-cta-corrientes']" lines="none" detail="false">
               <ion-icon slot="start" name="wallet-outline"></ion-icon>

@@ -23,32 +23,10 @@
   </ion-row>
 
   <ion-list lines="none">    
-
-    <ion-item-sliding  class="item-card" *ngFor="let item of itemsView">
-      <ion-item (click)="verDetalles(item.id)">           
-        <ion-label>
-          <h2><b>{{item.cliente.nombre}} </b> </h2>
-          <p>
-            {{item.servicio.nombre}}
-          </p>
-          <p>
-            <b>{{item.plan.precio | currency}}</b>
-          </p>     
-          <p>
-            proximo pago: {{item.proximoPago | date:'dd/MM/yyyy'}}
-          </p>       
-        </ion-label>         
-      </ion-item>
-
-      <ion-button size="large" *ngFor="let pagare of item.pagares" color="danger"  (click)="cobrar(item)">
-        {{pagare.fecha}}  {{pagare.monto | currency}}
-      </ion-button>
-
-    <ion-item-options side="end">
-      <ion-item-option color="danger" (click)="eliminar(item)"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
-    </ion-item-options>
-
-    </ion-item-sliding>
+    <div *ngFor="let item of itemsView">
+      <app-card-subscription [item]="item"></app-card-subscription>
+    </div>
+    
   </ion-list>
 
 </ion-content>

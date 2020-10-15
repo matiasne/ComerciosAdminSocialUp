@@ -79,4 +79,8 @@ export class ListServiciosPage implements OnInit {
     }
   }
 
+  buscar(){
+    
+  }
+
 }

@@ -1,0 +1,97 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>form-estilo-configuracion</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hexa Color Primary</h4> 
+    </ion-text>             
+    <ion-item>
+      <ion-input type="color" [(ngModel)]="comercio.colores.primary" required></ion-input>
+    </ion-item>    
+  </div>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hexa Color Secundary</h4> 
+    </ion-text>             
+    <ion-item>
+      <ion-input type="color" [(ngModel)]="comercio.colores.secondary" required></ion-input>
+    </ion-item>    
+  </div>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hexa Color Tertiary</h4> 
+    </ion-text>             
+    <ion-item>
+      <ion-input type="color" [(ngModel)]="comercio.colores.tertiary" required></ion-input>
+    </ion-item>    
+  </div>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hexa Color Success</h4> 
+    </ion-text>             
+    <ion-item>
+      <ion-input type="color" [(ngModel)]="comercio.colores.success" required></ion-input>
+    </ion-item>    
+  </div>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hexa Color Warning</h4> 
+    </ion-text>             
+    <ion-item>
+      <ion-input type="color" [(ngModel)]="comercio.colores.warning" required></ion-input>
+    </ion-item>    
+  </div>
+
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hexa Color Danger</h4> 
+    </ion-text>             
+    <ion-item>
+      <ion-input type="color" [(ngModel)]="comercio.colores.danger" required></ion-input>
+    </ion-item>    
+  </div>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hexa Color Light</h4> 
+    </ion-text>             
+    <ion-item>
+      <ion-input type="color" [(ngModel)]="comercio.colores.light" required></ion-input>
+    </ion-item>    
+  </div>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hexa Color Medium</h4> 
+    </ion-text>             
+    <ion-item>
+      <ion-input type="color" [(ngModel)]="comercio.colores.medium" required></ion-input>
+    </ion-item>    
+  </div>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hexa Color Dark</h4> 
+    </ion-text>             
+    <ion-item>
+      <ion-input type="color" [(ngModel)]="comercio.colores.dark" required></ion-input>
+    </ion-item>    
+  </div>
+
+</ion-content>
+<ion-footer class="ion-no-border ion-padding">
+  <ion-toolbar> 
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>  
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-footer>

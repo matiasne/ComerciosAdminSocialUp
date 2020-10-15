@@ -3,15 +3,12 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Form Mesa</ion-title>    
+    <ion-title>{{titulo}}</ion-title>    
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-
-  
-    <form [formGroup]="datosForm" >
-
+<ion-content class="ion-padding">  
+    <form [formGroup]="datosForm">
       <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.nombre.valid}">
         <ion-text color="primary">
           <h4>Nombre *</h4>        
@@ -23,9 +20,8 @@
             <div *ngIf="f.nombre.errors.required"><h5>Ingresa el nombre de la mesa</h5></div>
         </div> 
       </div>
-    </form>   
-
-
+    </form>
+    
     <ion-item>
       <ion-label>Habilitar Notificaciones QR:</ion-label>
       <ion-toggle [(ngModel)]="mesa.habilitaNotificaciones"></ion-toggle>

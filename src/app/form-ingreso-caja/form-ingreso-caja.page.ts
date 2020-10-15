@@ -14,6 +14,7 @@ import { CajasService } from '../Services/cajas.service';
 import { MovimientosService } from '../Services/movimientos.service';
 import { Caja } from '../models/caja';
 import { ToastService } from '../Services/toast.service';
+import { SelectClientePage } from '../select-cliente/select-cliente.page';
 
 @Component({
   selector: 'app-form-ingreso-caja',
@@ -25,7 +26,7 @@ export class FormIngresoCajaPage implements OnInit {
   public datosForm: FormGroup;
   submitted = false;
   public totalActual=0;
-  public metodoPagoSeleccionado ="Efectivo";
+  public metodoPagoSeleccionado ="efectivo";
   public cliente:Cliente;
   public ctasCorrientes = [];
   public ctaCorrienteSelecccionadaId ="";
@@ -91,31 +92,15 @@ export class FormIngresoCajaPage implements OnInit {
 
     console.log
     
-    var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
+    var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getEmail());      
     pago.id = this.firestore.createId();
     pago.cajaId = this.caja.id;
     pago.metodoPago = this.metodoPagoSeleccionado;
     pago.monto= this.datosForm.controls.monto.value;
-   
-
-    if(this.metodoPagoSeleccionado == "Cta. Corriente"){
-      var deposito = new MovimientoCtaCorriente(this.authenticationService.getUID(),this.authenticationService.getNombre());
-      deposito.id = this.firestore.createId();
-      deposito.cajaId = this.caja.id;
-      deposito.motivo = "Ingreso desde caja";
-      deposito.pagoId = pago.id;
-      deposito.monto = this.datosForm.controls.monto.value;
-      deposito.ctaCorrienteId = this.ctaCorrienteSelecccionadaId;
-      this.movimientosService.crearMovimientoCtaCorriente(deposito);   
-         
-      pago.depositoId = deposito.id;
-      pago.ctaCorrienteId = this.ctaCorrienteSelecccionadaId;
-    }
     
-    
-    
+      
     console.log(this.caja.id);
-    this.movimientosService.createMovimientoCaja(this.caja,pago);
+    this.movimientosService.createMovimientoCaja(this.caja,pago)
 
 
     this.navCtrl.back();
@@ -124,7 +109,7 @@ export class FormIngresoCajaPage implements OnInit {
   async seleccionarCliente(){
     this.loadingService.presentLoading();
     const modal = await this.modalController.create({
-      component: ListClientesPage      
+      component: SelectClientePage      
     });
 
     modal.present().then(()=>{

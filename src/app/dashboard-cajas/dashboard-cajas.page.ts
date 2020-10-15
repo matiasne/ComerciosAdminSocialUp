@@ -50,7 +50,8 @@ export class DashboardCajasPage implements OnInit {
   }
 
   ngOnInit() {
-   
+    if(this.cajas[this.cajaIndex])
+      this.cajaSeleccionada = this.cajas[this.cajaIndex];
   }
 
   ionViewDidEnter(){
@@ -76,7 +77,7 @@ export class DashboardCajasPage implements OnInit {
                 mov.egreso = false; 
                 mov.cierre = true;
               }          
-      
+              
               console.log(mov)
               item.movimientos.push(mov);  
             });         
@@ -91,8 +92,8 @@ export class DashboardCajasPage implements OnInit {
 
   ionViewDidLeave(){
     console.log("!!!!!!!!!!!LEAVE")
-    this.cajasSubs.unsubscribe();
-    this.movSubs.unsubscribe();
+  //  this.cajasSubs.unsubscribe();
+  //  this.movSubs.unsubscribe();
   }
   
   obtenerDatosCaja(){   
@@ -141,6 +142,8 @@ export class DashboardCajasPage implements OnInit {
         }, {
           text: 'Eliminar',
           handler: () => {  
+
+            
             this.movimientosService.eliminarMovimientoCaja(this.cajaSeleccionada,item);
            
           }

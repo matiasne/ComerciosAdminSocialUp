@@ -24,10 +24,10 @@
 
     <div class="form-card">
       <ion-text color="primary">
-        <h4>Monto *</h4>        
+        <h4>Monto Actual*</h4>        
       </ion-text>        
       <ion-item class="item-card">
-        <ion-input name="monto" type="number" formControlName="montoActual" required></ion-input>
+        <ion-input name="monto" type="number" formControlName="montoTotal" required></ion-input>
       </ion-item>
     </div>
     
@@ -35,7 +35,7 @@
       <ion-text color="primary">
         <h4>Co-Titulares *</h4>        
       </ion-text>
-      <ion-item *ngFor="let cliente of clientes" class="item-card">
+      <ion-item *ngFor="let cliente of clientes;let i=index" class="item-card">
         <ion-avatar slot="start">
           <img src="{{cliente.foto}}" *ngIf="cliente.foto">
           <ion-icon name="person" *ngIf="!cliente.foto"></ion-icon>
@@ -44,7 +44,7 @@
           <h2>{{cliente.nombre}}</h2>
           <p>{{cliente.email}}</p>
         </ion-label>      
-        <ion-button color="danger" slot="end" (click)="eliminarCliente()"><ion-icon name="trash"></ion-icon></ion-button>       
+        <ion-button color="danger" slot="end" (click)="eliminarCliente(i)"><ion-icon name="trash"></ion-icon></ion-button>       
       </ion-item>
       <ion-item style="border-bottom: none;" >
         <ion-button  size="large" (click)="seleccionarCliente()"  expand="block">Agregar Titular * </ion-button>

@@ -25,7 +25,7 @@ export class CarritoService {
 
   public carrito:Carrito;
   
-  public actualCarritoSubject = new BehaviorSubject<any>(this.carrito);
+  public actualCarritoSubject = new BehaviorSubject<any>("");
 
   constructor(
     private ventasService:VentasService,
@@ -153,6 +153,7 @@ export class CarritoService {
 
   setearMetodoPago(metodo){
     this.carrito.metodoPago = metodo;
+    console.log(metodo);
     this.actualCarritoSubject.next(this.carrito); 
   } 
 
@@ -172,7 +173,7 @@ export class CarritoService {
       venta.productos = this.carrito.productos;      
       this.ventasService.create(venta);
 
-      if(this.carrito.metodoPago != "Cta. Corriente"){
+      if(this.carrito.metodoPago != "ctaCorriente"){
         
         var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
         pago.id = this.firestore.createId();
@@ -180,7 +181,8 @@ export class CarritoService {
         pago.cajaId = this.carrito.cajaId;
         pago.metodoPago = this.carrito.metodoPago;
         pago.monto= venta.total;
-        pago.ventaId = venta.id;        
+        pago.ventaId = venta.id;   
+        pago.motivo="Venta de productos";     
         this.movimientosService.createMovimientoCaja(caja,pago);
       }
       else{
@@ -205,14 +207,17 @@ export class CarritoService {
 
       
 
-        if(this.carrito.metodoPago != "Cta. Corriente"){
+        if(this.carrito.metodoPago != "ctaCorriente"){
           var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
           pago.id = this.firestore.createId();
-          pago.clienteId=this.carrito.cliente.id,
-          pago.servicioId=servicio.id,
-          pago.cajaId=this.carrito.cajaId,
-          pago.metodoPago=this.carrito.metodoPago,
-          pago.monto= servicio.plan.precio,
+          pago.clienteId=this.carrito.cliente.id;
+          pago.servicioId=servicio.id;
+          pago.cajaId=this.carrito.cajaId;
+          pago.metodoPago=this.carrito.metodoPago;
+          pago.monto= servicio.plan.precio;
+          
+          
+          pago.motivo="Venta de servicio";
           pago.servicioId = servicio.id;
           
           this.movimientosService.createMovimientoCaja(caja,pago);
@@ -237,15 +242,16 @@ export class CarritoService {
       
       this.carrito.pagare.estado = "pagado";
       this.pagareService.update(this.carrito.pagare);
-      if(this.carrito.metodoPago != "Cta. Corriente"){
+      if(this.carrito.metodoPago != "ctaCorriente"){
         
         var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
         pago.id = this.firestore.createId();
-        pago.clienteId=this.carrito.cliente.id,
-        pago.servicioId=this.carrito.pagare.servicioRef.id,
-        pago.cajaId=this.carrito.cajaId,
-        pago.metodoPago=this.carrito.metodoPago,
-        pago.monto= this.carrito.pagare.monto,
+        pago.clienteId=this.carrito.cliente.id;
+        pago.servicioId=this.carrito.pagare.servicioRef.id;
+        pago.cajaId=this.carrito.cajaId;
+        pago.metodoPago=this.carrito.metodoPago;
+        pago.monto= this.carrito.pagare.monto;
+        pago.motivo="Pago cuota de subscripción";
         pago.pagareId = this.carrito.pagare.id;      
         this.movimientosService.createMovimientoCaja(caja,pago);
       }

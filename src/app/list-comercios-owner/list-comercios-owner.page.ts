@@ -31,7 +31,7 @@ export class ListComerciosOwnerPage implements OnInit {
     public loadingService:LoadingService
   ) { }
 
-  ngOnInit() {   
+  ngOnInit() {    
     
   }
 
@@ -93,6 +93,10 @@ export class ListComerciosOwnerPage implements OnInit {
     this.modalCtrl.dismiss({
       'item': item
     });
+  }
+
+  editar(item){
+    
   }
 
 

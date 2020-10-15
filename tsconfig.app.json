@@ -10,7 +10,8 @@
   ],
   "include": [
     "src/**/*.ts",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "src/models/*.ts"
   ],
   "exclude": [
     "src/**/*.spec.ts"

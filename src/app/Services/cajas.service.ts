@@ -23,6 +23,12 @@ export class CajasService extends BaseService{
       this.setPath('comercios/'+comercioId+'/cajas')   
   }
 
+  setearPath(){
+    let comercioId = localStorage.getItem('comercio_seleccionadoId');
+    console.log(comercioId);
+    if(comercioId)
+      this.setPath('comercios/'+comercioId+'/cajas')   
+  }
   
 
 }

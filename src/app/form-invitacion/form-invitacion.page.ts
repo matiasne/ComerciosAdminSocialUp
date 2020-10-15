@@ -9,8 +9,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Invitacion } from '../models/invitacion';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Rol } from '../models/rol';
-import { Comercio } from '../models/comercio';
 import { ToastService } from '../Services/toast.service';
+import { Comercio } from '../Models/comercio';
 
 @Component({
   selector: 'app-form-invitacion',
@@ -55,7 +55,7 @@ export class FormInvitacionPage implements OnInit {
       this.invitacion.comercio_nombre = this.comercio.nombre;
       this.invitacion.comercioId = this.comercio.id;
       this.invitacion.rol = this.rol;
-      this.invitacion.estado = "enviada"; 
+      this.invitacion.estado = "pendiente"; 
     });
 
     
@@ -81,8 +81,8 @@ export class FormInvitacionPage implements OnInit {
       return;
     }   
 
-    this.invitacion.asignarValores(this.datosForm.value);
-    this.invitacionService.create(this.invitacion);
+    
+    this.invitacionService.enviarInvitacion(this.datosForm.controls.email.value.trim(),"owner")
 
    
 

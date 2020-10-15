@@ -17,7 +17,7 @@ import { MovimientosService } from '../Services/movimientos.service';
 })
 export class DetailsCtaCorrientePage implements OnInit {
 
-  private ctaCorriente:CtaCorriente;
+  public ctaCorriente:CtaCorriente;
   public clientes=[];
   private ctaSubs:Subscription;
   private clienteSubs:Subscription;
@@ -79,6 +79,13 @@ export class DetailsCtaCorrientePage implements OnInit {
           item.extraccion = "true";
         else
           item.deposito = "true";
+
+        console.log(item);
+        if(item.createdAt)
+          item.createdAt = this.toDateTime(item.createdAt.seconds)
+        else
+          item.createdAt = new Date();
+        
         this.items.push(item);
         
       });    
@@ -86,10 +93,21 @@ export class DetailsCtaCorrientePage implements OnInit {
     }); 
   }
 
+  toDateTime(secs) {
+    var t = new Date(1970, 0, 1); // Epoch
+    t.setSeconds(secs);
+    return t;
+  }
+
   ionViewDidLeave(){
-      this.ctaSubs.unsubscribe();
-      this.clienteSubs.unsubscribe();    
-      this.movSubs.unsubscribe(); 
+      if(this.ctaSubs)  
+        this.ctaSubs.unsubscribe();
+      
+      if(this.movSubs)
+        this.movSubs.unsubscribe(); 
+
+      if(this.clienteSubs)
+        this.clienteSubs.unsubscribe();    
   }
 
   depositar(){

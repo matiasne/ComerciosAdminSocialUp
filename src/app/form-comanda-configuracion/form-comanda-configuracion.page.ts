@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ComerciosService } from '../Services/comercios.service';
-import { Comercio } from '../models/comercio';
+import { Comercio } from '../Models/comercio';
 import { SelectEmpleadoPage } from '../select-empleado/select-empleado.page';
 import { ModalController, NavController, AlertController } from '@ionic/angular';
 import { FormInvitacionPage } from '../form-invitacion/form-invitacion.page';
@@ -9,6 +9,9 @@ import { RolesService } from '../Services/roles.service';
 import { UsuariosService } from '../Services/usuarios.service';
 import { Rol } from '../models/rol';
 import { AngularFirestore } from 'angularfire2/firestore';
+import { Invitacion } from '../models/invitacion';
+import { AuthenticationService } from '../Services/authentication.service';
+import { InvitacionesService } from '../Services/invitaciones.service';
 
 @Component({
   selector: 'app-form-comanda-configuracion',
@@ -17,9 +20,9 @@ import { AngularFirestore } from 'angularfire2/firestore';
 })
 export class FormComandaConfiguracionPage implements OnInit {
 
-  private subs:Subscription;
-  private comercio:Comercio;
-  private comandatarios = [];
+  private subs:Subscription; 
+  public comercio:Comercio;
+  public comandatarios = [];
 
   constructor(
     private comerciosService:ComerciosService,
@@ -28,7 +31,10 @@ export class FormComandaConfiguracionPage implements OnInit {
     private navCtrl:NavController,
     private usuariosService:UsuariosService,
     private firestore: AngularFirestore,
-    private alertController:AlertController
+    private alertController:AlertController,
+    private authService:AuthenticationService,
+    private comercioService:ComerciosService,
+    private invitacionService:InvitacionesService
   ) { 
     this.comercio = new Comercio();
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
@@ -71,23 +77,8 @@ export class FormComandaConfiguracionPage implements OnInit {
     modal.onDidDismiss()
     .then((retorno) => {
       if(retorno.data){     
-        console.log(retorno.data)        
-
-        var rol:Rol = new Rol();
-        rol.id = this.firestore.createId();
-        rol.comercioId = this.comercio.id;
-        rol.user_email = retorno.data;
-        rol.rol = "comandatario";
-        rol.estado = "pendiente";
-        this.rolesServices.create(rol);
-
-        this.comercio.rolComandatarios.push(rol.id);
-        this.comandatarios.unshift(rol);
-
-        
-
-        console.log(this.comercio.rolComandatarios);
-        this.update();
+        console.log(retorno.data)         
+        this.invitacionService.enviarInvitacion(retorno.data,"comandatario");       
       }        
     });
     return await modal.present();

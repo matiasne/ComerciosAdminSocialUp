@@ -8,20 +8,7 @@
 </ion-header>
 
 <ion-content>
-  <ion-item>           
-    <ion-label>
-      <h2><b>{{subscripcion.cliente.nombre}} </b> </h2>
-      <p>
-        {{subscripcion.servicio.nombre}}
-      </p>
-      <p>
-        Plan: {{subscripcion.plan.nombre}} &nbsp; <b>{{subscripcion.plan.precio | currency}}</b>
-      </p>      
-      <p>
-        proximo pago: {{subscripcion.proximoPago | date:'dd/MM/yyyy'}}
-      </p>       
-    </ion-label>         
-  </ion-item>
+  <app-card-subscription [item]="subscripcion"></app-card-subscription>
   <ion-item *ngFor="let pagare of pagares">
     <ion-label>
       {{pagare.createdAt | date:'dd/MM/yyyy'}} {{pagare.monto | currency}} 

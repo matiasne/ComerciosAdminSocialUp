@@ -66,17 +66,17 @@ export class PedidoService {
     if(pedido.clienteId)
       this.notificacionesService.enviarById(pedido.clienteId,"El pedido esta listo!","Su comercio ya tiene el pedido listo");
 
-    this.comerciosService.get(pedido.comercioId).subscribe(snap=>{
-      var comercio:any = snap.payload.data();
-      
-      console.log(comercio.rolCadetes);
+    
 
-      console.log(comercio.rolComandatarios);
+    this.comerciosService.getSelectedCommerce().subscribe(data=>{
+      let comercio = data;
 
-      comercio.rolCadetes.forEach(cadeteRolId => {
-        this.notificacionesService.enviarByRolId(cadeteRolId,"El pedido esta listo!","Tienes un pedido listo para buscar!");
-      });
-    })
+      if(comercio.rolCadetes.length > 0){
+        comercio.rolCadetes.forEach(rolId => {
+          this.notificacionesService.enviarByRolId(rolId,"El pedido esta listo!","Tienes un pedido listo para buscar!");
+        });        
+      }
+    });  
 
   }
 

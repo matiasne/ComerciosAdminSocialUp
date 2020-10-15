@@ -36,14 +36,15 @@ export class FormEgresoCajaPage implements OnInit {
   ) { 
 
     this.caja = new Caja();
-    this.egreso = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());
+    this.egreso = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getEmail());
     this.egreso.id = this.firestore.createId();
 
-    this.totalActual = this.route.snapshot.params.totalActual;
+    this.totalActual = Number(this.route.snapshot.params.totalActual);
 
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
     this.cajasService.get(this.route.snapshot.params.cajaId).subscribe(caja =>{
-      this.caja.id = caja;
+      this.caja = caja;
+      this.caja.comercioId = comercio_seleccionadoId;
     })
     
     this.datosForm = this.formBuilder.group({
@@ -76,8 +77,9 @@ export class FormEgresoCajaPage implements OnInit {
 
    
     this.egreso.asignarValores(this.datosForm.value);
-    this.egreso.metodoPago = "Efectivo";
+    this.egreso.metodoPago = "efectivo";
     this.egreso.monto = - Number(this.datosForm.controls.monto.value);
+    this.egreso.motivo = this.datosForm.controls.motivo.value;
     this.movimientosService.createMovimientoCaja(this.caja,this.egreso);
     
     this.navCtrl.back();

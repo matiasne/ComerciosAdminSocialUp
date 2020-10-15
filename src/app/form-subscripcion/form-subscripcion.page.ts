@@ -14,6 +14,7 @@ import { ClientesService } from '../Services/clientes.service';
 import { PlanesService } from '../Services/planes.service';
 import { Servicio } from '../models/servicio';
 import { ServiciosService } from '../Services/servicios.service';
+import { SelectClientePage } from '../select-cliente/select-cliente.page';
 
 
 @Component({
@@ -84,7 +85,7 @@ export class FormSubscripcionPage implements OnInit {
 
   async seleccionarCliente(){
     const modal = await this.modalController.create({
-      component: ListClientesPage      
+      component: SelectClientePage      
     });
     modal.onDidDismiss()
     .then((retorno) => {

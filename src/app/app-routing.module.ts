@@ -308,6 +308,18 @@ const routes: Routes = [
     path: 'list-calendarios',
     loadChildren: () => import('./list-calendarios/list-calendarios.module').then( m => m.ListCalendariosPageModule)
   },
+  {
+    path: 'list-personal',
+    loadChildren: () => import('./list-personal/list-personal.module').then( m => m.ListPersonalPageModule)
+  },
+  {
+    path: 'details-caja',
+    loadChildren: () => import('./details-caja/details-caja.module').then( m => m.DetailsCajaPageModule)
+  },
+  {
+    path: 'form-estilo-configuracion',
+    loadChildren: () => import('./form-estilo-configuracion/form-estilo-configuracion.module').then( m => m.FormEstiloConfiguracionPageModule)
+  },
   
 ];
 

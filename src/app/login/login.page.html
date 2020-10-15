@@ -1,4 +1,60 @@
-<ion-content class="ion-padding">
+<ion-content>
+  <ion-row style="height: 100%;">
+    <ion-col size-md="8" size-xs="0" class="background">
+      
+    </ion-col>
+    <ion-col size-md="4" class="ion-padding">
+      <form  #form="ngForm" (ngSubmit)="login()">
+        <!--ion-grid>
+          <ion-row color="primary" justify-content-center>
+            <ion-col align-self-center size-md="6" size-lg="5" size-xs="12"-->
+              <img width="200px" src="../../assets/img/logo.png" alt="">
+              <!--div text-center>
+                <h3>Ingresa a tu cuenta</h3>
+              </div-->
+             
+                <ion-item >
+                  <ion-input name="email" type="email" [(ngModel)]="email" placeholder="your@email.com" ngModel required></ion-input>
+                </ion-item>
+                <ion-item>
+                  <ion-input name="password" [(ngModel)]="password" placeholder="Password" ngModel required
+                        [type]="passwordTypeInput1" #passwordEye clear-on-edit="true"></ion-input>
+                  <button  item-end  type="button" class="btn_eye_icon" (click)="togglePasswordMode()">
+                    <ion-icon [name]="iconpassword1"></ion-icon>
+                  </button>
+                </ion-item>           
+              
+              <ion-row style="margin-top:30px;margin-bottom: 20px;" justify-content-center>
+                <a routerLink="/recuperar-contrasena">Olvidaste tu contraseña?</a>
+              </ion-row>
+             
+                <ion-button size="large" type="submit" [disabled]="form.invalid" expand="block">Login</ion-button>
+              
+              
+             
+              <ion-row justify-content-center>
+                o conectate con
+              </ion-row>
+             
+                <ion-button size="large"  expand="block" (click)="googleLogin()">Google</ion-button>                   
+             
+              <ion-row justify-content-center>
+                <div text-center>
+                   <p> No tienes cuenta? <a routerLink="/registro">Registrate</a> </p>     
+                </div>                 
+              </ion-row>
+            <!--/ion-col>
+          </ion-row>
+        </ion-grid-->
+      </form>
+    </ion-col>
+  </ion-row>
+  
+
+
+</ion-content>
+
+<!--ion-content class="ion-padding">
   <form #form="ngForm" (ngSubmit)="login()">
     <ion-grid>
       <ion-row color="primary" justify-content-center>
@@ -39,5 +95,5 @@
   </form>
 
 
-</ion-content>
+</ion-content-->
 

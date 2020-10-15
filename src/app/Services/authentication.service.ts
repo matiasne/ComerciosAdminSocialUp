@@ -203,9 +203,9 @@ export class AuthenticationService {
     return JSON.parse(localStorage.getItem('rol'));
   }
 
-  signup(email,password) {
+  signup(data) {
     
-    return this.firebaseAuth.auth.createUserWithEmailAndPassword(email, password)
+    return this.firebaseAuth.auth.createUserWithEmailAndPassword(data.email, data.password)
       .then((result) => { 
             
         
@@ -354,8 +354,14 @@ export class AuthenticationService {
 
   getUID(){    
     let user =  JSON.parse(localStorage.getItem('user'));
-    console.log(user)
-    return user.uid;
+  
+    if(user){
+      if(user.uid)
+        return user.uid;
+      if(user.id)
+        return user.id;
+    }
+   
   }
 
   getRef(id){
@@ -365,7 +371,26 @@ export class AuthenticationService {
 
   getNombre(){    
     let user =  JSON.parse(localStorage.getItem('user'));
-    return user.displayName;
+
+    if(user){
+      if(user.nombre)
+        return user.nombre;
+      else if(user.displayName)
+        return user.nombre;
+      else
+        return "";
+    }    
+  }
+
+  getEmail(){    
+    let user =  JSON.parse(localStorage.getItem('user'));
+    if(user){
+      if(user.email)
+        return user.email;
+      else
+        return "";
+    }
+    
   }
 
   // Handle API errors

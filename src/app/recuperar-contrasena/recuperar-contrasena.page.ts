@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthenticationService } from '../Services/authentication.service';
 
 @Component({
   selector: 'app-recuperar-contrasena',
@@ -7,9 +8,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class RecuperarContrasenaPage implements OnInit {
 
-  constructor() { }
+  public email ="";
+  
+  constructor(
+    private authFirebaseService:AuthenticationService
+  ) { }
 
   ngOnInit() {
+  }
+
+  recuperarContrasena(){
+    this.authFirebaseService.resetPassword(this.email);
   }
 
 }

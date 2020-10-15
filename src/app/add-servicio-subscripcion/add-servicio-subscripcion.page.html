@@ -50,9 +50,7 @@
     </div>
 
     <div class="form-card">
-      <ion-button  size="large" (click)="crearNuevoPlan()"  expand="block">Crear Nuevo Plan</ion-button>
       
-    
       <ion-radio-group formControlName="plan">
         <ion-text color="primary">
           <h4>Seleccione un plan *</h4>
@@ -99,13 +97,16 @@
           </ion-select>        
         </ion-item>
   
-        <ion-text color="primary">
-          <h4>Cantidad de días *</h4>     
-        </ion-text> 
-            
-        <ion-item>
-          <ion-input type="number" [(ngModel)]="subscripcion.dias" [ngModelOptions]="{standalone: true}"></ion-input>
-        </ion-item>
+        <div *ngIf="subscripcion.tipo == 'dias'">
+          <ion-text color="primary">
+            <h4>Cantidad de días *</h4>     
+          </ion-text> 
+              
+          <ion-item>
+            <ion-input type="number" [(ngModel)]="subscripcion.dias" [ngModelOptions]="{standalone: true}"></ion-input>
+          </ion-item>
+        </div>
+        
   
         <ion-text color="primary">
           <h4>Precio</h4>     
@@ -125,7 +126,7 @@
     </div>
 
     <div class="form-card">
-      <ion-radio-group formControlName="pagoAdelantado" [(ngModel)]="pagoAdelantado">
+      <ion-radio-group formControlName="pagoAdelantado">
         <ion-text color="primary">
           <h4>Cuando es realizado el primer pago? *</h4>
         </ion-text> 

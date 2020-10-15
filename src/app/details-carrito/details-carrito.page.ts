@@ -12,6 +12,7 @@ import { Carrito } from '../models/carrito';
 import { LoadingService } from '../Services/loading.service';
 import { Caja } from '../models/caja';
 import { ToastService } from '../Services/toast.service';
+import { SelectClientePage } from '../select-cliente/select-cliente.page';
 
 @Component({
   selector: 'app-details-carrito',
@@ -39,8 +40,8 @@ export class DetailsCarritoPage implements OnInit {
 
   private pagare = "";
 
-  public habilitadoComanda = true;
-  public habilitadoCobro = true;
+  public habilitadoComanda = "true";
+  public habilitadoCobro = "true";
 
   constructor(
     public carritoService:CarritoService,
@@ -58,6 +59,7 @@ export class DetailsCarritoPage implements OnInit {
 
     this.carrito = new Carrito("","");
 
+    this.cajasService.setearPath();
    
     console.log(this.carrito)
 
@@ -72,8 +74,7 @@ export class DetailsCarritoPage implements OnInit {
     
     this.cajasService.list().subscribe((cajas:any)=>{
       console.log(cajas);
-      this.cajas = cajas;
-    
+      this.cajas = cajas;    
       this.setSavedCaja();
     });
 
@@ -81,11 +82,12 @@ export class DetailsCarritoPage implements OnInit {
   }
 
   ngOnInit() {
+    
     this.habilitadoComanda = this.route.snapshot.params.comanda;
     this.habilitadoCobro = this.route.snapshot.params.cobro;
 
     if(this.carrito.productos.length == 0){
-      this.habilitadoComanda = false;
+      this.habilitadoComanda = "false";
     }
 
   } 
@@ -103,7 +105,7 @@ export class DetailsCarritoPage implements OnInit {
   }
 
 
-  async cancelar(item){
+  async cancelar(){
     this.navCtrl.back();
     /*const alert = await this.alertController.create({
       header: 'Está seguro que desea cancelar el pedido?',
@@ -154,19 +156,19 @@ export class DetailsCarritoPage implements OnInit {
     }
     
     if(this.cajas[this.cajaSeleccionadaIndex].debito){
-      setear = "Débito"; 
+      setear = "debito"; 
       this.metodoTexto = "Solo Débito";     
       this.cantidadMetodos++;
     }
 
     if(this.cajas[this.cajaSeleccionadaIndex].credito){
-      setear = "Crédito";
+      setear = "credito";
       this.metodoTexto = "Solo Crédito";    
       this.cantidadMetodos++;
     }    
 
     if(this.cajas[this.cajaSeleccionadaIndex].efectivo){
-      setear = "Efectivo";
+      setear = "efectivo";
       this.metodoTexto = "Solo Efectivo";    
       this.cantidadMetodos++;
     }    
@@ -201,6 +203,13 @@ export class DetailsCarritoPage implements OnInit {
       return;
     }
 
+    if(this.metodoPagoSeleccionado == "ctaCorriente"){
+      if(this.ctaCorrienteSelecccionadaId == ""){
+        this.toastServices.alert("Por favor seleccione una cuenta corriente antes de continuar","");
+        return;
+      }
+    }
+
     console.log(this.carrito.servicios.length+" "+this.carrito.productos.length)
 
     if(this.carrito.servicios.length == 0 && this.carrito.productos.length == 0 && this.carrito.pagare.id == ""){
@@ -209,8 +218,6 @@ export class DetailsCarritoPage implements OnInit {
     }    
     this.carritoService.setearCaja(this.cajas[this.cajaSeleccionadaIndex].id);
     this.carritoService.setearMetodoPago(this.metodoPagoSeleccionado);
-    
-
     this.carritoService.guardar(this.cajaSeleccionada);
     this.navCtrl.back();
   }
@@ -238,7 +245,7 @@ export class DetailsCarritoPage implements OnInit {
   async seleccionarCliente(){
     this.loadingService.presentLoading();
     const modal = await this.modalController.create({
-      component: ListClientesPage      
+      component: SelectClientePage      
     });
 
     modal.present().then(()=>{
@@ -257,7 +264,7 @@ export class DetailsCarritoPage implements OnInit {
   }
 
   getCuentasCorrientes(cliente){
-    this.ctasCorrientesService.getByCliente(cliente).subscribe(snapshot =>{
+    var ctaSubs = this.ctasCorrientesService.getByCliente(cliente).subscribe(snapshot =>{
       this.ctasCorrientes =[];
       snapshot.forEach((snap: any) => {           
           var item = snap.payload.doc.data();
@@ -265,6 +272,7 @@ export class DetailsCarritoPage implements OnInit {
           this.ctasCorrientes.push(item);
           console.log(this.ctasCorrientes);             
       });
+      ctaSubs.unsubscribe();
     })
   }
 

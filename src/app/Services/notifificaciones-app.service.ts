@@ -41,7 +41,7 @@ export class NotifificacionesAppService {
   public getSinLeer(userId){
     console.log(userId)
     return this.firestore.collection(this.getCollection(userId), ref => 
-        ref.where('estado','==','enviada').limit(10)).snapshotChanges(); 
+        ref.where('estado','==','pendiente').limit(10)).snapshotChanges(); 
   }
 
   public update(data:Notificacion) {

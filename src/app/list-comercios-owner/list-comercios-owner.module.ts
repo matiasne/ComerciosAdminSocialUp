@@ -15,6 +15,6 @@ import { ListComerciosOwnerPage } from './list-comercios-owner.page';
     IonicModule,
     ListComerciosOwnerPageRoutingModule
   ],
-  declarations: [ListComerciosOwnerPage]
+  declarations: []
 })
 export class ListComerciosOwnerPageModule {}

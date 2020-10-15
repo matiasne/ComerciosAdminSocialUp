@@ -1,0 +1,28 @@
+<ion-item-sliding  class="item-card">
+  <ion-item (click)="verDetalles(subscripcion.id)">           
+    <ion-label>
+      <h2><b>{{subscripcion.cliente.nombre}} </b> </h2>
+      <p>
+        {{subscripcion.servicio.nombre}}
+      </p>
+      <p>
+        Plan: {{subscripcion.plan.nombre}} &nbsp; <br>
+        Periodo: {{subscripcion.plan.tipo}}<br>
+        <span *ngIf="subscripcion.plan.tipo == 'dias'">
+        Días: {{subscripcion.plan.dias}} <br>
+        </span>
+        Precio: {{subscripcion.plan.precio}}
+        
+        
+      </p>     
+      <p>
+        proximo pago: {{subscripcion.proximoPago | date:'dd/MM/yyyy'}}
+      </p>       
+    </ion-label>         
+  </ion-item>
+
+<ion-item-options side="end">
+  <ion-item-option color="danger" (click)="eliminar(item)"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+</ion-item-options>
+
+</ion-item-sliding>

@@ -5,6 +5,9 @@ import { ModalController, LoadingController } from '@ionic/angular';
 import { ComerciosService } from '../Services/comercios.service';
 import { InvitacionesService } from '../Services/invitaciones.service';
 import { AuthenticationService } from '../Services/authentication.service';
+import { Rol } from '../models/rol';
+import { RolesService } from '../Services/roles.service';
+import { AngularFirestore } from 'angularfire2/firestore';
 
 @Component({
   selector: 'app-list-invitaciones',
@@ -26,7 +29,10 @@ export class ListInvitacionesPage implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     public invitacionesServices:InvitacionesService,
-    private authService:AuthenticationService
+    private authService:AuthenticationService,
+    private rolesServices:RolesService,
+    private firestore: AngularFirestore,
+    private comercioService:ComerciosService
   ) { }
 
   ngOnInit() {
@@ -123,7 +129,38 @@ export class ListInvitacionesPage implements OnInit {
   }
 
   eliminarInvitacion(item){
-    this.invitacionesServices.rechazarInvitacion(item);
+    this.invitacionesServices.delete(item);
+  }
+
+  aceptarInvitacion(item){
+
+    var rol:Rol = new Rol();
+    rol.id = this.firestore.createId();
+    rol.comercioRef = this.comercioService.getRef(item.comercioId);
+    rol.user_email = item.email;
+    rol.rol = item.rol;
+    rol.estado = "aceptada";
+    this.rolesServices.create(rol);
+
+    if(item.rol == "comandatario"){
+      let comercio = this.comercioService.comercio;
+      comercio.rolComandatarios.push(rol.id);
+      this.comercioService.update(comercio);
+    }
+
+    if(item.rol == "cadete"){
+      let comercio = this.comercioService.comercio;
+      comercio.rolCadetes.push(rol.id);
+      this.comercioService.update(comercio);
+    }
+
+    if(item.rol == "encargado"){
+      let comercio = this.comercioService.comercio;
+      comercio.rolEncargados.push(rol.id);
+      this.comercioService.update(comercio);
+    }
+
+    this.invitacionesServices.delete(item);
   }
 
 }

@@ -7,11 +7,13 @@ import { IonicModule } from '@ionic/angular';
 import { DetailsWhatsappPageRoutingModule } from './details-whatsapp-routing.module';
 
 import { DetailsWhatsappPage } from './details-whatsapp.page';
+import { NgxQRCodeModule } from 'ngx-qrcode2';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
+    NgxQRCodeModule,
     IonicModule,
     DetailsWhatsappPageRoutingModule
   ],

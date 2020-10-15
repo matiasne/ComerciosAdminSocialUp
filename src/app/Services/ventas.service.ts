@@ -11,25 +11,21 @@ export class VentasService {
   
   constructor(
     private firestore: AngularFirestore
-  ) {
+  ) { 
     
   }
 
   getCollection(){
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
     return 'comercios/'+comercio_seleccionadoId+'/ventas';
-  }
+  }  
 
-  
-
-  public create(data:any) {
-   
+  public create(data:any) {   
     const param = JSON.parse(JSON.stringify(data));
     console.log(param)
     this.firestore.collection(this.getCollection()).doc(data.id).set( {...param,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });   
-     
+    });       
   }
 
 

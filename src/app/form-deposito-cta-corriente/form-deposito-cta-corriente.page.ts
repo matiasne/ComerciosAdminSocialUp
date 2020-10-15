@@ -15,6 +15,7 @@ import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';
 import { MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientosService } from '../Services/movimientos.service';
 import { ToastService } from '../Services/toast.service';
+import { SelectClientePage } from '../select-cliente/select-cliente.page';
 
 @Component({
   selector: 'app-form-deposito-cta-corriente',
@@ -103,7 +104,7 @@ export class FormDepositoCtaCorrientePage implements OnInit {
 
   async seleccionarCliente(){
     const modal = await this.modalController.create({
-      component: ListClientesPage      
+      component: SelectClientePage      
     });
     modal.onDidDismiss()
     .then((retorno) => {
@@ -135,7 +136,7 @@ export class FormDepositoCtaCorrientePage implements OnInit {
   guardar(){   
 
     this.submitted = true;
-
+    console.log(this.datosForm.controls.motivo.value+"!!!!!!!!!!!!!!!!!")
     if (this.datosForm.invalid) {
       this.toastServices.alert('Por favor completar todos los campos marcados con * antes de continuar',"");
       return;
@@ -152,12 +153,15 @@ export class FormDepositoCtaCorrientePage implements OnInit {
     pago.ctaCorrienteId = this.deposito.ctaCorrienteId;
     pago.depositoId = this.deposito.id;
     pago.monto = this.deposito.monto;
+    pago.motivo = this.datosForm.controls.motivo.value;
     this.movimientosService.createMovimientoCaja(this.caja,pago);
 
     this.carritoService.setearCaja(this.datosForm.controls.cajaId.value); 
 
     this.deposito.cajaId =this.caja.id;
     this.deposito.pagoId = pago.id;
+    this.deposito.motivo = pago.motivo;
+    this.deposito.ctaCorrienteId = this.deposito.ctaCorrienteId;
     this.movimientosService.crearMovimientoCtaCorriente(this.deposito);   
 
     this.navCtrl.back();
