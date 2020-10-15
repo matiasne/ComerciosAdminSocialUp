@@ -41,8 +41,7 @@ export class ComerciosService {
         
         const param = JSON.parse(JSON.stringify(data));      
 
-        let user = this.auth.getActualUser();
-        this.rolesService.setUserAsAdmin(user.email,data.id);
+        
 
         this.firestore.doc(this.collection+'/'+data.id).set({...param,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),

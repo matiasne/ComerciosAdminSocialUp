@@ -25,6 +25,8 @@ declare var google: any;
 import * as firebase from 'firebase/app';
 import * as geofirex from 'geofirex';
 import { ToastService } from '../Services/toast.service';
+import { AuthenticationService } from '../Services/authentication.service';
+import { RolesService } from '../Services/roles.service';
 
 @Component({
   selector: 'app-form-comercio',
@@ -95,6 +97,8 @@ export class FormComercioPage implements OnInit {
     private modalCtrl:ModalController,
     private platform:Platform,
     private toastServices:ToastService,
+    private authenticationService:AuthenticationService,
+    private rolesService:RolesService
   ) {
 
     this.comercio = new Comercio();
@@ -109,6 +113,7 @@ export class FormComercioPage implements OnInit {
     this.geo = geofirex.init(firebase);
 
     this.datosForm = this.formBuilder.group({
+      id:['', Validators.required],
       nombre: ['', Validators.required],
       direccion: ['', Validators.required],
       telefono:[''],
@@ -167,7 +172,7 @@ export class FormComercioPage implements OnInit {
     }
     else{
 
-      this.comercio.id = this.firestore.createId();
+     // this.comercio.id = this.firestore.createId();
         
     }       
   }
@@ -262,14 +267,33 @@ export class FormComercioPage implements OnInit {
 
     console.log(this.comercio)
 
-    if(this.updating){
-      this.comerciosService.update(this.comercio);
-    }
-    else{
-      this.comerciosService.create(this.comercio);
-    }    
+    let comSub = this.comerciosService.get(this.comercio.id).subscribe(data =>{
+      console.log(data.payload.exists);
 
-    this.navCtrl.back();    
+      if(this.updating == false && data.payload.exists){ //esta creando y ya existe
+        this.toastServices.alert("El ID del comercio ya existe","");
+      }
+      else{
+        
+        this.comerciosService.update(this.comercio);
+        this.navCtrl.back();  
+        
+
+        if(this.updating == false){
+          let user = this.authenticationService.getActualUser();
+          this.rolesService.setUserAsAdmin(user.email,this.comercio.id);
+        }
+      }
+      comSub.unsubscribe(); //para que no me notifique que ya existe cuanto lo cree
+    })
+    //if(this.updating){
+      
+    //}
+    //else{
+      //this.comerciosService.create(this.comercio);
+    //}    
+
+     
 
   }
 
