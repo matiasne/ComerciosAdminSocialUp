@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CtaCorrientesService } from '../Services/cta-corrientes.service';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 import { ClientesService } from '../Services/clientes.service';
 import { Router } from '@angular/router';
 import { CtaCorriente } from '../models/ctacorriente';

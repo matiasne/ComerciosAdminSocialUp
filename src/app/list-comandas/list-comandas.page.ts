@@ -6,7 +6,7 @@ import { AlertController } from '@ionic/angular';
 import { PedidoService } from '../Services/pedido.service';
 import { Subscription } from 'rxjs';
 import { Comanda } from '../models/comanda';
-import { Pedido } from '../Models/pedido';
+import { Pedido } from '../models/pedido';
 import { AuthenticationService } from '../Services/authentication.service';
 
 @Component({

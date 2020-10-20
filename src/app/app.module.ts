@@ -16,7 +16,7 @@ import { AngularFireAuth, AngularFireAuthModule } from 'angularfire2/auth';
 import { HttpClientModule } from '@angular/common/http';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { AngularFirestore, AngularFirestoreModule } from 'angularfire2/firestore';
-import { Camera } from '@ionic-native/Camera/ngx';
+import { Camera } from '@ionic-native/camera/ngx';
 import { Crop } from '@ionic-native/crop/ngx'
 import { File } from '@ionic-native/file/ngx';
 

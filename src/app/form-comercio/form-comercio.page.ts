@@ -4,7 +4,7 @@ import { NavController, ActionSheetController, ModalController, AlertController,
 import { ComerciosService } from '../Services/comercios.service';
 import { Crop } from '@ionic-native/crop/ngx';
 import { File } from '@ionic-native/file/ngx';
-import { Camera, CameraOptions} from '@ionic-native/Camera/ngx';
+import { Camera, CameraOptions} from '@ionic-native/camera/ngx';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { DataService } from '../Services/data.service';
 import { FormCajaPage } from '../form-caja/form-caja.page';
@@ -16,7 +16,7 @@ import { FormCategoriaPage } from '../form-categoria/form-categoria.page';
 import { snapshotChanges } from 'angularfire2/database';
 import { CategoriasService } from '../Services/categorias.service';
 import { AngularFirestore } from 'angularfire2/firestore';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 import { FormHorarioPage } from '../form-horario/form-horario.page';
 import { HorariosService } from '../Services/horarios.service';
 import { LoadingService } from '../Services/loading.service';

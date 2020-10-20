@@ -10,7 +10,7 @@ import { ComerciosService } from './Services/comercios.service';
 import { NotificacionesDesktopService } from './Services/notificaciones-desktop.service';
 import { NotificacionesService } from './Services/notificaciones.service';
 import { NotifificacionesAppService } from './Services/notifificaciones-app.service';
-import { Comercio } from './Models/comercio';
+import { Comercio } from './models/comercio';
 import { InvitacionesService } from './Services/invitaciones.service';
 import { ComandasService } from './Services/comandas.service';
 import { ToastService } from './Services/toast.service';

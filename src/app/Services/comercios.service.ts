@@ -5,7 +5,7 @@ import { AuthenticationService } from './authentication.service';
 import * as firebase from 'firebase';
 import { RolesService } from './roles.service';
 import { CajasService } from './cajas.service';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 
 @Injectable({
   providedIn: 'root'

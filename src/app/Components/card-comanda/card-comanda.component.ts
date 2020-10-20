@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { Comanda } from 'src/app/models/comanda';
-import { Pedido } from 'src/app/Models/pedido';
+import { Pedido } from 'src/app/models/pedido';
 import { ComandasService } from 'src/app/Services/comandas.service';
 import { CarritoService } from 'src/app/Services/global/carrito.service';
 

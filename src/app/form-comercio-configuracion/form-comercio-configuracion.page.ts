@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ComerciosService } from '../Services/comercios.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 
 @Component({
   selector: 'app-form-comercio-configuracion',

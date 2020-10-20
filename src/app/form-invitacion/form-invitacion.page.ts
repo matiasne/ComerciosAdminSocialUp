@@ -10,7 +10,7 @@ import { Invitacion } from '../models/invitacion';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Rol } from '../models/rol';
 import { ToastService } from '../Services/toast.service';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 
 @Component({
   selector: 'app-form-invitacion',

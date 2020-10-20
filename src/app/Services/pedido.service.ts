@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Pedido } from 'src/app/Models/pedido';
+import { Pedido } from 'src/app/models/pedido';
 import { BehaviorSubject } from 'rxjs';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { map } from 'rxjs/operators';
-import { OpcionSeleccionada } from 'src/app/Models/opcionSeleccionada';
+import { OpcionSeleccionada } from 'src/app/models/opcionSeleccionada';
 import * as firebase from 'firebase';
 import { NotificacionesService } from './notificaciones.service';
 import { ComerciosService } from './comercios.service';
