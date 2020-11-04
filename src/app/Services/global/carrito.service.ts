@@ -17,6 +17,9 @@ import { Producto } from 'src/app/models/producto';
 import { OpcionSeleccionada } from 'src/app/models/opcionSeleccionada';
 import { PedidoService } from '../pedido.service';
 import { NotificacionesService } from '../notificaciones.service';
+import { variacionStock } from 'src/app/models/variacionStock';
+import { VariacionesStocksService } from '../variaciones-stocks.service';
+import { ProductosService } from '../productos.service';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +39,9 @@ export class CarritoService {
     private firestore: AngularFirestore,
     private movimientosService:MovimientosService,
     private pedidoServices:PedidoService,
-    private notificacionesService:NotificacionesService
+    private notificacionesService:NotificacionesService,
+    private variacionesStockService:VariacionesStocksService,
+    private productosService:ProductosService
   ) { 
     this.carrito = new Carrito(
       this.authenticationService.getUID(),this.authenticationService.getNombre()
@@ -98,13 +103,10 @@ export class CarritoService {
     this.actualCarritoSubject.next(this.carrito);  
   }
 
-  public agregarServicio(servicio,precio){      
-    
+  public agregarServicio(servicio,precio){     
     this.carrito.totalServicios += precio;
-
     this.carrito.servicios.push(servicio);
-    this.carrito.on = true; 
-    
+    this.carrito.on = true;     
     console.log(this.carrito);
     this.actualCarritoSubject.next(this.carrito);    
   }
@@ -121,10 +123,8 @@ export class CarritoService {
   }
 
   public eliminarServicio(index){
-    var servicio = this.carrito.servicios[index];
-        
+    var servicio = this.carrito.servicios[index];        
     this.carrito.totalServicios -= Number(servicio.plan.precio);
-
     this.carrito.servicios.splice(index,1);
 
     if(this.carrito.productos.length > 0 || this.carrito.servicios.length > 0)
@@ -139,6 +139,12 @@ export class CarritoService {
     this.carrito.cliente = cliente;
     console.log(this.carrito.cliente)
     this.actualCarritoSubject.next(this.carrito); 
+  }
+
+  setearMesa(mesa){
+    this.carrito.mesa = mesa;
+    console.log(this.carrito.mesa)
+    this.actualCarritoSubject.next(this.carrito);
   }
 
   setearCaja(cajaSeleccionadaId){
@@ -163,14 +169,30 @@ export class CarritoService {
     this.carrito.on = false;
 
     if(this.carrito.productos.length > 0){
+
+      let productosId = [];
+      this.carrito.productos.forEach(p =>{
+        console.log(p.stock);
+        if(p.stock > 0){
+          p.stock = Number(p.stock) - Number(p.cantidad) * Number(p.valorPor);
+          let vStock:variacionStock = new variacionStock();
+          vStock.productoId = p.id; 
+          vStock.stock = p.stock;
+          this.variacionesStockService.add(vStock).then(data =>{
+            console.log("variacion Guardada");
+          }); 
+        }  
+        productosId.push(p.id);        
+      })
  
       var venta = new Venta(this.authenticationService.getUID(), this.authenticationService.getNombre());
       venta.id = this.firestore.createId();
       venta.total = this.carrito.totalProductos;
       venta.cajaId = this.carrito.cajaId;
       venta.metodoPago = this.carrito.metodoPago;
-      venta.clienteId = this.carrito.cliente.id;        
-      venta.productos = this.carrito.productos;      
+      venta.clienteId = this.carrito.cliente.id;    
+      venta.productos = this.carrito.productos;    
+      venta.productosId = productosId;      
       this.ventasService.create(venta);
 
       if(this.carrito.metodoPago != "ctaCorriente"){

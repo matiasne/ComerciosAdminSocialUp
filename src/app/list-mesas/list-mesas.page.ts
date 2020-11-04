@@ -19,13 +19,8 @@ export class ListMesasPage implements OnInit {
 
   ngOnInit() {
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    var mSubs = this.mesasService.getAll(comercio_seleccionadoId).subscribe(snapshot=>{                 
-      this.mesas = [];
-      snapshot.forEach((snap: any) => {           
-          var item = snap.payload.doc.data();
-          item.id = snap.payload.doc.id;              
-          this.mesas.push(item);             
-      });
+    var mSubs = this.mesasService.list().subscribe(mesas=>{                 
+      this.mesas = mesas;
     });
   }
 

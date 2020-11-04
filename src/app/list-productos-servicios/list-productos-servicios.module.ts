@@ -7,11 +7,13 @@ import { IonicModule } from '@ionic/angular';
 import { ListProductosServiciosPageRoutingModule } from './list-productos-servicios-routing.module';
 
 import { ListProductosServiciosPage } from './list-productos-servicios.page';
+import { ComponentsModule } from '../Components/components.module';
 
 
 @NgModule({
   imports: [
     CommonModule,
+    ComponentsModule,
     FormsModule,
     IonicModule,
     ListProductosServiciosPageRoutingModule

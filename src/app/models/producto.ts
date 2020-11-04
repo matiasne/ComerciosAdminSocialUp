@@ -12,7 +12,8 @@ export class Producto {
     public promocion="";
     public destacado = false;
     public unidad="";
-    public stock = "";
+    public valorPor = 0;
+    public stock = 0;
     public descripcion="";
     public categorias=[];
     public foto="";

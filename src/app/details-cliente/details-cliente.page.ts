@@ -7,10 +7,14 @@ import { CallNumber } from '@ionic-native/call-number/ngx';
 import { EmailComposer } from '@ionic-native/email-composer/ngx';
 import { Subscription } from 'rxjs';
 import { UsuariosService } from '../Services/usuarios.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { CtaCorrientesService } from '../Services/cta-corrientes.service';
 import { CtaCorriente } from '../models/ctacorriente';
 import { CarritoService } from '../Services/global/carrito.service';
+import { FormComentarioPage } from '../form-comentario/form-comentario.page';
+import { ComentariosService } from '../Services/comentarios.service';
+import { FormClienteEstadoPage } from '../form-cliente-estado/form-cliente-estado.page';
+import { ClientesEstadosService } from '../Services/clientes-estados.service';
 declare var google: any;
 
 @Component({
@@ -35,6 +39,9 @@ export class DetailsClientePage implements OnInit {
   public seccionActiva = "info";
 
   public ctasCorrientes =[];
+  public comentarios =[];
+
+  public estadosClientes =[];
 
   constructor(
     private route: ActivatedRoute,
@@ -46,13 +53,26 @@ export class DetailsClientePage implements OnInit {
     private emailComposer: EmailComposer,
     private alertController:AlertController,
     private ctasCorreintesService:CtaCorrientesService,
-    private carritoService:CarritoService
+    private carritoService:CarritoService,
+    private modalController:ModalController,
+    private comentarioService:ComentariosService,
+    private clientesEstadosService:ClientesEstadosService
   ) { 
+
+    
+   
+
+    
+  }
+
+  ngOnInit() {
 
     this.cliente = {};
 
     this.subsCliente = this.clientesServices.get(this.route.snapshot.params.id).subscribe(resp=>{
+     
       this.cliente = resp.payload.data();
+      this.cliente.id = resp.payload.id;
       console.log(this.cliente); 
       
       if(this.cliente.latitud){
@@ -70,8 +90,25 @@ export class DetailsClientePage implements OnInit {
         });
       }
 
-      
+      this.comentarioService.setearPath("clientes",this.route.snapshot.params.id);
 
+      this.comentarioService.list().subscribe(data =>{
+        this.comentarios = data;
+        this.comentarios.forEach(item =>{
+
+        //  if(item.createdAt)
+          //  item.createdAt = this.toDateTime(item.createdAt.seconds)
+          //else
+            //item.createdAt = new Date();
+
+          console.log(item)
+        })        
+      })
+
+    });
+
+    this.clientesEstadosService.list().subscribe((data) => {
+      this.estadosClientes = data;
     });
 
     this.subscripcionesService.list().subscribe((data) => {
@@ -132,9 +169,30 @@ export class DetailsClientePage implements OnInit {
       });  
       console.log(this.ctasCorrientes)
     })
-   
-
     
+
+  }
+
+  async openAddEstado(){
+    const modal = await this.modalController.create({
+      component: FormClienteEstadoPage,  
+      componentProps: { 
+        comercioId:localStorage.getItem('comercio_seleccionadoId')
+      }
+    });  
+    return await modal.present();
+  }
+
+  cambioEstado(){
+    this.clientesServices.update(this.cliente).then(data=>{
+      console.log(data);
+    });
+  }
+
+  toDateTime(secs) {
+    var t = new Date(1970, 0, 1); // Epoch
+    t.setSeconds(secs);
+    return t;
   }
 
   initMap(el, options) {
@@ -183,11 +241,7 @@ export class DetailsClientePage implements OnInit {
   }
 
 
-  ngOnInit() {
-
-    
-
-  }
+  
 
   ionViewDidLeave(){
     this.subsCliente.unsubscribe();
@@ -251,6 +305,26 @@ export class DetailsClientePage implements OnInit {
   segmentChanged(event){
     console.log(event.target.value);
     this.seccionActiva = event.target.value;
+  }
+
+  async agregarComentario(){
+    const modal = await this.modalController.create({
+      component: FormComentarioPage,
+      componentProps:{
+        comentableId:this.route.snapshot.params.id,
+        comentableTipo:"clientes"
+      }      
+    });
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data)
+        this.cliente = retorno.data.item;        
+    });
+    return await modal.present();
+  }
+
+  eliminarComentario(item){
+    this.comentarioService.delete(item.id);
   }
       
   

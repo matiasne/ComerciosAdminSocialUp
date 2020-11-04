@@ -21,10 +21,10 @@ export class RolesService {
     this.collection = 'roles';
   }
   
-  public create(data:Rol) {    
+  public create(data) {    
     console.log(this.collection);
-    const param = JSON.parse(JSON.stringify(data));    
-    return this.firestore.collection(this.collection).doc(data.id).set({...param,
+     
+    return this.firestore.collection(this.collection).doc(data.id).set({...data,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
   }

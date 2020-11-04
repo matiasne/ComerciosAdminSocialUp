@@ -21,6 +21,12 @@
               <ion-label>Clientes</ion-label>
             </ion-item>
            
+            <ion-item *ngIf="comercioSeleccionado.recibirPedidos" [routerLink]="['/list-pedidos']" lines="none" detail="false">
+              <ion-icon slot="start" name="reader-outline"></ion-icon>
+              <ion-label>Pedidos</ion-label>
+              <ion-badge color="primary" *ngIf="cantPedidos != 0" slot="end">{{cantPedidos}}</ion-badge>
+            </ion-item>
+
             <ion-item *ngIf="comercioSeleccionado.recibirComandas" [routerLink]="['/list-comandas']" lines="none" detail="false">
               <ion-icon slot="start" name="receipt-outline"></ion-icon>
               <ion-label>Comandas</ion-label>

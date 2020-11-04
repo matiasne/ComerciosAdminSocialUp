@@ -75,9 +75,7 @@ export class ComerciosService {
   public update(data: any) {
     
     const param = JSON.parse(JSON.stringify(data));
-    console.log(data)
-    console.log(param)
-
+   
     return this.firestore.collection(this.collection).doc(data.id).set(param);
   }
 
@@ -103,5 +101,24 @@ export class ComerciosService {
 
     localStorage.setItem('comercio_seleccionadoId',comercioId);
   }
+
+  public search(by,palabra,ultimo){      
+    if(ultimo == ""){
+      console.log("!!!!!! primero")     
+      return this.firestore.collection(this.collection, ref => 
+        ref.where('keywords','array-contains',palabra)
+            .where('recibirPedidos','==',true)
+            .orderBy(by)
+            .limit(5)).snapshotChanges();
+    }
+    else{
+      return this.firestore.collection(this.collection, ref => 
+        ref.where('keywords','array-contains',palabra)
+            .where('recibirPedidos','==',true)
+            .orderBy(by)
+            .startAfter(ultimo)
+            .limit(5)).snapshotChanges();    
+    }    
+  }  
 
 }

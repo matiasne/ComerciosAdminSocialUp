@@ -73,6 +73,7 @@ export class ClientesService {
   }
   
   public update(cliente:Cliente) {
+    console.log(cliente);
     const param = JSON.parse(JSON.stringify(cliente));
     return this.firestore.collection(this.getCollection()).doc(cliente.id).set({...param,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),

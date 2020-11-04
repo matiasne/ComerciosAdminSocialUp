@@ -6,6 +6,8 @@ import { ImageCropperModule } from 'ngx-image-cropper';
 import { IonicModule } from '@ionic/angular';
 import { CardComandaComponent } from './card-comanda/card-comanda.component';
 import { CardSubscriptionComponent } from './card-subscription/card-subscription.component';
+import { CardProductoComponent } from './card-producto/card-producto.component';
+
 
 
 @NgModule({
@@ -19,12 +21,16 @@ imports: [
   declarations: [
     SeleccionarImagenComponent,
     CardComandaComponent,
+    CardProductoComponent,
     CardSubscriptionComponent
+    
   ],
   exports: [
     SeleccionarImagenComponent,
     CardComandaComponent,
+    CardProductoComponent,
     CardSubscriptionComponent
+    
   ]
 })
 export class ComponentsModule {}

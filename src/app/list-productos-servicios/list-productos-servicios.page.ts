@@ -16,6 +16,7 @@ import { ToastService } from '../Services/toast.service';
 import { Carrito } from '../models/carrito';
 import { CategoriasService } from '../Services/categorias.service';
 import { FormProductoPage } from '../form-producto/form-producto.page';
+import { FormStockPage } from '../form-stock/form-stock.page';
 
 @Component({
   selector: 'app-list-productos-servicios',
@@ -111,8 +112,8 @@ export class ListProductosServiciosPage implements OnInit {
 
   ionViewDidLeave(){
     this.carritoSubs.unsubscribe();
-    this.subsItemsProd.unsubscribe(); 
-    this.subsItemsServ.unsubscribe(); 
+  //  this.subsItemsProd.unsubscribe(); //si no cada vez que ingresa a esta página lee todo y no solo lo que se actualiza 
+  //  this.subsItemsServ.unsubscribe();  //
   }
 
   buscar(){ 
@@ -386,6 +387,17 @@ export class ListProductosServiciosPage implements OnInit {
       component: AddProductoVentaPage,
       componentProps:{
         id:producto.id
+      }
+    });  
+
+    return await modal.present();
+  }
+
+  async agregarStock(producto){
+    const modal = await this.modalCtrl.create({
+      component: FormStockPage,
+      componentProps:{
+        producto:producto
       }
     });  
 

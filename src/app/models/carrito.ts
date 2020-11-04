@@ -5,6 +5,7 @@ import { Cliente } from './cliente';
 import { ComandasService } from '../Services/comandas.service';
 import { Comanda } from './comanda';
 import { MovimientoCtaCorriente } from './movimientoCtaCorriente';
+import { Mesa } from './mesa';
 
 export class Carrito{
 
@@ -19,6 +20,7 @@ export class Carrito{
     public pagare:Pagare;
     public deposito:MovimientoCtaCorriente;
     public cliente:Cliente;
+    public mesa:Mesa;
     public comandaId ="";
     public pedido ="";
 	constructor(
@@ -27,6 +29,7 @@ export class Carrito{
 		){
             this.pagare = new Pagare();
             this.cliente = new Cliente();
+            this.mesa = new Mesa();
             this.deposito = new MovimientoCtaCorriente(this.vendedorId,this.vendedorNombre);
           
 	}

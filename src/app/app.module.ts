@@ -53,6 +53,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'; // a plugin
 import timeGridPlugin from '@fullcalendar/timegrid'; // a plugin
 import interactionPlugin from '@fullcalendar/interaction'; // a plugin
 
+import { Network } from '@ionic-native/network/ngx';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAenr8VfNta7u8NL5J4jpMtosnENy-Gcqc",
@@ -115,7 +116,7 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     IonicModule.forRoot(),
     AppRoutingModule,  
     AngularFireModule.initializeApp(firebaseConfig),
-    AngularFirestoreModule.enablePersistence(),
+    AngularFirestoreModule, //.enablePersistence(), No la activo porque no me ahorra dinero y necesito que la app esté activa o avise que no hay conexión!
     AngularFireDatabaseModule,
     AngularFireAuthModule,
     AngularFireMessagingModule,
@@ -135,7 +136,7 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     CallNumber,
     EmailComposer,
     SpeechRecognition,
-    
+    Network,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
   ],
   bootstrap: [AppComponent]

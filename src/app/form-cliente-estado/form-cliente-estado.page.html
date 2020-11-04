@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{titulo}}</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" style="margin-top:50px">
+
+  <form [formGroup]="datosForm">
+    <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.nombre.valid}">
+      <ion-text color="primary">
+        <h4>Nombre *</h4>        
+      </ion-text>          
+      <ion-item>
+        <ion-input name="nombre" type="text" formControlName="nombre" required></ion-input>
+      </ion-item>
+      <div *ngIf="submitted && f.nombre.errors" class="invalid-feedback">
+          <div *ngIf="f.nombre.errors.required"><h5>Ingresa el nombre del estado</h5></div>
+      </div> 
+    </div>
+  </form>
+  
+
+  <div class="form-card" *ngIf="updating">
+    <ion-text color="danger">
+      <h5 color="danger">zona de riesgo</h5>
+    </ion-text>    
+    <ion-button  color="danger" (click)="elimiar()">Eliminar Categoría</ion-button>
+  </div>
+  <ion-toolbar>
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-content>

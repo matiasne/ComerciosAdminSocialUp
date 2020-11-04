@@ -307,7 +307,7 @@ export class AuthenticationService {
   
 
   async googleSignin() {
-    if (this.platform.is('cordova')) {
+  //  if (this.platform.is('cordova')) {
       let params;
       if (this.platform.is('android')) {
         params = {
@@ -315,10 +315,10 @@ export class AuthenticationService {
           'offline': true,
           'scopes': 'profile email'
         }
-      }
+      /*}
       else {
         params = {}
-      }
+      }*/
 
       console.log(params);
       this.googlePlus.login(params).then((response) => {
@@ -328,7 +328,7 @@ export class AuthenticationService {
       }).catch((error) => {
         console.log(error)
         alert('error:' + JSON.stringify(error));
-      });
+      }); 
   
      
   

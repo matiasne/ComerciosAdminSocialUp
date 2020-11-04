@@ -5,7 +5,8 @@ export class Venta{
     public cajaId="";
     public metodoPago="";
     public clienteId="";
-    public productos =[];
+    public productos = [];
+    public productosId =[];
 
 	constructor(
 		public vendedorId:"", 

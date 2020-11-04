@@ -48,7 +48,7 @@ export class AddProductoVentaPage implements OnInit {
   ) { }
 
   ngOnInit() {
-
+    console.log("!!!")
     this.producto = new Producto();
     this.loadingService.presentLoading();
     if(this.navParams.get('id')){

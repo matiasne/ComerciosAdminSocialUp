@@ -41,15 +41,22 @@ export class ListComandasPage implements OnInit {
     console.log(rol);
     //si soy dueño todas
     this.comandasService.getAll().subscribe((snapshot) => {
-      this.itemsComandas =[];   
+      this.itemsComandas =[];  
+      this.items = []; 
       snapshot.forEach((snap: any) => {         
           var comanda = snap.payload.doc.data();
           comanda.id = snap.payload.doc.id;  
           comanda.producto = true;  
           comanda.isPedido = false;
           comanda.carrito = JSON.parse(comanda.carrito);
-
-          comanda.createdAt =  this.toDateTime(comanda.createdAt.seconds) 
+          console.log(comanda);
+          if(comanda.createdAt){
+            comanda.createdAt =  this.toDateTime(comanda.createdAt.seconds) 
+          }
+          else{
+            comanda.createdAt = new Date();
+          }
+         
          
           this.itemsComandas.push(comanda);         
           

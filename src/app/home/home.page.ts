@@ -58,17 +58,20 @@ export class HomePage implements OnInit {
         var rol:any = snap;     
         this.loadingService.presentLoading();
         console.log(rol);
-        this.comercioSubs = this.comerciosService.get(rol.comercioId).subscribe(data =>{  
-          if(data.payload){
-            var comercio:any = data.payload.data();   
-            comercio.id = data.payload.id;
-            comercio.rol = rol;  
-            this.comercios.push(comercio);
-          }       
-          console.log(comercio);  
-          this.loadingService.dismissLoading();
-          
-        });
+        if(rol.comercioId){
+          this.comercioSubs = this.comerciosService.get(rol.comercioId).subscribe(data =>{  
+            if(data.payload){
+              var comercio:any = data.payload.data();   
+              comercio.id = data.payload.id;
+              comercio.rol = rol;  
+              this.comercios.push(comercio);
+            }       
+            console.log(comercio);  
+            this.loadingService.dismissLoading();
+            
+          });
+        }
+        
         
       });
       

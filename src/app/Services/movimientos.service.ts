@@ -163,12 +163,9 @@ export class MovimientosService {
        
         let cta:CtaCorriente = new CtaCorriente("","");
         cta.asignarValores(doc.data())
-        cta.id = doc.id;
-  
+        cta.id = doc.id;  
         data.fotoCtaCorriente = doc.data();
-
-        cta.montoTotal = Number(cta.montoTotal) + Number(data.monto);
-  
+        cta.montoTotal = Number(cta.montoTotal) + Number(data.monto);  
         
         const param1 = JSON.parse(JSON.stringify(cta));
         this.ctaCorrienteService.update(param1).then(data=>{

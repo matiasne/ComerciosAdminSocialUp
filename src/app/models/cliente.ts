@@ -17,6 +17,7 @@ export class Cliente{
     public longitud="";
     public createdAt="";
     public vendedorId="";
+    public estado="";
 
 	constructor(
 		

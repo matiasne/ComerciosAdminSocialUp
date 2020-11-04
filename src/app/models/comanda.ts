@@ -3,7 +3,8 @@ import { Carrito } from './carrito'
 export class Comanda{
 	public id="";
 	public status=0;
-    public clienteId="";
+	public clienteId="";
+	public clienteEmail="";
 	public clienteNombre="";
 	public clientePiso="";
 	public clienteDireccion= "";

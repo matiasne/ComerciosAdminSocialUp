@@ -9,9 +9,8 @@
 
 <ion-content class="ion-padding">   
  
-    <ion-item *ngIf="!carrito.cliente.id" class="item-card">
-      <ion-button  size="large" (click)="seleccionarCliente()"  expand="block">Seleccionar Cliente * </ion-button>
-    </ion-item>
+    <ion-button  *ngIf="!carrito.cliente.id" (click)="seleccionarCliente()"  size="large" expand="full">Seleccionar Cliente</ion-button>
+
     <ion-item *ngIf="carrito.cliente.id" class="item-card">
       <ion-avatar slot="start" (click)="seleccionarCliente()">
         <img src="{{carrito.cliente.foto}}" *ngIf="carrito.cliente.foto">
@@ -22,6 +21,20 @@
         <h3>{{carrito.cliente.email}}</h3>
       </ion-label>      
       <ion-button color="danger" slot="end" (click)="eliminarCliente()"><ion-icon name="trash"></ion-icon></ion-button>       
+    </ion-item>
+
+
+    <ion-button *ngIf="!carrito.mesa.id" (click)="seleccionarMesa()"  size="large" expand="full">Seleccionar Mesa</ion-button>
+
+    <ion-item *ngIf="carrito.mesa.id" class="item-card">
+      <ion-avatar slot="start" (click)="seleccionarMesa()">
+        <img src="{{carrito.mesa.foto}}" *ngIf="carrito.cliente.foto">
+        <ion-icon name="person" *ngIf="!carrito.mesa.foto"></ion-icon>
+      </ion-avatar>
+      <ion-label (click)="seleccionarMesa()">
+        <h2>{{carrito.mesa.nombre}}</h2>
+      </ion-label>      
+      <ion-button color="danger" slot="end" (click)="eliminarMesa()"><ion-icon name="trash"></ion-icon></ion-button>       
     </ion-item>
 
     <ion-item *ngIf="cajas.length > 0" class="item-card">
@@ -48,15 +61,6 @@
       </ion-select>
     </ion-item>
 
-    <!--ion-item *ngIf="cantidadMetodos == '1'" class="item-card">
-      {{metodoTexto}}
-    </ion-item-->
-
-
-    
-
-    
-    
     <div  class="form-card" *ngIf="carrito.productos.length > 0">
       <ion-text color="primary">
         <h4>Productos</h4>
@@ -64,25 +68,21 @@
    
       
     <ion-list>                   
-      <ion-item *ngFor="let producto of carrito.productos; let i = index">
-        <ion-avatar slot="start">
-          <img src="{{producto.foto}}" *ngIf="producto.foto">
-          <ion-icon name="cube" *ngIf="!producto.foto"></ion-icon>
-        </ion-avatar>
-        <ion-label>
-          <h2>{{producto.cantidad}} X {{producto.nombre}}</h2>
-          <h3>{{producto.descripcion_venta}}</h3>
-          <div *ngFor="let opcion of producto.opcionesSeleccionadas">
-            <h3>&nbsp;&nbsp;{{opcion.cantidad}}X{{opcion.nombre}} <span *ngIf="opcion.precioVariacion!= 0">{{opcion.precioVariacion | currency}}</span></h3>
-          </div>          
-          <h3>subtotal: {{producto.precioTotal | currency}}</h3>
-        </ion-label>
-        
-        <ion-button color="danger" slot="end" (click)="eliminarProducto(i)"><ion-icon name="trash"></ion-icon></ion-button>       
+      <span *ngFor="let producto of carrito.productos; let i = index">
 
+        <ion-item-sliding>
+          <app-card-producto
+            [item]="producto"
+            [multiplicador]="1"
+          ></app-card-producto>  
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="eliminarProducto(i)"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+          </ion-item-options>
+    
+        </ion-item-sliding>
+      </span>
 
-
-      </ion-item>
+      
     
     </ion-list>
     </div>
@@ -110,32 +110,33 @@
             <h3 *ngIf="servicio.pagoAdelantado == 'false'" style="color:red">El abono se pagará al finalizar el periodo</h3>
           </ion-label>
           <ion-button color="danger" slot="end" (click)="eliminarServicio(i)"><ion-icon name="trash"></ion-icon></ion-button>       
-
-
-
-        </ion-item>
-      
+        </ion-item>      
       </ion-list>
     </div>
 
 
+ 
+   
 
-    <div  class="form-card">
-      <ion-text color="primary" *ngIf="carrito.servicios.length > 0 || carrito.servicios.length > 0">
-        <h2>Total: {{carrito.totalProductos+carrito.totalServicios | currency}}</h2>
-      </ion-text> 
-    </div>
+      
+
     
-     
 
 
 </ion-content>
 
 <ion-footer class="ion-no-border ion-padding">
   <ion-toolbar>
-    
-    <ion-button *ngIf="habilitadoCobro == 'true'" class="btn-footer-atras" color="light" (click)="cancelar()">Atras</ion-button>
-    <ion-button *ngIf="habilitadoComanda == 'true'" class="btn-footer-agregar" color="primary" slot="end" (click)="comanda()">Comanda</ion-button>
-    <ion-button class="btn-footer-agregar" color="success" slot="end" (click)="confirmar()">Cobrar</ion-button>
+    <ion-item-sliding class="item-card">
+      <ion-item *ngIf="carrito.productos.length > 0 || carrito.servicios.length > 0">
+        <h2>Total: {{carrito.totalProductos+carrito.totalServicios | currency}}</h2>
+      </ion-item> 
+      <ion-item-options side="end">
+        <ion-item-option  color="primary" (click)="comanda()"><ion-icon name="create"></ion-icon> Comanda</ion-item-option>
+      </ion-item-options>  
+      <ion-item-options side="start">
+        <ion-item-option color="success" (click)="confirmar()">Cobrar</ion-item-option>
+      </ion-item-options>  
+    </ion-item-sliding>
   </ion-toolbar>
 </ion-footer>

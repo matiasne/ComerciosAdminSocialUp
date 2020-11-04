@@ -59,25 +59,35 @@
         <h4>Precio Promocion</h4>          
       </ion-text>        
       <ion-item>
-        <ion-input name="promocion" type="text" formControlName="promocion"></ion-input>
+        <ion-input name="promocion" type="number" formControlName="promocion"></ion-input>
       </ion-item>
       
 
       <ion-item [class.invalid]="submitted && !datosForm.controls.unidad.valid">
         <ion-label>Unidad de medida</ion-label>
         <ion-select formControlName="unidad">
-          <ion-select-option [value]="'unidad'" selected>Unidad</ion-select-option>
-          <ion-select-option [value]="'gramos'">Gramos</ion-select-option>
-          <ion-select-option [value]="'kilogramos'" >Kilogramos</ion-select-option>
-          <ion-select-option [value]="'centimetros'" >Centímetros</ion-select-option>
+          <ion-select-option [value]="'unidades'" selected>Unidad</ion-select-option>
+          <ion-select-option [value]="'gr.'">Gramos</ion-select-option>
+          <ion-select-option [value]="'Kg.'" >Kilogramos</ion-select-option>
+          <ion-select-option [value]="'cm.'" >Centímetros</ion-select-option>
           <ion-select-option [value]="'metros'" >Metros</ion-select-option>
-          <ion-select-option [value]="'mililitros'" >Mililitros</ion-select-option>
+          <ion-select-option [value]="'ml.'" >Mililitros</ion-select-option>
           <ion-select-option [value]="'litros'" >Litros</ion-select-option>
         </ion-select>
       </ion-item> 
       <div *ngIf="submitted && f.unidad.errors" class="invalid-feedback">
         <div *ngIf="f.unidad.errors.required"><h5>Seleccione una unidad</h5></div>
-      </div>  
+      </div> 
+
+     
+        <ion-text color="primary">
+          <h4>Valor por </h4>          
+        </ion-text>        
+        <ion-item>
+          <ion-input name="valorPor" type="text" formControlName="valorPor"></ion-input><h5>{{datosForm.controls.unidad.value}}</h5>
+        </ion-item> 
+      
+      
     </div> 
     
     <div class="form-card">
@@ -124,7 +134,7 @@
 
     <div class="form-card">
       <ion-text color="primary">
-        <h4>Stock Inicial *</h4>     
+        <h4>Stock *</h4>     
       </ion-text> 
             
       <ion-item [class.invalid]="submitted && !datosForm.controls.stock.valid">

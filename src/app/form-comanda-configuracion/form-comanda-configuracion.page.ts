@@ -44,6 +44,7 @@ export class FormComandaConfiguracionPage implements OnInit {
       this.comercio.id = data.payload.id;
 
       this.comandatarios = [];
+      console.log("!!!!")
       if(this.comercio.rolComandatarios.length > 0){
         this.comercio.rolComandatarios.forEach(rolId =>{
           var sub = this.rolesServices.get(rolId).subscribe(snap =>{
@@ -51,17 +52,17 @@ export class FormComandaConfiguracionPage implements OnInit {
             console.log(comandatario);
             if(comandatario)
               this.comandatarios.push(comandatario);
-            sub.unsubscribe();
+            
           });
         });
       }
-      this.subs.unsubscribe();
+     
       console.log(this.comercio);
     });
   }
 
   ionViewDidLeave(){
-    this.subs.unsubscribe();
+   // this.subs.unsubscribe();
   }
 
   ngOnInit() {
@@ -74,13 +75,7 @@ export class FormComandaConfiguracionPage implements OnInit {
         rol:"comandatario"      
       }
     });
-    modal.onDidDismiss()
-    .then((retorno) => {
-      if(retorno.data){     
-        console.log(retorno.data)         
-        this.invitacionService.enviarInvitacion(retorno.data,"comandatario");       
-      }        
-    });
+    
     return await modal.present();
   }
 

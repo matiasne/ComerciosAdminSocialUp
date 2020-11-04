@@ -13,6 +13,7 @@ import { LoadingService } from '../Services/loading.service';
 import { Caja } from '../models/caja';
 import { ToastService } from '../Services/toast.service';
 import { SelectClientePage } from '../select-cliente/select-cliente.page';
+import { SelectMesaPage } from '../select-mesa/select-mesa.page';
 
 @Component({
   selector: 'app-details-carrito',
@@ -223,7 +224,6 @@ export class DetailsCarritoPage implements OnInit {
   }
 
   comanda(){
-
     if(this.carrito.servicios.length == 0 && this.carrito.productos.length == 0 && this.carrito.pagare.id == ""){
       this.toastServices.alert("Debes ingresar al menos un producto o servicio","");      
       return;
@@ -242,6 +242,10 @@ export class DetailsCarritoPage implements OnInit {
     this.carritoService.eliminarServicio(i);
   }
 
+  eliminarMesa(){
+    this.carritoService.setearMesa("");
+  }
+
   async seleccionarCliente(){
     this.loadingService.presentLoading();
     const modal = await this.modalController.create({
@@ -258,6 +262,25 @@ export class DetailsCarritoPage implements OnInit {
 
         this.carritoService.setearCliente(retorno.data.item);
         this.getCuentasCorrientes(retorno.data.item)
+      }        
+    });
+    return await modal.present();
+  }
+
+  async seleccionarMesa(){
+    this.loadingService.presentLoading();
+    const modal = await this.modalController.create({
+      component: SelectMesaPage      
+    });
+
+    modal.present().then(()=>{
+      
+    })
+
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data){
+        this.carritoService.setearMesa(retorno.data.item);
       }        
     });
     return await modal.present();

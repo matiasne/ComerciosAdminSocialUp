@@ -136,29 +136,44 @@ export class ListInvitacionesPage implements OnInit {
 
     var rol:Rol = new Rol();
     rol.id = this.firestore.createId();
-    rol.comercioRef = this.comercioService.getRef(item.comercioId);
+    
     rol.user_email = item.email;
     rol.rol = item.rol;
     rol.estado = "aceptada";
-    this.rolesServices.create(rol);
 
-    if(item.rol == "comandatario"){
-      let comercio = this.comercioService.comercio;
-      comercio.rolComandatarios.push(rol.id);
-      this.comercioService.update(comercio);
-    }
+    const data = JSON.parse(JSON.stringify(rol));   
 
-    if(item.rol == "cadete"){
-      let comercio = this.comercioService.comercio;
-      comercio.rolCadetes.push(rol.id);
-      this.comercioService.update(comercio);
-    }
+    data.comercioRef = this.comercioService.getRef(item.comercioId);
+    data.comercioId = item.comercioId;
 
-    if(item.rol == "encargado"){
-      let comercio = this.comercioService.comercio;
-      comercio.rolEncargados.push(rol.id);
-      this.comercioService.update(comercio);
-    }
+    console.log(data)
+    this.rolesServices.create(data);
+
+
+    var subs = this.comercioService.get(item.comercioId).subscribe(snapshot=>{
+      subs.unsubscribe();
+      let comercio:any = snapshot.payload.data();
+      comercio.id = snapshot.payload.id;
+
+      if(item.rol == "comandatario"){
+     
+        comercio.rolComandatarios.push(rol.id);
+        this.comercioService.update(comercio);
+      }
+  
+      if(item.rol == "cadete"){
+        
+        comercio.rolCadetes.push(rol.id);
+        this.comercioService.update(comercio);
+      }
+  
+      if(item.rol == "encargado"){
+        
+        comercio.rolEncargados.push(rol.id);
+        this.comercioService.update(comercio);
+      }
+
+    })   
 
     this.invitacionesServices.delete(item);
   }

@@ -40,25 +40,10 @@ export class FormInvitacionPage implements OnInit {
     private toastServices:ToastService,
   ) { 
 
-    this.invitacion = new Invitacion();
-    this.comercio = new Comercio();
-    this.invitacion.id = this.firestore.createId();
 
     this.rol = this.navParams.get('rol');
 
-    var user = this.authService.getActualUser();
-
-    this.comercioService.getSelectedCommerce().subscribe(comercio=>{
-      this.comercio.asignarValores(comercio);
-      console.log(this.comercio);
-      this.invitacion.remitente = user.email;
-      this.invitacion.comercio_nombre = this.comercio.nombre;
-      this.invitacion.comercioId = this.comercio.id;
-      this.invitacion.rol = this.rol;
-      this.invitacion.estado = "pendiente"; 
-    });
-
-    
+    var user = this.authService.getActualUser();   
 
     this.datosForm = this.formBuilder.group({
       email: ['', Validators.required]
@@ -82,7 +67,7 @@ export class FormInvitacionPage implements OnInit {
     }   
 
     
-    this.invitacionService.enviarInvitacion(this.datosForm.controls.email.value.trim(),"owner")
+    this.invitacionService.enviarInvitacion(this.datosForm.controls.email.value.trim(),this.rol)
 
    
 

@@ -71,11 +71,9 @@ export class FormMesaPage implements OnInit {
 
     if(this.route.snapshot.params.id){
       
-      var sub = this.mesasServices.get(comercio_seleccionadoId,this.route.snapshot.params.id).subscribe(snap =>{
+      var sub = this.mesasServices.get(this.route.snapshot.params.id).subscribe(mesa =>{
         
-        let mesa:any = snap.payload.data();
         this.mesa.asignarValores(mesa);
-        this.mesa.id = snap.payload.id;
         console.log(this.mesa)
         this.updating = true;
         this.titulo = "Editar Mesa";
@@ -151,7 +149,7 @@ export class FormMesaPage implements OnInit {
       this.mesasServices.update(this.mesa);
     }
     else{
-      this.mesasServices.create(this.mesa);
+      this.mesasServices.add(this.mesa);
     }
 
     this.navCtrl.back();
@@ -178,7 +176,7 @@ export class FormMesaPage implements OnInit {
         }, {
           text: 'Eliminar',
           handler: () => {
-            this.mesasServices.delete(this.mesa);
+            this.mesasServices.delete(this.mesa.id);
             this.navCtrl.back();
           }
         }

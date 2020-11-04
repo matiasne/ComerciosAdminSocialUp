@@ -16,6 +16,9 @@
     <ion-segment-button value="estado">
       <ion-label>Estado</ion-label>
     </ion-segment-button>
+    <ion-segment-button value="seguimiento">
+      <ion-label>Seguimiento</ion-label>
+    </ion-segment-button>
   </ion-segment>  
 
   <div *ngIf="seccionActiva == 'info'">
@@ -106,11 +109,42 @@
         <app-card-subscription [item]="item"></app-card-subscription>
       </div>     
     </ion-list>
+  </div>
+  
+  <div *ngIf="seccionActiva == 'seguimiento'">
+
+    <ion-item  class="item-card">
+      <ion-label>Estado</ion-label>
+      <ion-select [(ngModel)]="cliente.estado" (ionChange)="cambioEstado()">
+        <ion-select-option *ngFor="let estado of estadosClientes" [value]="estado.id">{{estado.nombre}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-button slot="end" (click)="openAddEstado()">Agregar Nuevo Estado</ion-button>
+    <ion-list lines="none">
+      <ion-item-sliding  class="item-card" *ngFor="let item of comentarios">
+        <ion-item>           
+          <ion-label>
+            <p>  
+              {{item.text}}
+            </p>    
+            <p>{{item.senderEmail}} -  {{item.createdAt | date:'dd/MM/yyyy hh:mm'}}</p>
+          </ion-label>         
+        </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option color="primary" (click)="eliminarComentario(item)"><ion-icon name="trash" ></ion-icon> Remover</ion-item-option>
+      </ion-item-options>
+
+      </ion-item-sliding>
+    </ion-list>
 
   </div>
   
   
   
-  
 
 </ion-content>
+<ion-footer class="ion-no-border ion-padding" *ngIf="seccionActiva == 'seguimiento'">
+  <ion-toolbar> 
+    <ion-button slot="end" (click)="agregarComentario()">Agregar Comentario</ion-button>  
+  </ion-toolbar>
+</ion-footer>

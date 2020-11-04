@@ -2,6 +2,7 @@ export class Mesa{
     public id ="";
     public comercioId = "";
     public nombre="";
+    public foto="";
     public rolEncargados = [];
     public habilitaNotificaciones = false;
 

@@ -43,6 +43,25 @@ export class BaseService {
               })
           );
     }
+
+    public search(by,palabra,ultimo){      
+        if(ultimo == ""){
+          console.log("!!!!!! primero")     
+          return this.afs.collection(this.path, ref => 
+            ref.where('keywords','array-contains',palabra)
+                .where('recibirPedidos','==',true)
+                .orderBy(by)
+                .limit(5)).snapshotChanges();
+        }
+        else{
+          return this.afs.collection(this.path, ref => 
+            ref.where('keywords','array-contains',palabra)
+                .where('recibirPedidos','==',true)
+                .orderBy(by)
+                .startAfter(ultimo)
+                .limit(5)).snapshotChanges();    
+        }    
+    }  
   
     getRef(id){
       return this.collection.doc(id).ref;

@@ -54,6 +54,7 @@ export class ComandasService {
     if(carrito.cliente.id){
       comanda.clienteId = carrito.cliente.id;
       comanda.clienteNombre = carrito.cliente.nombre;
+      comanda.clienteEmail = carrito.cliente.email;
       this.notificacionesService.enviarById(carrito.cliente.id,"Su pedido ha sido comandado!","Revisa tu panel de comandas para Tomarla");
     }
 
@@ -95,17 +96,23 @@ export class ComandasService {
     this.firestore.collection(this.getCollection()).doc(comanda.id).update({status: 1});
   }
 
+  public setComandaSuspendida(comanda:Comanda){   
+    this.firestore.collection(this.getCollection()).doc(comanda.id).update({status: 0});
+  }
+
   public setComandaLista(comanda){
-
-    this.notificacionesService.enviarById(comanda.empleadoId,"Comanda Lista!","");
-
+    if(comanda.empleadoId)
+      this.notificacionesService.enviarById(comanda.empleadoId,"La Comanda que generaste esta lista!","");
+    
+    if(comanda.clienteId)
+      this.notificacionesService.enviarById(comanda.empleadoId,"Tu pedido esta listo!","");
+    
     this.firestore.collection(this.getCollection()).doc(comanda.id).update({status: 2});
   }
 
   public setComandaCobrada(comandaId){
-    //Acá se borra y se crea la venta
-   
-    this.firestore.collection(this.getCollection()).doc(comandaId).update({status: 3});
+       //Acá se borra y se crea la venta
+       this.firestore.collection(this.getCollection()).doc(comandaId).update({status: 3});
     this.delete(comandaId);
     
   }

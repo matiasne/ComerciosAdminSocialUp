@@ -56,6 +56,9 @@ export class CardComandaComponent implements OnInit {
   comandaLista(item:Comanda){
     this.comandasService.setComandaLista(item);
   }  
+  comandaSuspender(item:Comanda){
+    this.comandasService.setComandaSuspendida(item);
+  }  
 
   cobrarComanda(item:Comanda){
     console.log(item);

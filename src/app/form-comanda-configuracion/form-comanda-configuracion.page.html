@@ -26,8 +26,8 @@
         <ion-label>
           <h3>{{comandatario.user_email}}</h3>
           <p>Estado invitacion: 
-            <span *ngIf="comandatario.estado == 'pendiente'" style="color:blue">{{comandatario.estado}}</span>
-            <span *ngIf="comandatario.estado == 'aceptado'" style="color:green">{{comandatario.estado}}</span>
+            <span *ngIf="!comandatario.estado" style="color:blue">{{comandatario.estado}}</span>
+            <span *ngIf="comandatario.estado == 'aceptada'" style="color:green">{{comandatario.estado}}</span>
             <span *ngIf="comandatario.estado == 'rechazado'" style="color:red">{{comandatario.estado}}</span>
            </p>
         </ion-label>            

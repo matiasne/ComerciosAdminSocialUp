@@ -14,6 +14,8 @@ import { Comercio } from './Models/comercio';
 import { InvitacionesService } from './Services/invitaciones.service';
 import { ComandasService } from './Services/comandas.service';
 import { ToastService } from './Services/toast.service';
+import * as firebase from 'firebase/app';
+import { Network } from '@ionic-native/network/ngx';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +25,7 @@ import { ToastService } from './Services/toast.service';
 export class AppComponent implements OnInit {
   public selectedIndex = 0;
   public cantComandas = 0;
-
+  public cantPedidos =0;
   public appActions =[
     
     {
@@ -93,6 +95,8 @@ export class AppComponent implements OnInit {
     email:""
   };
 
+  public onlineOffline: boolean = navigator.onLine;
+
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
@@ -106,12 +110,14 @@ export class AppComponent implements OnInit {
     private notificacionesAppService:NotifificacionesAppService,
     private invitacionesService:InvitacionesService,
     private comandasService:ComandasService,
-    private toastService:ToastService
+    private toastService:ToastService,
+    private network: Network
   ) {
     this.comercioSeleccionado = new Comercio();
    
     this.initializeApp();    
     
+  
 
   }
 
@@ -120,80 +126,113 @@ export class AppComponent implements OnInit {
   initializeApp() {
 
     console.log("NgOnInit")
+
+    this.notifiacionesDesktopService.requestPermission();
+
     this.notifiacionesDesktopService.init().then(data=>{
       console.log("OK")
     },error=>{
       console.log("ERROR"); 
     });
 
+    this.fcm.onNotification().subscribe(data => {
+      alert(data)
+      if(data.wasTapped){
+        alert("Received in background");
+      } else {
+        console.log(data);
+        this.toastService.mensaje(data.title,data.body);
+      };
+    });
+    
+
+    this.network.onDisconnect().subscribe(() => {
+      alert('network was disconnected :-(');
+    });
+    // watch network for a connection
+    this.network.onConnect().subscribe(() => {
+      alert('network connected!');
+      // We just got a connection but we need to wait briefly
+      // before we determine the connection type. Might need to wait.
+      // prior to doing any api requests as well.
+      setTimeout(() => {
+        if (this.network.type === 'wifi') {
+          alert('we got a wifi connection, woohoo!');
+        }
+      }, 3000);
+    });
+
+
+    this.authService.getActualUserObservable().subscribe(data=>{
+      this.usuario = data;
+      console.log(this.usuario);
+
+      if(this.usuario){
+        this.notificacionesAppService.getSinLeer(this.authService.getUID()).subscribe(snapshot =>{
+          this.appActions[1].badge = snapshot.length;
+          console.log(snapshot)
+        })
+
+        this.invitacionesService.getSinLeer(this.authService.getEmail()).subscribe(snapshot =>{
+          this.appActions[2].badge = snapshot.length;
+          console.log(snapshot)
+        });
+
+        this.comandasService.getCantidad().subscribe((snapshot) => {
+          this.cantComandas = snapshot;
+        });
+      }
+      
+    });
+
+    this.comerciosService.getSelectedCommerce().subscribe(data=>{
+      console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+      console.log(data)
+      this.comercioSeleccionado = data;
+    });       
+
+    this.authService.authenticationState.subscribe(state => {
+    
+      if (state) {          
+        this.router.navigate(['home']);     
+
+        if (this.platform.is('cordova')) {
+          this.fcm.subscribeToTopic('gestion');
+      
+          this.fcm.getToken().then(token => {     
+            this.authService.setFCMToken(token);
+          },error=>{
+            console.log(error)
+          });
+      
+          this.fcm.onTokenRefresh().subscribe(token => {      
+            this.authService.setFCMToken(token);
+          },error=>{
+            console.log(error)
+          });     
+      
+         
+        }         
+      } else {
+        this.router.navigate(['login']);
+      }
+
+     
+    });
+
+
     this.platform.ready().then(() => {
 
-      this.notifiacionesDesktopService.requestPermission();
+          // watch network for a disconnection
+      
+
+
+    
 
       this.statusBar.styleDefault();
       this.splashScreen.hide();
       
-      this.authService.getActualUserObservable().subscribe(data=>{
-        this.usuario = data;
-        console.log(this.usuario);
-
-        if(this.usuario){
-          this.notificacionesAppService.getSinLeer(this.authService.getUID()).subscribe(snapshot =>{
-            this.appActions[1].badge = snapshot.length;
-            console.log(snapshot)
-          })
-  
-          this.invitacionesService.getSinLeer(this.authService.getEmail()).subscribe(snapshot =>{
-            this.appActions[2].badge = snapshot.length;
-            console.log(snapshot)
-          });
-  
-          this.comandasService.getCantidad().subscribe((snapshot) => {
-            this.cantComandas = snapshot;
-          });
-        }
-        
-      });
-
-      this.comerciosService.getSelectedCommerce().subscribe(data=>{
-        this.comercioSeleccionado = data;
-      });       
-
-      this.authService.authenticationState.subscribe(state => {
       
-        if (state) {          
-          this.router.navigate(['home']);     
-
-          if (this.platform.is('cordova')) {
-            this.fcm.subscribeToTopic('gestion');
-        
-            this.fcm.getToken().then(token => {     
-              this.authService.setFCMToken(token);
-            },error=>{
-              console.log(error)
-            });
-        
-            this.fcm.onTokenRefresh().subscribe(token => {      
-              this.authService.setFCMToken(token);
-            },error=>{
-              console.log(error)
-            });     
-        
-            this.fcm.onNotification().subscribe(data => {
-              if(data.wasTapped){
-                //alert("Received in background");
-              } else {
-                console.log(data);
-                this.toastService.mensaje(data.title,data.body);
-              };
-            });
-          }         
-        } else {
-          this.router.navigate(['login']);
-        }
-
-       
-      });
 
     });
   }

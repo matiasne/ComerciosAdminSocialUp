@@ -320,6 +320,34 @@ const routes: Routes = [
     path: 'form-estilo-configuracion',
     loadChildren: () => import('./form-estilo-configuracion/form-estilo-configuracion.module').then( m => m.FormEstiloConfiguracionPageModule)
   },
+  {
+    path: 'form-nota',
+    loadChildren: () => import('./form-nota/form-nota.module').then( m => m.FormNotaPageModule)
+  },
+  {
+    path: 'form-comentario',
+    loadChildren: () => import('./form-comentario/form-comentario.module').then( m => m.FormComentarioPageModule)
+  },
+  {
+    path: 'form-cliente-estado',
+    loadChildren: () => import('./form-cliente-estado/form-cliente-estado.module').then( m => m.FormClienteEstadoPageModule)
+  },
+  {
+    path: 'form-mi-perfil',
+    loadChildren: () => import('./form-mi-perfil/form-mi-perfil.module').then( m => m.FormMiPerfilPageModule)
+  },
+  {
+    path: 'form-stock',
+    loadChildren: () => import('./form-stock/form-stock.module').then( m => m.FormStockPageModule)
+  },
+  {
+    path: 'list-pedidos',
+    loadChildren: () => import('./list-pedidos/list-pedidos.module').then( m => m.ListPedidosPageModule)
+  },
+  {
+    path: 'select-mesa',
+    loadChildren: () => import('./select-mesa/select-mesa.module').then( m => m.SelectMesaPageModule)
+  },
   
 ];
 
