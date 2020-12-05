@@ -36,6 +36,8 @@ export class FormMesaPage implements OnInit {
   public encargados =[];  
   public rolesNuevos = [];
   public titulo ="";
+
+  public url="";
   
   constructor(
     private formBuilder: FormBuilder,
@@ -81,7 +83,8 @@ export class FormMesaPage implements OnInit {
           nombre: [this.mesa.nombre, Validators.required],
         });       
 
-        this.create("https://pwhatsapp.page.link/?link=https://socialup-pedidos-whatsapp.web.app/details-comercio;id="+comercio_seleccionadoId+"&id="+comercio_seleccionadoId+"&mesaId="+this.mesa.id);
+        this.url = "https://socialup.web.app/details-comercio;id="+comercio_seleccionadoId+";mesaId="+this.mesa.id;
+        this.create(this.url);
 
         
         sub.unsubscribe();
@@ -93,7 +96,8 @@ export class FormMesaPage implements OnInit {
       this.titulo = "Nueva Mesa";
       this.mesa.id = this.firestore.createId();
       this.mesa.comercioId = comercio_seleccionadoId; 
-      this.create("https://pwhatsapp.page.link/?link=https://socialup-pedidos-whatsapp.web.app/details-comercio;id="+comercio_seleccionadoId+"&id="+comercio_seleccionadoId+"&mesaId="+this.mesa.id);
+      this.value = "https://socialup.web.app";
+      this.create("https://socialup.web.app/details-comercio;id="+comercio_seleccionadoId+";mesaId="+this.mesa.id);
     }    
    
    

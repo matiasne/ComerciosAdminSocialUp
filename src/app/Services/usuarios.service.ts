@@ -41,4 +41,11 @@ export class UsuariosService {
     this.firestore.collection(this.collection).doc(id).set(param, { merge: true });
   }
 
+  public setComecioSeleccionado(id,comercioId){
+    let param = {
+      comercioSeleccionadoId:comercioId
+    }
+    this.firestore.collection(this.collection).doc(id).set(param, { merge: true });
+  }
+
 }

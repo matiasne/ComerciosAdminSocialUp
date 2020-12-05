@@ -37,21 +37,9 @@ export class ListEmpleadosPage implements OnInit {
       
       snapshot.forEach(snap =>{
         var rol:any = snap.payload.doc.data();
+        rol.id = snap.payload.doc.id;
         console.log(rol);    
-        var usub = this.usuariosService.getByEmail(rol.user_email).subscribe(snapshot=>{
-
-          console.log(snapshot);
-          snapshot.forEach(snap =>{
-            console.log(snap.payload.doc.data());
-            var item:any = snap.payload.doc.data();
-            item.id = snap.payload.doc.id;   
-            item.rol = rol;
-            this.itemsAll.push(item);
-
-          });
-          
-          usub.unsubscribe();
-        });
+        this.itemsAll.push(rol);      
 
       });
       this.buscar();
@@ -64,7 +52,7 @@ export class ListEmpleadosPage implements OnInit {
     if(this.palabraFiltro != ""){
       this.items = [];
       this.itemsAll.forEach(item => {
-        if(item.nombre.toLowerCase().includes(this.palabraFiltro.toLowerCase())){
+        if(item.userEmail.toLowerCase().includes(this.palabraFiltro.toLowerCase())){
           this.items.push(item);
           return;
         }

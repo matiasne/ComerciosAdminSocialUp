@@ -161,16 +161,20 @@ export class FormServicioPage implements OnInit {
       this.toastServices.alert('Por favor completar todos los campos marcados con * antes de continuar',"");
       return;
     }   
-    
+    console.log("!!!!!!!!!!!!!!!!")
     this.servicio.asignarValores(this.datosForm.value);
     if(this.updating){
-      const serv = JSON.parse(JSON.stringify(this.servicio));
-      this.serviciosService.update(serv).then((data:any)=>{
-        console.log(this.planes);        
-        this.planes.forEach(plan =>{
-          plan.servicioId = data.id;
-          this.planesServices.set(plan);
-        })
+     // const serv = JSON.parse(JSON.stringify(this.servicio));
+
+      this.planes.forEach(plan =>{
+        plan.servicioId = this.servicio.id;
+        console.log(plan);
+        this.planesServices.set(plan);
+      })
+
+      this.serviciosService.update(this.servicio).then((data:any)=>{
+               
+       
         
         this.calendarios.forEach(calendario =>{
           calendario.servicioId = data.id;
@@ -181,12 +185,15 @@ export class FormServicioPage implements OnInit {
       });
     }
     else{
-      const serv = JSON.parse(JSON.stringify(this.servicio));
-      this.serviciosService.add(serv).then((data:any)=>{
+      //const serv = JSON.parse(JSON.stringify(this.servicio));
+      console.log(this.planes); 
+
+      this.serviciosService.add(this.servicio).then((data:any)=>{
         console.log(data.id);
         
         this.planes.forEach(plan =>{
           plan.servicioId = data.id;
+          console.log(plan);
           this.planesServices.set(plan);          
         })
         
@@ -214,9 +221,12 @@ export class FormServicioPage implements OnInit {
     });
 
     modal.onDidDismiss().then((retorno) => {     
+      
       if(retorno.data){
+        console.log("PUSH")
         this.planes.push(retorno.data);
-      }        
+      }       
+      console.log(this.planes) 
     });
 
     return await modal.present();

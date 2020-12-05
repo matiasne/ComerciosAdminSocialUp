@@ -1,5 +1,8 @@
-<ion-header>
-  <ion-toolbar>    
+<ion-header>  
+  <ion-buttons slot="start">
+    <ion-back-button></ion-back-button>
+  </ion-buttons>   
+  <ion-toolbar> 
     <ion-title>Seleccionar Empleado</ion-title>    
   </ion-toolbar>
 </ion-header>
@@ -12,7 +15,7 @@
     [(ngModel)]="palabraFiltro" (ionChange)="buscar()"
     ></ion-input>
   </ion-row>
-
+  
   <ion-list lines="none">
     <ion-item *ngFor="let item of items" (click)="seleccionar(item)" class="item-card">
       <div slot="start">
@@ -20,8 +23,8 @@
         <ion-icon name="person-outline" *ngIf="!item.foto"></ion-icon>
       </div>      
       <ion-label text-wrap>
-        <h2><b>{{item.nombre}}</b> </h2>   
-        <p>{{item.email}}</p>         
+        <h2><b>{{item.userEmail}}</b> </h2>   
+        <p>{{item.rol}}</p>         
       </ion-label>  
     </ion-item>
   </ion-list>

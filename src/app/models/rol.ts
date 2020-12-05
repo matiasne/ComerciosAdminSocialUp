@@ -3,8 +3,10 @@ import { DocumentReference } from 'angularfire2/firestore';
 export class Rol{
     public id="";
     public estado ="";
+    public comercioId ="";
     public comercioRef:DocumentReference;
-    public user_email=""; 
+    public userEmail="";
+    public userId =""; 
     public rol="";
 
 	constructor(

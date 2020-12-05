@@ -20,6 +20,7 @@ export class FormCategoriaPage implements OnInit {
   public comercioId = "";
   public categoria:Categoria;
   public titulo = "";
+  
   constructor(
     private formBuilder: FormBuilder,
     private navCtrl: NavController,    

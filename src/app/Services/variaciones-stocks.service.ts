@@ -11,8 +11,14 @@ export class VariacionesStocksService extends BaseService {
     protected afs: AngularFirestore
   ) {     
     super(afs); 
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    this.setPath('comercios/'+comercioId+'/variacionesStock')  
+   
+    
   } 
+
+  setPathProducto(productoId){
+    console.log("set");
+    let comercioId = localStorage.getItem('comercio_seleccionadoId');
+    this.setPath('comercios/'+comercioId+'/productos/'+productoId+'/variacionesStock')  
+  }
 
 }

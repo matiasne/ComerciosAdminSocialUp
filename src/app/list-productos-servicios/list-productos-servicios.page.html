@@ -39,6 +39,8 @@
       <img  src="categoria.foto" alt="">
       <span >{{categoria.nombre}}</span>
     </ion-slide>
+    <ion-slide>
+    </ion-slide>
   </ion-slides>
     
   <ion-item  class="list-item" *ngIf="itemsAllProductos.length == 0 && itemsAllServicios.length == 0" (click)="presentAlertSeleccionar()">  
@@ -57,6 +59,7 @@
             <app-card-producto
               [item]="item"
               [multiplicador]="1"
+              [showOpcionesSeleccionadas]="false"
               (select)="seleccionar(item)"
             ></app-card-producto>  
           
@@ -64,7 +67,7 @@
               <ion-item-option  (click)="editarProducto(item)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
             </ion-item-options>
       
-            <ion-item-options side="start">
+            <ion-item-options side="start" *ngIf="comercio.modulos.stock">
               <ion-item-option color="success" (click)="agregarStock(item)">Stock</ion-item-option>
             </ion-item-options>
 

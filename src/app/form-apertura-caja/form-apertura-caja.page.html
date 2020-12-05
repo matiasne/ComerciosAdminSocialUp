@@ -1,0 +1,59 @@
+<ion-content  class="ion-padding">
+
+  
+
+  <div class="form-card">
+    <ion-text color="primary">
+      <h4>Fecha de Apertura </h4> 
+    </ion-text>             
+    {{fecha | date: 'dd/MM/yyyy h:mm a'}}
+  </div> 
+ 
+  <ion-text color="primary">
+    <h4>Ultimo Cierre: Efectivo {{caja.totalEfectivo | currency}}</h4>
+  </ion-text>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hay en Efectivo*</h4> 
+    </ion-text>             
+    <ion-item>
+      <ion-input type="number" [(ngModel)]="efectivo" required></ion-input>
+    </ion-item>    
+  </div>
+
+  <ion-text color="primary">
+    <h4>Ultimo Cierre: Debito {{caja.totalDebito | currency}}</h4>
+  </ion-text>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hay Débito*</h4> 
+    </ion-text>            
+    <ion-item>
+      <ion-input type="number" [(ngModel)]="debito" required></ion-input>
+    </ion-item>    
+  </div>
+
+  <ion-text color="primary">
+    <h4>Ultimo Cierre: Credito {{caja.totalCredito | currency}}</h4>
+  </ion-text>
+
+  <div>
+    <ion-text color="primary">
+      <h4>Hay Crédito*</h4> 
+    </ion-text>            
+    <ion-item>
+      <ion-input type="number" [(ngModel)]="credito" required></ion-input>
+    </ion-item>    
+  </div>
+   
+  
+
+  <ion-toolbar>
+    <ion-button slot="end" (click)="abrir()">Abrir</ion-button>
+    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+
+</ion-content>

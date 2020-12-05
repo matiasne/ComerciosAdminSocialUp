@@ -27,35 +27,28 @@ export class FormPedidosConfiguracionPage implements OnInit {
     private rolesServices:RolesService,
     private modalCtrl:ModalController,
     private navCtrl:NavController,
-    private usuariosService:UsuariosService,
+    private rolesService:RolesService,
     private firestore: AngularFirestore,
     private alertController:AlertController,
     private invitacionService:InvitacionesService
   ) { 
+
     this.comercio = new Comercio();
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-
-    console.log(comercio_seleccionadoId)
-   
-    
-    this.subs = this.comerciosService.get(comercio_seleccionadoId).subscribe(data=>{
-      this.comercio.asignarValores(data.payload.data());
-      this.comercio.id = data.payload.id;
-
-      this.cadetes = [];
-      if(this.comercio.rolCadetes.length > 0){
-        this.comercio.rolCadetes.forEach(rolId =>{
-          console.log(rolId)
-          var sub = this.rolesServices.get(rolId).subscribe(snap =>{
-            var cadete = snap.payload.data();
-            if(cadete)
-              this.cadetes.push(cadete);
-            sub.unsubscribe();
-          });
-        });
-      }
-      this.subs.unsubscribe();
+    this.comerciosService.getSelectedCommerce().subscribe(data=>{
+      this.comercio.asignarValores(data);
     });
+
+    var rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{          
+      snapshot.forEach(snap =>{
+        var rol:any = snap.payload.doc.data();
+        rol.id = snap.payload.doc.id;
+        console.log(rol);   
+        if(rol.rol == "cadete") 
+          this.cadetes.push(rol); 
+      });      
+      rolSub.unsubscribe();
+    });
+
   }
 
   ionViewDidLeave(){
@@ -90,7 +83,7 @@ export class FormPedidosConfiguracionPage implements OnInit {
 
     console.log(idABorrar);
 
-    this.rolesServices.delete(this.cadetes[index].id);    
+    this.rolesServices.delete(localStorage.getItem('comercio_seleccionadoId'),this.cadetes[index].id);    
     this.cadetes.splice(index,1);
 
     

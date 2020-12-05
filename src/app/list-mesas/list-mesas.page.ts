@@ -18,20 +18,25 @@ export class ListMesasPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    var mSubs = this.mesasService.list().subscribe(mesas=>{                 
+    
+  } 
+  
+  ionViewDidEnter(){
+    this.mesasService.list().subscribe(mesas=>{                 
       this.mesas = mesas;
     });
   }
-
   
-
   async openAddMesa(){
     this.router.navigate(['form-mesa']);
   }
 
   async openEditMesa(item){
     this.router.navigate(['form-mesa',{id:item.id}]);
+  }
+
+  verMesa(mesa){
+    this.router.navigate(['details-mesa',{id:mesa.id}]);
   }
 
 

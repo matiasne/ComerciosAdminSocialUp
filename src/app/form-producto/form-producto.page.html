@@ -102,6 +102,18 @@
           <div *ngIf="f.categorias.errors.required"><h5>Seleccione una o más categorías</h5></div>
       </div>  
     </div>
+
+    <div class="form-card">
+      <ion-item [class.invalid]="submitted && !datosForm.controls.cocina.valid">
+        <ion-label>Seleccionar Cocina</ion-label>
+        <ion-select formControlName="cocina" cancelText="Cancelar" okText="Listo">
+          <ion-select-option *ngFor="let cocina of cocinas" [value]="cocina.id" selected>{{cocina.nombre}}</ion-select-option>
+        </ion-select>       
+      </ion-item>  
+      <div *ngIf="submitted && f.cocina.errors" class="invalid-feedback">
+          <div *ngIf="f.cocina.errors.required"><h5>Seleccione una cocina</h5></div>
+      </div>  
+    </div>
     
     <h4>Habilitar para:</h4>   
     <ion-item>

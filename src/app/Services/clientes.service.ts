@@ -4,6 +4,7 @@ import { firestore } from 'firebase';
 import { subscribeOn } from 'rxjs/operators';
 import * as firebase from 'firebase';
 import { Cliente } from '../models/cliente';
+import { KeywordService } from './keyword.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,8 @@ export class ClientesService {
   private collection:string;
   
   constructor(
-    private firestore: AngularFirestore
+    private firestore: AngularFirestore,
+    private keywordService:KeywordService
   ) {
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
     this.collection = 'comercios/'+comercio_seleccionadoId+'/clientes';
@@ -22,33 +24,16 @@ export class ClientesService {
   getCollection(){
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
     return 'comercios/'+comercio_seleccionadoId+'/clientes';
-  }
-
-  
+  }  
 
   public create(data:Cliente) {   
-    
-    var subs = this.getByEmail(data.email).subscribe(resp=>{ //Valida si existe ese mail de usuario
+
+    this.keywordService.agregarKeywords(data, [data.nombre,data.email]);
+   
+    const param = JSON.parse(JSON.stringify(data));
+    this.firestore.collection(this.getCollection()).doc(data.id).set({...param,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()});
            
-      if(resp.length == 0){
-        var subs2 = this.getByNombre(data.nombre).subscribe(resp=>{
-          if(resp.length == 0){
-            const param = JSON.parse(JSON.stringify(data));
-            this.firestore.collection(this.getCollection()).add({...param,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            });        
-          }
-          else{
-            alert("existe el nombre");
-          }
-          subs2.unsubscribe();
-        })     
-      }
-      else{
-        alert("existe el mail");
-      }
-      subs.unsubscribe();
-    }) 
     
   }
 
@@ -73,6 +58,10 @@ export class ClientesService {
   }
   
   public update(cliente:Cliente) {
+
+    this.keywordService.agregarKeywords(cliente, [cliente.nombre,cliente.email]);
+
+
     console.log(cliente);
     const param = JSON.parse(JSON.stringify(cliente));
     return this.firestore.collection(this.getCollection()).doc(cliente.id).set({...param,
@@ -82,9 +71,12 @@ export class ClientesService {
 
   public delete(data) {
     //Debo eliminar primero cada subscripción
-    data.subscripciones.forEach(subscripcion => {
-      this.firestore.doc(subscripcion).delete();
-    });
+    if(data.subscripciones){
+      data.subscripciones.forEach(subscripcion => {
+        this.firestore.doc(subscripcion).delete();
+      });
+    }
+    
     return this.firestore.collection(this.getCollection()).doc(data.id).delete();    
   }
 
@@ -98,5 +90,26 @@ export class ClientesService {
   public deleteCtaCorriente(clienteId,ctaCorrienteId){
     this.firestore.collection(this.getCollection()+'/'+clienteId+'/ctasCorrientes').doc(ctaCorrienteId).delete();
   }
+
+  public search(limit,orderBy,palabra,ultimo){      
+    if(ultimo == ""){
+      console.log("!!!!!! primero")
+      console.log(palabra)     
+      console.log(orderBy)
+      return this.firestore.collection(this.getCollection(), ref => 
+        ref.where('keywords','array-contains',palabra)
+            .orderBy(orderBy)
+            .limit(limit)).snapshotChanges();
+    }
+    else{
+      console.log(palabra)     
+      console.log(orderBy)
+      return this.firestore.collection(this.getCollection(), ref => 
+        ref.where('keywords','array-contains',palabra)
+            .orderBy(orderBy)
+            .startAfter(ultimo)
+            .limit(limit)).snapshotChanges();    
+    }    
+}  
 
 }

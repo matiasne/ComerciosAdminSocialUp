@@ -32,6 +32,10 @@ export class Carrito{
             this.mesa = new Mesa();
             this.deposito = new MovimientoCtaCorriente(this.vendedorId,this.vendedorNombre);
           
-	}
+    }
+    
+    public asignarValores(init?: Partial<Carrito>) {
+        Object.assign(this, init);
+    }
 }
 

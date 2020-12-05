@@ -28,56 +28,14 @@
         </ion-text> 
         
         <ion-item>
-          <ion-input name="nombre" type="text" formControlName="nombre" required></ion-input>
+          <ion-input name="nombre" type="text" formControlName="nombre"></ion-input>
         </ion-item>
         <div *ngIf="submitted && f.nombre.errors" class="invalid-feedback">
             <div *ngIf="f.nombre.errors.required"><h5>Ingresa un nombre</h5></div>
         </div>
       </div>
      
-      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.documento_tipo.valid}">
-        
-        <ion-text color="primary">
-          <h4>Tipo de Documento</h4>       
-        </ion-text> 
-        <h5></h5>  
-        <ion-item>                    
-          <ion-select  formControlName="documento_tipo">   
-            
-            <ion-select-option [value]="1" selected>D.N.I.</ion-select-option>
-            <ion-select-option [value]="2" selected>CUIT</ion-select-option>
-          </ion-select>        
-        </ion-item>
-        <div *ngIf="submitted && f.documento_tipo.errors" class="invalid-feedback">
-          <div *ngIf="f.documento_tipo.errors.required"><h5>Selecciona el tipo de documento</h5></div>
-        </div>
-      </div>
       
-
-      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.documento.valid}">
-        <ion-text color="primary">
-          <h4>Número de Documento</h4>    
-        </ion-text>
-        
-        <ion-item>
-          <ion-input name="documento" type="number" formControlName="documento" required></ion-input>
-        </ion-item>
-        <div *ngIf="submitted && f.documento.errors" class="invalid-feedback">
-          <div *ngIf="f.documento.errors.required"><h5>Ingresa el documento</h5></div>
-        </div>
-      </div>
-     
-      
-      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.fecha_nacimiento.valid}">
-        <ion-text color="primary">
-          <h4>Fecha de Nacimiento</h4>
-        </ion-text>
-        
-        <ion-item>                  
-            <ion-datetime picker-format="YYYY-MM-DD" formControlName="fecha_nacimiento" placeholder="Nacimiento"></ion-datetime>
-        </ion-item>
-        
-      </div>
       
       <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.direccion.valid}">
         <ion-text color="primary">
@@ -125,7 +83,7 @@
         </ion-text>
            
         <ion-item>
-          <ion-input name="telefono" type="number" formControlName="telefono" required></ion-input>
+          <ion-input name="telefono" type="number" formControlName="telefono"></ion-input>
         </ion-item>
         <div *ngIf="submitted && f.telefono.errors" class="invalid-feedback">
             <div *ngIf="f.telefono.errors.required"><h5>Ingresa un teléfono</h5></div>
@@ -138,11 +96,55 @@
         </ion-text>
         
         <ion-item >
-          <ion-input name="email" type="text" formControlName="email" required></ion-input>
+          <ion-input name="email" type="text" formControlName="email"></ion-input>
         </ion-item>
         <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
             <div *ngIf="f.email.errors.required"><h5>Ingresa un mail</h5></div>
         </div>
+      </div>
+
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.documento_tipo.valid}">
+        
+        <ion-text color="primary">
+          <h4>Tipo de Documento</h4>       
+        </ion-text> 
+        <h5></h5>  
+        <ion-item>                    
+          <ion-select  formControlName="documento_tipo">
+            
+            <ion-select-option [value]="1" selected>D.N.I.</ion-select-option>
+            <ion-select-option [value]="2" selected>CUIT</ion-select-option>
+          </ion-select>        
+        </ion-item>
+        <div *ngIf="submitted && f.documento_tipo.errors" class="invalid-feedback">
+          <div *ngIf="f.documento_tipo.errors.required"><h5>Selecciona el tipo de documento</h5></div>
+        </div>
+      </div>
+      
+
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.documento.valid}">
+        <ion-text color="primary">
+          <h4>Número de Documento</h4>    
+        </ion-text>
+        
+        <ion-item>
+          <ion-input name="documento" type="number" formControlName="documento"></ion-input>
+        </ion-item>
+        <div *ngIf="submitted && f.documento.errors" class="invalid-feedback">
+          <div *ngIf="f.documento.errors.required"><h5>Ingresa el documento</h5></div>
+        </div>
+      </div>
+     
+      
+      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.fecha_nacimiento.valid}">
+        <ion-text color="primary">
+          <h4>Fecha de Nacimiento</h4>
+        </ion-text>
+        
+        <ion-item>                  
+            <ion-datetime picker-format="YYYY-MM-DD" formControlName="fecha_nacimiento" placeholder="Nacimiento"></ion-datetime>
+        </ion-item>
+        
       </div>
       
       <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.descripcion.valid}">
@@ -164,10 +166,12 @@
       </ion-text>        
       <ion-button  color="danger" (click)="elimiar()">Eliminar Cliente</ion-button>
     </div>
-    <ion-toolbar>
-      <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
-      
-      <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
-    </ion-toolbar>
+    
  </ion-content>
-
+ <ion-footer class="ion-no-border ion-padding">
+  <ion-toolbar>
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>      
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+  
+ </ion-footer>

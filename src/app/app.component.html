@@ -3,66 +3,86 @@
     <ion-menu contentId="main-content" type="overlay">
       <ion-content>
         <ion-list id="inbox-list" >
-            <ion-list-header *ngIf="comercioSeleccionado">{{comercioSeleccionado.nombre}}</ion-list-header>
+            <ion-list-header *ngIf="comercioSeleccionado.id">{{comercioSeleccionado.nombre}}</ion-list-header>
             <ion-note *ngIf="usuario">{{usuario.email}}</ion-note>
+            <ion-buttons  *ngIf="usuario.state == 'online'" slot="primary">
+              <ion-button fill="solid" color="secondary">
+                Modo {{usuario.state}}
+              </ion-button>
+            </ion-buttons>
+            <ion-buttons  *ngIf="usuario.state == 'offline'" slot="primary">
+              <ion-button fill="solid" color="danger">
+                Modo {{usuario.state}}
+              </ion-button>
+            </ion-buttons>
         </ion-list>
-        <ion-list id="inbox-list" *ngIf="comercioSeleccionado">
-          
+        <ion-list id="inbox-list" *ngIf="comercioSeleccionado.id">          
 
-          <ion-menu-toggle auto-hide="false" >
+          <ion-menu-toggle auto-hide="false">
 
             <ion-item [routerLink]="['/list-productos-servicios']" lines="none" detail="false">
               <ion-icon slot="start" name="cart-outline"></ion-icon>
               <ion-label>Catálogo</ion-label>
             </ion-item>
 
-            <ion-item [routerLink]="['/list-clientes']" lines="none" detail="false">
-              <ion-icon slot="start" name="people-outline"></ion-icon>
-              <ion-label>Clientes</ion-label>
-            </ion-item>
-           
-            <ion-item *ngIf="comercioSeleccionado.recibirPedidos" [routerLink]="['/list-pedidos']" lines="none" detail="false">
-              <ion-icon slot="start" name="reader-outline"></ion-icon>
-              <ion-label>Pedidos</ion-label>
-              <ion-badge color="primary" *ngIf="cantPedidos != 0" slot="end">{{cantPedidos}}</ion-badge>
+            <ion-item *ngIf="comercioSeleccionado.modulos.mesas" [routerLink]="['/list-mesas']" lines="none" detail="false">
+              <ion-icon slot="start" name="grid-outline"></ion-icon>
+              <ion-label>Mesas</ion-label>
+              <ion-badge color="primary" *ngIf="cantMesasActivas != 0" slot="end">{{cantMesasActivas}}</ion-badge>
             </ion-item>
 
-            <ion-item *ngIf="comercioSeleccionado.recibirComandas" [routerLink]="['/list-comandas']" lines="none" detail="false">
+            <ion-item *ngIf="comercioSeleccionado.modulos.comandas" [routerLink]="['/list-comandas']" lines="none" detail="false">
               <ion-icon slot="start" name="receipt-outline"></ion-icon>
               <ion-label>Comandas</ion-label>
               <ion-badge color="primary" *ngIf="cantComandas != 0" slot="end">{{cantComandas}}</ion-badge>
             </ion-item>
 
-            <ion-item [routerLink]="['/list-subscripciones']" lines="none" detail="false">
-              <ion-icon slot="start" name="clipboard-outline"></ion-icon>
-              <ion-label>Subscripciones</ion-label>
+
+            <ion-item *ngIf="comercioSeleccionado.modulos.clientes" [routerLink]="['/list-clientes']" lines="none" detail="false">
+              <ion-icon slot="start" name="people-outline"></ion-icon>
+              <ion-label>Clientes</ion-label>
+            </ion-item>
+      
+           
+            <ion-item *ngIf="comercioSeleccionado.modulos.clientes" [routerLink]="['/list-cta-corrientes']" lines="none" detail="false">
+              <ion-icon slot="start" name="wallet-outline"></ion-icon>
+              <ion-label>Ctas. Corrientes</ion-label>
             </ion-item>
 
-            <ion-item [routerLink]="['/list-calendarios']" lines="none" detail="false">
+            <!--ion-item [routerLink]="['/list-calendarios']" lines="none" detail="false">
               <ion-icon slot="start" name="calendar-outline"></ion-icon>
               <ion-label>Calendarios</ion-label>
-            </ion-item>
+            </ion-item-->
 
-            <ion-item [routerLink]="['/list-cajas']" lines="none" detail="false">
+            <ion-item *ngIf="comercioSeleccionado.modulos.cajas" [routerLink]="['/list-cajas']" lines="none" detail="false">
               <ion-icon slot="start" name="file-tray-full-outline"></ion-icon>
               <ion-label>Cajas</ion-label> 
             </ion-item> 
 
-            <ion-item [routerLink]="['/list-cta-corrientes']" lines="none" detail="false">
-              <ion-icon slot="start" name="wallet-outline"></ion-icon>
-              <ion-label>Ctas. Corrientes</ion-label>
+          
+
+            <ion-item *ngIf="comercioSeleccionado.modulos.servicios" [routerLink]="['/list-subscripciones']" lines="none" detail="false">
+              <ion-icon slot="start" name="clipboard-outline"></ion-icon>
+              <ion-label>Subscripciones</ion-label>
             </ion-item>
 
             <ion-item [routerLink]="['/form-comercio-configuracion']" lines="none" detail="false">
               <ion-icon slot="start" name="cog-outline"></ion-icon>
               <ion-label>Configuración</ion-label>
-            </ion-item>           
+            </ion-item>            
 
           </ion-menu-toggle>
-          
+     
+
         </ion-list>
 
         <ion-list id="inbox-list" *ngIf="usuario">
+          <ion-menu-toggle auto-hide="false" >
+            <ion-item (click)="verComercios()" routerDirection="root" lines="none" detail="false">
+              <ion-icon slot="start" name="home-outline"></ion-icon>
+              <ion-label>Mis Comercios</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
           <ion-menu-toggle auto-hide="false" *ngFor="let p of appActions; let i = index">
             <ion-item (click)="selectedIndex = i" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false">
               <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-outline'"></ion-icon>

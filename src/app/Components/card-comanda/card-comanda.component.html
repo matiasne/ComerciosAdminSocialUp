@@ -9,7 +9,7 @@
       </div>
         
       <span *ngFor="let producto of item.carrito.productos; let i = index">
-        <app-card-producto [item]="producto"></app-card-producto>  
+        <app-card-producto [item]="producto" [showEnCarrito] = "false" [showStock] = "false"></app-card-producto>  
       </span> 
       <ion-item *ngFor="let servicio of item.carrito.servicios; let i = index">
         <ion-avatar slot="start">
@@ -36,9 +36,12 @@
   <ion-item>
     <ion-button *ngIf="item.status == 0" color="light" size="large" slot="start" (click)="eliminar(item)"  expand="block">Cancelar</ion-button>
     <ion-button *ngIf="item.status == 1" color="light" size="large" slot="start" (click)="comandaSuspender(item)"  expand="block">Suspender</ion-button>
-    <ion-button *ngIf="item.status == 2" color="light" size="large" slot="start" (click)="comandaTomada(item)"  expand="block">Volver</ion-button>
+    <ion-button *ngIf="item.status == 2" color="light" size="large" slot="start" (click)="comandaVolver(item)"  expand="block">Volver</ion-button>
     <ion-button *ngIf="item.status == 0" size="large" slot="end" (click)="comandaTomada(item)"  expand="block">Tomado</ion-button>   
     <ion-button *ngIf="item.status == 1" color="success" size="large" slot="end" (click)="comandaLista(item)"  expand="block">Listo!</ion-button>  
-    <ion-button *ngIf="item.status == 2" color="danger" size="large" slot="end" (click)="cobrarComanda(item)"  expand="block">Cobrar</ion-button>          
+    <ion-button *ngIf="item.carrito.mesa.id == '' && comercio.modulos.cajas == true  && item.status == 2" color="danger" size="large" slot="end" (click)="cobrarComanda(item)"  expand="block">Cobrar</ion-button>
+    <ion-button *ngIf="item.carrito.mesa.id == '' && comercio.modulos.cajas == false  && item.status == 2" color="danger" size="large" slot="end" (click)="finalizarComanda(item)"  expand="block">Finalizar</ion-button>  
+    <ion-button *ngIf="item.carrito.mesa.id != '' && comercio.modulos.cajas == true && item.status == 2" color="danger" size="large" slot="end" (click)="finalizarComanda(item)"  expand="block">Finalizar</ion-button>                   
+    <ion-button *ngIf="item.carrito.mesa.id != '' && comercio.modulos.cajas == false && item.status == 2" color="danger" size="large" slot="end" (click)="finalizarComanda(item)"  expand="block">Finalizar</ion-button>                   
   </ion-item>
 </ion-card>

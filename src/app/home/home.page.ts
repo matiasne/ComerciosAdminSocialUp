@@ -8,6 +8,8 @@ import { Subscription } from 'rxjs';
 import { LoadingService } from '../Services/loading.service';
 import { NotificacionesDesktopService } from '../Services/notificaciones-desktop.service';
 import { NotificacionesService } from '../Services/notificaciones.service';
+import { PresenceService } from '../Services/presence.service';
+import { UsuariosService } from '../Services/usuarios.service';
 
 
 @Component({
@@ -21,6 +23,8 @@ export class HomePage implements OnInit {
   public subsItems: Subscription;
   public comercioSubs:Subscription;
 
+  public conexionEstado = "offline";
+
   constructor(
     public authService:AuthenticationService,
     public comerciosService:ComerciosService,
@@ -28,11 +32,14 @@ export class HomePage implements OnInit {
     public router:Router,
     public loadingService:LoadingService,
     public alertController:AlertController,
-    public notificationService:NotificacionesService
+    public usuariosService:UsuariosService,
+   
   ) { }
 
   ngOnInit() {
- 
+    
+
+   
   }
 
   refresh(event) {
@@ -45,32 +52,35 @@ export class HomePage implements OnInit {
   }
 
   ionViewDidEnter(){
-    
-    localStorage.setItem('comercio_seleccionadoId',null);
-    this.comerciosService.setSelectedCommerce("");
+   
     this.loadingService.presentLoading();
     this.comercios = [];
 
     console.log("!entrando a home");
-    this.subsItems = this.rolesService.getAllRolesbyUser().subscribe(snapshot =>{        
+    this.subsItems = this.rolesService.getAllRolesbyUser(this.authService.getActualUserId()).subscribe(snapshot =>{        
       this.loadingService.dismissLoading();      
       snapshot.forEach(snap =>{
-        var rol:any = snap;     
-        this.loadingService.presentLoading();
-        console.log(rol);
-        if(rol.comercioId){
-          this.comercioSubs = this.comerciosService.get(rol.comercioId).subscribe(data =>{  
-            if(data.payload){
-              var comercio:any = data.payload.data();   
-              comercio.id = data.payload.id;
-              comercio.rol = rol;  
-              this.comercios.push(comercio);
-            }       
-            console.log(comercio);  
-            this.loadingService.dismissLoading();
-            
-          });
-        }
+          var rol:any = snap;     
+          
+          console.log(rol)
+       
+          this.loadingService.presentLoading();
+
+          if(rol.comercioId){
+            this.comercioSubs = this.comerciosService.get(rol.comercioId).subscribe(data =>{  
+              if(data.payload.data()){              
+                  var comercio:any = data.payload.data();          
+                  comercio.id = data.payload.id;
+                  comercio.rol = rol;  
+                  if(rol.estado != "pendiente")
+                    this.comercios.push(comercio);
+              }                 
+              this.loadingService.dismissLoading();
+              
+            });
+          }
+          
+        
         
         
       });
@@ -90,12 +100,13 @@ export class HomePage implements OnInit {
   }
 
   seleccionar(comercio){
-      if(comercio.rol.rol == "owner" || comercio.rol.rol == "admin"){
+    //  if(comercio.rol.rol == "owner" || comercio.rol.rol == "admin"){
         console.log(comercio);
         this.comerciosService.setSelectedCommerce(comercio.id);
-        this.authService.setRol(comercio.rol);
+        this.authService.setRol(comercio.rol.rol);
         this.router.navigate(['dashboard-comercio',{id:comercio.id}]);
-      }      
+        this.usuariosService.setComecioSeleccionado(this.authService.getActualUserId(),comercio.id);
+    //  }      
   }
 
   editarInvitacion(item){
@@ -123,22 +134,7 @@ export class HomePage implements OnInit {
             text: 'Desvincular',
             handler: () => {
               console.log(comercio)
-              this.rolesService.delete(comercio.rol.id);
-              if(comercio.rol.rol =="comandatario"){
-                console.log("!!!!")
-                comercio.rolComandatarios.forEach((rolId,i) =>{
-                  console.log(rolId);
-                  if(rolId == comercio.rol.id){
-                    console.log(i)
-                    comercio.rolComandatarios.splice(i,1);
-                    delete comercio.rol;
-                    this.comerciosService.update(comercio).then(data=>{
-                      console.log("ok")
-                    });
-                  }
-                })  
-              }
-              
+              this.rolesService.delete(comercio.id,comercio.rol.id);    
               this.ionViewDidEnter();
             }
           }

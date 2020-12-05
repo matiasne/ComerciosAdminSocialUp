@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ModalController, LoadingController } from '@ionic/angular';
+import { ModalController, LoadingController, IonInfiniteScroll } from '@ionic/angular';
 import { ClientesService } from '../Services/clientes.service';
 import { Cliente } from '../models/cliente';
 import { LoadingService } from '../Services/loading.service';
+import { FormClientePage } from '../form-cliente/form-cliente.page';
 
 @Component({
   selector: 'app-list-clientes',
@@ -17,8 +18,12 @@ export class ListClientesPage implements OnInit {
   public itemsAll:any = [];
   public subsItems: Subscription;
   public palabraFiltro = "";
-  public ultimoItem = "";
   public loadingActive = false;
+  public clientesSubs:Subscription;
+  public ultimoCliente:Cliente;
+  public clientes = [];
+
+  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
   
   constructor(
     public modalController: ModalController,
@@ -30,70 +35,120 @@ export class ListClientesPage implements OnInit {
     public loadingService:LoadingService
   ) { }
 
-  ngOnInit() {   
-    
+  ngOnInit() {      
+    this.ultimoCliente  =new Cliente();
+    this.clientes = [];
+    this.verMas();
   }
 
-  ionViewDidEnter(){
-    this.ultimoItem = "";
+  ionViewDidEnter(){    
     if(this.route.snapshot.params.filtro)
-      this.palabraFiltro = this.route.snapshot.params.filtro;
-    this.obtenerTodos();
+      this.palabraFiltro = this.route.snapshot.params.filtro;   
   }
 
   ionViewDidLeave(){
     this.subsItems.unsubscribe(); 
   }
 
-  buscar(){
-    if(this.palabraFiltro != ""){
-      this.items = [];
-      this.itemsAll.forEach(item => {
-        if(item.nombre.toLowerCase().includes(this.palabraFiltro.toLowerCase())){
-          this.items.push(item);
-          return;
-        }
-
-        if(item.documento.toLowerCase().includes(this.palabraFiltro.toLowerCase())){
-          this.items.push(item);
-          return;
-        }
-      });     
-    }
-    else{
-      this.items = this.itemsAll;
-    }
+  onChange(event){
+    this.palabraFiltro = event.target.value;
+    this.ultimoCliente = new Cliente();
+    this.clientes = [];
+    this.verMas();
   }
 
-  obtenerTodos(){
-    
-    this.subsItems = this.clientesService.getAll().subscribe((snapshot) => {     
-      this.itemsAll = [];  
-      snapshot.forEach((snap: any) => {        
-        var item = snap.payload.doc.data();
-        item.id = snap.payload.doc.id;
-        console.log(this.items); 
-        this.itemsAll.push(item);  
-      });
-      console.log(this.itemsAll);  
-      this.loadingService.dismissLoading();     
-      this.buscar();     
+  verMas(){
+    let limit = 5;
+    var palabra = this.palabraFiltro.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    this.clientesSubs = this.clientesService.search(limit,"nombre",palabra,this.ultimoCliente.nombre).subscribe((snapshot) => {
+     
+      this.loadingService.dismissLoading();
+     
+      snapshot.forEach((snap: any) => {         
+        var cliente = snap.payload.doc.data();
+        cliente.id = snap.payload.doc.id; 
+        this.clientes.push(cliente);    
+        
+      });  
+
+      this.ultimoCliente = this.clientes[this.clientes.length-1];
+      
+      this.infiniteScroll.complete();
+      this.infiniteScroll.disabled = false;
+
+      if (this.clientes.length < limit) {
+        this.infiniteScroll.disabled = true;
+      }
+
+      
+      console.log(this.clientes);         
+      this.clientesSubs.unsubscribe();
     });
+
+    
   }
+
+  
 
   seleccionar(item){
     this.router.navigate(['details-cliente',{"id":item.id}]);
   }
   
-  nuevo(){
-    this.router.navigate(['form-cliente']);
+  async nuevo(){
+    this.loadingService.presentLoading();
+    const modal = await this.modalController.create({
+      component: FormClientePage      
+    });
+    
+    modal.present().then(()=>{
+      
+    })
+
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data){        
+          this.palabraFiltro = retorno.data.item.nombre;
+           
+      }   
+      this.ultimoCliente = new Cliente();
+      this.clientes = [];
+      this.verMas();               
+    });
+    return await modal.present();
   }
 
 
 
-  editar(item){
-    this.router.navigate(['form-cliente',{id:item.id}]);
+  async editar(item){
+    
+
+     
+      this.loadingService.presentLoading();
+      const modal = await this.modalController.create({
+        component: FormClientePage,
+        componentProps:{
+          id:item.id
+        }      
+      });
+      
+      modal.present().then(()=>{
+        
+      })
+  
+      modal.onDidDismiss()
+      .then((retorno) => {
+        if(retorno.data){        
+            this.palabraFiltro = retorno.data.item.nombre;
+        }   
+        this.ultimoCliente = new Cliente();
+        this.clientes = [];
+        this.verMas();            
+      });
+      return await modal.present();
   }
+
+
 
 
 }

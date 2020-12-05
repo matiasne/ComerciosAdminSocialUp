@@ -20,16 +20,17 @@
   </ion-item> 
   
   <ion-toolbar>
-    <ion-button slot="end" size="large" (click)="irEgreso()"  expand="block">Egreso</ion-button>
-    <ion-button slot="end" size="large" (click)="irIngreso()"  expand="block">Ingreso</ion-button>
-    <ion-button slot="start" color="danger" size="large" (click)="irCierre()"  expand="block">Cierre</ion-button>
+    <ion-button *ngIf="caja.estado =='abierta'" slot="end" size="large" (click)="irEgreso()"  expand="block">Egreso</ion-button>
+    <ion-button *ngIf="caja.estado =='abierta'" slot="end" size="large" (click)="irIngreso()"  expand="block">Ingreso</ion-button>
+    <ion-button *ngIf="caja.estado =='abierta'" slot="start" color="danger" size="large" (click)="irCierre()"  expand="block">Cierre</ion-button>
+    <ion-button *ngIf="caja.estado =='cerrada'" slot="start" color="primary" size="large" (click)="irApertura()"  expand="block">Abrir</ion-button>
   </ion-toolbar>
 
   
 
   <ion-list lines="none"> 
     <div *ngFor="let item of items" >
-    <ion-item-sliding *ngIf="item.monto != 0"
+    <ion-item-sliding 
     [ngClass]="{  
       'item-card': true, 
       'pago-card': item.pago, 
@@ -48,6 +49,10 @@
       </div>  
       
       <div style="color:#b223b2" *ngIf="item.cierre">
+        <ion-icon name="caret-down-circle-outline"></ion-icon>
+      </div>
+
+      <div style="color:#2350b2" *ngIf="item.apertura">
         <ion-icon name="caret-down-circle-outline"></ion-icon>
       </div>
 
@@ -84,6 +89,22 @@
           {{item.vendedorNombre}} - {{item.createdAt | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
         </p>           
       </ion-label>  
+
+
+      <ion-label *ngIf="item.apertura" class="ion-text-wrap">
+        <h2>Apertura: <b>{{item.monto | currency}}</b> 
+          <span *ngIf="item.metodoPago == 'efectivo'"> en efectivo</span>
+          <span *ngIf="item.metodoPago == 'debito'"> en débito</span>
+          <span *ngIf="item.metodoPago == 'credito'"> en crédito</span>
+        </h2>         
+        <p>
+          Apertura de Caja
+        </p> 
+        <p style="font-size: 12px;">
+          {{item.vendedorNombre}} - {{item.createdAt | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
+        </p>           
+      </ion-label>  
+
 
     </ion-item>
     <ion-item-options side="end">

@@ -26,6 +26,10 @@ export class ComerciosService {
     /*this.setSelectedCommerce(localStorage.getItem('comercio_seleccionadoId'));*/
   }
 
+  getSelectedCommerceValue(){
+    return this.commerceSubject.value;
+  }
+
   getSelectedCommerce(): Observable<any>{
     return this.commerceSubject.asObservable();
   }
@@ -81,13 +85,12 @@ export class ComerciosService {
 
   public delete(comercio,cajas) {
 
-    this.rolesService.deleteByComercio(comercio.id);
     this.firestore.collection(this.collection).doc(comercio.id).delete();
   }
 
   public setSelectedCommerce(comercioId){    
-    
-    if(comercioId){
+    localStorage.setItem('comercio_seleccionadoId',comercioId);
+    if(comercioId){        
         this.get(comercioId).subscribe(data =>{         
           var commerce:any = data.payload.data();
           commerce.id = data.payload.id;        
@@ -99,7 +102,7 @@ export class ComerciosService {
       this.commerceSubject.next(undefined);    
     }
 
-    localStorage.setItem('comercio_seleccionadoId',comercioId);
+    
   }
 
   public search(by,palabra,ultimo){      

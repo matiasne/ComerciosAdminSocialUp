@@ -35,6 +35,8 @@ export class FormStockPage implements OnInit {
   guardar(){
     this.producto.stock =  this.producto.stock + this.nuevoStock;
     this.modalCtrl.dismiss();
+    
+
     this.productosService.update(this.producto).then(data=>{
       console.log(data);      
      
@@ -42,8 +44,16 @@ export class FormStockPage implements OnInit {
       let vStock:variacionStock = new variacionStock();
       vStock.productoId = this.producto.id;
       vStock.stock = this.producto.stock;
-      this.variacionesStockService.add(vStock).then(data =>{
+      this.variacionesStockService.setPathProducto(this.producto.id);
+      
+      this.variacionesStockService.add(vStock).then(resp =>{
         console.log("variacion Guardada");
+        let data = {
+          "stock":this.producto.stock
+        }
+        this.productosService.updateValue(this.producto.id,data).then(data=>{
+          console.log("Actualizado")
+        })
       })
 
     });

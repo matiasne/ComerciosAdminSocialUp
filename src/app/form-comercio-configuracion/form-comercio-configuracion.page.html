@@ -9,32 +9,54 @@
 
 <ion-content class="ion-padding">
 
-  <!--ion-item>
+  <ion-item>
+    <ion-label>Habilitar Productos</ion-label>
+    <ion-toggle [(ngModel)]="comercio.modulos.productos" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Habilitar Servicios</ion-label>
+    <ion-toggle [(ngModel)]="comercio.modulos.servicios" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>
+
+
+
+  <ion-item>
     <ion-label>Habilitar Comandas</ion-label>
-    <ion-toggle [(ngModel)]="comercio.recibirComandas"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+    <ion-toggle [(ngModel)]="comercio.modulos.comandas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
   </ion-item>
-  <ion-item  class="item-card">
-    <ion-button  size="large" (click)="agregarComandatario()"  expand="block">Seleccionar Comandatarios *</ion-button>
+  <ion-button *ngIf="comercio.modulos.comandas" size="large"   expand="block" (click)="openEditCocinas()">Editar Cocinas</ion-button>
+   
+
+  <ion-item>
+    <ion-label>Habilitar Mesas</ion-label>
+    <ion-toggle [(ngModel)]="comercio.modulos.mesas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
   </ion-item>
-  <ion-item class="item-card" *ngFor="let comandatario of comercio.comadatarios">
-    <ion-avatar slot="start">
-      <img src="{{comandatario.foto}}" *ngIf="comandatario.foto">
-      <ion-icon name="person" *ngIf="!comandatario.foto"></ion-icon>
-    </ion-avatar>
-    <ion-label>
-      <h2>{{comandatario.nombre}}</h2>
-      <h3>{{comandatario.email}}</h3>
-    </ion-label>      
-    <ion-button color="danger" slot="end" (click)="eliminarComandatario()"><ion-icon name="trash"></ion-icon></ion-button>       
-  </ion-item-->
 
-  <ion-button size="large"   expand="block" (click)="openEditComandas()">Configurar Comandas</ion-button>
+  
+  <ion-button *ngIf="comercio.modulos.mesas" size="large"   expand="block" (click)="openEditMesas()">Editar Mesas</ion-button>
 
+  <ion-item>
+    <ion-label>Habilitar Clientes</ion-label>
+    <ion-toggle [(ngModel)]="comercio.modulos.clientes" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Habilitar Cajas</ion-label>
+    <ion-toggle [(ngModel)]="comercio.modulos.cajas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>
+
+  <ion-button *ngIf="comercio.modulos.cajas" size="large"   expand="block" (click)="openEditCajas()">Editar Cajas</ion-button>
+
+  <ion-item>
+    <ion-label>Habilitar Gestión Stock</ion-label>
+    <ion-toggle [(ngModel)]="comercio.modulos.stock" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>
+
+  
   <ion-button size="large"   expand="block" (click)="openEditPedidos()">Configurar Pedidos</ion-button>
-
-  <ion-button size="large"   expand="block" (click)="openEditCajas()">Editar Cajas</ion-button>
   <ion-button size="large"   expand="block" (click)="openEditHorarios()">Editar Horarios</ion-button>
-  <ion-button size="large"   expand="block" (click)="openEditMesas()">Editar Mesas</ion-button>
+  
   <ion-button size="large"   expand="block" (click)="linkWhatsapp()">Link Whatsapp</ion-button>
   <ion-button size="large"   expand="block" (click)="openEditCategorias()">Editar Categorias</ion-button>
   <ion-button size="large"   expand="block" (click)="verPersonal()">Personal</ion-button>

@@ -12,6 +12,7 @@ export class Comanda{
 	public clienteTelefono= "";
 
 	public carrito ="";
+	public cocinaId ="";
 	
 	public isPedido= false;
 

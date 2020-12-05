@@ -36,7 +36,7 @@ export class MovimientosService {
  
   public getMovimientosCaja(cajaId){
     var comercioId = localStorage.getItem('comercio_seleccionadoId');
-    return this.firestore.collection('comercios/'+comercioId+'/cajas/'+cajaId+'/movimientos',ref=>ref.orderBy('createdAt')).snapshotChanges();
+    return this.firestore.collection('comercios/'+comercioId+'/cajas/'+cajaId+'/movimientos',ref=>ref.orderBy('createdAt',"desc").limit(10)).snapshotChanges();
   }
 
 
@@ -132,7 +132,7 @@ export class MovimientosService {
 
     public getMovimientosCtaCorriente(ctaCorrienteId){
       let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-      return this.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes/'+ctaCorrienteId+'/movimientos/', ref=>ref.orderBy('createdAt','asc')).snapshotChanges();
+      return this.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes/'+ctaCorrienteId+'/movimientos/', ref=>ref.orderBy('createdAt',"desc").limit(10)).snapshotChanges();
     }  
     
   

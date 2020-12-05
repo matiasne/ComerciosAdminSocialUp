@@ -14,6 +14,13 @@ import { Caja } from '../models/caja';
 import { ToastService } from '../Services/toast.service';
 import { SelectClientePage } from '../select-cliente/select-cliente.page';
 import { SelectMesaPage } from '../select-mesa/select-mesa.page';
+import { Printer, PrintOptions } from '@ionic-native/printer/ngx';
+import { TicketPrintPage } from '../ticket-print/ticket-print.page';
+import { FormClientePage } from '../form-cliente/form-cliente.page';
+import { MesasService } from '../Services/mesas.service';
+import { Mesa } from '../models/mesa';
+import { Cliente } from '../models/cliente';
+import { Comercio } from '../Models/comercio';
 
 @Component({
   selector: 'app-details-carrito',
@@ -22,7 +29,7 @@ import { SelectMesaPage } from '../select-mesa/select-mesa.page';
 })
 export class DetailsCarritoPage implements OnInit {
 
-  carrito:Carrito;;
+  carrito:Carrito;
   public cajas:Caja[] = []
 
   public ctasCorrientes =[];
@@ -30,19 +37,26 @@ export class DetailsCarritoPage implements OnInit {
   public metodoTexto ="";
   public cantidadMetodos=0;
 
-  public comercio = {
-    
-  };
+  public comercio:Comercio;
   public subsComercio: Subscription;
   public cajaSeleccionadaIndex=0;
   public cajaSeleccionada:Caja;
   public metodoPagoSeleccionado ="";
-  public ctaCorrienteSelecccionadaId ="";
 
   private pagare = "";
 
-  public habilitadoComanda = "true";
-  public habilitadoCobro = "true";
+
+  public habilitadoComanda = "false";
+  public habilitadoCobro = "false";
+  public habilitadoCargarMesa = "false";
+
+  public subsCarrio:Subscription;
+
+  public ctaCorrienteSelecccionada:any;
+  public ctaCorrienteSelecccionadaId ="";
+
+  status: boolean = false;
+  ip: string = '127.0.0.1';
 
   constructor(
     public carritoService:CarritoService,
@@ -52,81 +66,107 @@ export class DetailsCarritoPage implements OnInit {
     public comerciosService:ComerciosService,
     public cajasService:CajasService,
     private route: ActivatedRoute,
-    private ctasCorrientesService:CtaCorrientesService,
     private loadingService:LoadingService,
     private toastServices:ToastService,
-    private alertController:AlertController
+    private alertController:AlertController,
+    private printer: Printer,
+    private mesasSerivce:MesasService,
+    private ctasCorrientesService:CtaCorrientesService
   ) {
 
+    this.comercio = new Comercio();
     this.carrito = new Carrito("","");
+    this.cajasService.setearPath();   
+    this.cajas[0] = new Caja();
+        
 
-    this.cajasService.setearPath();
-   
-    console.log(this.carrito)
+  }
 
-    this.carritoService.getActualCarritoSubs().subscribe(data=>{
+  
+
+  ionViewDidEnter(){
+
+    this.comercio.asignarValores(this.comerciosService.getSelectedCommerceValue());
+    console.log(this.comercio)
+
+    
+    if(this.comercio.modulos.comandas)
+      this.habilitadoComanda = this.route.snapshot.params.comanda;  
+
+    if(this.comercio.modulos.cajas)
+      this.habilitadoCobro = this.route.snapshot.params.cobro;
+    
+    if(this.comercio.modulos.mesas){
+      this.habilitadoCargarMesa = this.route.snapshot.params.mesa;
+      this.habilitadoCobro = "false";
+    }
+    
+    this.subsCarrio = this.carritoService.getActualCarritoSubs().subscribe(data=>{
       this.carrito = data;
-      console.log(this.carrito);
+   //   console.log(this.carrito);  
       if(this.carrito.cliente){
-        this.getCuentasCorrientes(this.carrito.cliente)
-      }
+        this.ctasCorrientesService.getByCliente(this.carrito.cliente).subscribe(snapshot =>{
+          snapshot.forEach(snap =>{
+            let cta:any = snap.payload.doc.data();
+            cta.id = snap.payload.doc.id;
+            this.ctasCorrientes.push(cta);
+            console.log(cta)
+          })
+        })
+      }    
     })
 
     
     this.cajasService.list().subscribe((cajas:any)=>{
-      console.log(cajas);
       this.cajas = cajas;    
       this.setSavedCaja();
     });
-
-    
   }
 
-  ngOnInit() {
-    
-    this.habilitadoComanda = this.route.snapshot.params.comanda;
-    this.habilitadoCobro = this.route.snapshot.params.cobro;
+  
 
-    if(this.carrito.productos.length == 0){
-      this.habilitadoComanda = "false";
-    }
+  ngOnInit() {
+
 
   } 
+
+  ionViewDidLeave(){
+    this.subsCarrio.unsubscribe();   
+  }
+
+  
+
+  async imprimir(){
+  //  this.printer.isAvailable().then(data=>{console.log(data)}, err=>{console.log(err)});
+
+    const modal = await this.modalController.create({
+      component: TicketPrintPage,
+      componentProps:{
+        comercio:this.comercio,
+        carrito:this.carrito
+      }
+    });  
+
+    return await modal.present();
+
+   
+  }
 
   vaciar(){
     console.log(this.carritoService.carrito.pagare)
     if(this.carritoService.carrito.pagare)
-      this.carritoService.vaciar();
-    
+      this.carritoService.vaciar();   
   }
 
-
   atras(){
+    this.eliminarCliente();
+    this.eliminarMesa();
     this.navCtrl.back();
   }
 
 
   async cancelar(){
     this.navCtrl.back();
-    /*const alert = await this.alertController.create({
-      header: 'Está seguro que desea cancelar el pedido?',
-      message: 'Se perderán los registros del mismo',
-      buttons: [
-        {
-          text: 'No',
-          handler: (blah) => {
-            
-          }
-        }, {
-          text: 'Si',
-          handler: () => {  
-            this.vaciar();
-            this.navCtrl.back();
-          }
-        }
-      ]
-    });
-    await alert.present();    */
   }
 
   setSavedCaja(){
@@ -137,50 +177,49 @@ export class DetailsCarritoPage implements OnInit {
     this.setearCaja();
   }
 
-  setearCtaCorriente(){
-    this.carritoService.setearCtaCorriente(this.ctaCorrienteSelecccionadaId);
-  }
-
   setearCaja(){
     
     localStorage.setItem('cajaSeleccionadaIndex',this.cajaSeleccionadaIndex.toString());
-    this.cajaSeleccionada = this.cajas[this.cajaSeleccionadaIndex];
+
+    
+      this.cajaSeleccionada = this.cajas[this.cajaSeleccionadaIndex];
  
-    var setear = "";  
+      var setear = "";  
+      
+      this.cantidadMetodos = 0;
+  
+      if(this.cajas.length == 0){
+        this.toastServices.alert("Debes configurara al menos una caja", "Realiza esto en la opcion 'configuraciones'");
+        this.navCtrl.back();
+        return
+      }
+      
+      if(this.cajas[this.cajaSeleccionadaIndex].debito){
+        setear = "debito"; 
+        this.metodoTexto = "Solo Débito";     
+        this.cantidadMetodos++;
+      }
+  
+      if(this.cajas[this.cajaSeleccionadaIndex].credito){
+        setear = "credito";
+        this.metodoTexto = "Solo Crédito";    
+        this.cantidadMetodos++;
+      }    
+  
+      if(this.cajas[this.cajaSeleccionadaIndex].efectivo){
+        setear = "efectivo";
+        this.metodoTexto = "Solo Efectivo";    
+        this.cantidadMetodos++;
+      }    
+       
+      this.metodoPagoSeleccionado ="";
+      if(this.cantidadMetodos == 1){    
+        this.metodoPagoSeleccionado = setear;    
+      }
+  
+      this.setearMetodoPago();
     
-    this.cantidadMetodos = 0;
-
-    if(this.cajas.length == 0){
-      this.toastServices.alert("Debes configurara al menos una caja", "Realiza esto en la opcion 'configuraciones'");
-      this.navCtrl.back();
-      return
-    }
     
-    if(this.cajas[this.cajaSeleccionadaIndex].debito){
-      setear = "debito"; 
-      this.metodoTexto = "Solo Débito";     
-      this.cantidadMetodos++;
-    }
-
-    if(this.cajas[this.cajaSeleccionadaIndex].credito){
-      setear = "credito";
-      this.metodoTexto = "Solo Crédito";    
-      this.cantidadMetodos++;
-    }    
-
-    if(this.cajas[this.cajaSeleccionadaIndex].efectivo){
-      setear = "efectivo";
-      this.metodoTexto = "Solo Efectivo";    
-      this.cantidadMetodos++;
-    }    
-     
-    console.log(this.cantidadMetodos);
-    this.metodoPagoSeleccionado ="";
-    if(this.cantidadMetodos == 1){    
-      this.metodoPagoSeleccionado = setear;    
-    }
-
-    this.setearMetodoPago();
 
     
   }
@@ -189,53 +228,138 @@ export class DetailsCarritoPage implements OnInit {
     this.carritoService.setearMetodoPago(this.metodoPagoSeleccionado);
   }
 
+  setearCtaCorriente(){
+    this.carritoService.setearCtaCorriente(this.ctaCorrienteSelecccionadaId);
+  }
 
-  confirmar(){
 
-    console.log(this.carrito)
+  async cobrar(){
+
+    this.loadingService.presentLoading();
     if(this.metodoPagoSeleccionado == ""){
       this.toastServices.alert("Por favor seleccione un método de pago antes de continuar","De este modo podrá tener un registro de los pagos");
+      this.loadingService.dismissLoading();
       return;
     }
 
-    console.log(this.cajaSeleccionada);
     if(this.cajaSeleccionada.nombre == ""){
       this.toastServices.alert("Por favor seleccione una caja antes de continuar","De este modo podrá tener un registro de los pagos");
+      this.loadingService.dismissLoading();
       return;
     }
 
     if(this.metodoPagoSeleccionado == "ctaCorriente"){
       if(this.ctaCorrienteSelecccionadaId == ""){
         this.toastServices.alert("Por favor seleccione una cuenta corriente antes de continuar","");
+        this.loadingService.dismissLoading();
         return;
       }
-    }
-
-    console.log(this.carrito.servicios.length+" "+this.carrito.productos.length)
+    }  
 
     if(this.carrito.servicios.length == 0 && this.carrito.productos.length == 0 && this.carrito.pagare.id == ""){
       alert("Debes ingresar al menos un producto o servicio");      
       return;
-    }    
-    this.carritoService.setearCaja(this.cajas[this.cajaSeleccionadaIndex].id);
-    this.carritoService.setearMetodoPago(this.metodoPagoSeleccionado);
-    this.carritoService.guardar(this.cajaSeleccionada);
+    }   
+    
+    this.loadingService.dismissLoading();
     this.navCtrl.back();
+    this.imprimir();
+
+    if(this.carrito.mesa.id != ""){
+      let mesaId = this.carrito.mesa.id;
+
+      this.carrito.mesa.productos = [];
+      this.mesasSerivce.update(this.carrito.mesa).then(data=>{
+        console.log("mesa actualizada");
+      });
+
+      var sub = await this.comandasServices.getAll().subscribe(snapshot=>{
+        snapshot.forEach((snap: any) => {         
+          var comanda = snap.payload.doc.data();
+          comanda.id = snap.payload.doc.id; 
+          comanda.carrito = JSON.parse(comanda.carrito);
+          console.log(comanda.carrito.mesa.id)
+          console.log(mesaId)
+          if(comanda.carrito.mesa.id == mesaId){
+           //this.preguntarEliminarComanda(comanda);
+           this.comandasServices.delete(comanda.id);
+           this.toastServices.alert("Se eliminaron las comandas pendientes para esta mesa","")
+          }          
+        });
+        sub.unsubscribe();
+      })
+    }
+   
+      this.carritoService.setearCaja(this.cajas[this.cajaSeleccionadaIndex].id);
+      this.carritoService.setearMetodoPago(this.metodoPagoSeleccionado);
+      this.carritoService.guardar(this.cajas[this.cajaSeleccionadaIndex]);
+ 
+
+    
+    
+    
   }
 
-  comanda(){
+  async preguntarEliminarComanda(comanda){
+
+    const alert = await this.alertController.create({
+      header: 'Se borrarán todas las comandas en curso para esta mesa',
+      message: 'Desea continuar?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Eliminar',
+          handler: () => {           
+            this.comandasServices.delete(comanda.id);
+          }
+        }
+      ]
+    });
+    await alert.present();
+
+    
+  }
+
+  comanda(){  
+
+    this.navCtrl.back();
     if(this.carrito.servicios.length == 0 && this.carrito.productos.length == 0 && this.carrito.pagare.id == ""){
       this.toastServices.alert("Debes ingresar al menos un producto o servicio","");      
       return;
     }
     this.comandasServices.create(this.carrito);
     this.carritoService.vaciar();
-    this.navCtrl.back();
+     
+  }
+
+
+  cargarAMesa(){
+    if(this.carrito.servicios.length == 0 && this.carrito.productos.length == 0 && this.carrito.pagare.id == ""){
+      this.toastServices.alert("Debes ingresar al menos un producto o servicio","");      
+      return;
+    }
+
+   
+    this.carrito.productos.forEach(p=>{
+      this.carrito.mesa.productos.push(Object.assign({}, p))
+    })
+   
+   // this.carrito.mesa.productos = this.carrito.productos;
+    this.mesasSerivce.update(this.carrito.mesa).then(data=>{
+      console.log("mesa actualizada");      
+    });
+    this.comanda(); 
+   
+   
+    //aca se actualiza la mesa con sus productos
   }
 
   eliminarProducto(i){
-    this.carritoService.eliminarProducto(i);
-    
+    this.carritoService.eliminarProducto(i);    
   }
 
   eliminarServicio(i){
@@ -243,7 +367,9 @@ export class DetailsCarritoPage implements OnInit {
   }
 
   eliminarMesa(){
-    this.carritoService.setearMesa("");
+    this.carritoService.setearMesa(new Mesa());
+    
+  //  this.updateButtons();
   }
 
   async seleccionarCliente(){
@@ -251,18 +377,45 @@ export class DetailsCarritoPage implements OnInit {
     const modal = await this.modalController.create({
       component: SelectClientePage      
     });
-
+    
     modal.present().then(()=>{
-      
+    
+
     })
 
     modal.onDidDismiss()
     .then((retorno) => {
       if(retorno.data){
+        if(retorno.data == "nuevo"){
+          this.abrirNuevoCliente();
+        }
+        if(retorno.data != "nuevo"){
+          this.carritoService.setearCliente(retorno.data.item);
+        //    this.updateButtons();
+        }   
+      }
+           
+    });
+    return await modal.present();
+  }
 
-        this.carritoService.setearCliente(retorno.data.item);
-        this.getCuentasCorrientes(retorno.data.item)
-      }        
+  async abrirNuevoCliente(){
+    this.loadingService.presentLoading();
+    const modal = await this.modalController.create({
+      component: FormClientePage      
+    });
+    
+    modal.present().then(()=>{
+    
+
+    })
+
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data){        
+          this.carritoService.setearCliente(retorno.data.item);
+       //   this.updateButtons();   
+      }           
     });
     return await modal.present();
   }
@@ -281,25 +434,16 @@ export class DetailsCarritoPage implements OnInit {
     .then((retorno) => {
       if(retorno.data){
         this.carritoService.setearMesa(retorno.data.item);
+     //   this.updateButtons();
       }        
     });
     return await modal.present();
   }
 
-  getCuentasCorrientes(cliente){
-    var ctaSubs = this.ctasCorrientesService.getByCliente(cliente).subscribe(snapshot =>{
-      this.ctasCorrientes =[];
-      snapshot.forEach((snap: any) => {           
-          var item = snap.payload.doc.data();
-          item.id = snap.payload.doc.id;              
-          this.ctasCorrientes.push(item);
-          console.log(this.ctasCorrientes);             
-      });
-      ctaSubs.unsubscribe();
-    })
-  }
+  
 
   eliminarCliente(){
-    this.carritoService.setearCliente("");
+    this.carritoService.setearCliente(new Cliente());
+  //  this.updateButtons();
   }
 }

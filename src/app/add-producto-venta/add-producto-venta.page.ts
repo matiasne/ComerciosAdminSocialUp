@@ -31,6 +31,7 @@ export class AddProductoVentaPage implements OnInit {
 
   public totalCambiando = false;
   public precioShow = 0;
+  public showOpcionesSeleccionadas = true;
 
   constructor(
     public router:Router,
@@ -50,29 +51,24 @@ export class AddProductoVentaPage implements OnInit {
   ngOnInit() {
     console.log("!!!")
     this.producto = new Producto();
-    this.loadingService.presentLoading();
-    if(this.navParams.get('id')){
-      var subs = this.productoService.get(this.navParams.get('id')).subscribe(snapshot=>{
-        this.loadingService.dismissLoading();
-        let prod:any = snapshot.payload.data();
-        this.producto = prod;
-        this.producto.id = snapshot.payload.id;
-        this.producto.cantidad = 1;
-        this.producto.descripcion_venta = "";
-        
-        this.producto.gruposOpciones.forEach(grupo=>{
-          grupo.opciones.forEach(opcion =>{
-            opcion.cantidad = 0;
-            opcion.sumaHabilitada = true;
-          })
-        })
+    
 
-        this.addToTotal(0,this.producto.precio,10);
-
-        console.log(this.producto)
-        subs.unsubscribe();
+    this.producto.asignarValores(this.navParams.get('producto'));
+    this.producto.cantidad = 1;
+    this.producto.descripcion_venta = "";
+    this.producto.gruposOpciones.forEach(grupo=>{
+      grupo.opciones.forEach(opcion =>{
+        opcion.cantidad = 0;
+        opcion.sumaHabilitada = true;
       })
-    }  
+    })
+    this.producto.opcionesSeleccionadas = [];
+
+    console.log(this.producto)
+
+    this.addToTotal(0,this.producto.precio,10);
+
+    
 
   }
 
@@ -107,8 +103,8 @@ export class AddProductoVentaPage implements OnInit {
   seleccionarOpcion(grupo:GrupoOpciones,opcion:Opcion){
     console.log("seleccionada");
     grupo.opciones.forEach(element => {
-      opcion.seleccionada = false;
-      opcion.cantidad = 0;
+      element.seleccionada = false;
+      element.cantidad = 0;
     });
     opcion.seleccionada = true;
     opcion.cantidad = 1;
@@ -184,9 +180,8 @@ export class AddProductoVentaPage implements OnInit {
 
     console.log("!!!!!! isOK"+isOk)
     if(isOk){
-      this.modalCtrl.dismiss();
-      this.carritoService.agregarProducto(this.producto);  
-      this.toastServices.mensaje('Agregado!', this.producto.cantidad+' de '+this.producto.nombre);     
+      this.modalCtrl.dismiss(this.producto);      
+      this.toastServices.mensaje('Agregado!', this.producto.cantidad+' '+this.producto.unidad+' de '+this.producto.nombre);     
     }  
    
   }

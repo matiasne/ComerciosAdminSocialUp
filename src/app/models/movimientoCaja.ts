@@ -14,6 +14,7 @@ export class MovimientoCaja{
     public extraccionId="";
     public createdAt = new Date();
     public isCierre = false;
+    public isApertura = false;
     public fotoCaja:any; //Estado de la caja al momento de realizar el movimiento
 
 	constructor(

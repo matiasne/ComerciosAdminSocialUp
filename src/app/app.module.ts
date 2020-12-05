@@ -55,6 +55,10 @@ import interactionPlugin from '@fullcalendar/interaction'; // a plugin
 
 import { Network } from '@ionic-native/network/ngx';
 
+import { Printer, PrintOptions } from '@ionic-native/printer/ngx';
+
+
+
 const firebaseConfig = {
   apiKey: "AIzaSyAenr8VfNta7u8NL5J4jpMtosnENy-Gcqc",
   authDomain: "comercios-admin-socialup.firebaseapp.com",
@@ -116,7 +120,7 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     IonicModule.forRoot(),
     AppRoutingModule,  
     AngularFireModule.initializeApp(firebaseConfig),
-    AngularFirestoreModule, //.enablePersistence(), No la activo porque no me ahorra dinero y necesito que la app esté activa o avise que no hay conexión!
+    AngularFirestoreModule.enablePersistence(), 
     AngularFireDatabaseModule,
     AngularFireAuthModule,
     AngularFireMessagingModule,
@@ -137,6 +141,7 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     EmailComposer,
     SpeechRecognition,
     Network,
+    Printer,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
   ],
   bootstrap: [AppComponent]

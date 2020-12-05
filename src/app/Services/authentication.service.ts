@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
+import { Observable, throwError, BehaviorSubject, Subscription } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as firebase from 'firebase/app';
 import { Platform, AlertController, ToastController } from '@ionic/angular';
@@ -9,6 +9,7 @@ import { AngularFireAuth } from 'angularfire2/auth';
 import { auth } from 'firebase/app';
 import { Router } from '@angular/router';
 import { AngularFirestoreDocument, AngularFirestore } from 'angularfire2/firestore';
+import { UsuariosService } from './usuarios.service';
 
 @Injectable({
   providedIn: 'root'
@@ -26,10 +27,9 @@ export class AuthenticationService {
     headers: this.httpHeaders
   };
 
-  authenticationState = new BehaviorSubject(false);
+  public userIdSubject = new BehaviorSubject <any>("");
 
-  public userSubject = new BehaviorSubject <any>("");
-
+  public userSubs:Subscription;
   
   constructor(
     public firebaseAuth: AngularFireAuth,
@@ -41,24 +41,42 @@ export class AuthenticationService {
     private router: Router,
     public toastController: ToastController,
     private afs: AngularFirestore,
-    private firestore: AngularFirestore
+    private firestore: AngularFirestore,
+    private usuarioService:UsuariosService
   ) { 
 
     this.platform.ready().then(() => {
       this.checkToken();
     });
+
+    this.getActualUserIdObservable().subscribe(uid=>{
+      if(uid){
+        this.userSubs = this.usuarioService.get(uid).subscribe( (data:any)=>{
+          localStorage.setItem('user',JSON.stringify(data.payload.data()));
+        })        
+      }
+      else{        
+        if(this.userSubs)
+          this.userSubs.unsubscribe();
+      }
+    })
+    
   }
 
   checkToken() {    
     if (localStorage.getItem('user')) {
-      this.authenticationState.next(true);
-      this.userSubject.next(JSON.parse(localStorage.getItem('user')));
+      this.userIdSubject.next(JSON.parse(localStorage.getItem('user')).uid);      
     }    
   } 
 
-  getActualUserObservable(): Observable<any>{
-    return this.userSubject.asObservable();
+  getActualUserId(){
+    return this.userIdSubject.value;
   }
+
+  getActualUserIdObservable(): Observable<any>{
+    return this.userIdSubject.asObservable();
+  }
+
   
 
   login(email: string, password: string) {
@@ -176,7 +194,8 @@ export class AuthenticationService {
     return userRef.set(data, { merge: true });
   }
 
-  updateUserData(user){
+  updateUserData(user){   
+
     const userRef: AngularFirestoreDocument = this.afs.doc(`users/${user.uid}`);
     const data = { 
       uid: user.uid, 
@@ -185,18 +204,17 @@ export class AuthenticationService {
       photoURL: user.photoURL,
     }    
 
-    localStorage.setItem('user',JSON.stringify(user));
     localStorage.setItem('rol',null);
     localStorage.setItem('comercio_seleccionadoId',null);
-    this.authenticationState.next(true); 
-    this.userSubject.next(user);
-
+    this.userIdSubject.next(user.uid);
+    
+   
     return userRef.set(data, { merge: true });
 
   }
 
   setRol(rol){
-    localStorage.setItem('rol',JSON.stringify(rol));
+    localStorage.setItem('rol',rol);
   }
 
   getRol(){
@@ -280,18 +298,11 @@ export class AuthenticationService {
     localStorage.removeItem('token');
     localStorage.removeItem('comercio_seleccionadoId');
     localStorage.removeItem('rol');
-    this.authenticationState.next(false);    
+    this.userIdSubject.next(false);    
   }
 
-  
-
-  isAuthenticated() {
-    return this.authenticationState.value;
-  }
-
-  
   public getActualUser(){
-    return JSON.parse(localStorage.getItem('user')); 
+    return JSON.parse(localStorage.getItem('user'));
   }
 
   onLoginSuccess(accessToken, accessSecret) {
@@ -360,8 +371,15 @@ export class AuthenticationService {
         return user.uid;
       if(user.id)
         return user.id;
-    }
-   
+    }  
+  }
+
+  getConnectionStatus(){    
+    let user =  JSON.parse(localStorage.getItem('user'));
+  
+    if(user){
+      return user.state;
+    }  
   }
 
   getRef(id){
@@ -371,14 +389,13 @@ export class AuthenticationService {
 
   getNombre(){    
     let user =  JSON.parse(localStorage.getItem('user'));
-
     if(user){
       if(user.nombre)
         return user.nombre;
       else if(user.displayName)
-        return user.nombre;
+        return user.displayName;
       else
-        return "";
+        return "sin definir";
     }    
   }
 

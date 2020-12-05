@@ -17,6 +17,7 @@ import { Carrito } from '../models/carrito';
 import { CategoriasService } from '../Services/categorias.service';
 import { FormProductoPage } from '../form-producto/form-producto.page';
 import { FormStockPage } from '../form-stock/form-stock.page';
+import { Comercio } from '../Models/comercio';
 
 @Component({
   selector: 'app-list-productos-servicios',
@@ -31,7 +32,7 @@ export class ListProductosServiciosPage implements OnInit {
     speed: 400
   };
 
-  comercio:any ="";
+  comercio:Comercio;
   carrito:Carrito;
   itemsProductos:any = [];
   itemsServicios:any = [];
@@ -68,27 +69,28 @@ export class ListProductosServiciosPage implements OnInit {
     public toastServices:ToastService,
     private categoriasService:CategoriasService
   ) { 
-
     this.carrito = new Carrito("","");
+
+   
   }
 
   ngOnInit() {
+    
     this.itemsProductos = [];
     this.itemsServicios = [];
-    this.comercio = {
-      cajas:['']
-    }   
+    this.comercio = new Comercio();
 
-    this.cargaPorVoz.getPermission(); 
-      
-  }
+    this.comerciosService.getSelectedCommerce().subscribe(data=>{
+      this.comercio.asignarValores(data);
+    })
 
-  ionViewDidEnter(){
-
+    this.cargaPorVoz.getPermission();
     this.carritoSubs = this.carritoService.getActualCarritoSubs().subscribe(data=>{
       this.carrito = data;
     });
 
+    /*Mantener toda la lógica en el ngOninit para que solo se subscriba una vez y
+    no demande al servidor todos los datso cda vez que se muestra esta pantalla*/
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
       var catSub = this.categoriasService.getAll(comercio_seleccionadoId).subscribe(snapshot =>{
         this.categorias = [];
@@ -107,13 +109,29 @@ export class ListProductosServiciosPage implements OnInit {
       this.buscar();
     }
     this.obtenerTodo();
+      
+  }
 
+  ionViewDidEnter(){
+    this.marcarEnCarrito();
+  }
+
+  marcarEnCarrito(){
+    this.itemsProductos.forEach(element => {
+      element.enCarrito = 0;
+    });
+    this.carrito.productos.forEach(prod => {
+      this.itemsProductos.forEach(element => {
+        if(prod.id == element.id){
+          console.log(element)
+          element.enCarrito += prod.cantidad;
+        }
+      });
+    })
   }
 
   ionViewDidLeave(){
-    this.carritoSubs.unsubscribe();
-  //  this.subsItemsProd.unsubscribe(); //si no cada vez que ingresa a esta página lee todo y no solo lo que se actualiza 
-  //  this.subsItemsServ.unsubscribe();  //
+
   }
 
   buscar(){ 
@@ -225,6 +243,7 @@ export class ListProductosServiciosPage implements OnInit {
       this.itemsServicios = this.itemsAllServicios;
       this.itemsProductos = this.itemsAllProductos;
     }
+    this.marcarEnCarrito();
   }
 
   editarProducto(item){
@@ -250,6 +269,7 @@ export class ListProductosServiciosPage implements OnInit {
           var producto = snapP.payload.doc.data();
           producto.id = snapP.payload.doc.id;  
           producto.producto = true;
+          producto.enCarrito = 0;
           this.itemsAllProductos.push(producto);         
       }); 
       this.buscar();    
@@ -308,13 +328,17 @@ export class ListProductosServiciosPage implements OnInit {
   }
 
   seleccionar(item){
-    this.loadingService.presentLoading();
-    if(item.producto){      
-      this.agregarProducto(item);      
+    
+    if(this.comercio.modulos.cajas || this.comercio.modulos.comandas || this.comercio.modulos.mesas){
+      if(item.producto){      
+        this.agregarProducto(item);      
+      }
+      else{
+        this.loadingService.presentLoading();
+        this.agregarServicio(item);
+      }
     }
-    else{
-      this.agregarServicio(item);
-    }
+    
   }
 
   nuevo(){    
@@ -323,24 +347,36 @@ export class ListProductosServiciosPage implements OnInit {
 
 
   async presentAlertSeleccionar() {
-    const alert = await this.alertController.create({
-      header: 'Agregar Elemento',
-      message: 'Que tipo de elemento quieres agregar?',
-      buttons: [
-        {
-          text: 'Producto',
-          handler: (blah) => {
-            this.nuevoProducto();     
+
+    if(this.comercio.modulos.productos && !this.comercio.modulos.servicios){
+      this.nuevoProducto();   
+    }
+
+    if(!this.comercio.modulos.productos && this.comercio.modulos.servicios){
+      this.nuevoServicio();
+    }
+
+    if(this.comercio.modulos.productos && this.comercio.modulos.servicios){
+      const alert = await this.alertController.create({
+        header: 'Agregar Elemento',
+        message: 'Que tipo de elemento quieres agregar?',
+        buttons: [
+          {
+            text: 'Producto',
+            handler: (blah) => {
+              this.nuevoProducto();     
+            }
+          }, {
+            text: 'Servicio',
+            handler: () => {
+              this.nuevoServicio();
+            }
           }
-        }, {
-          text: 'Servicio',
-          handler: () => {
-            this.nuevoServicio();
-          }
-        }
-      ]
-    });
-    await alert.present();
+        ]
+      });
+      await alert.present();
+    }
+    
   }
 
 
@@ -386,9 +422,17 @@ export class ListProductosServiciosPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: AddProductoVentaPage,
       componentProps:{
-        id:producto.id
+        producto:producto
       }
     });  
+
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data){        
+        this.carritoService.agregarProducto(retorno.data);  
+        this.marcarEnCarrito();
+      }
+    });
 
     return await modal.present();
   }
@@ -413,8 +457,9 @@ export class ListProductosServiciosPage implements OnInit {
   verCarrito(){
     this.cargaPorVoz.reconociendoPorVoz = false;
     this.router.navigate(['details-carrito',{
-      comanda:true,
-      cobro:true
+      comanda:"true",
+      cobro:"true",
+      mesa:"true"
     }]);
   }
 

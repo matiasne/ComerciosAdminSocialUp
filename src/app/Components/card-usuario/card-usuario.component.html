@@ -1,0 +1,11 @@
+<ion-item class="item-card" (click)="seleccionar()">
+  <ion-avatar slot="start" *ngIf="showAvatar">
+    <img src="{{cliente.foto}}" *ngIf="cliente.foto">
+    <ion-icon name="person" *ngIf="!cliente.foto"></ion-icon>
+  </ion-avatar>
+  <ion-label>
+    <h2>{{cliente.nombre}}</h2>
+    <h3>{{cliente.email}}</h3>
+    <h3>{{cliente.direccion}}</h3>
+  </ion-label>             
+</ion-item>

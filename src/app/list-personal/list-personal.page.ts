@@ -34,14 +34,17 @@ export class ListPersonalPage implements OnInit {
    
     this.user = this.authService.getActualUser();
 
-    this.rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{
+   var rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{       
       this.itemsAll = [];
       snapshot.forEach(snap =>{
         var rol:any = snap.payload.doc.data();
         rol.id = snap.payload.doc.id;
-        this.itemsAll.push(rol);
+        console.log(rol);    
+        this.itemsAll.push(rol);      
+
       });
       this.buscar();
+      rolSub.unsubscribe();
     });
 
     /*var rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{       
@@ -76,14 +79,14 @@ export class ListPersonalPage implements OnInit {
   }
 
   ionViewDidLeave(){
-    this.rolSub.unsubscribe();
+ 
   }
 
   buscar(){
     if(this.palabraFiltro != ""){
       this.items = [];
       this.itemsAll.forEach(item => {
-        if(item.nombre.toLowerCase().includes(this.palabraFiltro.toLowerCase())){
+        if(item.userEmail.toLowerCase().includes(this.palabraFiltro.toLowerCase())){
           this.items.push(item);
           return;
         }
@@ -137,7 +140,8 @@ export class ListPersonalPage implements OnInit {
           text: 'Si',
           handler: () => {  
             console.log("!!!!!")
-            this.rolesService.delete(item.id).then(data=>{
+            let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
+            this.rolesService.delete(comercio_seleccionadoId,item.id).then(data=>{
               this.ngOnInit();
             });
           }

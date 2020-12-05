@@ -18,6 +18,7 @@ export class Cliente{
     public createdAt="";
     public vendedorId="";
     public estado="";
+    public keywords = [];
 
 	constructor(
 		

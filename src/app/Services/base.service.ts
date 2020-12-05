@@ -44,22 +44,22 @@ export class BaseService {
           );
     }
 
-    public search(by,palabra,ultimo){      
+    public search(limit,orderBy,palabra,ultimo){      
         if(ultimo == ""){
           console.log("!!!!!! primero")     
           return this.afs.collection(this.path, ref => 
             ref.where('keywords','array-contains',palabra)
                 .where('recibirPedidos','==',true)
-                .orderBy(by)
-                .limit(5)).snapshotChanges();
+                .orderBy(orderBy)
+                .limit(limit)).snapshotChanges();
         }
         else{
           return this.afs.collection(this.path, ref => 
             ref.where('keywords','array-contains',palabra)
                 .where('recibirPedidos','==',true)
-                .orderBy(by)
+                .orderBy(orderBy)
                 .startAfter(ultimo)
-                .limit(5)).snapshotChanges();    
+                .limit(limit)).snapshotChanges();    
         }    
     }  
   
@@ -120,13 +120,24 @@ export class BaseService {
         const promise = new Promise((resolve, reject) => {
         const docRef = this.collection
             .doc(data.id)
-            .set(data)
+            .set({...data})
             .then(() => {
                 resolve({
                     ...(data as any)
                 });
             });
         });
+        return promise;
+    }
+
+    public updateValues(id,data){
+        const promise = new Promise((resolve, reject) => {
+            return this.collection.doc(id).update(data).then((resp) => {
+                resolve({
+                    ...(resp as any)
+                });
+            });
+        })
         return promise;
     }
     

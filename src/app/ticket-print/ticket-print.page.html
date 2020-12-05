@@ -1,0 +1,28 @@
+<ion-content class="ion-padding">
+  <h5>{{comercio.nombre}}</h5>
+  <span  *ngIf="carrito.cliente.id">
+    <app-card-usuario
+      [cliente]="carrito.cliente"
+      [showAvatar]="false">
+    </app-card-usuario>
+  </span>
+  <span  *ngIf="carrito.mesa.id">
+    Mesa: {{carrito.mesa.nombre}}
+  </span>
+  <ion-list>                   
+    <span *ngFor="let producto of carrito.productos; let i = index">     
+      <app-card-producto
+        [showImage]="false"
+        [showStock]="false"
+        [item]="producto"
+        [multiplicador]="1"
+      ></app-card-producto>  
+        
+    </span>
+    <ion-item>
+      total: ${{carrito.totalProductos + carrito.totalServicios}}
+    </ion-item>
+    
+  
+  </ion-list>
+</ion-content>

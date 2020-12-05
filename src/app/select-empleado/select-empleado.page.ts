@@ -26,25 +26,13 @@ export class SelectEmpleadoPage implements OnInit {
 
   ngOnInit() {
 
-   var rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{       
+    var rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{       
       
       snapshot.forEach(snap =>{
         var rol:any = snap.payload.doc.data();
+        rol.id = snap.payload.doc.id;
         console.log(rol);    
-        var usub = this.usuariosService.getByEmail(rol.user_email).subscribe(snapshot=>{
-
-          console.log(snapshot);
-          snapshot.forEach(snap =>{
-            console.log(snap.payload.doc.data());
-            var item:any = snap.payload.doc.data();
-            item.id = snap.payload.doc.id;   
-            item.rol = rol;
-            this.itemsAll.push(item);
-
-          });
-          
-          usub.unsubscribe();
-        });
+        this.itemsAll.push(rol);      
 
       });
       this.buscar();

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Platform, ToastController } from '@ionic/angular';
+import { AlertController, Platform, ToastController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AuthenticationService } from './Services/authentication.service';
@@ -8,13 +8,15 @@ import { Router } from '@angular/router';
 import { FCM } from '@ionic-native/fcm/ngx';
 import { ComerciosService } from './Services/comercios.service';
 import { NotificacionesDesktopService } from './Services/notificaciones-desktop.service';
-import { NotificacionesService } from './Services/notificaciones.service';
 import { NotifificacionesAppService } from './Services/notifificaciones-app.service';
 import { Comercio } from './Models/comercio';
 import { InvitacionesService } from './Services/invitaciones.service';
 import { ComandasService } from './Services/comandas.service';
 import { ToastService } from './Services/toast.service';
-import * as firebase from 'firebase/app';
+import { MesasService } from './Services/mesas.service';
+import * as firebase from 'firebase';
+import { PresenceService } from './Services/presence.service';
+import { UsuariosService } from './Services/usuarios.service';
 import { Network } from '@ionic-native/network/ngx';
 
 @Component({
@@ -26,14 +28,10 @@ export class AppComponent implements OnInit {
   public selectedIndex = 0;
   public cantComandas = 0;
   public cantPedidos =0;
+  public cantMesasActivas = 0;
   public appActions =[
     
-    {
-      title: 'Mis Comercios',
-      url: '/home',
-      icon: 'home',
-      badge:0
-    },
+   
     {
       title: 'Notificaciones',
       url: '/list-notificaciones',
@@ -92,10 +90,13 @@ export class AppComponent implements OnInit {
   public comercioSeleccionado:Comercio;
   public usuario ={
     uid:"",
-    email:""
+    email:"",
+    state:""
   };
 
   public onlineOffline: boolean = navigator.onLine;
+
+  public conexionEstado = "Offline"
 
   constructor(
     private platform: Platform,
@@ -111,13 +112,14 @@ export class AppComponent implements OnInit {
     private invitacionesService:InvitacionesService,
     private comandasService:ComandasService,
     private toastService:ToastService,
-    private network: Network
+    public presenceService:PresenceService,
+    private usuariosService:UsuariosService,
+    private alertController:AlertController,
+    private usuarioService:UsuariosService,
+    private mesasService: MesasService
   ) {
-    this.comercioSeleccionado = new Comercio();
-   
-    this.initializeApp();    
-    
-  
+    this.comercioSeleccionado = new Comercio();   
+    this.initializeApp();   
 
   }
 
@@ -144,58 +146,37 @@ export class AppComponent implements OnInit {
         this.toastService.mensaje(data.title,data.body);
       };
     });
+
     
+    
+   
 
-    this.network.onDisconnect().subscribe(() => {
-      alert('network was disconnected :-(');
-    });
-    // watch network for a connection
-    this.network.onConnect().subscribe(() => {
-      alert('network connected!');
-      // We just got a connection but we need to wait briefly
-      // before we determine the connection type. Might need to wait.
-      // prior to doing any api requests as well.
-      setTimeout(() => {
-        if (this.network.type === 'wifi') {
-          alert('we got a wifi connection, woohoo!');
-        }
-      }, 3000);
-    });
+    this.authService.getActualUserIdObservable().subscribe(uid=>{
+       
+      if(uid){
 
+      
 
-    this.authService.getActualUserObservable().subscribe(data=>{
-      this.usuario = data;
-      console.log(this.usuario);
-
-      if(this.usuario){
-        this.notificacionesAppService.getSinLeer(this.authService.getUID()).subscribe(snapshot =>{
-          this.appActions[1].badge = snapshot.length;
-          console.log(snapshot)
+        let notSub = this.notificacionesAppService.getSinLeer(uid).subscribe(snapshot =>{
+          this.appActions[0].badge = snapshot.length;
+          console.log(snapshot);
+          notSub.unsubscribe();
         })
 
-        this.invitacionesService.getSinLeer(this.authService.getEmail()).subscribe(snapshot =>{
-          this.appActions[2].badge = snapshot.length;
-          console.log(snapshot)
-        });
+        let invSub = this.invitacionesService.getSinLeer(uid).subscribe(snapshot =>{
+          
+          this.appActions[1].badge = snapshot.length;
+          console.log(snapshot);
+          invSub.unsubscribe();
+        });  
 
-        this.comandasService.getCantidad().subscribe((snapshot) => {
-          this.cantComandas = snapshot;
-        });
-      }
-      
-    });
-
-    this.comerciosService.getSelectedCommerce().subscribe(data=>{
-      console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-      console.log(data)
-      this.comercioSeleccionado = data;
-    });       
-
-    this.authService.authenticationState.subscribe(state => {
-    
-      if (state) {          
         this.router.navigate(['home']);     
 
+        this.usuarioService.get(uid).subscribe( (data:any)=>{
+          this.usuario = data.payload.data();
+        }) 
+       
+      
         if (this.platform.is('cordova')) {
           this.fcm.subscribeToTopic('gestion');
       
@@ -212,28 +193,48 @@ export class AppComponent implements OnInit {
           });     
       
          
-        }         
-      } else {
+        }        
+        
+        
+      }  
+      else{
         this.router.navigate(['login']);
-      }
-
-     
+      }    
     });
+
+    this.comerciosService.getSelectedCommerce().subscribe(data=>{
+
+      if(data)
+        this.comercioSeleccionado.asignarValores(data);
+      else{
+        this.comercioSeleccionado = new Comercio();
+      }
+      console.log(data)
+      if(this.comercioSeleccionado.modulos.comandas){
+        this.comandasService.getCantidad().subscribe((snapshot) => {
+          this.cantComandas = snapshot;
+        });   
+      }
+        
+      if(this.comercioSeleccionado.modulos.mesas) { 
+        this.mesasService.setearPath();
+        this.mesasService.list().subscribe((data) => {
+          this.cantMesasActivas = 0;
+          data.forEach(mesa =>{
+            if(mesa.productos.length > 0){
+              this.cantMesasActivas++;
+            }
+          })
+        }); 
+      }
+    });       
+
+   
 
 
     this.platform.ready().then(() => {
-
-          // watch network for a disconnection
-      
-
-
-    
-
       this.statusBar.styleDefault();
       this.splashScreen.hide();
-      
-      
-
     });
   }
 
@@ -244,9 +245,23 @@ export class AppComponent implements OnInit {
     }
   }
 
+  verComercios(){
+
+    this.comerciosService.setSelectedCommerce("");
+    this.authService.setRol("");
+    this.router.navigate(['home']);
+    this.usuariosService.setComecioSeleccionado(this.authService.getActualUserId(),"");
+  }
+
   cerrarSesion(){
-    this.usuario = undefined;
+    this.usuario ={
+      uid:"",
+      email:"",
+      state:""
+    };
     this.comercioSeleccionado=new Comercio();
     this.authService.logout();
   }
+
+  
 }

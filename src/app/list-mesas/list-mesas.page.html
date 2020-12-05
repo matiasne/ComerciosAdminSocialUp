@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
     <ion-title>Mesas</ion-title>
   </ion-toolbar>
@@ -12,12 +12,8 @@
 
   <ion-list lines="none">
 
-    <ion-text color="primary">
-      <h4>Mesas</h4>
-    </ion-text>    
-
     <ion-item-sliding *ngFor="let mesa of mesas;let i=index" class="item-card">
-      <ion-item>       
+      <ion-item (click)="verMesa(mesa)">       
         <ion-label>
           <b>{{mesa.nombre}}</b>         
         </ion-label> 

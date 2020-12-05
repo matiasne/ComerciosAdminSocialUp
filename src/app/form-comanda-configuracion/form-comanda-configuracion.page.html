@@ -9,33 +9,6 @@
 
 <ion-content class="ion-padding">
 
-  <ion-item>
-    <ion-label>Habilitar Comandas</ion-label>
-    <ion-toggle [(ngModel)]="comercio.recibirComandas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item>
-  <ion-item  class="item-card" *ngIf="comercio.recibirComandas">
-    <ion-button  size="large" (click)="agregarComandatario()"  expand="block">Invitar Comandatarios *</ion-button>
-  </ion-item>
   
-  <div *ngIf="comercio.recibirComandas">
-    <ion-item-sliding *ngFor="let comandatario of comandatarios;let i= index" class="item-card" >    
-      <ion-item>
-        <div slot="start">
-          <ion-icon name="person-outline"></ion-icon>
-        </div>   
-        <ion-label>
-          <h3>{{comandatario.user_email}}</h3>
-          <p>Estado invitacion: 
-            <span *ngIf="!comandatario.estado" style="color:blue">{{comandatario.estado}}</span>
-            <span *ngIf="comandatario.estado == 'aceptada'" style="color:green">{{comandatario.estado}}</span>
-            <span *ngIf="comandatario.estado == 'rechazado'" style="color:red">{{comandatario.estado}}</span>
-           </p>
-        </ion-label>            
-      </ion-item>
-      <ion-item-options side="end">
-        <ion-item-option (click)="eliminarComandatario(i)"><ion-icon name="trash" ></ion-icon>Destituir</ion-item-option>
-      </ion-item-options>
-
-    </ion-item-sliding>
-  </div>
+ 
 </ion-content>

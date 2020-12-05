@@ -3,6 +3,8 @@ import { ComerciosService } from '../Services/comercios.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CajasService } from '../Services/cajas.service';
 import { ComandasService } from '../Services/comandas.service';
+import { MesasService } from '../Services/mesas.service';
+import { Comercio } from '../Models/comercio';
 
 @Component({
   selector: 'app-dashboard-comercio',
@@ -11,28 +13,33 @@ import { ComandasService } from '../Services/comandas.service';
 })
 export class DashboardComercioPage implements OnInit {
 
-  public comercio:any;
+  public comercio:Comercio;
   constructor(
     private comerciosService:ComerciosService,
     private cajasService:CajasService,
     private route: ActivatedRoute,
     public router:Router,
-    private comandasService:ComandasService
+    private comandasService:ComandasService,
+    private mesasService:MesasService,
   ) { }
 
   ngOnInit() {
-
+    this.comercio = new Comercio();
   }
 
   ionViewDidEnter(){
     this.cajasService.setearPath();
+    this.mesasService.setearPath();
+    
     var subsCliente = this.comerciosService.get(this.route.snapshot.params.id).subscribe(resp=>{
-      this.comercio = resp.payload.data();
+      this.comercio.asignarValores(resp.payload.data());
     });
 
     this.comandasService.getAll().subscribe(snap =>{
       this.comandasService.setCantidad(snap.length);
     })
+
+    
     
   }
 

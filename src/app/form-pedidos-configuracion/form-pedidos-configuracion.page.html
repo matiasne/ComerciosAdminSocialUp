@@ -24,7 +24,7 @@
           <ion-icon name="person-outline"></ion-icon>
         </div>   
         <ion-label>
-          <h3>{{cadete.user_email}}</h3>
+          <h3>{{cadete.userEmail}}</h3>
           <p>Estado invitacion: 
             <span *ngIf="cadete.estado == 'pendiente'" style="color:blue">{{cadete.estado}}</span>
             <span *ngIf="cadete.estado == 'aceptado'" style="color:green">{{cadete.estado}}</span>
@@ -35,7 +35,6 @@
       <ion-item-options side="end">
         <ion-item-option (click)="eliminarCadete(i)"><ion-icon name="trash" ></ion-icon>Destituir</ion-item-option>
       </ion-item-options>
-
     </ion-item-sliding>
   </div>
 </ion-content>

@@ -1,5 +1,5 @@
 <ion-item (click)="seleccionar()">
-  <div slot="start">
+  <div slot="start" *ngIf="showImage">
     <img src="{{item.foto}}" *ngIf="item.foto">
     <ion-icon name="cube-outline" *ngIf="!item.foto"></ion-icon>
   </div>      
@@ -18,16 +18,32 @@
         <span *ngIf="item.valorPor">
           {{item.valorPor * item.cantidad}}
         </span>
+        
         <span *ngIf="item.unidad">
           {{item.unidad}}
         </span> 
-      </span>   
-      <b>{{item.precio * item.cantidad | currency}} </b>    <br> 
-      stock: {{item.stock}}          
+      </span> 
      
-    </p>    
+      <b>{{item.precio * item.cantidad | currency}} </b>    <br> 
+      
+            
+     
+    </p>
+    <span *ngIf="showOpcionesSeleccionadas">
+
+      <div *ngFor="let opcion of item.opcionesSeleccionadas">
+        <h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="color-text-green">{{opcion.cantidad}}X </span>{{opcion.nombreGrupo}} {{opcion.nombre}} <span *ngIf="opcion.precioVariacion != 0">{{opcion.precioVariacion | currency}}</span></h3>
+      </div> 
+    </span>  
+      
+    <span *ngIf="showStock">stock: {{item.stock}}</span>
     <p>
       {{item.descripcion_venta}}
-    </p>      
+    </p>
+
+    <span *ngIf="showEnCarrito">
+      <ion-badge *ngIf="item.enCarrito && item.valorPor">agregado: {{item.enCarrito * item.valorPor}} {{item.unidad}}</ion-badge> 
+      <ion-badge *ngIf="item.enCarrito && !item.valorPor">agregado: {{item.enCarrito}} {{item.unidad}}</ion-badge>      
+    </span>
   </ion-label>  
 </ion-item>

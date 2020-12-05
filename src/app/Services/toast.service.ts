@@ -16,7 +16,7 @@ export class ToastService {
       message: mensaje,
       position: 'top',
       color: "primary",
-      duration: 5000,
+      duration: 2000,
       buttons: [
        {
           text: 'X',
@@ -37,7 +37,7 @@ export class ToastService {
       message: mensaje,
       position: 'top',
       color: "danger",
-      duration: 5000,
+      duration: 2000,
       buttons: [
        {
           text: 'X',

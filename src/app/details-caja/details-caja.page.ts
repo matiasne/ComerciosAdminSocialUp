@@ -73,18 +73,26 @@ export class DetailsCajaPage implements OnInit {
           mov.egreso = true; 
           
         if(mov.isCierre){
-          mov.pago =false;   
+          mov.pago = false;   
           mov.egreso = false; 
           mov.cierre = true;
+          mov.apertura = false;
+        }    
+
+        if(mov.isApertura){
+          mov.pago = false;   
+          mov.egreso = false; 
+          mov.cierre = false;
+          mov.apertura = true;
         }    
         
-        console.log(mov)
         if(mov.createdAt)
           mov.createdAt = this.toDateTime(mov.createdAt.seconds)
         
         
         this.items.push(mov);  
-      });         
+      });    
+      console.log(this.items)     
     }); 
          
           
@@ -120,6 +128,14 @@ export class DetailsCajaPage implements OnInit {
 
   irCierre(){
     this.router.navigate(['form-cierre-caja',
+      {
+        cajaId:this.caja.id,
+      }
+    ]);
+  }
+
+  irApertura(){
+    this.router.navigate(['form-apertura-caja',
       {
         cajaId:this.caja.id,
       }

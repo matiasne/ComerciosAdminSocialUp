@@ -64,12 +64,19 @@ export class FormInvitacionPage implements OnInit {
     if (this.datosForm.invalid) {
       this.toastServices.alert('Por favor completar todos los campos marcados con * antes de continuar',"");
       return;
-    }   
-
+    }      
+  
+    let rol:Rol = new Rol();
+    rol.id = this.firestore.createId();    
+    rol.userEmail = this.datosForm.controls.email.value;
+    rol.userId = this.authService.getActualUser().uid;
+    rol.rol = this.rol;
+    rol.estado = "pendiente";
+    rol.comercioId =this.comercioService.getSelectedCommerceValue().id;
+//    rol.comercioRef = this.comercioService.getRef(this.comercioService.getSelectedCommerceValue().id);
+    this.rolesService.create(rol);
     
-    this.invitacionService.enviarInvitacion(this.datosForm.controls.email.value.trim(),this.rol)
-
-   
+    this.invitacionService.enviarInvitacion(this.datosForm.controls.email.value.trim(),this.rol); 
 
     this.modalCtrl.dismiss(this.datosForm.controls.email.value);
   }

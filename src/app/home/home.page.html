@@ -2,9 +2,17 @@
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button autoHide="false"></ion-menu-button>
+    </ion-buttons>    
+    <ion-title>Home</ion-title>
+    
+  </ion-toolbar>
+
+  <!--ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
     <ion-title>Home</ion-title>    
-  </ion-toolbar>
+  </ion-toolbar-->
 </ion-header>
 
 <ion-content class="ion-padding">
@@ -28,7 +36,6 @@
             {{item.rol.rol}}
           </p>            
         </ion-label>  
-        <ion-button *ngIf="item.rol.estado == 'pendiente'" color="danger" slot="end">Nuevo!</ion-button>       
       </ion-item>
     
       <ion-item-options *ngIf="item.rol.rol == 'admin'" side="end">
@@ -44,6 +51,9 @@
    
   </ion-list>
   
+  
+
+
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" (click)="nuevoComercio()">
     <ion-fab-button>
       <ion-icon name="add"></ion-icon>

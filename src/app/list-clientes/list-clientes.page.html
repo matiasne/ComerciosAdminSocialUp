@@ -7,16 +7,31 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content style="margin-top: 50px;" class="ion-padding">  
-  <ion-row>    
+<ion-content style="margin-top: 50px;" class="ion-padding"> 
+  
+  <ion-searchbar animated 
+    placeholder="Buscar nombre"
+    animated="true"
+    showCancelButton="never" 
+    color="light" 
+    autocomplete="on"
+    enterkeyhint="send"
+    inputmode="text"
+    type="text"
+    debounce="300"
+    value="{{palabraFiltro}}"
+    (ionChange)="onChange($event)">
+  </ion-searchbar>
+
+  <!--ion-row>    
       <ion-input placeholder="Buscar" style="border:1px solid rgb(206, 206, 206); border-radius: 5px;"
       [(ngModel)]="palabraFiltro" (ionChange)="buscar()"
       ></ion-input> 
-  </ion-row> 
+  </ion-row--> 
 
   <ion-list lines="none">   
     
-    <ion-item-sliding *ngFor="let item of items" class="item-card" >    
+    <ion-item-sliding *ngFor="let item of clientes" class="item-card" >    
 
         <ion-item (click)="seleccionar(item)" >
           <div slot="start">
@@ -38,6 +53,21 @@
  
   </ion-list>
 
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="verMas()">
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Cargando más trabajos...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+  <span *ngIf="clientes.length == 0">
+
+    <h5>No exite ningún cliente con ese Nombre</h5> 
+
+    <ion-button color="primary" (click)="nuevo()">Crear Uno Nuevo!</ion-button>
+    
+  </span>
+
   <!-- fab placed to the bottom end -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" (click)="nuevo()">
     <ion-fab-button>
@@ -45,9 +75,6 @@
     </ion-fab-button>
   </ion-fab>
 
-  <div class="space">
-    
-  </div> 
   
 </ion-content>
 

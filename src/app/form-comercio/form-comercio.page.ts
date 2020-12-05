@@ -281,7 +281,7 @@ export class FormComercioPage implements OnInit {
 
         if(this.updating == false){
           let user = this.authenticationService.getActualUser();
-          this.rolesService.setUserAsAdmin(user.email,this.comercio.id);
+          this.rolesService.setUserAsAdmin(this.comercio.id);
         }
       }
       comSub.unsubscribe(); //para que no me notifique que ya existe cuanto lo cree

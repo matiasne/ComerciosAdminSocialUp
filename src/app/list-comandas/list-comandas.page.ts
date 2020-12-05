@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ComandasService } from '../Services/comandas.service';
 import { CarritoService } from '../Services/global/carrito.service';
 import { Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { AlertController, Platform } from '@ionic/angular';
 import { PedidoService } from '../Services/pedido.service';
 import { Subscription } from 'rxjs';
 import { Comanda } from '../models/comanda';
 import { Pedido } from '../Models/pedido';
 import { AuthenticationService } from '../Services/authentication.service';
+import { CocinasService } from '../Services/cocinas.service';
 
 @Component({
   selector: 'app-list-comandas',
@@ -19,8 +20,12 @@ export class ListComandasPage implements OnInit {
   public itemsComandas =[];
   public itemsPedidos = [];
   public items:any =[];
+  public cocinas = [];
   public subsPedidosComercio:Subscription;
-  public rol = "";
+  public seccionActiva = "pendientes";
+  public devWidth;
+  public palabraFiltro ="";
+  public cocinaFiltro = "todas";
 
   constructor(
     private comandasService:ComandasService,
@@ -28,17 +33,17 @@ export class ListComandasPage implements OnInit {
     public router:Router,
     private pedidoService:PedidoService,
     private alertController:AlertController,
-    private authService:AuthenticationService
+    private authService:AuthenticationService,
+    private platform:Platform,
+    private cocinasService:CocinasService
   ) {
-
+    
+    this.devWidth = this.platform.width();
 
    }
 
   ngOnInit() {
 
-    let rol:any = this.authService.getRol();
-    this.rol = rol.rol;
-    console.log(rol);
     //si soy dueño todas
     this.comandasService.getAll().subscribe((snapshot) => {
       this.itemsComandas =[];  
@@ -49,38 +54,44 @@ export class ListComandasPage implements OnInit {
           comanda.producto = true;  
           comanda.isPedido = false;
           comanda.carrito = JSON.parse(comanda.carrito);
-          console.log(comanda);
+         
           if(comanda.createdAt){
             comanda.createdAt =  this.toDateTime(comanda.createdAt.seconds) 
           }
           else{
             comanda.createdAt = new Date();
-          }
-         
+          }        
          
           this.itemsComandas.push(comanda);         
+          this.buscar();
           
-          this.items = [...this.itemsComandas,...this.itemsPedidos];     
       });
       console.log(this.itemsComandas);
     });
 
-    /*let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.subsPedidosComercio = this.pedidoService.getPedidoPendienteByCommerce(comercio_seleccionadoId).subscribe((snapshot) => { 
-      this.itemsPedidos = [];  
-      
-      snapshot.forEach((snap: any) => {
-          var p:any = snap.payload.doc.data();
-          p.id = snap.payload.doc.id;         
-          p.isPedido = true;
-          console.log(p);           
-          p.createdAt = this.toDateTime(p.createdAt.seconds)
-          this.itemsPedidos.push(p); 
-          this.items = [...this.itemsComandas,...this.itemsPedidos];
-        }); 
-        
-        console.log(this.itemsPedidos)
-    });*/
+    this.cocinasService.setearPath();
+    this.cocinasService.list().subscribe((data) => {     
+      this.cocinas = data;
+      if(this.cocinas.length == 0){
+        this.presentAlertCrearCocinas();
+      }
+    })
+  }
+
+  async presentAlertCrearCocinas() {
+    const alert = await this.alertController.create({
+      header: 'Agregar Cocina',
+      message: 'Debes agregar una cocina antes de continuar',
+      buttons: [
+        {
+          text: 'Ok',
+          handler: () => {
+            this.router.navigate(['list-cocinas']);
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   toDateTime(secs) {
@@ -89,8 +100,101 @@ export class ListComandasPage implements OnInit {
     return t;
   }
 
-  
+  ionViewDidEnter(){
+    console.log(this.authService.getConnectionStatus())
+    if(this.authService.getConnectionStatus() == "offline"){
+      this.presentAlert("Estás en modo offline","No recibirás comandas desde otros puntos de ventas")
+    }
 
+
+  }
+
+
+  async presentAlert(titulo,message) {
+
+    const alert = await this.alertController.create({
+      header: titulo,
+      message: message,
+      buttons: ['OK']
+    });
+
+    await alert.present();
+  }
+
+  segmentChanged(event){
+    console.log(event.target.value);
+    this.seccionActiva = event.target.value;
+  }
+
+  onChange(event){
+    this.palabraFiltro = event.target.value;
+    this.items = [];
+    this.buscar();
+  }
+
+  onChangeCocina(event){
+    this.cocinaFiltro = event.target.value;
+    this.items = [];
+    this.buscar();
+  }
+
+  buscar(){ 
+
+      var retorno = false;
+
+      this.items = [];
+      
+      this.itemsComandas.forEach(item => {  
+        
+        var encontrado = true;
+        
+        if(this.cocinaFiltro != "todas"){
+          encontrado = false;        
+          if(item.cocinaId == this.cocinaFiltro){
+            encontrado = true;  
+          }
+        }
+        
+  
+        console.log(this.palabraFiltro)
+        if(this.palabraFiltro != ""){
+
+          encontrado = false;
+
+          var palabra = this.palabraFiltro.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        
+          console.log(item.carrito.cliente.nombre)
+          if(item.carrito.cliente){
+            retorno =  (item.carrito.cliente.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(palabra.toLowerCase()) > -1);
+            if(retorno)
+              encontrado = true;
+          }
+
+          console.log(item.carrito.mesa.nombre)
+          if(item.carrito.mesa.nombre){
+            retorno =  (item.carrito.mesa.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(palabra.toLowerCase()) > -1);
+            if(retorno)
+              encontrado = true;
+          }   
+          
+          if(item.empleadoEmail){
+            retorno =  (item.empleadoEmail.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(palabra.toLowerCase()) > -1);
+            if(retorno)
+              encontrado = true;
+          }  
+        }
+          
+        console.log(encontrado)
+  
+        if(encontrado){
+          this.items.push(item);
+          return true;
+        }
+
+      });  
+    
+      console.log(this.items)
+    }
 
 
 }

@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { Crop } from '@ionic-native/crop/ngx';
 import { File } from '@ionic-native/file/ngx';
-import { ActionSheetController, ModalController, NavController, AlertController, LoadingController } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, AlertController, LoadingController, NavParams } from '@ionic/angular';
 import { Camera, CameraOptions} from '@ionic-native/Camera/ngx';
 import { ClientesService } from '../Services/clientes.service';
 import { DataService } from '../Services/data.service';
@@ -16,6 +16,7 @@ import { Cliente } from '../models/cliente';
 import { Subscription } from 'rxjs';
 import { ToastService } from '../Services/toast.service';
 import { SelectClientePage } from '../select-cliente/select-cliente.page';
+import { AngularFirestore } from 'angularfire2/firestore';
 
 declare var google: any;
 
@@ -67,11 +68,12 @@ export class FormClientePage implements OnInit {
     public router:Router,
     public modalController: ModalController,
     private authService:AuthenticationService,
-    private navCtrl: NavController,
+    private navParams: NavParams,
     private route: ActivatedRoute,
     public alertController: AlertController,
     public loadingService:LoadingService,
     private toastServices:ToastService,
+    private firestore: AngularFirestore,
   ) { 
 
     this.cliente = new Cliente();
@@ -81,9 +83,9 @@ export class FormClientePage implements OnInit {
       documento_tipo :[''],  
       documento :[''],  
       fecha_nacimiento : [''],
-      direccion : ['', Validators.required],
-      telefono:['', Validators.required],   
-      email:  ['', Validators.required],   
+      direccion : [''],
+      telefono:[''],   
+      email:  [''],   
       descripcion :[''],       
       direccion_piso:[''],
       direccion_puerta:[''],
@@ -94,12 +96,12 @@ export class FormClientePage implements OnInit {
       vendedorId:['']
     });
 
-    if(this.route.snapshot.params.id){
+    if(this.navParams.get('id')){
       this.updating = true;
       this.titulo = "Editar Cliente"
       
 
-      this.clienteSubs = this.clientesService.get(this.route.snapshot.params.id).subscribe(data=>{
+      this.clienteSubs = this.clientesService.get(this.navParams.get('id')).subscribe(data=>{
         
         this.cliente.asignarValores(data.payload.data());
         this.cliente.id = data.payload.id;
@@ -135,7 +137,9 @@ export class FormClientePage implements OnInit {
       });
     }
     else{
+
       this.cliente = new Cliente();
+      this.cliente.id = this.firestore.createId();        
     }
    
 
@@ -161,7 +165,7 @@ export class FormClientePage implements OnInit {
     setTimeout(() => {           
       this.initAutocomplete('pac-input');     
       this.loadingService.dismissLoading();
-    }, 3000);  
+    }, 500);  
     
     this.geocoder = new google.maps.Geocoder();
 
@@ -218,15 +222,27 @@ export class FormClientePage implements OnInit {
 
     if(this.updating){
       this.clientesService.update(this.cliente);
+      this.modalController.dismiss({
+        'item': this.cliente
+      }); 
     }
     else{
-      this.clientesService.create(this.cliente);
+
+  
+      this.clientesService.create(this.cliente);             
+      this.modalController.dismiss({
+        'item': this.cliente
+      });  
+        
+       
+
+      
     }   
 
-    this.navCtrl.back();    
+   
 
   }
-
+/*
   async verClientes(){
     const modal = await this.modalController.create({
       component: SelectClientePage      
@@ -239,9 +255,9 @@ export class FormClientePage implements OnInit {
     });
     return await modal.present();
   }
-
+*/
   cancelar(){
-    this.navCtrl.back();
+    this.modalController.dismiss();    
   }
 
   elimiar(){
@@ -261,8 +277,9 @@ export class FormClientePage implements OnInit {
         }, {
           text: 'Eliminar',
           handler: () => {
-            this.clientesService.delete(this.route.snapshot.params.id);
-            this.navCtrl.back();
+            this.clientesService.delete(this.cliente);
+            this.modalController.dismiss();
+         
           }
         }
       ]

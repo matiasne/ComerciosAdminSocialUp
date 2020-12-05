@@ -10,7 +10,7 @@ export class Caja{
     public totalDebito = 0;
     public totalCredito = 0;
     public totalCtaCorriente = 0;
-    public movimientos = [];
+    public estado = "";
 	constructor(
 		
 		){

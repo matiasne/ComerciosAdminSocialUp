@@ -17,7 +17,8 @@
         <ion-label>
           <b>{{caja.nombre}}</b>         
         </ion-label> 
-       
+        <ion-badge color="success" *ngIf="caja.estado == 'abierta'" slot="end">Abierta</ion-badge>
+        <ion-badge color="danger" *ngIf="caja.estado == 'cerrada'" slot="end">Cerrada</ion-badge>
       </ion-item>  
 
       

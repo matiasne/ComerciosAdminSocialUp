@@ -9,6 +9,7 @@ import { NotificacionesService } from './notificaciones.service';
 import { ComerciosService } from './comercios.service';
 import { Comanda } from '../models/comanda';
 import { RolesService } from './roles.service';
+import { AlertController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,8 @@ export class ComandasService {
     private ventasService:VentasService,
     private notificacionesService:NotificacionesService,
     private comercioService:ComerciosService,
-    private rolesService:RolesService
+    private rolesService:RolesService,
+    private alertController:AlertController
   ) {
     
   }
@@ -43,32 +45,70 @@ export class ComandasService {
     this.comandaCantidad.next(cant);
   }
 
+  groupBy(arr, property) {
+    return arr.reduce(function(memo, x) {
+      if (!memo[x[property]]) { memo[x[property]] = []; }
+      memo[x[property]].push(x);
+      return memo;
+    }, {});
+  }
+  
+ 
   public create(carrito) {
-   
-    var comanda = new Comanda(this.authService.getUID(),this.authService.getActualUser().displayName,this.authService.getActualUser().email);
-    comanda.clienteId = "";
-    comanda.clienteNombre = "";
-    comanda.carrito = JSON.stringify(carrito);
-        
-    console.log(carrito);
-    if(carrito.cliente.id){
-      comanda.clienteId = carrito.cliente.id;
-      comanda.clienteNombre = carrito.cliente.nombre;
-      comanda.clienteEmail = carrito.cliente.email;
-      this.notificacionesService.enviarById(carrito.cliente.id,"Su pedido ha sido comandado!","Revisa tu panel de comandas para Tomarla");
-    }
 
-    console.log(comanda);
+    let cocinas = this.groupBy(carrito.productos, 'cocina');
+
+    Object.keys(cocinas).forEach((cocina) =>{
+      //console.log(index) 
+      console.log(cocinas[cocina])
+
+      var comanda = new Comanda(this.authService.getUID(),this.authService.getActualUser().displayName,this.authService.getActualUser().email);
+      comanda.clienteId = "";
+      comanda.clienteNombre = "";
+      comanda.cocinaId = cocina;
+      carrito.productos = cocinas[cocina];
+      comanda.carrito = JSON.stringify(carrito);
+
+      if(carrito.cliente.id){
+        comanda.clienteId = carrito.cliente.id;
+        comanda.clienteNombre = carrito.cliente.nombre;
+        comanda.clienteEmail = carrito.cliente.email;
+        this.notificacionesService.enviarById(carrito.cliente.id,"Su pedido ha sido comandado!","Revisa tu panel de comandas para Tomarla");
+      }
+
+      console.log(comanda)
+
+      this.firestore.collection(this.getCollection()).add( {...comanda,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });  
+
+    })
+
+
+    /*cocinas.forEach(cocina =>{
+      
+
+    })*/
+   
+    
+
+    //ACa debe revisar comandatarios si están offline cartel de advertencia!!!!
+
+
 
     
-      this.comercioService.comercio.rolComandatarios.forEach(rolId => {
-        this.notificacionesService.enviarByRolId(rolId,"Comanda Nueva!","Revisa tu panel de comandas para Tomarla");
-      });           
+    
+
+
+  
+    this.comercioService.comercio.rolComandatarios.forEach(rolId => {
+      this.notificacionesService.enviarByRolId(rolId,"Comanda Nueva!","Revisa tu panel de comandas para Tomarla");
+    }); 
+    
+                
       
     
-    this.firestore.collection(this.getCollection()).add( {...comanda,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });       
+        
   }
 
 
@@ -86,13 +126,28 @@ export class ComandasService {
     return this.firestore.collection(this.getCollection()).doc(documentId).set({...param,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
+
+
+
   }
 
-  public delete(documentId: string) {
-    return this.firestore.collection(this.getCollection()).doc(documentId).delete();
+  public delete(comandaId) {
+
+    
+    /*if(comanda.empleadoId)
+      this.notificacionesService.enviarById(comanda.empleadoId,"La Comanda que generaste ha sido rechazada!","");
+    
+    if(comanda.clienteId)
+      this.notificacionesService.enviarById(comanda.empleadoId,"Tu pedido ha sido descartado","");*/
+
+    return this.firestore.collection(this.getCollection()).doc(comandaId).delete();
   }
 
   public setComandaTomada(comanda:Comanda){   
+    this.firestore.collection(this.getCollection()).doc(comanda.id).update({status: 1});
+  }
+
+  public setComandaVolver(comanda:Comanda){   
     this.firestore.collection(this.getCollection()).doc(comanda.id).update({status: 1});
   }
 
@@ -112,7 +167,8 @@ export class ComandasService {
 
   public setComandaCobrada(comandaId){
        //Acá se borra y se crea la venta
-       this.firestore.collection(this.getCollection()).doc(comandaId).update({status: 3});
+       console.log(comandaId)
+    this.firestore.collection(this.getCollection()).doc(comandaId).update({status: 3});
     this.delete(comandaId);
     
   }
@@ -129,5 +185,9 @@ export class ComandasService {
        ).snapshotChanges();    
   }
 
+  
+
+
+  
 
 }

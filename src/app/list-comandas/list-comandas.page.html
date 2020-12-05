@@ -6,32 +6,94 @@
     <ion-title>Comandas</ion-title>    
   </ion-toolbar>
 </ion-header>
+<ion-toolbar [hidden]="devWidth > 576">
+  <ion-segment (ionChange)="segmentChanged($event)">
+    <ion-segment-button value="pendientes">Pendientes</ion-segment-button>
+    <ion-segment-button value="proceso">En proceso</ion-segment-button>
+    <ion-segment-button value="listas">Listas</ion-segment-button>
+  </ion-segment>
+</ion-toolbar>
 
 <ion-content class="ion-padding" style="margin-top: 50px;">  
-  <ion-grid>
-    <ion-row>
-      <ion-col>
-        <ion-list lines="none">     
-          <div *ngFor="let item of items">   
-            <app-card-comanda *ngIf="item.status == 0" [item]="item"></app-card-comanda>
-          </div>
-        </ion-list> 
-      </ion-col>
-      <ion-col>
-        <ion-list lines="none">     
-          <div *ngFor="let item of items">   
-            <app-card-comanda *ngIf="item.status == 1" [item]="item"></app-card-comanda>
-          </div>
-        </ion-list> 
-      </ion-col>
-      <ion-col>
-        <ion-list lines="none">     
-          <div *ngFor="let item of items">   
-            <app-card-comanda *ngIf="item.status == 2" [item]="item"></app-card-comanda>
-          </div>
-        </ion-list> 
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+
+  <ion-row>
+    <ion-col size="8">
+      <ion-searchbar animated 
+        placeholder="Buscar por cliente o mesa"
+        animated="true"
+        showCancelButton="never" 
+        color="light" 
+        autocomplete="on"
+        enterkeyhint="send"
+        inputmode="text"
+        type="text"
+        debounce="300"
+        value="{{palabraFiltro}}"
+        (ionChange)="onChange($event)">
+      </ion-searchbar>
+    </ion-col>    
+    <ion-col size="4">
+      <ion-item [class.invalid]="submitted && !datosForm.controls.cocina.valid">
+        <ion-label>Seleccionar Cocina</ion-label>
+        <ion-select (ionChange)="onChangeCocina($event)" [(ngModel)]="cocinaFiltro">
+          <ion-select-option  [value]="todas" selected>todas</ion-select-option>
+          <ion-select-option *ngFor="let cocina of cocinas" [value]="cocina.id" selected>{{cocina.nombre}}</ion-select-option>
+        </ion-select>       
+      </ion-item>  
+    </ion-col>
+  </ion-row>
   
+
+  <span [hidden]="devWidth > 576">
+    <ion-list lines="none" *ngIf="seccionActiva == 'pendientes'">     
+      <div *ngFor="let item of items">   
+        <app-card-comanda *ngIf="item.status == 0" [item]="item"></app-card-comanda>
+      </div>
+    </ion-list>
+
+    <ion-list lines="none" *ngIf="seccionActiva == 'proceso'">     
+      <div *ngFor="let item of items">   
+        <app-card-comanda *ngIf="item.status == 1" [item]="item"></app-card-comanda>
+      </div>
+    </ion-list>
+
+    <ion-list lines="none" *ngIf="seccionActiva == 'listas'">     
+      <div *ngFor="let item of items">   
+        <app-card-comanda *ngIf="item.status == 2" [item]="item"></app-card-comanda>
+      </div>
+    </ion-list>
+
+  </span>
+  <span [hidden]="devWidth < 576">
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-list lines="none">   
+            <h5>Pendientes</h5>  
+            <div *ngFor="let item of items">   
+              <app-card-comanda *ngIf="item.status == 0" [item]="item"></app-card-comanda>
+            </div>
+          </ion-list> 
+        </ion-col>
+        <ion-col>
+          <ion-list lines="none">  
+            <h5>En Proceso</h5>    
+            <div *ngFor="let item of items">   
+              <app-card-comanda *ngIf="item.status == 1" [item]="item"></app-card-comanda>
+            </div>
+          </ion-list> 
+        </ion-col>
+        <ion-col>
+          <ion-list lines="none">  
+            <h5>Listos  </h5>     
+            <div *ngFor="let item of items">   
+              <app-card-comanda *ngIf="item.status == 2" [item]="item"></app-card-comanda>
+            </div>
+          </ion-list> 
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </span>
+
 </ion-content>
+

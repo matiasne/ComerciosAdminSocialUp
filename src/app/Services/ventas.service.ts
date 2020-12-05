@@ -20,6 +20,10 @@ export class VentasService {
     return 'comercios/'+comercio_seleccionadoId+'/ventas';
   }  
 
+  getRef(id){
+    return this.firestore.collection(this.getCollection()).doc(id).ref;
+  }
+
   public create(data:any) {   
     const param = JSON.parse(JSON.stringify(data));
     console.log(param)

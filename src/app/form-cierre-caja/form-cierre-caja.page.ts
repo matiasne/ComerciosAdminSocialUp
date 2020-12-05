@@ -44,7 +44,7 @@ export class FormCierreCajaPage implements OnInit {
 
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
     this.movSub = this.cajasServices.get(this.route.snapshot.params.cajaId).subscribe(data =>{
-      this.caja = data;
+      this.caja.asignarValores(data)
     })
 
     
@@ -80,6 +80,8 @@ export class FormCierreCajaPage implements OnInit {
       return;
     }
 
+    this.caja.estado = "cerrada";
+
     var cierreEfectivo = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
     cierreEfectivo.id = this.firestore.createId();
     cierreEfectivo.cajaId = this.caja.id;
@@ -104,6 +106,7 @@ export class FormCierreCajaPage implements OnInit {
     cierreCredito.monto = - Number(this.extraccionCredito);
     this.movimientosService.createMovimientoCaja(this.caja,cierreCredito);
 
+    
     this.navCtrl.back();
   }
 

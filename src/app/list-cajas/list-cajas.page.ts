@@ -22,11 +22,15 @@ export class ListCajasPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
+    
+   
+
+  }
+
+  ionViewDidEnter(){
     this.cajasSubs = this.cajasService.list().subscribe((caja:any)=>{                 
       this.cajas = caja;      
     });
-
   }
 
   ionViewDidLeave(){

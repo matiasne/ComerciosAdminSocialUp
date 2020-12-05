@@ -9,50 +9,69 @@
 
 <ion-content class="ion-padding">   
  
-    <ion-button  *ngIf="!carrito.cliente.id" (click)="seleccionarCliente()"  size="large" expand="full">Seleccionar Cliente</ion-button>
+    <span *ngIf="!carrito.mesa.id && comercio.modulos.clientes">
+      <ion-button  *ngIf="!carrito.cliente.id" (click)="seleccionarCliente()"  size="large" expand="full">Seleccionar Cliente</ion-button>
 
-    <ion-item *ngIf="carrito.cliente.id" class="item-card">
-      <ion-avatar slot="start" (click)="seleccionarCliente()">
-        <img src="{{carrito.cliente.foto}}" *ngIf="carrito.cliente.foto">
-        <ion-icon name="person" *ngIf="!carrito.cliente.foto"></ion-icon>
-      </ion-avatar>
-      <ion-label (click)="seleccionarCliente()">
-        <h2>{{carrito.cliente.nombre}}</h2>
-        <h3>{{carrito.cliente.email}}</h3>
-      </ion-label>      
-      <ion-button color="danger" slot="end" (click)="eliminarCliente()"><ion-icon name="trash"></ion-icon></ion-button>       
-    </ion-item>
+      <ion-item-sliding *ngIf="carrito.cliente.id">
+        <app-card-usuario
+          [cliente]="carrito.cliente"
+          (select)="seleccionarCliente()">
+        </app-card-usuario>
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="eliminarCliente()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+        
+     
+    </span>
+    
 
+    <span *ngIf="!carrito.cliente.id && comercio.modulos.mesas">
+      <ion-button *ngIf="!carrito.mesa.id" (click)="seleccionarMesa()"  size="large" expand="full">Seleccionar Mesa</ion-button>
 
-    <ion-button *ngIf="!carrito.mesa.id" (click)="seleccionarMesa()"  size="large" expand="full">Seleccionar Mesa</ion-button>
+      <ion-item-sliding *ngIf="carrito.mesa.id">
 
-    <ion-item *ngIf="carrito.mesa.id" class="item-card">
-      <ion-avatar slot="start" (click)="seleccionarMesa()">
-        <img src="{{carrito.mesa.foto}}" *ngIf="carrito.cliente.foto">
-        <ion-icon name="person" *ngIf="!carrito.mesa.foto"></ion-icon>
-      </ion-avatar>
-      <ion-label (click)="seleccionarMesa()">
-        <h2>{{carrito.mesa.nombre}}</h2>
-      </ion-label>      
-      <ion-button color="danger" slot="end" (click)="eliminarMesa()"><ion-icon name="trash"></ion-icon></ion-button>       
-    </ion-item>
+        <ion-item *ngIf="carrito.mesa.id" class="item-card">
+          <ion-avatar slot="start" (click)="seleccionarMesa()">
+            <img src="{{carrito.mesa.foto}}" *ngIf="carrito.cliente.foto">
+            <ion-icon name="person" *ngIf="!carrito.mesa.foto"></ion-icon>
+          </ion-avatar>
+          <ion-label (click)="seleccionarMesa()">
+            <h2>{{carrito.mesa.nombre}}</h2>
+          </ion-label>      
+        </ion-item>
 
-    <ion-item *ngIf="cajas.length > 0" class="item-card">
-      <ion-label>Seleccionar Caja</ion-label>
-      <ion-select [(ngModel)]="cajaSeleccionadaIndex" (ionChange)="setearCaja()">
-        <ion-select-option *ngFor="let caja of cajas;let i=index" [value]="i" selected>{{caja.nombre}}</ion-select-option>
-      </ion-select>
-    </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="eliminarMesa()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+      
+    </span>
+    
+    <span *ngIf="comercio.modulos.cajas"> 
+      <ion-item *ngIf="cajas.length > 0" class="item-card">
+        <ion-label>Seleccionar Caja</ion-label>
+        <ion-select [(ngModel)]="cajaSeleccionadaIndex" (ionChange)="setearCaja()">
+          <span *ngFor="let caja of cajas;let i=index">
+            <ion-select-option *ngIf="caja.estado == 'abierta'"  [value]="i" selected>{{caja.nombre}}</ion-select-option>
+          </span>          
+        </ion-select>
+      </ion-item>
 
-    <ion-item class="item-card" *ngIf="cajas.length > 0">
-      <ion-label>Seleccione Método de Pago</ion-label>
-        <ion-select [(ngModel)]="metodoPagoSeleccionado" (ionChange)="setearMetodoPago()">
-          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].efectivo" [value]="'efectivo'">Efectivo</ion-select-option>
-          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].debito" [value]="'debito'">Débito</ion-select-option>
-          <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].credito" [value]="'credito'">Crédito</ion-select-option>
-          <ion-select-option *ngIf="ctasCorrientes.length > 0" [value]="'ctaCorriente'">Cta. Corriente</ion-select-option>
-        </ion-select>    
-    </ion-item>    
+      <ion-item class="item-card" *ngIf="cajas[cajaSeleccionadaIndex].estado == 'abierta'">
+        <ion-label>Seleccione Método de Pago</ion-label>
+          <ion-select [(ngModel)]="metodoPagoSeleccionado" (ionChange)="setearMetodoPago()">
+            <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].efectivo" [value]="'efectivo'">Efectivo</ion-select-option>
+            <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].debito" [value]="'debito'">Débito</ion-select-option>
+            <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].credito" [value]="'credito'">Crédito</ion-select-option>
+            <ion-select-option *ngIf="ctasCorrientes.length > 0" [value]="'ctaCorriente'">Cta. Corriente</ion-select-option>
+          </ion-select>    
+      </ion-item>    
+
+    </span>
+    
+
+    
 
     <ion-item class="item-card" *ngIf="metodoPagoSeleccionado == 'ctaCorriente'">
       <ion-label >Seleccione Cuenta Corriente:</ion-label>
@@ -73,6 +92,8 @@
         <ion-item-sliding>
           <app-card-producto
             [item]="producto"
+            [showStock]="false"
+            [showEnCarrito] = "false"
             [multiplicador]="1"
           ></app-card-producto>  
           <ion-item-options side="end">
@@ -94,10 +115,10 @@
       
       <ion-list>                   
         <ion-item *ngFor="let servicio of carrito.servicios; let i = index">
-          <ion-avatar slot="start">
+          <!--ion-avatar slot="start">
             <img src="{{servicio.foto}}" *ngIf="servicio.foto">
             <ion-icon name="document-attach-outline" *ngIf="!servicio.foto"></ion-icon>
-          </ion-avatar>
+          </ion-avatar-->
           <ion-label text-wrap>
             <h2>{{servicio.nombre}}</h2>
             <h3>{{servicio.plan.nombre}}, 
@@ -113,30 +134,17 @@
         </ion-item>      
       </ion-list>
     </div>
-
-
- 
-   
-
-      
-
-    
-
-
 </ion-content>
 
 <ion-footer class="ion-no-border ion-padding">
+ 
   <ion-toolbar>
-    <ion-item-sliding class="item-card">
-      <ion-item *ngIf="carrito.productos.length > 0 || carrito.servicios.length > 0">
-        <h2>Total: {{carrito.totalProductos+carrito.totalServicios | currency}}</h2>
-      </ion-item> 
-      <ion-item-options side="end">
-        <ion-item-option  color="primary" (click)="comanda()"><ion-icon name="create"></ion-icon> Comanda</ion-item-option>
-      </ion-item-options>  
-      <ion-item-options side="start">
-        <ion-item-option color="success" (click)="confirmar()">Cobrar</ion-item-option>
-      </ion-item-options>  
-    </ion-item-sliding>
+    
+    
+    <ion-button *ngIf="habilitadoCargarMesa == 'true'" slot="end"  color="success" (click)="cargarAMesa()">Cargar a mesa: {{carrito.mesa.nombre}}</ion-button>
+    <ion-button *ngIf="habilitadoCobro == 'true'" slot="start"  color="success" (click)="cobrar()">Cobrar: ${{carrito.totalProductos + carrito.totalServicios}}</ion-button>
+    <ion-button *ngIf="habilitadoComanda == 'true'" slot="end" color="primary" (click)="comanda()">Comanda</ion-button>
+
+
   </ion-toolbar>
 </ion-footer>

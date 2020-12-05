@@ -20,6 +20,7 @@ import { Subscription } from 'rxjs';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { ToastService } from '../Services/toast.service';
 import { FormProductoGrupoOpcionesPage } from '../form-producto-grupo-opciones/form-producto-grupo-opciones.page';
+import { CocinasService } from '../Services/cocinas.service';
 
 @Component({
   selector: 'app-form-producto',
@@ -36,7 +37,8 @@ export class FormProductoPage implements OnInit {
     quality: 5
   };
 
-  public categorias =[]
+  public categorias =[];
+  public cocinas = [];
 
   public datosForm: FormGroup;
   
@@ -66,6 +68,7 @@ export class FormProductoPage implements OnInit {
     private router:Router,
     private firestore: AngularFirestore,
     private toastServices:ToastService,
+    private cocinasService:CocinasService
   ) { 
     this.producto = new Producto();
 
@@ -79,6 +82,7 @@ export class FormProductoPage implements OnInit {
       valorPor:[1],
       stock: [1, Validators.required],
       descripcion:[''],
+      cocina:['', Validators.required],
       categorias:[''],
       foto:[''],
       createdAt:[''],
@@ -95,15 +99,13 @@ export class FormProductoPage implements OnInit {
 
     if(this.route.snapshot.params.id){
       this.updating = true;
-      this.productosService.get(this.route.snapshot.params.id).subscribe(data=>{
-           
+      this.productosService.get(this.route.snapshot.params.id).subscribe(data=>{           
         this.loaadingService.dismissLoading();
         this.titulo = "Editar Producto";
         this.datosForm.patchValue(data.payload.data());
         this.producto.asignarValores(data.payload.data())
         this.producto.id = data.payload.id;
-        this.croppedImageIcono = this.producto.foto;
-       
+        this.croppedImageIcono = this.producto.foto;       
       })
     }
     else{
@@ -118,6 +120,15 @@ export class FormProductoPage implements OnInit {
           item.id = snap.payload.doc.id;              
           this.categorias.push(item);  
       });
+      console.log(this.categorias);
+    })
+
+    this.cocinasService.setearPath();
+    this.cocinasService.list().subscribe((data) => {     
+      this.cocinas = data;
+      if(this.cocinas.length == 0){
+        this.presentAlertCrearCocinas();
+      }
       console.log(this.categorias);
     })
   }
@@ -256,6 +267,23 @@ export class FormProductoPage implements OnInit {
           handler: () => {
             this.productosService.delete(this.route.snapshot.params.id);
             this.navCtrl.back();
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+
+  async presentAlertCrearCocinas() {
+    const alert = await this.alertController.create({
+      header: 'Agregar Cocina',
+      message: 'Debes agregar una cocina antes de continuar',
+      buttons: [
+        {
+          text: 'Ok',
+          handler: () => {
+            this.router.navigate(['list-cocinas']);
           }
         }
       ]

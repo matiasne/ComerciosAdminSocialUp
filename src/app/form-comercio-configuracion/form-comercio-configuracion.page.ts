@@ -12,7 +12,7 @@ import { Comercio } from '../Models/comercio';
 export class FormComercioConfiguracionPage implements OnInit {
 
   private subs:Subscription;
-  public comercio:any;
+  public comercio:Comercio;
 
   public cajas =[];
   public horarios =[];
@@ -22,16 +22,14 @@ export class FormComercioConfiguracionPage implements OnInit {
     private comerciosService:ComerciosService,
     private route:ActivatedRoute,
     private router:Router
-  ) { }
+  ) { 
+    this.comercio = new Comercio();
+  }
 
   ngOnInit() {
-    /*this.comercio = new Comercio();
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.subs = this.comerciosService.get(comercio_seleccionadoId).subscribe(data=>{
-      this.comercio.asignarValores(data.payload.data());
-      this.comercio.id = data.payload.id;
-      this.subs.unsubscribe();
-    });*/
+    this.comerciosService.getSelectedCommerce().subscribe(data=>{
+      this.comercio.asignarValores(data);
+    });
   } 
   
   openEditCategorias(){
@@ -50,6 +48,9 @@ export class FormComercioConfiguracionPage implements OnInit {
     this.router.navigate(['list-mesas']);
   }
 
+  openEditCocinas(){
+    this.router.navigate(['list-cocinas']);
+  }
 
   openEditComandas(){
     this.router.navigate(['form-comanda-configuracion']);
@@ -70,8 +71,13 @@ export class FormComercioConfiguracionPage implements OnInit {
   
   verEstilos(){
     this.router.navigate(['form-estilo-configuracion']);
+  }  
+  
+  update(){
+    this.comerciosService.update(this.comercio);
   }
 
+  
 
 
 }

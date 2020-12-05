@@ -22,7 +22,8 @@ export class Producto {
     public descripcion_venta="";
     public recibirPedidos=true;
     public gruposOpciones:GrupoOpciones[];
-    public opcionesSeleccionadas:OpcionSeleccionada[];
+    public opcionesSeleccionadas =[];
+    public keywords = [];
 
 	public constructor() {
         this.gruposOpciones = [];

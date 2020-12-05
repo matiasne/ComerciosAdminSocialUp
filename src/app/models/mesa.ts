@@ -4,9 +4,11 @@ export class Mesa{
     public nombre="";
     public foto="";
     public rolEncargados = [];
-    public habilitaNotificaciones = false;
-
-
+    public habilitarNotificaciones = false;
+    public recibePedidosApp = false;
+    public habilitarLlamadorMozoApp = false;
+    public habilitarComandasApp = false;
+    public productos = [];
     
 	constructor(
 		

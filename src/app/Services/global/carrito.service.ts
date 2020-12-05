@@ -20,6 +20,8 @@ import { NotificacionesService } from '../notificaciones.service';
 import { variacionStock } from 'src/app/models/variacionStock';
 import { VariacionesStocksService } from '../variaciones-stocks.service';
 import { ProductosService } from '../productos.service';
+import { MesasService } from '../mesas.service';
+import * as firebase from 'firebase/app';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +43,8 @@ export class CarritoService {
     private pedidoServices:PedidoService,
     private notificacionesService:NotificacionesService,
     private variacionesStockService:VariacionesStocksService,
-    private productosService:ProductosService
+    private productosService:ProductosService,
+    private mesasSerivce:MesasService
   ) { 
     this.carrito = new Carrito(
       this.authenticationService.getUID(),this.authenticationService.getNombre()
@@ -67,27 +70,36 @@ export class CarritoService {
 
   public agregarProducto(producto:Producto){   
        
+    
+    
     producto.gruposOpciones.forEach(grupo =>{
       grupo.opciones.forEach(opcion => {
         if(opcion.cantidad > 0){               
-          var opcionSeleccionada:OpcionSeleccionada = new OpcionSeleccionada();
-          opcionSeleccionada.nombreGrupo = grupo.nombre;
-          opcionSeleccionada.nombre = opcion.nombre;
-          opcionSeleccionada.precioVariacion = opcion.precioVariacion;
-          opcionSeleccionada.cantidad = opcion.cantidad;
+          var opcionSeleccionada   = {
+            nombreGrupo : grupo.nombre,
+            nombre : opcion.nombre,
+            precioVariacion : opcion.precioVariacion,
+            cantidad : opcion.cantidad,
+          }
           console.log(producto);
           producto.opcionesSeleccionadas.push(opcionSeleccionada);
+          opcion.cantidad = 0;
         }
       });
     })
     
    
     producto.gruposOpciones =[];
-    console.log(producto);
     this.carrito.totalProductos += Number(producto.precioTotal);
     this.carrito.productos.push(producto);
+
     this.carrito.on = true;    
     this.actualCarritoSubject.next(this.carrito);    
+  }
+
+  public cargarProductosAMesa(){
+    
+    
   }
 
   public agregarPagare(pagare){
@@ -136,7 +148,14 @@ export class CarritoService {
   }
 
   setearCliente(cliente){
+
+    
+
     this.carrito.cliente = cliente;
+   
+    if(this.carrito.cliente.keywords)
+      delete this.carrito.cliente.keywords;
+      
     console.log(this.carrito.cliente)
     this.actualCarritoSubject.next(this.carrito); 
   }
@@ -159,28 +178,51 @@ export class CarritoService {
 
   setearMetodoPago(metodo){
     this.carrito.metodoPago = metodo;
-    console.log(metodo);
     this.actualCarritoSubject.next(this.carrito); 
   } 
 
   public guardar(caja:Caja){
     
-    console.log(this.carrito);
+    
+
+    console.log(caja);
+
     this.carrito.on = false;
 
     if(this.carrito.productos.length > 0){
 
       let productosId = [];
       this.carrito.productos.forEach(p =>{
-        console.log(p.stock);
+
+        delete p.foto;   
+        delete p.keywords;     
+
         if(p.stock > 0){
-          p.stock = Number(p.stock) - Number(p.cantidad) * Number(p.valorPor);
+
+          if(p.valorPor)
+            p.stock = Number(p.stock) - (Number(p.cantidad) * Number(p.valorPor));
+          else
+            p.stock = Number(p.stock) - Number(p.cantidad);
+
+          if(p.stock < 0){
+            p.stock = 0;
+          }
+          
           let vStock:variacionStock = new variacionStock();
           vStock.productoId = p.id; 
           vStock.stock = p.stock;
-          this.variacionesStockService.add(vStock).then(data =>{
+          this.variacionesStockService.setPathProducto(p.id);
+          this.variacionesStockService.add(vStock).then(resp =>{
             console.log("variacion Guardada");
+            console.log(p.stock);
+            
           }); 
+          let data = {
+            "stock":p.stock
+          }
+          this.productosService.updateValue(p.id,data).then(data=>{
+            console.log("Actualizado")
+          })
         }  
         productosId.push(p.id);        
       })
@@ -203,8 +245,13 @@ export class CarritoService {
         pago.cajaId = this.carrito.cajaId;
         pago.metodoPago = this.carrito.metodoPago;
         pago.monto= venta.total;
-        pago.ventaId = venta.id;   
-        pago.motivo="Venta de productos";     
+        pago.ventaId = venta.id;  
+        pago.vendedorNombre = this.authenticationService.getNombre();
+         
+        pago.motivo="Venta de productos";   
+        
+       
+
         this.movimientosService.createMovimientoCaja(caja,pago);
       }
       else{
@@ -215,16 +262,18 @@ export class CarritoService {
         extraccion.ctaCorrienteId=this.carrito.ctaCorrienteId;
         extraccion.motivo="Venta de productos";
         extraccion.monto = -Number(venta.total);
+        extraccion.vendedorNombre = this.authenticationService.getNombre();
+        console.log(extraccion.vendedorNombre);
         extraccion.ventaId = venta.id;
         this.movimientosService.crearMovimientoCtaCorriente(extraccion);
 
       }     
-
+      
     }      
     
 
-    if(this.carrito.servicios.length > 0){
-
+    if(this.carrito.servicios && this.carrito.servicios.length > 0){
+      console.log("SERVICIO")
       this.carrito.servicios.forEach(servicio =>{
 
       
@@ -236,9 +285,7 @@ export class CarritoService {
           pago.servicioId=servicio.id;
           pago.cajaId=this.carrito.cajaId;
           pago.metodoPago=this.carrito.metodoPago;
-          pago.monto= servicio.plan.precio;
-          
-          
+          pago.monto= servicio.plan.precio;         
           pago.motivo="Venta de servicio";
           pago.servicioId = servicio.id;
           
@@ -259,9 +306,9 @@ export class CarritoService {
       });   
     }
 
-    console.log(this.carrito);
-    if(this.carrito.pagare.id != ""){
-      
+    
+    if(this.carrito.pagare && this.carrito.pagare.id != ""){
+      console.log("PAGARE")
       this.carrito.pagare.estado = "pagado";
       this.pagareService.update(this.carrito.pagare);
       if(this.carrito.metodoPago != "ctaCorriente"){
@@ -289,24 +336,33 @@ export class CarritoService {
       }
     }    
 
+    console.log("hasta aca ok")
     if(this.carrito.comandaId){
+      console.log(this.carrito.comandaId)
       this.comandasService.setComandaCobrada(this.carrito.comandaId);
     }
 
+    console.log("hasta aca ok")
     if(this.carrito.pedido){
       this.pedidoServices.setPedidoEnviado(this.carrito.pedido);
     }
 
+    console.log("hasta aca ok")
     if(this.carrito.cliente.email){
       this.notificacionesService.enviarByMail(this.carrito.cliente.email,"Mensaje a cliente","mensaje de compra");
     }
-    
+
+    console.log(this.carrito);
     this.vaciar();
     
   }  
 
   vaciar(){
-    this.carrito = new Carrito(this.authenticationService.getUID(),this.authenticationService.getNombre());
-    this.actualCarritoSubject.next(this.carrito); 
+  
+      this.carrito = new Carrito(this.authenticationService.getUID(),this.authenticationService.getNombre());
+      this.actualCarritoSubject.next(this.carrito); 
+
+
+    
   }
 }

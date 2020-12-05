@@ -21,13 +21,32 @@
         </div> 
       </div>
     </form>
-    
+    <a href="{{url}}" target="_blank">{{url}}</a> 
+    <ion-card>
+      <ngx-qrcode 
+          [elementType]="elementType" 
+          [value] = "value"
+          cssClass = "aclass"
+          errorCorrectionLevel = "L">
+      </ngx-qrcode>
+    </ion-card>
+
     <ion-item>
-      <ion-label>Habilitar Notificaciones QR:</ion-label>
-      <ion-toggle [(ngModel)]="mesa.habilitaNotificaciones"></ion-toggle>
+      <ion-label>Habilitar Comandas Por Carta Digital</ion-label>
+      <ion-toggle [(ngModel)]="mesa.habilitarComandasApp"></ion-toggle>
     </ion-item>
 
-    <div *ngIf="mesa.habilitaNotificaciones">
+    <ion-item>
+      <ion-label>Habilitar Llamador de mozo</ion-label>
+      <ion-toggle [(ngModel)]="mesa.habilitarLlamadorMozoApp"></ion-toggle>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Habilitar Notificaciones:</ion-label>
+      <ion-toggle [(ngModel)]="mesa.habilitarNotificaciones"></ion-toggle>
+    </ion-item>
+
+    <div *ngIf="mesa.habilitarNotificaciones">
       <ion-item  class="item-card">
         <ion-button  size="large" (click)="agregarEncargado()"  expand="block">Asignar Usuario * </ion-button>
       </ion-item>
@@ -38,7 +57,7 @@
             <ion-icon name="person-outline"></ion-icon>
           </div>   
           <ion-label>
-            <h3>{{encargado.user_email}}</h3>
+            <h3>{{encargado.userEmail}}</h3>
             <p>Estado invitacion: 
               <span *ngIf="encargado.estado == 'pendiente'" style="color:blue">{{encargado.estado}}</span>
               <span *ngIf="encargado.estado == 'aceptado'" style="color:green">{{encargado.estado}}</span>
@@ -49,18 +68,9 @@
         <ion-item-options side="end">
           <ion-item-option (click)="eliminarEncargado(i)"><ion-icon name="trash" ></ion-icon>Destituir</ion-item-option>
         </ion-item-options>
-
       </ion-item-sliding>
-    </div>
-  
-    <ion-card *ngIf="mesa.habilitaNotificaciones">
-        <ngx-qrcode 
-            [elementType]="elementType" 
-            [value] = "value"
-            cssClass = "aclass"
-            errorCorrectionLevel = "L">
-      </ngx-qrcode>
-    </ion-card>
+    </div> 
+    
 
     <div class="form-card" *ngIf="updating">
       <ion-text color="danger">
@@ -68,9 +78,11 @@
       </ion-text>    
       <ion-button  color="danger" (click)="elimiar()">Eliminar Mesa</ion-button>
     </div>
-    <ion-toolbar>
-      <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
-      
-      <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
-    </ion-toolbar>
+    
 </ion-content>
+<ion-footer class="ion-no-border ion-padding">
+  <ion-toolbar>
+    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-footer>

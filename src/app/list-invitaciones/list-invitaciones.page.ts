@@ -32,7 +32,8 @@ export class ListInvitacionesPage implements OnInit {
     private authService:AuthenticationService,
     private rolesServices:RolesService,
     private firestore: AngularFirestore,
-    private comercioService:ComerciosService
+    private comercioService:ComerciosService,
+    private rolesService:RolesService
   ) { }
 
   ngOnInit() {
@@ -129,53 +130,61 @@ export class ListInvitacionesPage implements OnInit {
   }
 
   eliminarInvitacion(item){
+
+    var rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{       
+      
+      snapshot.forEach(snap =>{
+        var rol:any = snap.payload.doc.data();
+        rol.id = snap.payload.doc.id;
+        console.log(rol);  
+        
+        if(rol.userEmail == item.email && rol.rol == item.rol)
+          rol.estado = "rechazada";        
+        this.rolesServices.update(rol.id,rol);
+
+      });
+      //this.buscar();
+      rolSub.unsubscribe();
+    });
     this.invitacionesServices.delete(item);
   }
 
   aceptarInvitacion(item){
 
-    var rol:Rol = new Rol();
+    /*var rol:Rol = new Rol();
     rol.id = this.firestore.createId();
     
-    rol.user_email = item.email;
+    rol.userEmail = item.email;
+    rol.userId = this.authService.getActualUser().uid;
     rol.rol = item.rol;
-    rol.estado = "aceptada";
-
-    const data = JSON.parse(JSON.stringify(rol));   
-
+    
+    const data = JSON.parse(JSON.stringify(rol));
     data.comercioRef = this.comercioService.getRef(item.comercioId);
     data.comercioId = item.comercioId;
 
-    console.log(data)
-    this.rolesServices.create(data);
+    console.log(data)*/
+    
 
-
-    var subs = this.comercioService.get(item.comercioId).subscribe(snapshot=>{
-      subs.unsubscribe();
-      let comercio:any = snapshot.payload.data();
-      comercio.id = snapshot.payload.id;
-
-      if(item.rol == "comandatario"){
-     
-        comercio.rolComandatarios.push(rol.id);
-        this.comercioService.update(comercio);
-      }
-  
-      if(item.rol == "cadete"){
+    var rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{       
+      
+      snapshot.forEach(snap =>{
+        var rol:any = snap.payload.doc.data();
+        rol.id = snap.payload.doc.id;
+        console.log(rol);  
         
-        comercio.rolCadetes.push(rol.id);
-        this.comercioService.update(comercio);
-      }
-  
-      if(item.rol == "encargado"){
+        if(rol.userEmail == item.email && rol.rol == item.rol)
+          rol.estado = "aceptada";
         
-        comercio.rolEncargados.push(rol.id);
-        this.comercioService.update(comercio);
-      }
+        this.rolesServices.update(rol.id,rol);
 
-    })   
+      });
+      //this.buscar();
+      rolSub.unsubscribe();
+    });
+
 
     this.invitacionesServices.delete(item);
   }
+    
 
 }

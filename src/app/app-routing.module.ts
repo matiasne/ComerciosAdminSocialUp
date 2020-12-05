@@ -348,6 +348,38 @@ const routes: Routes = [
     path: 'select-mesa',
     loadChildren: () => import('./select-mesa/select-mesa.module').then( m => m.SelectMesaPageModule)
   },
+  {
+    path: 'ticket-print',
+    loadChildren: () => import('./ticket-print/ticket-print.module').then( m => m.TicketPrintPageModule)
+  },
+  {
+    path: 'details-mesa',
+    loadChildren: () => import('./details-mesa/details-mesa.module').then( m => m.DetailsMesaPageModule)
+  },
+  {
+    path: 'select-producto',
+    loadChildren: () => import('./select-producto/select-producto.module').then( m => m.SelectProductoPageModule)
+  },
+  {
+    path: 'form-cocina',
+    loadChildren: () => import('./form-cocina/form-cocina.module').then( m => m.FormCocinaPageModule)
+  },
+  {
+    path: 'select-cocina',
+    loadChildren: () => import('./select-cocina/select-cocina.module').then( m => m.SelectCocinaPageModule)
+  },
+  {
+    path: 'list-cocinas',
+    loadChildren: () => import('./list-cocinas/list-cocinas.module').then( m => m.ListCocinasPageModule)
+  },
+  {
+    path: 'details-cocina',
+    loadChildren: () => import('./details-cocina/details-cocina.module').then( m => m.DetailsCocinaPageModule)
+  },
+  {
+    path: 'form-apertura-caja',
+    loadChildren: () => import('./form-apertura-caja/form-apertura-caja.module').then( m => m.FormAperturaCajaPageModule)
+  },
   
 ];
 

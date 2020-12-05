@@ -12,38 +12,47 @@ import { ComerciosService } from './comercios.service';
 export class RolesService {
 
   private collection:string;
+  private collectionGroup:string;
   
   constructor(
     private firestore: AngularFirestore,
     private auth:AuthenticationService,
   ) {
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
-    this.collection = 'roles';
+    this.collection = 'comercios/'+comercio_seleccionadoId+'/roles';
+
+    this.collectionGroup = "roles";
   }
   
   public create(data) {    
-    console.log(this.collection);
-     
+    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+    this.collection = 'comercios/'+comercio_seleccionadoId+'/roles';
+
     return this.firestore.collection(this.collection).doc(data.id).set({...data,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
   }
 
   public get(documentId: string) {
+
+    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+    this.collection = 'comercios/'+comercio_seleccionadoId+'/roles';
+
     return this.firestore.collection(this.collection).doc(documentId).snapshotChanges();
   }
 
   public getAllTipos() {   
+
+    
     return this.firestore.collection('roles_tipos').snapshotChanges();
   }
 
   public getAll() {   
-    return this.firestore.collection(this.collection).snapshotChanges();
+    return this.firestore.collectionGroup(this.collectionGroup).snapshotChanges();
   }
 
-  public getAllRolesbyUser() {  
-    let user_email = this.auth.getActualUser().email; 
-    return this.firestore.collection('roles', ref => ref.where('user_email', '==', user_email)).get(/*{ source: 'server' }*/)
+  public getAllRolesbyUser(id) {  
+    return this.firestore.collectionGroup(this.collectionGroup, ref => ref.where('userId', '==', id)).get(/*{ source: 'server' }*/)
     .pipe(
       map(actions => {
         const data = [];       
@@ -59,62 +68,44 @@ export class RolesService {
   }  
 
   getAllRolesbyComercio(){
+    
+
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
-    console.log(comercio_seleccionadoId)
-    return this.firestore.collection('roles', ref => ref.where('comercioId', '==', comercio_seleccionadoId)).snapshotChanges();/*.get({ source: 'server' })
-    .pipe(
-      map(actions => {
-        const data = [];       
-        actions.forEach(a => {
-          const item = a.data() ;
-          item.id = a.id;
-          console.log(item)
-          data.push(item);
-        });
-        return data;
-      })
-    )*/
+    this.collection = 'comercios/'+comercio_seleccionadoId+'/roles';
+
+    return this.firestore.collection(this.collection).snapshotChanges();
   }
 
-  public setUserAsAdmin(user_email,comercioId){   
+  public setUserAsAdmin(comercioId){   
  
     let params = {
-      user_email : user_email,
+      user_email : this.auth.getEmail(),
+      user_id : this.auth.getUID(),
       comercioId : comercioId,
       rol : "admin"
     }
-    this.firestore.collection(this.collection).add(Object.assign({}, params));       
+
+
+    this.firestore.collection('comercios/'+comercioId+'/roles').add(Object.assign({}, params));       
   } 
 
   public getAllOwnerId(){
-    return this.firestore.collection(this.collection, ref=>ref.where("rol","==","owner")).snapshotChanges();
+    return this.firestore.collectionGroup(this.collectionGroup, ref=>ref.where("rol","==","owner")).snapshotChanges();
   }
 
   public update(documentId: string, data: any) {
     const param = JSON.parse(JSON.stringify(data));
-    return this.firestore.collection(this.collection).doc(documentId).set({...param,
+    return this.firestore.collection('comercios/'+data.comercioId+'/roles').doc(documentId).set({...param,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
   }
 
-  public delete(rolId) {
+  public delete(comercioId,rolId) {
 
-      
+    this.collection = 'comercios/'+comercioId+'/roles';
 
-  
-
-    return this.firestore.collection('roles').doc(rolId).delete();
+    return this.firestore.collection(this.collection).doc(rolId).delete();
   }
 
-  deleteByComercio(comercioId){
-    this.firestore.collection('roles', ref => ref.where('comercioId', '==', comercioId)).snapshotChanges().subscribe(snapshot=>{
-      snapshot.forEach(snap =>{
-
-        console.log("Eliminando roles del comercio: "+comercioId);
-        var rolid:any = snap.payload.doc.id;
-        this.delete(rolid);
-
-      });
-    });
-  }
+ 
 }
