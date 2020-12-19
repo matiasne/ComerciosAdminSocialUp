@@ -2,6 +2,7 @@ export class Comercio {
 
     public id="";
     public nombre:"";
+    public telefono:"";
     public icono = "";
     public portada = "";
     public createdAt= "";

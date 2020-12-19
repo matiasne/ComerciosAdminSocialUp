@@ -79,8 +79,8 @@ export class RolesService {
   public setUserAsAdmin(comercioId){   
  
     let params = {
-      user_email : this.auth.getEmail(),
-      user_id : this.auth.getUID(),
+      userEmail : this.auth.getEmail(),
+      userId : this.auth.getUID(),
       comercioId : comercioId,
       rol : "admin"
     }

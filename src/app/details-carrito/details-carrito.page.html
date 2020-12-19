@@ -53,12 +53,12 @@
         <ion-label>Seleccionar Caja</ion-label>
         <ion-select [(ngModel)]="cajaSeleccionadaIndex" (ionChange)="setearCaja()">
           <span *ngFor="let caja of cajas;let i=index">
-            <ion-select-option *ngIf="caja.estado == 'abierta'"  [value]="i" selected>{{caja.nombre}}</ion-select-option>
+            <ion-select-option [value]="i" selected>{{caja.nombre}}</ion-select-option>
           </span>          
         </ion-select>
       </ion-item>
-
-      <ion-item class="item-card" *ngIf="cajas[cajaSeleccionadaIndex].estado == 'abierta'">
+      
+      <ion-item class="item-card" *ngIf="cajas[cajaSeleccionadaIndex]">
         <ion-label>Seleccione Método de Pago</ion-label>
           <ion-select [(ngModel)]="metodoPagoSeleccionado" (ionChange)="setearMetodoPago()">
             <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].efectivo" [value]="'efectivo'">Efectivo</ion-select-option>
@@ -134,6 +134,10 @@
         </ion-item>      
       </ion-list>
     </div>
+    <div style="max-width: 320px;">
+      <ngx-slide-confirm hint="Slide to confirm" (confirm)="onConfirm()"></ngx-slide-confirm>
+    </div>
+
 </ion-content>
 
 <ion-footer class="ion-no-border ion-padding">
@@ -141,10 +145,11 @@
   <ion-toolbar>
     
     
-    <ion-button *ngIf="habilitadoCargarMesa == 'true'" slot="end"  color="success" (click)="cargarAMesa()">Cargar a mesa: {{carrito.mesa.nombre}}</ion-button>
+    <ion-button *ngIf="habilitadoCargarMesa == 'true' && carrito.mesa.id != ''" slot="end"  color="success" (click)="cargarAMesa()">Cargar a mesa: {{carrito.mesa.nombre}}</ion-button>
     <ion-button *ngIf="habilitadoCobro == 'true'" slot="start"  color="success" (click)="cobrar()">Cobrar: ${{carrito.totalProductos + carrito.totalServicios}}</ion-button>
     <ion-button *ngIf="habilitadoComanda == 'true'" slot="end" color="primary" (click)="comanda()">Comanda</ion-button>
 
 
+    
   </ion-toolbar>
 </ion-footer>

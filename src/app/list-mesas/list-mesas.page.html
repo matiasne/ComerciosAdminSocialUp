@@ -17,6 +17,7 @@
         <ion-label>
           <b>{{mesa.nombre}}</b>         
         </ion-label> 
+        <ion-badge color="success" *ngIf="mesa.productos.length > 0" slot="end">{{mesa.productos.length}}</ion-badge>
       </ion-item>  
   
       <ion-item-options side="end">

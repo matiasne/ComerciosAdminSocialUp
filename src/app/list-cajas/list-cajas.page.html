@@ -8,6 +8,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <h2 *ngIf="cajas.length == 0" (click)="openAddCaja()">No tienes cajas configuradas aun! agrega una.</h2>
   <ion-list lines="none">        
     <ion-item-sliding *ngFor="let caja of cajas" class="item-card">
       <ion-item (click)="seleccionar(caja.id)">  

@@ -10,6 +10,8 @@ import { NotificacionesDesktopService } from '../Services/notificaciones-desktop
 import { NotificacionesService } from '../Services/notificaciones.service';
 import { PresenceService } from '../Services/presence.service';
 import { UsuariosService } from '../Services/usuarios.service';
+import { ToastService } from '../Services/toast.service';
+import { FormComercioPage } from '../form-comercio/form-comercio.page';
 
 
 @Component({
@@ -25,6 +27,11 @@ export class HomePage implements OnInit {
 
   public conexionEstado = "offline";
 
+  public user = {
+    maxComercios:1
+  };
+  public habilitadoCrearComercio = true;
+
   constructor(
     public authService:AuthenticationService,
     public comerciosService:ComerciosService,
@@ -33,13 +40,24 @@ export class HomePage implements OnInit {
     public loadingService:LoadingService,
     public alertController:AlertController,
     public usuariosService:UsuariosService,
-   
-  ) { }
+    public AuthenticationService:AuthenticationService,
+    public toastService:ToastService,
+    private modalCtrl:ModalController
+  ) { 
+    
+
+  }
 
   ngOnInit() {
     
-
    
+  } 
+
+  async getAfipStatus(){
+    //const serverStatus = await afip.ElectronicBilling.getServerStatus();
+
+    console.log('Este es el estado del servidor:');
+    //console.log(serverStatus);
   }
 
   refresh(event) {
@@ -62,25 +80,23 @@ export class HomePage implements OnInit {
       snapshot.forEach(snap =>{
           var rol:any = snap;     
           
-          console.log(rol)
-       
           this.loadingService.presentLoading();
-
+          console.log(rol);
           if(rol.comercioId){
             this.comercioSubs = this.comerciosService.get(rol.comercioId).subscribe(data =>{  
               if(data.payload.data()){              
-                  var comercio:any = data.payload.data();          
+                  var comercio:any = data.payload.data();    
                   comercio.id = data.payload.id;
                   comercio.rol = rol;  
                   if(rol.estado != "pendiente")
                     this.comercios.push(comercio);
-              }                 
-              this.loadingService.dismissLoading();
+              }                
               
+              this.loadingService.dismissLoading();
+              this.setPermisos();
             });
           }
-          
-        
+         
         
         
       });
@@ -95,8 +111,40 @@ export class HomePage implements OnInit {
     //this.subsItems.unsubscribe(); 
   }
 
+  setPermisos(){
+    this.user = this.AuthenticationService.getActualUser();
+
+    if(this.user.maxComercios){
+      console.log(this.comercios.length+" "+this.user.maxComercios)
+      if(this.comercios.length >= this.user.maxComercios){
+        this.habilitadoCrearComercio = false;
+      }
+    }
+    else{
+      this.user.maxComercios = 1;
+      if(this.comercios.length > 0){
+        this.habilitadoCrearComercio = false;
+      }
+    }
+  }
+
   async nuevoComercio(){
-    this.router.navigate(['form-comercio']);
+    if(this.habilitadoCrearComercio == false){
+      this.toastService.mensaje("Has superado el máximo de comercios que puedes agregar","Para agregar más amplia tu plan contactandonos");
+    }
+    else{
+      const modal = await this.modalCtrl.create({
+        component: FormComercioPage,
+        componentProps:undefined
+      });
+      modal.onDidDismiss()
+      .then((retorno) => {  
+          this.refresh(undefined);  
+      });
+      return await modal.present();
+
+    }
+    
   }
 
   seleccionar(comercio){
@@ -109,14 +157,26 @@ export class HomePage implements OnInit {
     //  }      
   }
 
-  editarInvitacion(item){
-    //preguntar si acepta o no el rol
-    //this.rolesService.aceptarInvitacion();
-  }
 
-  editar(item){
-    this.seleccionar(item); //Para que en la edicion pueda usar los service sin pasarle el id del comercio
-    this.router.navigate(['form-comercio',{id:item.id}]);
+  async editar(item){
+   // this.seleccionar(item);
+
+    const modal = await this.modalCtrl.create({
+      component: FormComercioPage,
+      componentProps: {
+        comercio:item      
+      }
+    });
+    modal.onDidDismiss()
+    .then((retorno) => {
+      
+        this.refresh(undefined);  
+      
+    });
+    return await modal.present();
+    
+
+
   }
 
   async desvincular(comercio){   

@@ -56,6 +56,7 @@ import interactionPlugin from '@fullcalendar/interaction'; // a plugin
 import { Network } from '@ionic-native/network/ngx';
 
 import { Printer, PrintOptions } from '@ionic-native/printer/ngx';
+import { FormComercioPage } from './form-comercio/form-comercio.page';
 
 
 
@@ -92,7 +93,7 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     ListServiciosPage,
     ListVentaPage,
     ListComerciosOwnerPage,
-    
+    FormComercioPage
   ],
   entryComponents: [
     FormPlanPage,
@@ -106,7 +107,8 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     ListClientesPage,
     ListServiciosPage,
     ListVentaPage,
-    ListComerciosOwnerPage
+    ListComerciosOwnerPage,
+    FormComercioPage
   ],
   imports: [
     FormsModule,

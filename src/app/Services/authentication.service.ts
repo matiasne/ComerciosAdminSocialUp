@@ -207,10 +207,7 @@ export class AuthenticationService {
     localStorage.setItem('rol',null);
     localStorage.setItem('comercio_seleccionadoId',null);
     this.userIdSubject.next(user.uid);
-    
-   
     return userRef.set(data, { merge: true });
-
   }
 
   setRol(rol){

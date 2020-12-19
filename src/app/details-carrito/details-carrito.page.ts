@@ -6,7 +6,7 @@ import { ComandasService } from '../Services/comandas.service';
 import { Subscription } from 'rxjs';
 import { ComerciosService } from '../Services/comercios.service';
 import { CajasService } from '../Services/cajas.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CtaCorrientesService } from '../Services/cta-corrientes.service';
 import { Carrito } from '../models/carrito';
 import { LoadingService } from '../Services/loading.service';
@@ -30,7 +30,7 @@ import { Comercio } from '../Models/comercio';
 export class DetailsCarritoPage implements OnInit {
 
   carrito:Carrito;
-  public cajas:Caja[] = []
+  public cajas = []
 
   public ctasCorrientes =[];
   cliente:any = "";
@@ -71,13 +71,13 @@ export class DetailsCarritoPage implements OnInit {
     private alertController:AlertController,
     private printer: Printer,
     private mesasSerivce:MesasService,
-    private ctasCorrientesService:CtaCorrientesService
+    private ctasCorrientesService:CtaCorrientesService,
+    private router:Router
   ) {
 
     this.comercio = new Comercio();
     this.carrito = new Carrito("","");
     this.cajasService.setearPath();   
-    this.cajas[0] = new Caja();
         
 
   }
@@ -98,8 +98,8 @@ export class DetailsCarritoPage implements OnInit {
     
     if(this.comercio.modulos.mesas){
       this.habilitadoCargarMesa = this.route.snapshot.params.mesa;
-      this.habilitadoCobro = "false";
     }
+
     
     this.subsCarrio = this.carritoService.getActualCarritoSubs().subscribe(data=>{
       this.carrito = data;
@@ -118,8 +118,21 @@ export class DetailsCarritoPage implements OnInit {
 
     
     this.cajasService.list().subscribe((cajas:any)=>{
-      this.cajas = cajas;    
-      this.setSavedCaja();
+      
+      for(let i=0;i <cajas.length;i++){
+        if(cajas[i].estado == "abierta"){
+          this.cajas.push(cajas[i]);
+        }   
+      }      
+      console.log(this.cajas);
+      if(this.cajas.length == 0){
+        this.toastServices.alert("Debes tener al menos una caja abierta","");
+        this.router.navigate(['/list-cajas']);
+      }
+      else{
+        this.setSavedCaja();
+      }
+     
     });
   }
 
@@ -188,11 +201,7 @@ export class DetailsCarritoPage implements OnInit {
       
       this.cantidadMetodos = 0;
   
-      if(this.cajas.length == 0){
-        this.toastServices.alert("Debes configurara al menos una caja", "Realiza esto en la opcion 'configuraciones'");
-        this.navCtrl.back();
-        return
-      }
+     
       
       if(this.cajas[this.cajaSeleccionadaIndex].debito){
         setear = "debito"; 
@@ -331,28 +340,36 @@ export class DetailsCarritoPage implements OnInit {
       this.toastServices.alert("Debes ingresar al menos un producto o servicio","");      
       return;
     }
-    this.comandasServices.create(this.carrito);
-    this.carritoService.vaciar();
-     
+    if(this.comercio.modulos.comandas){
+      this.comandasServices.create(this.carrito);
+    }
+    this.carritoService.vaciar();     
   }
 
 
   cargarAMesa(){
-    if(this.carrito.servicios.length == 0 && this.carrito.productos.length == 0 && this.carrito.pagare.id == ""){
-      this.toastServices.alert("Debes ingresar al menos un producto o servicio","");      
-      return;
-    }
 
-   
-    this.carrito.productos.forEach(p=>{
-      this.carrito.mesa.productos.push(Object.assign({}, p))
-    })
-   
-   // this.carrito.mesa.productos = this.carrito.productos;
-    this.mesasSerivce.update(this.carrito.mesa).then(data=>{
-      console.log("mesa actualizada");      
-    });
-    this.comanda(); 
+    if(this.carrito.mesa.id != ""){
+      if(this.carrito.servicios.length == 0 && this.carrito.productos.length == 0 && this.carrito.pagare.id == ""){
+        this.toastServices.alert("Debes ingresar al menos un producto o servicio","");      
+        return;
+      }
+  
+     
+      this.carrito.productos.forEach(p=>{
+        this.carrito.mesa.productos.push(Object.assign({}, p))
+      })
+     
+     // this.carrito.mesa.productos = this.carrito.productos;
+      this.mesasSerivce.update(this.carrito.mesa).then(data=>{
+        console.log("mesa actualizada");      
+      });
+      this.comanda(); 
+    }
+    else{
+      this.toastServices.alert("Debes seleccionar al menos una mesa!","");
+    }
+    
    
    
     //aca se actualiza la mesa con sus productos

@@ -1,26 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { NavController, ActionSheetController, ModalController, AlertController, LoadingController, Platform } from '@ionic/angular';
+import { NavController, ActionSheetController, ModalController, AlertController, LoadingController, Platform, NavParams } from '@ionic/angular';
 import { ComerciosService } from '../Services/comercios.service';
-import { Crop } from '@ionic-native/crop/ngx';
-import { File } from '@ionic-native/file/ngx';
-import { Camera, CameraOptions} from '@ionic-native/Camera/ngx';
-import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { DataService } from '../Services/data.service';
-import { FormCajaPage } from '../form-caja/form-caja.page';
 import { CajasService } from '../Services/cajas.service';
 import { Subscription } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormDireccionPage } from '../form-direccion/form-direccion.page';
-import { FormCategoriaPage } from '../form-categoria/form-categoria.page';
-import { snapshotChanges } from 'angularfire2/database';
-import { CategoriasService } from '../Services/categorias.service';
-import { AngularFirestore } from 'angularfire2/firestore';
 import { Comercio } from '../Models/comercio';
-import { FormHorarioPage } from '../form-horario/form-horario.page';
-import { HorariosService } from '../Services/horarios.service';
 import { LoadingService } from '../Services/loading.service';
-import { ImagesService } from '../Services/images.service';
 declare var google: any;
 import * as firebase from 'firebase/app';
 import * as geofirex from 'geofirex';
@@ -75,42 +61,24 @@ export class FormComercioPage implements OnInit {
   public IsMobile = false;
 
   constructor(
-    private _IMAGES: ImagesService,
     private formBuilder: FormBuilder,
-    private navCtrl: NavController, 
     private comerciosService:ComerciosService,
-    private camera: Camera,
-    private crop: Crop,
     public actionSheetController: ActionSheetController,
     public modalController: ModalController,
-    private file: File,   
-    private imagePicker: ImagePicker,
     public dataService:DataService,
     public cajasService:CajasService,
-    private route: ActivatedRoute,
     public alertController: AlertController,
-    public router:Router,
     public loadingService:LoadingService,
-    private categoriaServices:CategoriasService,
-    private firestore: AngularFirestore,
-    private horariosServices:HorariosService,
     private modalCtrl:ModalController,
     private platform:Platform,
     private toastServices:ToastService,
     private authenticationService:AuthenticationService,
-    private rolesService:RolesService
+    private rolesService:RolesService,
+    private navParams:NavParams
   ) {
 
     this.comercio = new Comercio();
-
-
-    if (this.platform.is('desktop')) {
-      this.IsMobile = false;
-    } else {
-      this.IsMobile = true;
-    } 
-
-    this.geo = geofirex.init(firebase);
+   
 
     this.datosForm = this.formBuilder.group({
       id:['', Validators.required],
@@ -124,57 +92,9 @@ export class FormComercioPage implements OnInit {
     });
 
 
-    if(this.route.snapshot.params.id){
+    
 
-      this.updating = true;
-      this.titulo = "Editar Comercio";
-
-      this.subs = this.comerciosService.get(this.route.snapshot.params.id).subscribe(data=>{
-
-        this.comercio.asignarValores(data.payload.data());
-        this.comercio.id = data.payload.id;
-
-        this.datosForm.patchValue(this.comercio);        
-
-        this.croppedImageIcono = this.comercio.icono;      
-        this.croppedImagePortada = this.comercio.portada;      
-
-      //  this.obtenerCategorias(this.comercio.id);
-      //  this.obtnerCajas(this.comercio.id);
-        
-        this.horarios = this.comercio.horarios;
-
-        this.initMap("map2",{
-          center:{
-            lat:Number(this.comercio.posicion.geopoint.Latitude), 
-            lng:Number(this.comercio.posicion.geopoint.Longitude)
-          },
-          zoom:15 ,
-          options: {
-            disableDefaultUI: true,
-            scrollwheel: true,
-            streetViewControl: false,
-          },    
-        });
-
-        let posicion = {lat: Number(this.comercio.posicion.geopoint.Latitude), lng: Number(this.comercio.posicion.geopoint.Longitude)};
-
-
-        var marker = this.makeMarker({
-          posicion: this.comercio.posicion,
-          map: this.map,
-          title: 'Hello World!',
-          draggable:true,
-        });
-
-
-      })
-    }
-    else{
-
-     // this.comercio.id = this.firestore.createId();
-        
-    }       
+   
   }
 
   imagenSeleccionadaPortada(newValue : any){
@@ -190,6 +110,12 @@ export class FormComercioPage implements OnInit {
 
 
   ngOnInit() {
+
+    if(this.navParams.get('comercio')){
+      this.updating = true;
+      this.datosForm.patchValue(this.navParams.get('comercio'));        
+      this.comercio.asignarValores(this.navParams.get('comercio'));
+    }
 
     this.initMap("map2",{
       center:{
@@ -216,6 +142,53 @@ export class FormComercioPage implements OnInit {
 
   ionViewDidEnter(){
     
+    if (this.platform.is('desktop')) {
+      this.IsMobile = false;
+    } else {
+      this.IsMobile = true;
+    } 
+
+    this.geo = geofirex.init(firebase);
+
+
+    if(this.navParams.get('comercio')){
+
+      this.updating = true;
+      this.titulo = "Editar Comercio";
+
+      this.croppedImageIcono = this.comercio.icono;      
+      this.croppedImagePortada = this.comercio.portada;      
+      
+      this.horarios = this.comercio.horarios;
+
+      this.initMap("map2",{
+        center:{
+          lat:Number(this.comercio.posicion.geopoint.Latitude), 
+          lng:Number(this.comercio.posicion.geopoint.Longitude)
+        },
+        zoom:15 ,
+        options: {
+          disableDefaultUI: true,
+          scrollwheel: true,
+          streetViewControl: false,
+        },    
+      });
+
+      let posicion = {lat: Number(this.comercio.posicion.geopoint.Latitude), lng: Number(this.comercio.posicion.geopoint.Longitude)};
+
+
+      var marker = this.makeMarker({
+        posicion: this.comercio.posicion,
+        map: this.map,
+        title: 'Hello World!',
+        draggable:true,
+      });      
+    }
+    else{
+
+     // this.comercio.id = this.firestore.createId();
+        
+    }       
   }
 
   ionViewDidLeave(){
@@ -255,7 +228,16 @@ export class FormComercioPage implements OnInit {
       this.toastServices.alert('Ingrese un número en la dirección del comercio',"");
     }
     
-    this.comercio.asignarValores(this.datosForm.value);
+    console.log(this.comercio)
+    //this.comercio.asignarValores(this.datosForm.value);
+
+    this.comercio.id = this.datosForm.controls.id.value;
+    this.comercio.nombre = this.datosForm.controls.nombre.value;
+    this.comercio.direccion = this.datosForm.controls.direccion.value;
+    this.comercio.telefono = this.datosForm.controls.telefono.value;
+    this.comercio.icono = this.datosForm.controls.icono.value;
+    this.comercio.portada = this.datosForm.controls.portada.value;
+    this.comercio.descripcion = this.datosForm.controls.descripcion.value;
     
 
     var palabras = [this.datosForm.controls.nombre.value,this.datosForm.controls.descripcion.value];
@@ -276,7 +258,7 @@ export class FormComercioPage implements OnInit {
       else{
         
         this.comerciosService.update(this.comercio);
-        this.navCtrl.back();  
+        this.modalCtrl.dismiss();  
         
 
         if(this.updating == false){
@@ -315,7 +297,7 @@ export class FormComercioPage implements OnInit {
           text: 'Eliminar',
           handler: () => {
             this.comerciosService.delete(this.comercio,this.cajas);
-            this.navCtrl.back();
+            this.modalCtrl.dismiss();
           }
         }
       ]
@@ -323,11 +305,6 @@ export class FormComercioPage implements OnInit {
     await alert.present();
   }
 
-  async irDireccion(){
-
-    this.router.navigate(['form-direccion']);
-    
-  }
 
   initMap(el, options) {
     this.map = this.makeMap(el, options)
@@ -395,68 +372,19 @@ export class FormComercioPage implements OnInit {
 
       setTimeout(function(){google.maps.event.removeListener(zoomChangeBoundsListener)}, 2000);
 
-      this.fillInAddressForm(this.place.address_components);
-    
+      setTimeout(function () {
+        document.getElementById('pac-input').click();
+      }, 2500);    
     });
 
   }
 
-  
-  fillInAddressForm(addressComponents = this.place.address_components) {
-  
-    var pickedAddress =  {
-      street_number: ["street_number", "short_name"],
-      route: ["street_name", "long_name"],
-      locality: ["locality", "long_name"],
-      administrative_area_level_1: ["state", "short_name"],
-      country: ["country", "long_name"],
-      postal_code: ["zip", "short_name"],
-      sublocality_level_1: ["sublocality", "long_name"],
-    }
-
-    
-      var addressType;
-
-      
-      // Get each component of the address from the place details,
-      // and then fill-in the corresponding field on the form.
-      var direccion_completa ="";
-      for (var i = 0; i < addressComponents.length; i++) {
-          addressType = addressComponents[i].types[0]
-
-          if (pickedAddress[addressType]) {
-              direccion_completa = direccion_completa +" "+  addressComponents[i][pickedAddress[addressType][1]]+","
-
-              if(addressType == "country")
-                this.comercio.pais = addressComponents[i][pickedAddress[addressType][1]];
-              
-              if(addressType == "locality")
-                this.comercio.localidad = addressComponents[i][pickedAddress[addressType][1]];
-
-              if(addressType == "route")
-                this.comercio.calleNombre = addressComponents[i][pickedAddress[addressType][1]];
-
-              if(addressType == "street_number")
-                this.comercio.calleNumero = addressComponents[i][pickedAddress[addressType][1]];
-              
-              if(addressType == "administrative_area_level_1")
-                this.comercio.provincia = addressComponents[i][pickedAddress[addressType][1]];
-          }
-      }
-
-      this.datosForm.patchValue({
-        direccion: direccion_completa   
-      });
-
-      setTimeout(function () {
-        document.getElementById('pac-input').click();
-      }, 2500);
-      
-      
-  }
 
 
   makeMarker(options) {
+    this.markers.forEach(element => {
+      element.setMap(null);
+    });
     var marker = new google.maps.Marker(options)
     this.markers.push(marker)
     return marker
@@ -464,8 +392,6 @@ export class FormComercioPage implements OnInit {
 
 
   cancelar(){
-    if(!this.updating)
-      this.comerciosService.delete(this.comercio,this.cajas);
-    this.navCtrl.back();
+    this.modalCtrl.dismiss();
   }
 }
