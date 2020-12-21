@@ -79,7 +79,7 @@ export class NotificacionesService {
 
   enviarById(id,titulo,mensaje){
 
-    this.usuariosService.get(id).subscribe(snapshot=>{
+    let sub = this.usuariosService.get(id).subscribe(snapshot=>{
       
         var usuario:any = snapshot.payload.data();
         usuario.id = snapshot.payload.id;   
@@ -103,12 +103,13 @@ export class NotificacionesService {
         notificacion.estado = "pendiente";
 
         this.notificacionesAppService.create(notificacion);
-      
+        sub.unsubscribe();
     })
   }
 
   enviarByRolId(id,titulo,mensaje){
 
+    console.log("!!!!!!!!!!!!!!")
     this.rolesService.get(id).subscribe(snapshot=>{
       
         var rol:any = snapshot.payload.data();
