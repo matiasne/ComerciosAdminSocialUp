@@ -10,6 +10,7 @@ import { ComerciosService } from './comercios.service';
 import { Comanda } from '../models/comanda';
 import { RolesService } from './roles.service';
 import { AlertController } from '@ionic/angular';
+import { CocinasService } from './cocinas.service';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +27,7 @@ export class ComandasService {
     private ventasService:VentasService,
     private notificacionesService:NotificacionesService,
     private comercioService:ComerciosService,
+    private cocinaService:CocinasService,
     private rolesService:RolesService,
     private alertController:AlertController
   ) {
@@ -161,7 +163,7 @@ export class ComandasService {
     
     if(comanda.clienteId)
       this.notificacionesService.enviarById(comanda.empleadoId,"Tu pedido esta listo!","");
-    
+
     this.firestore.collection(this.getCollection()).doc(comanda.id).update({status: 2});
   }
 
@@ -184,6 +186,8 @@ export class ComandasService {
       ref.where('empleadoId','==',empleadoId).where('status','==',2)
        ).snapshotChanges();    
   }
+
+  
 
   
 

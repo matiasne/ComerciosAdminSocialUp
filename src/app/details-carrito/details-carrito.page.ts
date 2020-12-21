@@ -117,23 +117,26 @@ export class DetailsCarritoPage implements OnInit {
     })
 
     
-    this.cajasService.list().subscribe((cajas:any)=>{
+    if(this.comercio.modulos.cajas){
+      this.cajasService.list().subscribe((cajas:any)=>{
       
-      for(let i=0;i <cajas.length;i++){
-        if(cajas[i].estado == "abierta"){
-          this.cajas.push(cajas[i]);
-        }   
-      }      
-      console.log(this.cajas);
-      if(this.cajas.length == 0){
-        this.toastServices.alert("Debes tener al menos una caja abierta","");
-        this.router.navigate(['/list-cajas']);
-      }
-      else{
-        this.setSavedCaja();
-      }
-     
-    });
+        for(let i=0;i <cajas.length;i++){
+          if(cajas[i].estado == "abierta"){
+            this.cajas.push(cajas[i]);
+          }   
+        }      
+        console.log(this.cajas);
+        if(this.comercio.modulos.cajas && this.cajas.length == 0){
+          this.toastServices.alert("Debes tener al menos una caja abierta","");
+          this.router.navigate(['/list-cajas']);
+        }
+        else{
+          this.setSavedCaja();
+        }
+       
+      });
+    }
+    
   }
 
   

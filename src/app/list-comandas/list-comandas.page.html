@@ -8,9 +8,9 @@
 </ion-header>
 <ion-toolbar [hidden]="devWidth > 576">
   <ion-segment (ionChange)="segmentChanged($event)">
-    <ion-segment-button value="pendientes">Pendientes</ion-segment-button>
-    <ion-segment-button value="proceso">En proceso</ion-segment-button>
-    <ion-segment-button value="listas">Listas</ion-segment-button>
+    <ion-segment-button value="pendientes">Pendientes ({{itemsPendientes.length}})</ion-segment-button>
+    <ion-segment-button value="proceso">En proceso ({{itemsProceso.length}})</ion-segment-button>
+    <ion-segment-button value="listas">Listas ({{itemsListas.length}})</ion-segment-button>
   </ion-segment>
 </ion-toolbar>
 
@@ -46,20 +46,20 @@
 
   <span [hidden]="devWidth > 576">
     <ion-list lines="none" *ngIf="seccionActiva == 'pendientes'">     
-      <div *ngFor="let item of items">   
-        <app-card-comanda *ngIf="item.status == 0" [item]="item"></app-card-comanda>
+      <div *ngFor="let item of itemsPendientes">   
+        <app-card-comanda [item]="item"></app-card-comanda>
       </div>
     </ion-list>
 
     <ion-list lines="none" *ngIf="seccionActiva == 'proceso'">     
-      <div *ngFor="let item of items">   
-        <app-card-comanda *ngIf="item.status == 1" [item]="item"></app-card-comanda>
+      <div *ngFor="let item of itemsProceso">   
+        <app-card-comanda  [item]="item"></app-card-comanda>
       </div>
     </ion-list>
 
     <ion-list lines="none" *ngIf="seccionActiva == 'listas'">     
-      <div *ngFor="let item of items">   
-        <app-card-comanda *ngIf="item.status == 2" [item]="item"></app-card-comanda>
+      <div *ngFor="let item of itemsListas">   
+        <app-card-comanda  [item]="item"></app-card-comanda>
       </div>
     </ion-list>
 
@@ -70,24 +70,24 @@
         <ion-col>
           <ion-list lines="none">   
             <h5>Pendientes</h5>  
-            <div *ngFor="let item of items">   
-              <app-card-comanda *ngIf="item.status == 0" [item]="item"></app-card-comanda>
+            <div *ngFor="let item of itemsPendientes">   
+              <app-card-comanda  [item]="item"></app-card-comanda>
             </div>
           </ion-list> 
         </ion-col>
         <ion-col>
           <ion-list lines="none">  
             <h5>En Proceso</h5>    
-            <div *ngFor="let item of items">   
-              <app-card-comanda *ngIf="item.status == 1" [item]="item"></app-card-comanda>
+            <div *ngFor="let item of itemsProceso">   
+              <app-card-comanda  [item]="item"></app-card-comanda>
             </div>
           </ion-list> 
         </ion-col>
         <ion-col>
           <ion-list lines="none">  
             <h5>Listos  </h5>     
-            <div *ngFor="let item of items">   
-              <app-card-comanda *ngIf="item.status == 2" [item]="item"></app-card-comanda>
+            <div *ngFor="let item of itemsListas">   
+              <app-card-comanda  [item]="item"></app-card-comanda>
             </div>
           </ion-list> 
         </ion-col>

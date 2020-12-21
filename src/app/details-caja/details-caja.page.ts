@@ -56,6 +56,7 @@ export class DetailsCajaPage implements OnInit {
 
     let cajaSub = this.cajasService.get(this.caja.id).subscribe(data=>{
       this.caja.asignarValores(data);
+      console.log()
       //cajaSub.unsubscribe();
     })
    

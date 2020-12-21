@@ -197,17 +197,35 @@ export class AuthenticationService {
   updateUserData(user){   
 
     const userRef: AngularFirestoreDocument = this.afs.doc(`users/${user.uid}`);
-    const data = { 
-      uid: user.uid, 
-      email: user.email, 
-      displayName: user.displayName, 
-      photoURL: user.photoURL,
-    }    
+    
+    let data:any;
+    userRef.ref.get().then((doc) => {
+      if(doc.exists){
+        console.log('User exists!');
+      
+         data = { 
+          uid: user.uid, 
+          email: user.email, 
+          displayName: user.displayName, 
+          photoURL: user.photoURL,
+        }    
 
-    localStorage.setItem('rol',null);
-    localStorage.setItem('comercio_seleccionadoId',null);
-    this.userIdSubject.next(user.uid);
-    return userRef.set(data, { merge: true });
+      } else {
+        console.log('User doesnt exist. Creating...');
+        data = { 
+          uid: user.uid, 
+          email: user.email, 
+          displayName: user.displayName, 
+          photoURL: user.photoURL,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        }    
+      }
+
+      localStorage.setItem('rol',null);
+      localStorage.setItem('comercio_seleccionadoId',null);
+      this.userIdSubject.next(user.uid);
+      return userRef.set(data, { merge: true });
+    })
   }
 
   setRol(rol){

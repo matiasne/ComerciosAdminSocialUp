@@ -31,15 +31,15 @@ export class Comercio {
     public rolEncargados = [];
 
     public modulos  = {
-        productos:false,
-        servicios:false,
-        comandas: false,
-        mesas:false,
-        clientes:false,
-        pedidos: false,
-        cajas:false,
-        ctasCorrientes:false,
-        stock:false
+        productos:true,
+        servicios:true,
+        comandas: true,
+        mesas:true,
+        clientes:true,
+        pedidos: true,
+        cajas:true,
+        ctasCorrientes:true,
+        stock:true
     }
 
     public colores = {

@@ -4,6 +4,7 @@ import { AlertController } from '@ionic/angular';
 import { Comanda } from 'src/app/models/comanda';
 import { Comercio } from 'src/app/Models/comercio';
 import { Pedido } from 'src/app/Models/pedido';
+import { CocinasService } from 'src/app/Services/cocinas.service';
 import { ComandasService } from 'src/app/Services/comandas.service';
 import { ComerciosService } from 'src/app/Services/comercios.service';
 import { CarritoService } from 'src/app/Services/global/carrito.service';
@@ -18,20 +19,24 @@ export class CardComandaComponent implements OnInit {
   @Input() public item:any;
   @Input() showAvatar = true;
   public comercio:Comercio;
+  private cocina:any;
 
   constructor(
     private comandasService:ComandasService,
     private comercioService:ComerciosService,
     private alertController:AlertController,
     private carritoService:CarritoService,
+    private cocinaService:CocinasService,
     private router:Router
   ) { 
     this.comercio = new Comercio();
     this.comercio.asignarValores(this.comercioService.getSelectedCommerceValue());
-    console.log(this.comercio)
+     
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log(this.item)
+  }
 
   async eliminar(item){
 

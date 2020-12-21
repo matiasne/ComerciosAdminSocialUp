@@ -21,4 +21,5 @@ export class CocinasService extends BaseService{
       this.setPath('comercios/'+comercioId+'/cocinas')   
   }
 
+
 }

@@ -28,7 +28,9 @@ export class HomePage implements OnInit {
   public conexionEstado = "offline";
 
   public user = {
-    maxComercios:1
+    maxComercios:1,
+    stopTrial:false,
+    createdAt:0
   };
   public habilitadoCrearComercio = true;
 
@@ -50,6 +52,7 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     
+    this.user = this.authService.getActualUser();
    
   } 
 
@@ -93,7 +96,6 @@ export class HomePage implements OnInit {
               }                
               
               this.loadingService.dismissLoading();
-              this.setPermisos();
             });
           }
          
@@ -107,54 +109,64 @@ export class HomePage implements OnInit {
   }
 
   ionViewDidLeave(){
-    //this.comercioSubs.unsubscribe();
-    //this.subsItems.unsubscribe(); 
+    
   }
 
-  setPermisos(){
-    this.user = this.AuthenticationService.getActualUser();
+  
+
+  async nuevoComercio(){
 
     if(this.user.maxComercios){
       console.log(this.comercios.length+" "+this.user.maxComercios)
       if(this.comercios.length >= this.user.maxComercios){
         this.habilitadoCrearComercio = false;
+        this.toastService.mensaje("Has superado el máximo de comercios que puedes agregar","Para agregar más amplia tu plan contactandonos");
+        return;
       }
     }
     else{
       this.user.maxComercios = 1;
       if(this.comercios.length > 0){
-        this.habilitadoCrearComercio = false;
+        this.toastService.mensaje("Has superado el máximo de comercios que puedes agregar","Para agregar más amplia tu plan contactandonos");
+        return;
       }
     }
-  }
 
-  async nuevoComercio(){
-    if(this.habilitadoCrearComercio == false){
-      this.toastService.mensaje("Has superado el máximo de comercios que puedes agregar","Para agregar más amplia tu plan contactandonos");
-    }
-    else{
-      const modal = await this.modalCtrl.create({
-        component: FormComercioPage,
-        componentProps:undefined
-      });
-      modal.onDidDismiss()
-      .then((retorno) => {  
-          this.refresh(undefined);  
-      });
-      return await modal.present();
+    const modal = await this.modalCtrl.create({
+      component: FormComercioPage,
+      componentProps:undefined
+    });
+    modal.onDidDismiss()
+    .then((retorno) => {  
+        this.refresh(undefined);  
+    });
+    return await modal.present();
 
-    }
+    
     
   }
 
   seleccionar(comercio){
-    //  if(comercio.rol.rol == "owner" || comercio.rol.rol == "admin"){
-        console.log(comercio);
-        this.comerciosService.setSelectedCommerce(comercio.id);
-        this.authService.setRol(comercio.rol.rol);
-        this.router.navigate(['dashboard-comercio',{id:comercio.id}]);
-        this.usuariosService.setComecioSeleccionado(this.authService.getActualUserId(),comercio.id);
-    //  }      
+
+    console.log(this.user.stopTrial);
+    if(!this.user.stopTrial){
+      console.log(this.user)
+      let lastDay = Number(this.user.createdAt) + (15*24*60*60);
+      var seconds = new Date().getTime() / 1000;
+
+      console.log(seconds+" "+lastDay)
+      if(seconds > lastDay){
+        this.toastService.alert("","Su periodo de prueba ha expirado");
+        return;
+      }
+    }
+    
+    
+    this.comerciosService.setSelectedCommerce(comercio.id);
+    this.authService.setRol(comercio.rol.rol);
+    this.router.navigate(['dashboard-comercio',{id:comercio.id}]);
+    this.usuariosService.setComecioSeleccionado(this.authService.getActualUserId(),comercio.id);
+       
   }
 
 

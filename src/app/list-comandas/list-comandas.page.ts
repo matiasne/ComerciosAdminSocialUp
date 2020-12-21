@@ -19,7 +19,11 @@ export class ListComandasPage implements OnInit {
 
   public itemsComandas =[];
   public itemsPedidos = [];
-  public items:any =[];
+
+  public itemsPendientes = [];
+  public itemsProceso = [];
+  public itemsListas = [];
+
   public cocinas = [];
   public subsPedidosComercio:Subscription;
   public seccionActiva = "pendientes";
@@ -47,7 +51,9 @@ export class ListComandasPage implements OnInit {
     //si soy dueño todas
     this.comandasService.getAll().subscribe((snapshot) => {
       this.itemsComandas =[];  
-      this.items = []; 
+      this.itemsPendientes = []; 
+      this.itemsProceso = []; 
+      this.itemsListas = []; 
       snapshot.forEach((snap: any) => {         
           var comanda = snap.payload.doc.data();
           comanda.id = snap.payload.doc.id;  
@@ -127,14 +133,12 @@ export class ListComandasPage implements OnInit {
   }
 
   onChange(event){
-    this.palabraFiltro = event.target.value;
-    this.items = [];
+    this.palabraFiltro = event.target.value;    
     this.buscar();
   }
 
   onChangeCocina(event){
     this.cocinaFiltro = event.target.value;
-    this.items = [];
     this.buscar();
   }
 
@@ -142,7 +146,9 @@ export class ListComandasPage implements OnInit {
 
       var retorno = false;
 
-      this.items = [];
+      this.itemsPendientes = [];
+      this.itemsProceso = [];
+      this.itemsListas = [];
       
       this.itemsComandas.forEach(item => {  
         
@@ -187,13 +193,22 @@ export class ListComandasPage implements OnInit {
         console.log(encontrado)
   
         if(encontrado){
-          this.items.push(item);
+          if(item.status == 0){
+            this.itemsPendientes.push(item);
+          }
+          if(item.status == 1){
+            this.itemsProceso.push(item);
+          }
+          if(item.status == 2){
+            this.itemsListas.push(item);
+          }
+          
           return true;
         }
 
       });  
     
-      console.log(this.items)
+     
     }
 
 

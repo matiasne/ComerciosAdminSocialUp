@@ -18,6 +18,7 @@ import { CategoriasService } from '../Services/categorias.service';
 import { FormProductoPage } from '../form-producto/form-producto.page';
 import { FormStockPage } from '../form-stock/form-stock.page';
 import { Comercio } from '../Models/comercio';
+import { AuthenticationService } from '../Services/authentication.service';
 
 @Component({
   selector: 'app-list-productos-servicios',
@@ -67,7 +68,8 @@ export class ListProductosServiciosPage implements OnInit {
     public cargaPorVoz:CargaPorVozService,
     public changeRef:ChangeDetectorRef,
     public toastServices:ToastService,
-    private categoriasService:CategoriasService
+    private categoriasService:CategoriasService,
+    private AuthenticationService:AuthenticationService
   ) { 
     this.carrito = new Carrito("","");
 
@@ -347,6 +349,21 @@ export class ListProductosServiciosPage implements OnInit {
 
 
   async presentAlertSeleccionar() {
+    let user = this.AuthenticationService.getActualUser();
+
+    if(user.maxProducto){
+      if((this.itemsAllProductos.length + this.itemsAllServicios.length)  >= user.maxProducto){
+        this.toastServices.alert("Limitado","Se ha superado la cantidad máxima de productos, si desea agregar más por favor contrate un plan mayor.")
+        return;
+      }
+    }
+    else{
+      user.maxProducto = 10;
+      if((this.itemsAllProductos.length + this.itemsAllServicios.length) > 0){
+        this.toastServices.alert("Limitado","Se ha superado la cantidad máxima de productos, si desea agregar más por favor contrate un plan mayor.")
+        return;
+      }
+    }
 
     if(this.comercio.modulos.productos && !this.comercio.modulos.servicios){
       this.nuevoProducto();   
@@ -375,8 +392,7 @@ export class ListProductosServiciosPage implements OnInit {
         ]
       });
       await alert.present();
-    }
-    
+    }    
   }
 
 
