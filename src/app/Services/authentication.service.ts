@@ -28,6 +28,7 @@ export class AuthenticationService {
   };
 
   public userIdSubject = new BehaviorSubject <any>("");
+  public userRol = new BehaviorSubject <any>("");
 
   public userSubs:Subscription;
   
@@ -229,11 +230,11 @@ export class AuthenticationService {
   }
 
   setRol(rol){
-    localStorage.setItem('rol',rol);
+    this.userRol.next(rol);
   }
 
-  getRol(){
-    return JSON.parse(localStorage.getItem('rol'));
+  observeRol(){
+    return this.userRol.asObservable();
   }
 
   signup(data) {

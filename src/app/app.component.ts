@@ -29,6 +29,16 @@ export class AppComponent implements OnInit {
   public cantComandas = 0;
   public cantPedidos =0;
   public cantMesasActivas = 0;
+
+  public showCatalogo = "false";
+  public showMesas = "false";
+  public showComandas ="false";
+  public showCllientes ="false";
+  public showCajas ="false";
+  public showServicios ="false";
+  public showSubscripciones ="false";
+  public showConfiguracion ="false";
+
   public appActions =[
     
    
@@ -95,8 +105,7 @@ export class AppComponent implements OnInit {
   };
 
   public onlineOffline: boolean = navigator.onLine;
-
-  public conexionEstado = "Offline"
+  public rolActual = "";
 
   constructor(
     private platform: Platform,
@@ -119,18 +128,19 @@ export class AppComponent implements OnInit {
     private mesasService: MesasService
   ) {
     this.comercioSeleccionado = new Comercio();   
-    this.initializeApp();   
+    this.initializeApp();  
 
-  }
+    this.authService.observeRol().subscribe(data=>{
+      this.rolActual = data;
 
-  
+      //Aca setea todos los shows
+
+    })
+  }  
 
   initializeApp() {
-
     console.log("NgOnInit")
-
     this.notifiacionesDesktopService.requestPermission();
-
     this.notifiacionesDesktopService.init().then(data=>{
       console.log("OK")
     },error=>{

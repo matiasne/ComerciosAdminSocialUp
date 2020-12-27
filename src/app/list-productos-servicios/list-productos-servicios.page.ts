@@ -51,8 +51,13 @@ export class ListProductosServiciosPage implements OnInit {
   public cajaSeleccionada="";
   public reconociendoPorVoz = false;
   public subsVoz:Subscription;
-
   public seteandoProducto = false;
+
+  public permisos = {
+    canAgregar:false,
+    canCarrito:false,
+  }
+
   constructor(
     public loadingController: LoadingController,
     private router: Router,
@@ -73,7 +78,17 @@ export class ListProductosServiciosPage implements OnInit {
   ) { 
     this.carrito = new Carrito("","");
 
-   
+    this.AuthenticationService.observeRol().subscribe(data=>{
+      if(data=="Administrador"){
+        this.permisos.canAgregar = true;
+        this.permisos.canCarrito = true;
+      }
+
+      if(data=="Cajero"){
+        this.permisos.canAgregar = false;
+        this.permisos.canCarrito = true;
+      }
+    })
   }
 
   ngOnInit() {

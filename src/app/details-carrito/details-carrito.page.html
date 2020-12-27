@@ -9,7 +9,7 @@
 
 <ion-content class="ion-padding">   
  
-    <span *ngIf="!carrito.mesa.id && comercio.modulos.clientes">
+    <span *ngIf="!carrito.mesa.id && comercio.modulos.clientes && habilitadoComanda == 'true'">
       <ion-button  *ngIf="!carrito.cliente.id" (click)="seleccionarCliente()"  size="large" expand="full">Seleccionar Cliente</ion-button>
 
       <ion-item-sliding *ngIf="carrito.cliente.id">
@@ -26,7 +26,7 @@
     </span>
     
 
-    <span *ngIf="!carrito.cliente.id && comercio.modulos.mesas">
+    <span *ngIf="!carrito.cliente.id && comercio.modulos.mesas && habilitadoCargarMesa == 'true'">
       <ion-button *ngIf="!carrito.mesa.id" (click)="seleccionarMesa()"  size="large" expand="full">Seleccionar Mesa</ion-button>
 
       <ion-item-sliding *ngIf="carrito.mesa.id">
@@ -145,9 +145,9 @@
   <ion-toolbar>
     
     
-    <ion-button *ngIf="habilitadoCargarMesa == 'true' && carrito.mesa.id != ''" slot="end"  color="success" (click)="cargarAMesa()">Cargar a mesa: {{carrito.mesa.nombre}}</ion-button>
+    <ion-button *ngIf="habilitadoCargarMesa == 'true' && carrito.mesa.id != ''" slot="end"  color="primary" (click)="cargarAMesa()">Comanda y Cargar a mesa: {{carrito.mesa.nombre}}</ion-button>
     <ion-button *ngIf="habilitadoCobro == 'true'" slot="start"  color="success" (click)="cobrar()">Cobrar: ${{carrito.totalProductos + carrito.totalServicios}}</ion-button>
-    <ion-button *ngIf="habilitadoComanda == 'true'" slot="end" color="primary" (click)="comanda()">Comanda</ion-button>
+    <ion-button *ngIf="habilitadoComanda == 'true' && carrito.mesa.id == ''" slot="end" color="primary" (click)="comanda()">Comanda</ion-button>
 
 
     

@@ -24,6 +24,12 @@ export class FormInvitacionPage implements OnInit {
   comercio:any = "";
   public invitacion:Invitacion;
   public rol="";
+  public email="";
+  public roles=[
+    "Cocinero",
+    "Mesero",
+    "Cajero"
+  ]
   
   public rolesTipos = [];
   constructor(
@@ -50,25 +56,25 @@ export class FormInvitacionPage implements OnInit {
     });
   }
 
-  get f() { return this.datosForm.controls; }
 
   ngOnInit() {
   }
 
   guardar(){
 
-    this.submitted = true;
-    // stop here if form is invalid
-
-    console.log(this.datosForm.value);
-    if (this.datosForm.invalid) {
-      this.toastServices.alert('Por favor completar todos los campos marcados con * antes de continuar',"");
+    if(this.email == ""){
+      this.toastServices.mensaje("Por favor ingrese un mail antes de continuar","");
       return;
-    }      
+    }
+
+    if(this.rol == ""){
+      this.toastServices.mensaje("Por favor ingrese un rol antes de continuar","");
+      return;
+    }
   
-    let rol:Rol = new Rol();
+    let rol:Rol = new Rol(); 
     rol.id = this.firestore.createId();    
-    rol.userEmail = this.datosForm.controls.email.value;
+    rol.userEmail = this.email;
     rol.userId = this.authService.getActualUser().uid;
     rol.rol = this.rol;
     rol.estado = "pendiente";
@@ -76,13 +82,17 @@ export class FormInvitacionPage implements OnInit {
 //    rol.comercioRef = this.comercioService.getRef(this.comercioService.getSelectedCommerceValue().id);
     this.rolesService.create(rol);
     
-    this.invitacionService.enviarInvitacion(this.datosForm.controls.email.value.trim(),this.rol); 
+    this.invitacionService.enviarInvitacion(this.email,this.rol); 
 
-    this.modalCtrl.dismiss(this.datosForm.controls.email.value);
+    this.modalCtrl.dismiss();
   }
 
   cancelar(){
     this.modalCtrl.dismiss();
+  }
+
+  cambioRol(){
+    this.rol
   }
 
 }

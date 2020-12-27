@@ -8,23 +8,28 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <form [formGroup]="datosForm" >
+ 
     
     <div class="form-card">
       <ion-text color="primary">
         <h4>Email *</h4>      
-      </ion-text>  
-         
-      ingresa el mail del usuario a quien quieres invitar como {{rol}}!
-      <ion-item [class.invalid]="submitted && !datosForm.controls.email.valid">
-        <ion-input name="email" type="text" formControlName="email" required></ion-input>
+      </ion-text>           
+      ingresa el mail del usuario a quien quieres invitar!
+      <ion-item>
+        <ion-input name="email" type="text" [(ngModel)]="email"></ion-input>
       </ion-item>
-      <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
-          <div *ngIf="f.email.errors.required"><h5>Ingresa un email</h5></div>
-      </div> 
+    </div>
+
+    <div class="form-card">
+      <ion-item>
+        <ion-label>Rol</ion-label>
+        <ion-select [(ngModel)]="rol">
+          <ion-select-option *ngFor="let rol of roles" [value]="rol">{{rol}}</ion-select-option>
+        </ion-select>
+      </ion-item>
     </div>
     
-  </form>
+  
   <ion-toolbar>
     <ion-button slot="end" (click)="guardar()">Enviar</ion-button>
     

@@ -37,7 +37,7 @@ export class NotificacionesService {
 
   enviarByMail(email,titulo,mensaje){
 
-    this.usuariosService.getByEmail(email).subscribe(snapshot=>{
+    let sub = this.usuariosService.getByEmail(email).subscribe(snapshot=>{
       console.log(snapshot);
       snapshot.forEach(snap =>{
         
@@ -74,6 +74,8 @@ export class NotificacionesService {
         this.notificacionesAppService.create(notificacion);
 
       });
+
+      sub.unsubscribe();
     })
   }
 
@@ -110,19 +112,17 @@ export class NotificacionesService {
   enviarByRolId(id,titulo,mensaje){
 
     console.log("!!!!!!!!!!!!!!")
-    this.rolesService.get(id).subscribe(snapshot=>{
-      
-        var rol:any = snapshot.payload.data();
+    let sub = this.rolesService.get(id).subscribe(snapshot=>{      
+      var rol:any = snapshot.payload.data();
+      if(rol){
+        rol.id = snapshot.payload.id;   
+        console.log(rol);
 
-        if(rol){
-          rol.id = snapshot.payload.id;   
-          console.log(rol);
-
-          if(rol.estado == "aceptado"){
-            this.enviarById(rol.userId,titulo,mensaje);
-          }    
-        }
-          
+        if(rol.estado == "aceptado"){
+          this.enviarById(rol.userId,titulo,mensaje);
+        }    
+      }
+      sub.unsubscribe();          
     })
   }
 

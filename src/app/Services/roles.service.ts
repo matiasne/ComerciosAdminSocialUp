@@ -82,7 +82,7 @@ export class RolesService {
       userEmail : this.auth.getEmail(),
       userId : this.auth.getUID(),
       comercioId : comercioId,
-      rol : "admin"
+      rol : "Administrador"
     }
 
 

@@ -247,7 +247,7 @@ export class DetailsCarritoPage implements OnInit {
 
   async cobrar(){
 
-    this.loadingService.presentLoading();
+   
     if(this.metodoPagoSeleccionado == ""){
       this.toastServices.alert("Por favor seleccione un método de pago antes de continuar","De este modo podrá tener un registro de los pagos");
       this.loadingService.dismissLoading();
@@ -268,12 +268,12 @@ export class DetailsCarritoPage implements OnInit {
       }
     }  
 
-    if(this.carrito.servicios.length == 0 && this.carrito.productos.length == 0 && this.carrito.pagare.id == ""){
+  /*  if(this.carrito.servicios.length == 0 && this.carrito.productos.length == 0 && this.carrito.pagare.id == ""){
       alert("Debes ingresar al menos un producto o servicio");      
       return;
-    }   
+    }*/   
     
-    this.loadingService.dismissLoading();
+  
     this.navCtrl.back();
     this.imprimir();
 
@@ -292,19 +292,19 @@ export class DetailsCarritoPage implements OnInit {
           comanda.carrito = JSON.parse(comanda.carrito);
           console.log(comanda.carrito.mesa.id)
           console.log(mesaId)
-          if(comanda.carrito.mesa.id == mesaId){
+          if(comanda.carrito.mesa.id == mesaId && comanda.status == 2){
            //this.preguntarEliminarComanda(comanda);
            this.comandasServices.delete(comanda.id);
-           this.toastServices.alert("Se eliminaron las comandas pendientes para esta mesa","")
+           this.toastServices.alert("Se eliminaron las comandas finalizadas para esta mesa","")
           }          
         });
         sub.unsubscribe();
       })
     }
    
-      this.carritoService.setearCaja(this.cajas[this.cajaSeleccionadaIndex].id);
-      this.carritoService.setearMetodoPago(this.metodoPagoSeleccionado);
-      this.carritoService.guardar(this.cajas[this.cajaSeleccionadaIndex]);
+    this.carritoService.setearCaja(this.cajas[this.cajaSeleccionadaIndex].id);
+    this.carritoService.setearMetodoPago(this.metodoPagoSeleccionado);
+    this.carritoService.guardar(this.cajas[this.cajaSeleccionadaIndex]);
  
 
     

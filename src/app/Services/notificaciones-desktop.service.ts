@@ -42,9 +42,7 @@ init(): Promise<void> {
           // Initialize your VAPI key
           messaging.usePublicVapidKey(
             environment.firebase.vapidKey
-          );
-
-         
+          );         
           // Optional and not covered in the article
           // Listen to messages when your app is in the foreground
           messaging.onMessage((payload) => {
