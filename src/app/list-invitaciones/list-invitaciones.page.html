@@ -14,9 +14,9 @@
         <img src="{{item.foto}}" *ngIf="item.foto">
         <ion-icon name="people-circle-outline" *ngIf="!item.foto"></ion-icon>
       </ion-avatar>      
-      <ion-label text-wrap>
-        <ion-text color="primary">
-          El usuario {{item.remitente}} quiere invitarte al comercio {{item.comercio_nombre}} como {{item.rol}}
+      <ion-label text-wrap> 
+        <ion-text>
+          El usuario <b>{{item.remitente}}</b> quiere invitarte al comercio <b>{{item.comercio_nombre}}</b> como <b>{{item.rol}}</b>
         </ion-text>
         <ion-toolbar>
           <ion-button slot="start" color="danger" size="large" (click)="eliminarInvitacion(item)"  expand="block">Rechazar</ion-button>   
@@ -27,14 +27,5 @@
     </ion-item>    
   </ion-list>
   
-
-  <ion-infinite-scroll threshold="100px" (ionInfinite)="showMore($event)">
-    <ion-infinite-scroll-content
-      loadingSpinner="bubbles"
-      loadingText="Cargando...">
-    </ion-infinite-scroll-content>
-  </ion-infinite-scroll>
-  <div class="space">
     
-  </div> 
 </ion-content>

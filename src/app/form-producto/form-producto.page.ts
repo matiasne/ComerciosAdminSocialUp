@@ -1,12 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { Crop } from '@ionic-native/crop/ngx';
 import { ActionSheetController, ModalController, AlertController, NavController } from '@ionic/angular';
 import { File } from '@ionic-native/file/ngx';
-import { Camera, CameraOptions} from '@ionic-native/Camera/ngx';
-import { FormPlanPage } from '../form-plan/form-plan.page';
-import { ServiciosService } from '../Services/servicios.service';
+import { Camera} from '@ionic-native/Camera/ngx';
 import { CategoriasService } from '../Services/categorias.service';
 import { DataService } from '../Services/data.service';
 import { ProductosService } from '../Services/productos.service';
@@ -16,7 +14,6 @@ import { Producto } from '../models/producto';
 import { FormCategoriaPage } from '../form-categoria/form-categoria.page';
 import { LoadingService } from '../Services/loading.service';
 import { GrupoOpcionesService } from '../Services/grupo-opciones.service';
-import { Subscription } from 'rxjs';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { ToastService } from '../Services/toast.service';
 import { FormProductoGrupoOpcionesPage } from '../form-producto-grupo-opciones/form-producto-grupo-opciones.page';
@@ -68,7 +65,8 @@ export class FormProductoPage implements OnInit {
     private router:Router,
     private firestore: AngularFirestore,
     private toastServices:ToastService,
-    private cocinasService:CocinasService
+    private cocinasService:CocinasService,
+    public changeRef:ChangeDetectorRef,
   ) { 
     this.producto = new Producto();
 
@@ -82,7 +80,7 @@ export class FormProductoPage implements OnInit {
       valorPor:[1],
       stock: [1, Validators.required],
       descripcion:[''],
-      cocina:['', Validators.required],
+      cocinaId:['', Validators.required],
       categorias:[''],
       foto:[''],
       createdAt:[''],
@@ -105,9 +103,10 @@ export class FormProductoPage implements OnInit {
         this.datosForm.patchValue(data.payload.data());
         this.producto.asignarValores(data.payload.data())
         this.producto.id = data.payload.id;
-        this.croppedImageIcono = this.producto.foto;       
+        this.croppedImageIcono = this.producto.foto;
+        this.changeRef.detectChanges()        
       })
-    }
+    } 
     else{
       this.producto.id = this.firestore.createId();
     }
@@ -290,5 +289,6 @@ export class FormProductoPage implements OnInit {
     });
     await alert.present();
   }
+
 
 }

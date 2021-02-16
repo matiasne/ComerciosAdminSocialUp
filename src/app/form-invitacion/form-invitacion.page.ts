@@ -75,14 +75,13 @@ export class FormInvitacionPage implements OnInit {
     let rol:Rol = new Rol(); 
     rol.id = this.firestore.createId();    
     rol.userEmail = this.email;
-    rol.userId = this.authService.getActualUser().uid;
     rol.rol = this.rol;
     rol.estado = "pendiente";
     rol.comercioId =this.comercioService.getSelectedCommerceValue().id;
 //    rol.comercioRef = this.comercioService.getRef(this.comercioService.getSelectedCommerceValue().id);
     this.rolesService.create(rol);
     
-    this.invitacionService.enviarInvitacion(this.email,this.rol); 
+    this.invitacionService.enviarInvitacion(this.email.trim(),this.rol); 
 
     this.modalCtrl.dismiss();
   }

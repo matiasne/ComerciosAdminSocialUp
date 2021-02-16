@@ -12,6 +12,8 @@ import { PresenceService } from '../Services/presence.service';
 import { UsuariosService } from '../Services/usuarios.service';
 import { ToastService } from '../Services/toast.service';
 import { FormComercioPage } from '../form-comercio/form-comercio.page';
+import { BluetoothSerial } from '@ionic-native/bluetooth-serial/ngx';
+import { ImpresoraService } from '../Services/impresora.service';
 
 
 @Component({
@@ -44,15 +46,17 @@ export class HomePage implements OnInit {
     public usuariosService:UsuariosService,
     public AuthenticationService:AuthenticationService,
     public toastService:ToastService,
-    private modalCtrl:ModalController
+    private modalCtrl:ModalController,
+    private impresoraService:ImpresoraService,
   ) { 
     
 
   }
 
   ngOnInit() {
-    
+    this.comercios = [];
     this.user = this.authService.getActualUser();
+   
    
   } 
 
@@ -72,40 +76,37 @@ export class HomePage implements OnInit {
       }, 500);
   }
 
-  ionViewDidEnter(){
-   
-    this.loadingService.presentLoading();
-    this.comercios = [];
-
-    console.log("!entrando a home");
-    this.subsItems = this.rolesService.getAllRolesbyUser(this.authService.getActualUserId()).subscribe(snapshot =>{        
-      this.loadingService.dismissLoading();      
-      snapshot.forEach(snap =>{
-          var rol:any = snap;     
-          
-          this.loadingService.presentLoading();
-          console.log(rol);
-          if(rol.comercioId){
-            this.comercioSubs = this.comerciosService.get(rol.comercioId).subscribe(data =>{  
-              if(data.payload.data()){              
-                  var comercio:any = data.payload.data();    
-                  comercio.id = data.payload.id;
-                  comercio.rol = rol;  
-                  if(rol.estado != "pendiente")
-                    this.comercios.push(comercio);
-              }                
-              
-              this.loadingService.dismissLoading();
-            });
+  ionViewDidEnter(){    
+    
+    
+    console.log("!entrando a home"); 
+    this.rolesService.getAllRolesbyUser(this.authService.getActualUserId()).subscribe(roles =>{        
+      this.comercios = [];
+      console.log("!!!!!!")     
+      roles.forEach(rol =>{
+        console.log(rol)               
+        if(rol.comercioId){   
+          if(rol.estado != "pendiente" || rol.estado != "rechazada"){
+            this.loadingService.presentLoading()
+            this.comerciosService.get(rol.comercioId).subscribe(data =>{ 
+              console.log(data) 
+              if(data){
+                this.loadingService.dismissLoading()  
+                var comercio:any = data; 
+                comercio.rol = rol; 
+                this.comercios.push(comercio);
+              }              
+            }); 
           }
-         
-        
+          
+        }        
         
       });
-      
+      console.log(this.comercios)
+     // this.loadingService.dismissLoading();      
      
     });
-   
+    this.impresoraService.conectar()
   }
 
   ionViewDidLeave(){
@@ -115,7 +116,7 @@ export class HomePage implements OnInit {
   
 
   async nuevoComercio(){
-
+    this.user = this.authService.getActualUser();
     if(this.user.maxComercios){
       console.log(this.comercios.length+" "+this.user.maxComercios)
       if(this.comercios.length >= this.user.maxComercios){
@@ -147,7 +148,7 @@ export class HomePage implements OnInit {
   }
 
   seleccionar(comercio){
-
+    this.user = this.authService.getActualUser();
     console.log(this.user.stopTrial);
     if(!this.user.stopTrial){
       console.log(this.user)
@@ -163,6 +164,7 @@ export class HomePage implements OnInit {
     
     
     this.comerciosService.setSelectedCommerce(comercio.id);
+   
     this.authService.setRol(comercio.rol.rol);
     this.router.navigate(['dashboard-comercio',{id:comercio.id}]);
     this.usuariosService.setComecioSeleccionado(this.authService.getActualUserId(),comercio.id);

@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { TicketPrintPageRoutingModule } from './ticket-print-routing.module';
+import { DetailsPedidoPageRoutingModule } from './details-pedido-routing.module';
 
-import { TicketPrintPage } from './ticket-print.page';
+import { DetailsPedidoPage } from './details-pedido.page';
 import { ComponentsModule } from '../Components/components.module';
 
 @NgModule({
@@ -15,8 +15,8 @@ import { ComponentsModule } from '../Components/components.module';
     ComponentsModule,
     FormsModule,
     IonicModule,
-    TicketPrintPageRoutingModule
+    DetailsPedidoPageRoutingModule
   ],
-  declarations: [TicketPrintPage]
+  declarations: [DetailsPedidoPage]
 })
-export class TicketPrintPageModule {}
+export class DetailsPedidoPageModule {}

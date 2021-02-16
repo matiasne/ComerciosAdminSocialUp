@@ -30,6 +30,24 @@ export class LoadingService {
     }    
   }
 
+  async presentLoadingText(text){
+    if(!this.isLoading){
+      this.isLoading = true;
+      return await this.loadingController.create({
+        message: text,
+      }).then(a => {
+        a.present().then(() => {
+          
+          if (!this.isLoading) {
+            a.dismiss().then(() => {
+              
+            });
+          }
+        });
+      });
+    }    
+  }
+
   async dismissLoading() {
    
     if(this.isLoading){
@@ -38,6 +56,30 @@ export class LoadingService {
       
       });
     }
+    
+  }
+
+  async presentLoading5() {  
+    
+    setTimeout(async () => {           
+      if(!this.isLoading){
+        this.isLoading = true;
+        return await this.loadingController.create({
+          message: 'Cargando',
+          duration:10000
+        }).then(a => {
+          a.present().then(() => {
+            
+            if (!this.isLoading) {
+              a.dismiss().then(() => {
+                
+              });
+            }
+          });
+        });
+      }    
+    }, 2000);  
+
     
   }
 

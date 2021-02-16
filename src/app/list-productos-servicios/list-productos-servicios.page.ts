@@ -19,6 +19,8 @@ import { FormProductoPage } from '../form-producto/form-producto.page';
 import { FormStockPage } from '../form-stock/form-stock.page';
 import { Comercio } from '../Models/comercio';
 import { AuthenticationService } from '../Services/authentication.service';
+import { VariacionesStocksService } from '../Services/variaciones-stocks.service';
+import { DetailsCarritoPage } from '../details-carrito/details-carrito.page';
 
 @Component({
   selector: 'app-list-productos-servicios',
@@ -63,6 +65,7 @@ export class ListProductosServiciosPage implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     public productosService:ProductosService,
+    public variacionesStockService:VariacionesStocksService,
     public serviciosService:ServiciosService,
     public modalCtrl: ModalController,
     public carritoService:CarritoService,
@@ -74,7 +77,8 @@ export class ListProductosServiciosPage implements OnInit {
     public changeRef:ChangeDetectorRef,
     public toastServices:ToastService,
     private categoriasService:CategoriasService,
-    private AuthenticationService:AuthenticationService
+    private AuthenticationService:AuthenticationService,
+    
   ) { 
     this.carrito = new Carrito("","");
 
@@ -83,7 +87,6 @@ export class ListProductosServiciosPage implements OnInit {
         this.permisos.canAgregar = true;
         this.permisos.canCarrito = true;
       }
-
       if(data=="Cajero"){
         this.permisos.canAgregar = false;
         this.permisos.canCarrito = true;
@@ -119,11 +122,12 @@ export class ListProductosServiciosPage implements OnInit {
         });    
         catSub.unsubscribe();
       })
-
+ 
 
     if(this.route.snapshot.params.filtro){
       this.palabraFiltro = this.route.snapshot.params.filtro;
-      this.buscar();
+      this.buscar(undefined);
+      this.deseleccionarCategorias()
     }
     this.obtenerTodo();
       
@@ -134,6 +138,7 @@ export class ListProductosServiciosPage implements OnInit {
   }
 
   marcarEnCarrito(){
+    console.log("scando marcado en carrito")
     this.itemsProductos.forEach(element => {
       element.enCarrito = 0;
     });
@@ -148,10 +153,14 @@ export class ListProductosServiciosPage implements OnInit {
   }
 
   ionViewDidLeave(){
-
+    
   }
 
-  buscar(){ 
+  buscar(event){ 
+
+    if(event)
+      this.palabraFiltro = event.target.value;    
+    
 
     if(this.palabraFiltro != ""){
 
@@ -199,19 +208,18 @@ export class ListProductosServiciosPage implements OnInit {
           this.itemsProductos.push(item);
           return true;
         }
-
       });
 
+      console.log("buscando...."+this.palabraFiltro+" "+this.cargaPorVoz.reconociendoPorVoz)
       if(this.cargaPorVoz.reconociendoPorVoz){
-        if(this.itemsProductos.length > 0){
+        this.cargaPorVoz.reconociendoPorVoz = false;
+        if(this.itemsProductos.length == 1){
           this.seleccionar(this.itemsProductos[0]);
           this.toastServices.mensaje("Se seleccionó el producto: "+this.itemsProductos[0].nombre,"");
-        }          
-        else{
-          this.toastServices.mensaje("No se encontró producto: "+this.palabraFiltro,"");
-          this.reconocimientoPorVoz();
         }
       }
+      
+     
 
       
       this.itemsAllServicios.forEach(item => {
@@ -261,6 +269,8 @@ export class ListProductosServiciosPage implements OnInit {
       this.itemsProductos = this.itemsAllProductos;
     }
     this.marcarEnCarrito();
+    this.changeRef.detectChanges()
+    
   }
 
   editarProducto(item){
@@ -289,7 +299,7 @@ export class ListProductosServiciosPage implements OnInit {
           producto.enCarrito = 0;
           this.itemsAllProductos.push(producto);         
       }); 
-      this.buscar();    
+      this.buscar(undefined);   
       
     });
 
@@ -308,7 +318,7 @@ export class ListProductosServiciosPage implements OnInit {
         });  
         
        
-        this.buscar();
+        this.buscar(undefined);
       });
     
     
@@ -319,29 +329,22 @@ export class ListProductosServiciosPage implements OnInit {
 
     if(!this.cargaPorVoz.reconociendoPorVoz){
       this.cargaPorVoz.reconociendoPorVoz = true;
-      this.cargaPorVoz.startReconocimiento().subscribe(matches=>{
-
-        this.toastServices.mensaje("Diga el nombre del producto","");
-        let message = matches[0]; //Guarda la primera frase que ha interpretado en nuestra variable
-     
-        this.palabraFiltro = message;
-        this.buscar();
-        
-      },
+      this.cargaPorVoz.startReconocimiento().subscribe(matches=>{        
+          let message = matches[0]; //Guarda la primera frase que ha interpretado en nuestra variable     
+          this.palabraFiltro = message;
+           this.buscar(undefined);        
+        },
         (onerror) =>{
-          if(onerror == 0){
-            this.toastServices.mensaje("Reconocimiento por voz finalizado","");
-            this.palabraFiltro = "";
-            this.cargaPorVoz.reconociendoPorVoz = false;
-          } 
-          
-        }
-      ) 
+            if(onerror == 0){
+              this.toastServices.mensaje("Reconocimiento por voz finalizado","");
+              this.palabraFiltro = "";
+               this.buscar(undefined);
+            } 
+        }) 
     }else{
       this.cargaPorVoz.reconociendoPorVoz = false;
       this.cargaPorVoz.stopReconocimiento();
     }
-    
   }
 
   seleccionar(item){
@@ -432,9 +435,9 @@ export class ListProductosServiciosPage implements OnInit {
     this.barcodeScanner.scan().then(barcodeData => {      
       //var codeBar:any =JSON.stringify(barcodeData);
       this.palabraFiltro = barcodeData.text;
-      this.buscar();
+      
      }).catch(err => {
-         alert(err);
+    
      });
   }
 
@@ -459,10 +462,17 @@ export class ListProductosServiciosPage implements OnInit {
 
     modal.onDidDismiss()
     .then((retorno) => {
-      if(retorno.data){        
+      this.loadingService.presentLoading();
+      if(retorno.data){ 
+        retorno.data.keywords = []       
         this.carritoService.agregarProducto(retorno.data);  
         this.marcarEnCarrito();
+       
       }
+      this.deseleccionarCategorias()
+      this.palabraFiltro ="";
+      this.buscar(undefined);
+      this.loadingService.dismissLoading();
     });
 
     return await modal.present();
@@ -485,31 +495,45 @@ export class ListProductosServiciosPage implements OnInit {
     }]); 
   }
 
-  verCarrito(){
+  async verCarrito(){
     this.cargaPorVoz.reconociendoPorVoz = false;
-    this.router.navigate(['details-carrito',{
-      comanda:"true",
-      cobro:"true",
-      mesa:"true"
-    }]);
+
+    const modal = await this.modalCtrl.create({
+      component: DetailsCarritoPage,
+      componentProps: {
+        rol:"encargado"      
+      }
+    });
+    modal.onDidDismiss()
+    .then((retorno) => {
+      this.marcarEnCarrito()
+      this.palabraFiltro ="";
+      this.buscar(undefined);  
+      this.deseleccionarCategorias()  
+    });
+    return await modal.present();
+
   }
 
   verProductos(categoria){
 
-    this.categorias.forEach(c =>{
-      c.seleccionado = false;
-    })
+    this.palabraFiltro = categoria.nombre.toLowerCase();
+    this.buscar(undefined);
+
+   this.deseleccionarCategorias();
     
-    if(categoria != ''){
-      
-      categoria.seleccionado = true;
-      this.palabraFiltro = categoria.nombre.toLowerCase();
+    if(categoria != ''){      
+      categoria.seleccionado = true;     
     }
     else{
       this.palabraFiltro = '';
-    }
-   
-    this.buscar();
+    }    
+  }
+
+  deseleccionarCategorias(){
+    this.categorias.forEach(c =>{
+      c.seleccionado = false;
+    })
   }
 
   nuevoServicio(){

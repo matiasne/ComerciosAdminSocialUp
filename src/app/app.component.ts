@@ -18,6 +18,7 @@ import * as firebase from 'firebase';
 import { PresenceService } from './Services/presence.service';
 import { UsuariosService } from './Services/usuarios.service';
 import { Network } from '@ionic-native/network/ngx';
+import { PedidoService } from './Services/pedido.service';
 
 @Component({
   selector: 'app-root',
@@ -125,14 +126,14 @@ export class AppComponent implements OnInit {
     private usuariosService:UsuariosService,
     private alertController:AlertController,
     private usuarioService:UsuariosService,
-    private mesasService: MesasService
+    private pedidosService: PedidoService
   ) {
     this.comercioSeleccionado = new Comercio();   
     this.initializeApp();  
 
     this.authService.observeRol().subscribe(data=>{
       this.rolActual = data;
-
+      console.log(this.rolActual)
       //Aca setea todos los shows
 
     })
@@ -140,17 +141,16 @@ export class AppComponent implements OnInit {
 
   initializeApp() {
     console.log("NgOnInit")
-    this.notifiacionesDesktopService.requestPermission();
+    /*this.notifiacionesDesktopService.requestPermission();
     this.notifiacionesDesktopService.init().then(data=>{
       console.log("OK")
     },error=>{
       console.log("ERROR"); 
-    });
+    });*/
 
-    this.fcm.onNotification().subscribe(data => {
-      alert(data)
+    this.fcm.onNotification().subscribe(data => {      
       if(data.wasTapped){
-        alert("Received in background");
+
       } else {
         console.log(data);
         this.toastService.mensaje(data.title,data.body);
@@ -163,24 +163,20 @@ export class AppComponent implements OnInit {
 
     this.authService.getActualUserIdObservable().subscribe(uid=>{
        
-      if(uid){
-
-      
-
-        let notSub = this.notificacionesAppService.getSinLeer(uid).subscribe(snapshot =>{
-          this.appActions[0].badge = snapshot.length;
-          console.log(snapshot);
-          notSub.unsubscribe();
-        })
-
-        let invSub = this.invitacionesService.getSinLeer(uid).subscribe(snapshot =>{
-          
-          this.appActions[1].badge = snapshot.length;
-          console.log(snapshot);
-          invSub.unsubscribe();
-        });  
-
+      if(uid){   
+        
+        console.log("Logueado!"+uid)
         this.router.navigate(['home']);     
+
+        this.notificacionesAppService.getSinLeer(uid).subscribe(snapshot =>{
+          this.appActions[0].badge = snapshot.length;
+        }) 
+
+        this.invitacionesService.getSinLeer(uid).subscribe(snapshot =>{         
+          this.appActions[1].badge = snapshot.length;  
+        });
+
+        
 
         this.usuarioService.get(uid).subscribe( (data:any)=>{
           this.usuario = data.payload.data();
@@ -212,32 +208,7 @@ export class AppComponent implements OnInit {
       }    
     });
 
-    this.comerciosService.getSelectedCommerce().subscribe(data=>{
-
-      if(data)
-        this.comercioSeleccionado.asignarValores(data);
-      else{
-        this.comercioSeleccionado = new Comercio();
-      }
-      console.log(data)
-      if(this.comercioSeleccionado.modulos.comandas){
-        this.comandasService.getCantidad().subscribe((snapshot) => {
-          this.cantComandas = snapshot;
-        });   
-      }
-        
-      if(this.comercioSeleccionado.modulos.mesas) { 
-        this.mesasService.setearPath();
-        this.mesasService.list().subscribe((data) => {
-          this.cantMesasActivas = 0;
-          data.forEach(mesa =>{
-            if(mesa.productos.length > 0){
-              this.cantMesasActivas++;
-            }
-          })
-        }); 
-      }
-    });       
+    
 
    
 
@@ -253,6 +224,25 @@ export class AppComponent implements OnInit {
     if (path !== undefined) {
       this.selectedIndex = this.appPages.findIndex(page => page.title.toLowerCase() === path.toLowerCase());
     }
+
+    this.comerciosService.getSelectedCommerce().subscribe(data=>{
+
+      console.log(data) 
+
+      if(data)
+        this.comercioSeleccionado.asignarValores(data);
+      else{
+        this.comercioSeleccionado = new Comercio();
+      }
+     
+      if(this.comercioSeleccionado.modulos.comandas){
+        this.comandasService.getCantidad().subscribe((snapshot) => {
+          this.cantComandas = snapshot;
+        });   
+      }
+        
+      
+    });       
   }
 
   verComercios(){

@@ -18,7 +18,7 @@ export class BaseService {
         protected afs: AngularFirestore
         ) {
       
-    }
+    } 
   
     public setPath(path){
       this.path = path;
@@ -26,7 +26,7 @@ export class BaseService {
     }
   
     get(identifier: string) {
-      console.log('[BaseService] get: ${identifier}');
+      console.log('[BaseService] get: '+this.collection+identifier);
   
       return this.collection
           .doc(identifier)
@@ -142,8 +142,7 @@ export class BaseService {
     }
     
     delete(id: string) {
-        console.log(`[BaseService] deleting item ${id}`);
-    
+        console.log(`[BaseService] deleting item ${id}`);    
         const docRef = this.collection.doc(id);
         return docRef.delete();
     }

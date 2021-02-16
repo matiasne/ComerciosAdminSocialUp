@@ -25,6 +25,7 @@ export class SelectCocinaPage implements OnInit {
   public cocinasSubs:Subscription;
   public ultimoCocina:Cocina;
   public cocinas = [];
+  public clientes = [];
   
   constructor(
     public modalController: ModalController,

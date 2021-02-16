@@ -65,7 +65,7 @@ export class PresenceService {
           if (snapshot.val() == false) {
 
             if(this.estadoActual == "online"){
-              this.presentAlert("Advertencia!","Estas en modo offline");
+          //    this.presentAlert("Advertencia!","Estas en modo offline");
               this.estadoActual = "offline";
             }
               // Instead of simply returning, we'll also set Firestore's state
@@ -76,7 +76,7 @@ export class PresenceService {
           }
           else{
             if(this.estadoActual == "offline"){
-              this.presentAlert("Conectado","Estas en modo online");
+            //  this.presentAlert("Conectado","Estas en modo online");
               this.estadoActual = "online";
             }
           }

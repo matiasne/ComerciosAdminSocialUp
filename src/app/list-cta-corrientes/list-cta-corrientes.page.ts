@@ -5,6 +5,7 @@ import { ClientesService } from '../Services/clientes.service';
 import { Router } from '@angular/router';
 import { CtaCorriente } from '../models/ctacorriente';
 import { AuthenticationService } from '../Services/authentication.service';
+import { LoadingService } from '../Services/loading.service';
 
 @Component({
   selector: 'app-list-cta-corrientes',
@@ -21,8 +22,11 @@ export class ListCtaCorrientesPage implements OnInit {
     private ctasCorreintesService:CtaCorrientesService,
     private clientesServices:ClientesService,
     private router:Router,
-    private authenticationService:AuthenticationService
+    private authenticationService:AuthenticationService,
+    private loadingService:LoadingService
   ) {
+
+    this.loadingService.presentLoadingText("Cargando Ctas Corrientes")
 
     this.ctasCorreintesService.getAll().subscribe(snapshot =>{
       this.items = [];
@@ -46,6 +50,7 @@ export class ListCtaCorrientesPage implements OnInit {
 
           console.log(item);
       });  
+      this.loadingService.dismissLoading()
       this.buscar();
     })
   }

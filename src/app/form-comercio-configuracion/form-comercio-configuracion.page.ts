@@ -3,6 +3,7 @@ import { ComerciosService } from '../Services/comercios.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Comercio } from '../Models/comercio';
+import { AuthenticationService } from '../Services/authentication.service';
 
 @Component({
   selector: 'app-form-comercio-configuracion',
@@ -17,11 +18,13 @@ export class FormComercioConfiguracionPage implements OnInit {
   public cajas =[];
   public horarios =[];
   public categorias = [];
+  public rolActual = "";
 
   constructor(
     private comerciosService:ComerciosService,
     private route:ActivatedRoute,
-    private router:Router
+    private router:Router,
+    private authService:AuthenticationService
   ) { 
     this.comercio = new Comercio();
   }
@@ -30,6 +33,13 @@ export class FormComercioConfiguracionPage implements OnInit {
     this.comerciosService.getSelectedCommerce().subscribe(data=>{
       this.comercio.asignarValores(data);
     });
+
+    let obs = this.authService.observeRol().subscribe(data=>{
+      this.rolActual = data;
+      console.log(this.rolActual)
+      //Aca setea todos los shows
+      obs.unsubscribe();
+    })
   } 
   
   openEditCategorias(){
@@ -64,13 +74,12 @@ export class FormComercioConfiguracionPage implements OnInit {
     this.router.navigate(['list-personal']);
   }
 
-
   linkWhatsapp(){
     this.router.navigate(['details-whatsapp']);
   }
   
-  verEstilos(){
-    this.router.navigate(['form-estilo-configuracion']);
+  verImpresora(){
+    this.router.navigate(['form-impresora-config']);
   }  
   
   update(){

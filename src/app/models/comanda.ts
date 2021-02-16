@@ -10,11 +10,12 @@ export class Comanda{
 	public clienteDireccion= "";
 	public clientePuerta= "";
 	public clienteTelefono= "";
-
-	public carrito ="";
+	public mesaId = "";
+	public pedidoId ="";
+	public mesaNombre ="";
+	public productos = []
 	public cocinaId ="";
-	
-	public isPedido= false;
+	public impresa = false;
 
 	constructor(
 		public empleadoId:"", 

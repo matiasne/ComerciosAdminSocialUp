@@ -3,31 +3,46 @@
     <ion-buttons slot="start">
       <ion-back-button  (click)="atras()"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{mesa.nombre}}</ion-title>    
+    <ion-title>Mesa/{{mesa.nombre}}</ion-title>    
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  
-  <ion-list>                   
-    <span *ngFor="let producto of mesa.productos; let i = index">
-      <ion-item-sliding>
-        <app-card-producto
-          [item]="producto"
-          [showStock]="false"
-          [showEnCarrito] = "false"
-        ></app-card-producto>  
-        <ion-item-options side="end">
-          <ion-item-option color="danger" (click)="eliminarProducto(i)"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
-        </ion-item-options>  
-      </ion-item-sliding>
-    </span>  
+<ion-content class="ion-padding">
+  <h2 *ngIf="pedidos.length == 0">No tienes pedidos cargado a esta mesa.</h2>
+
+  <h5>Productos ({{pedidoTotal.productos.length}})</h5>  
+  <span *ngFor="let producto of pedidoTotal.productos; let i = index">       
+    <app-card-producto
+      [item]="producto" 
+      [showStock]="false"
+      [showImage]="false"
+      [multiplicador]="1"
+    ></app-card-producto>      
+  </span>
+
+  <ion-list lines="none">  
+    <h5>Pedidos ({{pedidos.length}})</h5>       
+    <ion-item-sliding *ngFor="let pedido of pedidos" class="item-card">
+      <ion-item>  
+        <div slot="start">
+          <ion-icon name="file-tray-full-outline"></ion-icon>
+        </div>      
+        <ion-label>
+          <b>{{pedido.createdAt | date:'hh:mm aaa - dd/MM'}}</b>         
+        </ion-label> 
+        <ion-badge color="danger" *ngIf="pedido.countRechazados > 0" slot="end">{{pedido.countRechazados}}</ion-badge>   
+        <ion-badge color="ligth" *ngIf="pedido.countPendientes > 0" slot="end">{{pedido.countPendientes}}</ion-badge>     
+        <ion-badge color="primary" *ngIf="pedido.countEnProcesos > 0" slot="end">{{pedido.countEnProcesos}}</ion-badge>        
+        <ion-badge color="success" *ngIf="pedido.countListos > 0" slot="end">{{pedido.countListos}}</ion-badge>        
+     </ion-item>  
+     <ion-item-options side="end"> 
+        <ion-item-option (click)="cancelar(pedido)"><ion-icon name="trash" ></ion-icon>Cancelar</ion-item-option>
+      </ion-item-options> 
+    </ion-item-sliding> 
   </ion-list>
- 
 </ion-content>
 <ion-footer class="ion-no-border ion-padding"> 
-  <ion-toolbar>    
-    <ion-button *ngIf="comercio.modulos.cajas == true" color="primary" (click)="cerrarMesa()">Cerrar Mesa</ion-button>
-    <ion-button *ngIf="comercio.modulos.cajas == false" color="primary" (click)="borrarMesa()">Borrar Mesa</ion-button>
-  </ion-toolbar>
+  <ion-toolbar>   
+    <ion-button slot="start"  color="danger" (click)="cerrar()">Cerrar</ion-button>
+  </ion-toolbar> 
 </ion-footer>

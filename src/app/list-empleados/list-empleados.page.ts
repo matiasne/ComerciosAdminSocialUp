@@ -33,7 +33,8 @@ export class ListEmpleadosPage implements OnInit {
 
     this.user = this.authService.getActualUser();
 
-   var rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{       
+    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+   var rolSub = this.rolesService.getAllRolesbyComercio(comercio_seleccionadoId).subscribe(snapshot =>{       
       
       snapshot.forEach(snap =>{
         var rol:any = snap.payload.doc.data();

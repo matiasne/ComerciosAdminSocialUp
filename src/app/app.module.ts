@@ -57,6 +57,7 @@ import { Network } from '@ionic-native/network/ngx';
 
 import { Printer, PrintOptions } from '@ionic-native/printer/ngx';
 import { FormComercioPage } from './form-comercio/form-comercio.page';
+import { BluetoothSerial } from '@ionic-native/bluetooth-serial/ngx';
 
 
 
@@ -135,6 +136,7 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     Crop,
     Camera,
     ImagePicker,
+    BluetoothSerial,
     File,
     FCM,
     AngularFirestore,

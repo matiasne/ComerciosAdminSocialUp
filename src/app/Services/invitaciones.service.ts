@@ -7,6 +7,7 @@ import { Invitacion } from '../models/invitacion';
 import { NotificacionesService } from './notificaciones.service';
 import { ComerciosService } from './comercios.service';
 import { Comercio } from '../Models/comercio';
+import { UsuariosService } from './usuarios.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,14 +21,18 @@ export class InvitacionesService {
     private rolesService:RolesService,
     private authService:AuthenticationService,
     private notificaionesService:NotificacionesService,
-    private comercioService:ComerciosService
+    private comercioService:ComerciosService,
+    private usuariosService:UsuariosService
   ) {
-    let commercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+    
     this.collection = 'invitaciones';
   }
 
-  public create(data:Invitacion) {
-    
+  public setCollection(uid){
+    this.collection = 'users/'+uid+'/invitaciones'
+  }
+
+  public create(data:Invitacion) {   
   
     const param = JSON.parse(JSON.stringify(data));
 
@@ -43,18 +48,30 @@ export class InvitacionesService {
 
       var user = this.authService.getActualUser();
       
+      let sub = this.usuariosService.getByEmail(email).subscribe(snapshot=>{
+
+        snapshot.forEach((snap: any) => {         
+          var item = snap.payload.doc.data();
+          item.id = snap.payload.doc.id;  
+
+          let comercio = this.comercioService.comercio;
+          console.log(comercio);
+          invitacion.email = email;
+          invitacion.remitente = user.email;
+          invitacion.comercio_nombre = comercio.nombre;
+          invitacion.comercioId = comercio.id;
+          invitacion.rol = rol;
+          invitacion.estado = "pendiente"; 
+
+          this.setCollection(item.id)
+          this.create(invitacion).then(data =>{
+            console.log(data);
+          });          
+        });
+        sub.unsubscribe()
+        
+      })
       
-      let comercio = this.comercioService.comercio;
-      console.log(comercio);
-      invitacion.email = email;
-      invitacion.remitente = user.email;
-      invitacion.comercio_nombre = comercio.nombre;
-      invitacion.comercioId = comercio.id;
-      invitacion.rol = rol;
-      invitacion.estado = "pendiente"; 
-      this.create(invitacion).then(data =>{
-        console.log(data);
-      });
 
      
   }
@@ -63,18 +80,18 @@ export class InvitacionesService {
     return this.firestore.collection(this.collection).doc(documentId).snapshotChanges();
   }
 
-  public getAll() {   
+  public getAll(uid) {  
+    this.setCollection(uid)
     return this.firestore.collection(this.collection).snapshotChanges();
   }
 
-  public getByEmail(email){
-    return this.firestore.collection(this.collection, ref =>  ref.where('email','==',email)).snapshotChanges();    
+  
+ 
+  public getSinLeer(uid){
+    this.setCollection(uid)
+    return this.firestore.collection(this.collection).valueChanges(); 
   }
 
-  public getSinLeer(email){
-    return this.firestore.collection(this.collection, ref => 
-        ref.where('email','==', email).where('estado','==','pendiente').limit(10)).snapshotChanges(); 
-  }
 
   public update(documentId: string, data: any) {
     const param = JSON.parse(JSON.stringify(data));

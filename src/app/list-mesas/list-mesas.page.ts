@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { MesasService } from '../Services/mesas.service';
 import { Router } from '@angular/router';
+import { LoadingService } from '../Services/loading.service';
 
 @Component({
   selector: 'app-list-mesas',
@@ -14,7 +15,8 @@ export class ListMesasPage implements OnInit {
   constructor(
     public modalController: ModalController,
     public mesasService:MesasService,
-    public router:Router
+    public router:Router,
+    public loadingService:LoadingService
   ) { }
 
   ngOnInit() {
@@ -22,7 +24,9 @@ export class ListMesasPage implements OnInit {
   } 
   
   ionViewDidEnter(){
-    this.mesasService.list().subscribe(mesas=>{                 
+    this.loadingService.presentLoadingText("Cargando Mesas")
+    this.mesasService.list().subscribe(mesas=>{
+      this.loadingService.dismissLoading()                
       this.mesas = mesas;
     });
   }

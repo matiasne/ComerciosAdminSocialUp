@@ -156,7 +156,7 @@ export class FormDepositoCtaCorrientePage implements OnInit {
     pago.motivo = this.datosForm.controls.motivo.value;
     this.movimientosService.createMovimientoCaja(this.caja,pago);
 
-    this.carritoService.setearCaja(this.datosForm.controls.cajaId.value); 
+    //this.carritoService.setearCaja(this.datosForm.controls.cajaId.value); 
 
     this.deposito.cajaId =this.caja.id;
     this.deposito.pagoId = pago.id;

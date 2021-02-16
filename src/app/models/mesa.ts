@@ -9,6 +9,7 @@ export class Mesa{
     public habilitarLlamadorMozoApp = false;
     public habilitarComandasApp = false;
     public productos = [];
+    public cobrado = false;
     
 	constructor(
 		

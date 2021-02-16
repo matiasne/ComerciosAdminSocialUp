@@ -1,17 +1,15 @@
-<ion-card class="item-card ion-padding">      
-  realizado: {{item.createdAt | date:'hh:mm aaa - dd/MM'}}<br>
-  <span *ngIf="item.carrito.mesa && item.carrito.mesa.id">Mesa: {{item.carrito.mesa.nombre}}</span>
-  <span *ngIf="item.carrito.cliente && item.carrito.cliente.id">Cliente: {{item.carrito.cliente.nombre}}</span>
-  <ion-item >               
-    <ion-label>
-      <div *ngIf="item.empleado_email">
-        Pedido por: {{item.empleado_email}} <span *ngIf="item.cliente_nombre">para {{item.cliente_nombre}}</span><br>                           
-      </div>
-        
-      <span *ngFor="let producto of item.carrito.productos; let i = index">
+<ion-card class="item-card ion-padding">    
+  <span *ngIf="item.empleadoNombre">Realizado por: {{item.empleadoNombre}}</span><br>  
+  realizado: {{item.createdAt | date:'hh:mm aaa - dd/MM'}}<br>  
+  <span *ngIf="item.mesaId">Mesa: {{item.mesaNombre}}</span><br>
+  <span *ngIf="item.clienteId">Cliente: {{item.clienteNombre}}</span>
+  
+  <ion-item>               
+    <ion-label>            
+      <span *ngFor="let producto of item.productos; let i = index">
         <app-card-producto [item]="producto" [showEnCarrito] = "false" [showStock] = "false"></app-card-producto>  
       </span> 
-      <ion-item *ngFor="let servicio of item.carrito.servicios; let i = index">
+      <ion-item *ngFor="let servicio of item.servicios; let i = index">
         <ion-avatar slot="start">
           <img src="{{servicio.foto}}" *ngIf="servicio.foto">
           <ion-icon name="document-attach-outline" *ngIf="!servicio.foto"></ion-icon>
@@ -24,9 +22,7 @@
             <span *ngIf="servicio.plan.tipo == 'anual'">el año por </span>
             {{servicio.plan.precio | currency}}
           </h3>
-          <h3 *ngIf="servicio.plan == 'personal'">
-            
-          </h3>
+          <h3 *ngIf="servicio.plan == 'personal'"></h3>
           <h3>{{servicio.descripcion_venta}}</h3>
           <h3 *ngIf="servicio.pagoAdelantado == 'false'" style="color:red">El abono se pagará al finalizar el periodo</h3>
         </ion-label>  
@@ -39,9 +35,6 @@
     <ion-button *ngIf="item.status == 2" color="light" size="large" slot="start" (click)="comandaVolver(item)"  expand="block">Volver</ion-button>
     <ion-button *ngIf="item.status == 0" size="large" slot="end" (click)="comandaTomada(item)"  expand="block">Tomado</ion-button>   
     <ion-button *ngIf="item.status == 1" color="success" size="large" slot="end" (click)="comandaLista(item)"  expand="block">Listo!</ion-button>  
-    <ion-button *ngIf="item.carrito.mesa.id == '' && comercio.modulos.cajas == true  && item.status == 2" color="danger" size="large" slot="end" (click)="cobrarComanda(item)"  expand="block">Cobrar</ion-button>
-    <ion-button *ngIf="item.carrito.mesa.id == '' && comercio.modulos.cajas == false  && item.status == 2" color="danger" size="large" slot="end" (click)="finalizarComanda(item)"  expand="block">Finalizar</ion-button>  
-    <ion-button *ngIf="item.carrito.mesa.id != '' && comercio.modulos.cajas == true && item.status == 2" color="danger" size="large" slot="end" (click)="finalizarComanda(item)"  expand="block">Finalizar</ion-button>                   
-    <ion-button *ngIf="item.carrito.mesa.id != '' && comercio.modulos.cajas == false && item.status == 2" color="danger" size="large" slot="end" (click)="finalizarComanda(item)"  expand="block">Finalizar</ion-button>                   
+    <ion-button *ngIf="item.status == 2" color="danger" size="large" slot="end" (click)="finalizarComanda(item)"  expand="block">Finalizar</ion-button>                   
   </ion-item>
 </ion-card>

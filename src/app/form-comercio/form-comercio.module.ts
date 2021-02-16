@@ -21,7 +21,7 @@ import { ComponentsModule } from '../Components/components.module';
     FormComercioPageRoutingModule
   ],
   declarations: [
-    FormComercioPage
+    
   ]
 })
 export class FormComercioPageModule {}

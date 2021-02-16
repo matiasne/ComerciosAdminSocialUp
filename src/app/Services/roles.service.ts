@@ -67,13 +67,21 @@ export class RolesService {
 
   }  
 
-  getAllRolesbyComercio(){
-    
+  
+  getAllRolesbyComercio(comercioId){     
+    this.collection = 'comercios/'+comercioId+'/roles';
 
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
-    this.collection = 'comercios/'+comercio_seleccionadoId+'/roles';
-
-    return this.firestore.collection(this.collection).snapshotChanges();
+    return this.firestore.collection(this.collection).get({ source: 'server' }).pipe(
+      map(actions => {
+        const data = [];       
+        actions.forEach(a => {
+          const item = a.data() ;
+          item.id = a.id;
+          data.push(item);
+        });
+        return data;
+      })
+    )
   }
 
   public setUserAsAdmin(comercioId){   
@@ -93,9 +101,9 @@ export class RolesService {
     return this.firestore.collectionGroup(this.collectionGroup, ref=>ref.where("rol","==","owner")).snapshotChanges();
   }
 
-  public update(documentId: string, data: any) {
+  public update(comercioId,documentId: string, data: any) {
     const param = JSON.parse(JSON.stringify(data));
-    return this.firestore.collection('comercios/'+data.comercioId+'/roles').doc(documentId).set({...param,
+    return this.firestore.collection('comercios/'+comercioId+'/roles').doc(documentId).set({...param,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
   }

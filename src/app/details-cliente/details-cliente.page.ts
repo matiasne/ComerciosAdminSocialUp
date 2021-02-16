@@ -6,11 +6,9 @@ import { ServiciosService } from '../Services/servicios.service';
 import { CallNumber } from '@ionic-native/call-number/ngx';
 import { EmailComposer } from '@ionic-native/email-composer/ngx';
 import { Subscription } from 'rxjs';
-import { UsuariosService } from '../Services/usuarios.service';
 import { AlertController, ModalController } from '@ionic/angular';
 import { CtaCorrientesService } from '../Services/cta-corrientes.service';
 import { CtaCorriente } from '../models/ctacorriente';
-import { CarritoService } from '../Services/global/carrito.service';
 import { FormComentarioPage } from '../form-comentario/form-comentario.page';
 import { ComentariosService } from '../Services/comentarios.service';
 import { FormClienteEstadoPage } from '../form-cliente-estado/form-cliente-estado.page';
@@ -53,7 +51,6 @@ export class DetailsClientePage implements OnInit {
     private emailComposer: EmailComposer,
     private alertController:AlertController,
     private ctasCorreintesService:CtaCorrientesService,
-    private carritoService:CarritoService,
     private modalController:ModalController,
     private comentarioService:ComentariosService,
     private clientesEstadosService:ClientesEstadosService
@@ -266,12 +263,7 @@ export class DetailsClientePage implements OnInit {
   }
 
   cobrar(pagare){
-    this.carritoService.agregarPagare(pagare);
-    this.router.navigate(['details-carrito',{
-      comanda:false,
-      cobro:true
-    }]);
-
+    
   }
 
   editarCtaCorriente(item){

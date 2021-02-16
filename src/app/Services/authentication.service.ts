@@ -10,6 +10,7 @@ import { auth } from 'firebase/app';
 import { Router } from '@angular/router';
 import { AngularFirestoreDocument, AngularFirestore } from 'angularfire2/firestore';
 import { UsuariosService } from './usuarios.service';
+import { LoadingService } from './loading.service';
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +44,8 @@ export class AuthenticationService {
     public toastController: ToastController,
     private afs: AngularFirestore,
     private firestore: AngularFirestore,
-    private usuarioService:UsuariosService
+    private usuarioService:UsuariosService,
+    private loadingService:LoadingService
   ) { 
 
     this.platform.ready().then(() => {
@@ -157,10 +159,7 @@ export class AuthenticationService {
         this.router.navigate(['/login']);
       })
       .catch(async (error) => {
-        console.log(error.message);
-
-        
-        
+        console.log(error.message);       
 
         if(error.message ==  "The email address is badly formatted."){
           
@@ -199,6 +198,11 @@ export class AuthenticationService {
 
     const userRef: AngularFirestoreDocument = this.afs.doc(`users/${user.uid}`);
     
+    localStorage.setItem('rol',null);
+    localStorage.setItem('comercio_seleccionadoId',null);
+    localStorage.setItem('user',JSON.stringify(user));
+    this.userIdSubject.next(user.uid);
+
     let data:any;
     userRef.ref.get().then((doc) => {
       if(doc.exists){
@@ -222,9 +226,7 @@ export class AuthenticationService {
         }    
       }
 
-      localStorage.setItem('rol',null);
-      localStorage.setItem('comercio_seleccionadoId',null);
-      this.userIdSubject.next(user.uid);
+     
       return userRef.set(data, { merge: true });
     })
   }
@@ -325,11 +327,13 @@ export class AuthenticationService {
     const credential = accessSecret ? firebase.auth.GoogleAuthProvider
         .credential(accessToken, accessSecret) : firebase.auth.GoogleAuthProvider
             .credential(accessToken);
+
     this.firebaseAuth.auth.signInWithCredential(credential)
       .then((response) => {
+        this.loadingService.dismissLoading()
         this.updateUserData(response.user);        
       }) 
-  }
+  } 
 
   
 
@@ -348,13 +352,14 @@ export class AuthenticationService {
       }*/
 
       console.log(params);
+      this.loadingService.presentLoading()
       this.googlePlus.login(params).then((response) => {
         const { idToken, accessToken } = response
         console.log(response);       
         this.onLoginSuccess(idToken, accessToken);
       }).catch((error) => {
         console.log(error)
-        alert('error:' + JSON.stringify(error));
+       // alert('error:' + JSON.stringify(error));
       }); 
   
      
@@ -415,15 +420,14 @@ export class AuthenticationService {
     }    
   }
 
-  getEmail(){    
+  getEmail(){         
     let user =  JSON.parse(localStorage.getItem('user'));
-    if(user){
+    if(user){ 
       if(user.email)
         return user.email;
       else
         return "";
-    }
-    
+    }    
   }
 
   // Handle API errors

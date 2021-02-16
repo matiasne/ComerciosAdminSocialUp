@@ -43,7 +43,6 @@ export class FormIngresoCajaPage implements OnInit {
     private loadingService:LoadingService,
     private modalController:ModalController,
     private firestore:AngularFirestore,
-    private ctaCorrienteService:CtaCorrientesService,
     private cajasService:CajasService,
     private movimientosService:MovimientosService,
     private toastServices:ToastService,
@@ -131,7 +130,7 @@ export class FormIngresoCajaPage implements OnInit {
   }
 
   getCuentasCorrientes(cliente){
-    this.ctasCorrientesService.getByCliente(cliente).subscribe(snapshot =>{
+    this.ctasCorrientesService.getByCliente(cliente.id).subscribe(snapshot =>{
       this.ctasCorrientes =[];
       snapshot.forEach((snap: any) => {           
           var item = snap.payload.doc.data();

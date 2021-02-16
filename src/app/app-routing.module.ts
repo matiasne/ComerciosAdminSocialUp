@@ -136,14 +136,6 @@ const routes: Routes = [
     loadChildren: () => import('./list-venta/list-venta.module').then( m => m.ListVentaPageModule)
   },
   {
-    path: 'details-venta',
-    loadChildren: () => import('./details-venta/details-venta.module').then( m => m.DetailsVentaPageModule)
-  },
-  {
-    path: 'form-venta',
-    loadChildren: () => import('./form-venta/form-venta.module').then( m => m.FormVentaPageModule)
-  },
-  {
     path: 'add-producto-venta',
     loadChildren: () => import('./add-producto-venta/add-producto-venta.module').then( m => m.AddProductoVentaPageModule)
   },
@@ -167,10 +159,6 @@ const routes: Routes = [
   {
     path: 'list-cajas',
     loadChildren: () => import('./list-cajas/list-cajas.module').then( m => m.ListCajasPageModule)
-  },
-  {
-    path: 'dashboard-comandas',
-    loadChildren: () => import('./dashboard-comandas/dashboard-comandas.module').then( m => m.DashboardComandasPageModule)
   },
   {
     path: 'list-comandas',
@@ -349,10 +337,6 @@ const routes: Routes = [
     loadChildren: () => import('./select-mesa/select-mesa.module').then( m => m.SelectMesaPageModule)
   },
   {
-    path: 'ticket-print',
-    loadChildren: () => import('./ticket-print/ticket-print.module').then( m => m.TicketPrintPageModule)
-  },
-  {
     path: 'details-mesa',
     loadChildren: () => import('./details-mesa/details-mesa.module').then( m => m.DetailsMesaPageModule)
   },
@@ -379,6 +363,14 @@ const routes: Routes = [
   {
     path: 'form-apertura-caja',
     loadChildren: () => import('./form-apertura-caja/form-apertura-caja.module').then( m => m.FormAperturaCajaPageModule)
+  },
+  {
+    path: 'details-pedido',
+    loadChildren: () => import('./details-pedido/details-pedido.module').then( m => m.DetailsPedidoPageModule)
+  },
+  {
+    path: 'form-impresora-config',
+    loadChildren: () => import('./form-impresora-config/form-impresora-config.module').then( m => m.FormImpresoraConfigPageModule)
   },
   
 ];

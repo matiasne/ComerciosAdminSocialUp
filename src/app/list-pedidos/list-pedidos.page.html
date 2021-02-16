@@ -1,9 +1,47 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>list-pedidos</ion-title>
+    <ion-buttons slot="start">
+      <ion-menu-button autoHide="false"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Pedidos</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-padding">
 
+  <ion-searchbar animated 
+        placeholder="Buscar por cliente, empleado o mesa"
+        animated="true"
+        showCancelButton="never" 
+        color="light" 
+        autocomplete="on"
+        enterkeyhint="send"
+        inputmode="text"
+        type="text"
+        debounce="300"
+        value="{{palabraFiltro}}"
+        (ionChange)="onChange($event)">
+      </ion-searchbar>
+
+  <h2 *ngIf="pedidos.length == 0">No tienes pedidos en curso.</h2>
+  <ion-list lines="none">        
+    <ion-item-sliding *ngFor="let pedido of pedidos" class="item-card">
+      <ion-item (click)="seleccionar(pedido)">  
+        <div slot="start">
+          <ion-icon name="file-tray-full-outline"></ion-icon>
+        </div>      
+        <ion-label>
+          <p *ngIf="pedido.personalNombre">Cargado por: {{pedido.personalNombre}}</p>
+          <b><span *ngIf="pedido.mesaNombre" > Mesa: {{pedido.mesaNombre}}</span> <span *ngIf="pedido.clienteNombre" >/ Cliente: {{pedido.clienteNombre}}</span> > {{pedido.createdAt | date:'hh:mm aaa - dd/MM'}} </b>         
+        </ion-label> 
+        <ion-badge color="danger" *ngIf="pedido.countRechazados > 0" slot="end">{{pedido.countRechazados}}</ion-badge>   
+        <ion-badge color="ligth" *ngIf="pedido.countPendientes > 0" slot="end">{{pedido.countPendientes}}</ion-badge>     
+        <ion-badge color="primary" *ngIf="pedido.countEnProcesos > 0" slot="end">{{pedido.countEnProcesos}}</ion-badge>        
+        <ion-badge color="success" *ngIf="pedido.countListos > 0" slot="end">{{pedido.countListos}}</ion-badge>        
+     </ion-item>  
+     <ion-item-options side="end">
+        <ion-item-option (click)="cancelar(pedido)"><ion-icon name="trash" ></ion-icon>Cancelar</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>   
+  </ion-list>
 </ion-content>

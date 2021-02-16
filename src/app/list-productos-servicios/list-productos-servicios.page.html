@@ -5,30 +5,36 @@
     </ion-buttons>
     <ion-title>Catálogo</ion-title>     
   </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
-    
-
-  <ion-row>
-    <ion-col size="8">
-      <ion-input placeholder="Buscar" style="border:1px solid rgb(206, 206, 206); border-radius: 5px;"
-      [(ngModel)]="palabraFiltro" (ionChange)="buscar()"
-      ></ion-input>
-    </ion-col>    
-    <ion-col size="2">
-      <ion-button color="primary" style="margin-top: -1px; height: 42px;"  (click)="lectorDeCodigo()">
+</ion-header> 
+  
+<ion-content>  
+  <ion-row class="ion-padding">    
+    <ion-searchbar animated 
+      placeholder="Buscar por nombre o categoría"
+      animated="true"
+      showCancelButton="never" 
+      color="light" 
+      autocomplete="on"
+      enterkeyhint="send"
+      inputmode="text"
+      type="text"
+      debounce="300"
+      value="{{palabraFiltro}}"
+      (ionChange)="buscar($event)">
+    </ion-searchbar>        
+    <ion-col size="6">
+      <ion-button class="button-rounded" size="large" color="primary" style="margin-top: -1px; height: 42px;"  (click)="lectorDeCodigo()">
           <ion-icon name="barcode"></ion-icon>
       </ion-button>
     </ion-col>
-    <ion-col size="2" *ngIf="!this.cargaPorVoz.reconociendoPorVoz">
-      <ion-button color="primary" style="margin-top: -1px; height: 42px;"  (click)="reconocimientoPorVoz()">
+    <ion-col size="6"> 
+      <ion-button class="button-rounded" size="large" color="primary" style="margin-top: -1px; height: 42px;"  (click)="reconocimientoPorVoz()">
           <ion-icon name="mic-outline"></ion-icon>
       </ion-button>
     </ion-col>
   </ion-row>
 
-  <ion-slides [options]="slideOpts" slidesPerView="2">
+  <ion-slides [options]="slideOpts" slidesPerView="3">
     <ion-slide (click)="verProductos('')" >
       <span >Ver Todo</span>
     </ion-slide>
@@ -42,15 +48,16 @@
     <ion-slide>
     </ion-slide>
   </ion-slides>
-    
-  <ion-item  class="list-item" *ngIf="itemsAllProductos.length == 0 && itemsAllServicios.length == 0" (click)="presentAlertSeleccionar()">  
-    <ion-avatar slot="start">       
-      <ion-icon name="star"></ion-icon>
-    </ion-avatar>      
-    <ion-label>
-      <h2><b>Aún no tienes productos ni servicios agregados a tu comercio! Agregar uno nuevo</b></h2>        
-    </ion-label>
-  </ion-item>
+  
+  <div class="ion-padding">
+    <ion-item  class="list-item" *ngIf="itemsAllProductos.length == 0 && itemsAllServicios.length == 0" (click)="presentAlertSeleccionar()">  
+      <ion-avatar slot="start">       
+        <ion-icon name="star"></ion-icon>
+      </ion-avatar>      
+      <ion-label>
+        <h2><b>Aún no tienes productos ni servicios agregados a tu comercio! Agregar uno nuevo</b></h2>        
+      </ion-label>
+    </ion-item>
     
     <ion-grid>
       <ion-row>
@@ -60,6 +67,7 @@
               [item]="item"
               [multiplicador]="1"
               [showOpcionesSeleccionadas]="false"
+              [showEstadoComanda]="false"
               (select)="seleccionar(item)"
             ></app-card-producto>  
           
@@ -77,7 +85,7 @@
         <ion-col size="12" size-xs="12" size-sm="6" size-md="4" size-lg="3"  *ngFor="let item of itemsServicios" >
           <ion-item-sliding class="item-card">
             <ion-item (click)="seleccionar(item)" *ngIf="!item.producto">
-              <div slot="start">
+              <div slot="start"> 
                 <img src="{{item.foto}}" *ngIf="item.foto">
                 <ion-icon name="document-attach-outline" *ngIf="!item.foto"></ion-icon>
               </div>      
@@ -100,7 +108,7 @@
 
       </ion-row>
     </ion-grid>
-
+  </div>
     
 
     
@@ -121,8 +129,8 @@
 
 </ion-content>
 
-<ion-footer class="ion-no-border ion-padding" *ngIf="carrito.on">
+<ion-footer class="ion-no-border ion-padding" *ngIf="carrito.on" style="padding: 0px;">
   <ion-toolbar>
-    <ion-button expand="full" size="large" class="margin0" color="success" (click)="verCarrito()">{{carrito.productos.length + carrito.servicios.length}} Items = {{carrito.totalProductos+carrito.totalServicios | currency}} <ion-icon name="arrow-forward"></ion-icon></ion-button>
-  </ion-toolbar>
+    <ion-button class="margin0 button-rounded" style="height: 60px;" color="success" (click)="verCarrito()">{{carrito.productos.length + carrito.servicios.length}} Items = {{carrito.totalProductos+carrito.totalServicios | currency}} <ion-icon name="arrow-forward"></ion-icon></ion-button>
+  </ion-toolbar> 
 </ion-footer>

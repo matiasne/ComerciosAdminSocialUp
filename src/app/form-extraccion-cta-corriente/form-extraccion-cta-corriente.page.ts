@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Cliente } from '../models/cliente';
-import { ListClientesPage } from '../list-clientes/list-clientes.page';
 import { ModalController, NavController } from '@ionic/angular';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { AuthenticationService } from '../Services/authentication.service';
-import { CtaCorrientesService } from '../Services/cta-corrientes.service';
 import { Subscription } from 'rxjs';
 import { CarritoService } from '../Services/global/carrito.service';
 import { AngularFirestore } from 'angularfire2/firestore';
@@ -48,7 +46,6 @@ export class FormExtraccionCtaCorrientePage implements OnInit {
     private authenticationService:AuthenticationService,
     private carritoService:CarritoService,
     private firestore:AngularFirestore,
-    private ctaCorrienteService:CtaCorrientesService,
     private cajasService:CajasService,
     public route:ActivatedRoute,
     private movimientosService:MovimientosService,
@@ -157,7 +154,7 @@ export class FormExtraccionCtaCorrientePage implements OnInit {
     pago.motivo = this.datosForm.controls.motivo.value;
     this.movimientosService.createMovimientoCaja(this.caja,pago);
 
-    this.carritoService.setearCaja(this.datosForm.controls.cajaId.value); 
+    //this.carritoService.setearCaja(this.datosForm.controls.cajaId.value); 
 
     this.extraccion.cajaId =this.caja.id;
     this.extraccion.pagoId = pago.id;

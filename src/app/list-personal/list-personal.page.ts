@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { FormInvitacionPage } from '../form-invitacion/form-invitacion.page';
 import { User } from 'firebase';
 import { AuthenticationService } from '../Services/authentication.service';
+import { LoadingService } from '../Services/loading.service';
 
 @Component({
   selector: 'app-list-personal',
@@ -27,24 +28,23 @@ export class ListPersonalPage implements OnInit {
     public usuariosService:UsuariosService,
     public modalCtrl: ModalController,
     public router:Router,
-    public alertController:AlertController
+    public alertController:AlertController,
+    public loadingService:LoadingService
   ) { }
 
   ngOnInit() {
    
     this.user = this.authService.getActualUser();
 
-   var rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{       
-      this.itemsAll = [];
-      snapshot.forEach(snap =>{
-        var rol:any = snap.payload.doc.data();
-        rol.id = snap.payload.doc.id;
-        console.log(rol);    
-        this.itemsAll.push(rol);      
+    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
 
-      });
+    this.loadingService.presentLoadingText("Cargando Personal")
+    var rolSub = this.rolesService.getAllRolesbyComercio(comercio_seleccionadoId).subscribe(data =>{       
+     this.loadingService.dismissLoading()
+      this.itemsAll = data;
+      
       this.buscar();
-      rolSub.unsubscribe();
+      //rolSub.unsubscribe();
     });
 
     /*var rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{       
@@ -125,11 +125,17 @@ export class ListPersonalPage implements OnInit {
   } 
 
   async desvincular(item){
-    
+    let texto = "";
+    if(this.user.email == item.email){
+      texto = "Estas seguro que deseas desvincularte del comercio?"
+    }
+    else{
+      texto = 'Está seguro que desea desvincular el empleado'
+    }
 
     const alert = await this.alertController.create({
-      header: 'Está seguro que desea desvincular el empleado',
-      message: 'Se perderán los registros del mismo',
+      header: texto,
+      message: 'Se perderán todos tus registros',
       buttons: [
         {
           text: 'No',

@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { SubscripcionesService } from '../Services/subscripciones.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Subscripcion } from '../models/subscripcion';
 import { Cliente } from '../models/cliente';
 import { Servicio } from '../models/servicio';
-import { Plan } from '../models/plan';
 import { PagaresService } from '../Services/pagares.service';
-import { CarritoService } from '../Services/global/carrito.service';
 
 @Component({
   selector: 'app-details-subscripcion',
@@ -23,8 +21,6 @@ export class DetailsSubscripcionPage implements OnInit {
     private route: ActivatedRoute,
     private subscripcionesService:SubscripcionesService,
     private pagaresService:PagaresService,
-    private carritoService:CarritoService,
-    private router:Router
   ) { 
     this.subscripcion = new Subscripcion("","");
     this.cliente = new Cliente();
@@ -90,12 +86,7 @@ export class DetailsSubscripcionPage implements OnInit {
   }
 
   cobrar(pagare){
-    this.carritoService.agregarPagare(pagare);
-    this.router.navigate(['details-carrito',{
-      comanda:false,
-      cobro:true
-    }]);
-
+ 
   }
 
 }

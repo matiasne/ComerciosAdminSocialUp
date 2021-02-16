@@ -25,6 +25,7 @@
     "@fullcalendar/interaction": "^5.3.1",
     "@fullcalendar/timegrid": "^5.3.1",
     "@ionic-native/barcode-scanner": "^5.26.0",
+    "@ionic-native/bluetooth-serial": "^5.31.1",
     "@ionic-native/call-number": "^5.26.0",
     "@ionic-native/camera": "^5.26.0",
     "@ionic-native/core": "^5.0.7",
@@ -46,6 +47,7 @@
     "cordova-browser": "6.0.0",
     "cordova-plugin-androidx": "^2.0.0",
     "cordova-plugin-androidx-adapter": "^1.1.1",
+    "cordova-plugin-bluetooth-serial": "^0.4.7",
     "cordova-plugin-camera": "^4.1.0",
     "cordova-plugin-crop": "^0.4.0",
     "cordova-plugin-email-composer": "^0.9.2",
@@ -124,7 +126,8 @@
       "cordova-plugin-network-information": {},
       "cordova-plugin-printer": {
         "ANDROID_SUPPORT_V4_VERSION": "28.+"
-      }
+      },
+      "cordova-plugin-bluetooth-serial": {}
     },
     "platforms": [
       "android"

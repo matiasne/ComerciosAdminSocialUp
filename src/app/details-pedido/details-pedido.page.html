@@ -1,0 +1,108 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button  (click)="cancelar()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle Pedido</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">   
+ 
+   
+    
+    <ion-item *ngIf="pedido.clienteId">
+      Cliente: {{pedido.clienteNombre}}
+    </ion-item>
+    
+    <ion-item *ngIf="pedido.mesaId">
+
+      Mesa: {{pedido.mesaNombre}}
+    </ion-item>   
+    
+       
+
+    
+
+    <div  class="form-card" *ngIf="pedido.productos.length > 0">
+      <ion-text color="primary">
+        <h4>Productos</h4>
+      </ion-text>       
+    <ion-list>                   
+      <span *ngFor="let producto of pedido.productos; let i = index">
+       
+          <app-card-producto
+            [item]="producto"
+            [showStock]="false"
+            [showImage]="false"
+            [multiplicador]="1"
+          ></app-card-producto>  
+         
+      </span>
+
+      
+    
+    </ion-list>
+    </div>
+
+    <div  class="form-card" *ngIf="pedido.servicios.length > 0">
+      <ion-text color="primary">
+        <h4>Servicios</h4>
+      </ion-text> 
+      
+      <ion-list>                   
+        <ion-item *ngFor="let servicio of pedido.servicios; let i = index">
+          <!--ion-avatar slot="start">
+            <img src="{{servicio.foto}}" *ngIf="servicio.foto">
+            <ion-icon name="document-attach-outline" *ngIf="!servicio.foto"></ion-icon>
+          </ion-avatar-->
+          <ion-label text-wrap>
+            <h2>{{servicio.nombre}}</h2>
+            <h3>{{servicio.plan.nombre}}, 
+              <span *ngIf="servicio.tipo == 'dias'">{{servicio.plan.dias}} días por </span>
+              <span *ngIf="servicio.tipo == 'mensual'">el mes por </span>
+              <span *ngIf="servicio.tipo == 'anual'">el año por </span>
+              {{servicio.plan.precio | currency}}
+            </h3>
+            <h3>{{servicio.descripcion_venta}}</h3>
+            <h3 *ngIf="servicio.pagoAdelantado == 'false'" style="color:red">El abono se pagará al finalizar el periodo</h3>
+          </ion-label>
+         
+        </ion-item>      
+      </ion-list>
+    </div>
+    
+</ion-content> 
+
+<ion-footer class="ion-no-border ion-padding"> 
+  <ion-item *ngIf="cajas.length > 0" class="item-card">
+    <ion-label>Seleccionar Caja</ion-label>
+    <ion-select [(ngModel)]="cajaSeleccionadaIndex" (ionChange)="setearCaja()">
+      <span *ngFor="let caja of cajas;let i=index">
+        <ion-select-option [value]="i" selected>{{caja.nombre}}</ion-select-option>
+      </span>          
+    </ion-select>
+  </ion-item>
+    
+  <ion-item class="item-card" *ngIf="cajas[cajaSeleccionadaIndex]">
+    <ion-label>Seleccione Método de Pago</ion-label>
+    <ion-select [(ngModel)]="metodoPagoSeleccionado">
+      <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].efectivo" [value]="'efectivo'">Efectivo</ion-select-option>
+      <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].debito" [value]="'debito'">Débito</ion-select-option>
+      <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].credito" [value]="'credito'">Crédito</ion-select-option>
+      <ion-select-option *ngIf="ctasCorrientes.length > 0" [value]="'ctaCorriente'">Cta. Corriente</ion-select-option>
+    </ion-select>    
+  </ion-item>
+  
+  <ion-item class="item-card" *ngIf="metodoPagoSeleccionado == 'ctaCorriente'">
+    <ion-label >Seleccione Cuenta Corriente:</ion-label>
+    <ion-select  [(ngModel)]="ctaCorrienteSelecccionadaId">
+      <ion-select-option *ngFor="let cta of ctasCorrientes" [value]="cta.id">{{cta.nombre}}</ion-select-option>
+    </ion-select>
+  </ion-item>
+  
+  <ion-toolbar>   
+    <ion-button class="button-rounded" color="danger" (click)="cancelar()">Cancelar</ion-button>
+    <ion-button class="button-rounded"  color="success" (click)="continuar()">Cobrar: ${{pedido.totalProductos + pedido.totalServicios}}</ion-button>
+  </ion-toolbar> 
+</ion-footer>

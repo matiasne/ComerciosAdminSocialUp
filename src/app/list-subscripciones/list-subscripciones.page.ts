@@ -1,16 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ModalController, LoadingController, AlertController } from '@ionic/angular';
 import { SubscripcionesService } from '../Services/subscripciones.service';
-import { LoadingService } from '../Services/loading.service';
-import { ServiciosService } from '../Services/servicios.service';
-import { ClientesService } from '../Services/clientes.service';
-import { PlanesService } from '../Services/planes.service';
-import { PagaresService } from '../Services/pagares.service';
-import { snapshotChanges } from 'angularfire2/database';
-import { Pagare } from '../models/pagare';
-import { CarritoService } from '../Services/global/carrito.service';
 import { Subscripcion } from '../models/subscripcion';
 
 @Component({
@@ -37,12 +29,8 @@ export class ListSubscripcionesPage implements OnInit {
   constructor(
     public modalController: ModalController,
     public loadingController: LoadingController,
-    private router: Router,
     private route: ActivatedRoute,
     private subscripcionesService:SubscripcionesService,
-    private loadingService:LoadingService,
-    private carritoService:CarritoService,
-    private alertController:AlertController
   ) { }
 
   ngOnInit() {   

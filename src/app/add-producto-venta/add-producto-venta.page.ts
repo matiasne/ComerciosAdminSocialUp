@@ -1,18 +1,15 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ModalController, NavParams, IonInput, NavController, IonContent } from '@ionic/angular';
+import { ModalController, NavParams, IonInput, IonContent } from '@ionic/angular';
 import { ProductosService } from '../Services/productos.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { CargaPorVozService } from '../Services/carga-por-voz.service';
 import { ToastService } from '../Services/toast.service';
-import { CarritoService } from '../Services/global/carrito.service';
-import { snapshotChanges } from 'angularfire2/database';
 import { Producto } from '../models/producto';
-import { LoadingService } from '../Services/loading.service';
 import { GrupoOpciones } from '../models/grupoOpciones';
 import { Opcion } from '../models/opcion';
-import { GrupoOpcionesService } from '../Services/grupo-opciones.service';
 import { Subscription } from 'rxjs';
+import { CocinasService } from '../Services/cocinas.service';
 
 @Component({
   selector: 'app-add-producto-venta',
@@ -40,22 +37,20 @@ export class AddProductoVentaPage implements OnInit {
     public productosServices:ProductosService,
     public cargaPorVoz:CargaPorVozService,
     public toastServices:ToastService,
-    public carritoService:CarritoService,
     public productoService:ProductosService,
-    private navCtrl: NavController,
-    private loadingService:LoadingService,
-    private grupoOpcionesService:GrupoOpcionesService,
-    private navParams:NavParams
+    private navParams:NavParams,
+    private cocinasService:CocinasService
   ) { }
 
   ngOnInit() {
     console.log("!!!")
     this.producto = new Producto();
-    
-
     this.producto.asignarValores(this.navParams.get('producto'));
     this.producto.cantidad = 1;
     this.producto.descripcion_venta = "";
+
+    
+
     this.producto.gruposOpciones.forEach(grupo=>{
       grupo.opciones.forEach(opcion =>{
         opcion.cantidad = 0;
@@ -108,7 +103,7 @@ export class AddProductoVentaPage implements OnInit {
     });
     opcion.seleccionada = true;
     opcion.cantidad = 1;
-    
+    this.producto.precioTotal = this.valorTotal();
   }
 
   seleccionarOpcionCheck(grupo:GrupoOpciones, opcion:Opcion){
@@ -180,6 +175,12 @@ export class AddProductoVentaPage implements OnInit {
 
     console.log("!!!!!! isOK"+isOk)
     if(isOk){
+  
+      this.cocinasService.setearPath();
+      this.cocinasService.get(this.producto.cocinaId).subscribe(data=>{
+        this.producto.cocinaNombre = data.nombre;
+      })
+
       this.modalCtrl.dismiss(this.producto);      
       this.toastServices.mensaje('Agregado!', this.producto.cantidad+' '+this.producto.unidad+' de '+this.producto.nombre);     
     }  

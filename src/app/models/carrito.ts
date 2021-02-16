@@ -7,31 +7,26 @@ import { Comanda } from './comanda';
 import { MovimientoCtaCorriente } from './movimientoCtaCorriente';
 import { Mesa } from './mesa';
 
-export class Carrito{
-
-    public totalProductos=0;
-    public totalServicios=0;
-    public cajaId="";
-    public ctaCorrienteId="";
-    public metodoPago="";
-    public on=false;
-    public productos:Producto[] = [];
-    public servicios:Servicio[] = [];
-    public pagare:Pagare;
-    public deposito:MovimientoCtaCorriente;
+export class Carrito{    
     public cliente:Cliente;
     public mesa:Mesa;
     public comandaId ="";
     public pedido ="";
+
+    public on = false;
+
+    public productos:Producto[] = [];
+    public servicios:Servicio[] = [];
+
+    public totalProductos=0;
+    public totalServicios=0;
+
 	constructor(
 		public vendedorId:"", 
         public vendedorNombre:""
-		){
-            this.pagare = new Pagare();
-            this.cliente = new Cliente();
-            this.mesa = new Mesa();
-            this.deposito = new MovimientoCtaCorriente(this.vendedorId,this.vendedorNombre);
-          
+		){            
+        this.cliente = new Cliente();
+        this.mesa = new Mesa();          
     }
     
     public asignarValores(init?: Partial<Carrito>) {

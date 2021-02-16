@@ -1,0 +1,61 @@
+import { Component, OnInit } from '@angular/core';
+import { NavController } from '@ionic/angular';
+import { Impresora } from '../models/impresora';
+import { AuthenticationService } from '../Services/authentication.service';
+import { CocinasService } from '../Services/cocinas.service';
+import { ImpresoraService } from '../Services/impresora.service';
+
+@Component({
+  selector: 'app-form-impresora-config',
+  templateUrl: './form-impresora-config.page.html',
+  styleUrls: ['./form-impresora-config.page.scss'],
+})
+export class FormImpresoraConfigPage implements OnInit {
+
+  public cocinas = [];
+  public impresora:Impresora
+  public conexionActual = false;
+
+  constructor(
+    private cocinasService:CocinasService,
+    private impresoraService:ImpresoraService,
+    private authService:AuthenticationService,
+    private navCtrl:NavController
+  ) { 
+    this.impresora = new Impresora()
+    this.impresoraService.obsEstadoImpresora().subscribe(data=>{
+      this.conexionActual = data.conectada;
+    })        
+  }
+
+  ngOnInit() {
+    this.cocinasService.setearPath();
+    this.cocinasService.list().subscribe((data) => {     
+      this.cocinas = data; 
+      this.impresora = this.impresoraService.obtenerImpresora();
+      console.log(this.impresora)
+    })
+  }
+
+  guardar(){
+    this.impresoraService.guardarImpresora(this.impresora);
+    this.navCtrl.back();
+  }
+
+  cancelar(){
+    this.navCtrl.back()
+  }
+
+  atras(){
+    this.navCtrl.back()
+  }
+
+  conectar(){
+    this.impresoraService.conectar();
+  }
+
+  probar(){
+    this.impresoraService.impresionPrueba(this.authService.getEmail());
+  }
+
+}

@@ -52,9 +52,9 @@ export class CtaCorrientesService {
   }
 
 
-  public getByCliente(cliente){
+  public getByCliente(clienteId){
     return this.firestore.collection(this.getCollection(), ref => 
-        ref.where('coTitularesId','array-contains',cliente.id)).snapshotChanges();
+        ref.where('coTitularesId','array-contains',clienteId)).snapshotChanges();
   }
 
   
@@ -71,10 +71,7 @@ export class CtaCorrientesService {
     return this.firestore.collection(this.getCollection()).doc(data.id).set({...param,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });  
-  }
-  
-  
-  
+  }  
 
   public delete(data:CtaCorriente){    
     this.firestore.collection(this.getCollection()).doc(data.id).delete();
@@ -82,9 +79,5 @@ export class CtaCorrientesService {
     data.coTitularesId.forEach(element => {
       this.clientesService.deleteCtaCorriente(element,data.id);
     });
-  } 
-
-  
-
-  
+  }   
 }

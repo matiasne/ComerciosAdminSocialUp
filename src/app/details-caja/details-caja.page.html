@@ -20,10 +20,10 @@
   </ion-item> 
   
   <ion-toolbar>
-    <ion-button *ngIf="caja.estado =='abierta'" slot="end" size="large" (click)="irEgreso()"  expand="block">Egreso</ion-button>
-    <ion-button *ngIf="caja.estado =='abierta'" slot="end" size="large" (click)="irIngreso()"  expand="block">Ingreso</ion-button>
-    <ion-button *ngIf="caja.estado =='abierta'" slot="start" color="danger" size="large" (click)="irCierre()"  expand="block">Cierre</ion-button>
-    <ion-button *ngIf="caja.estado =='cerrada'" slot="start" color="primary" size="large" (click)="irApertura()"  expand="block">Abrir</ion-button>
+    <ion-button *ngIf="caja.estado =='abierta'" class="button-rounded" (click)="irEgreso()"  expand="block">Egreso</ion-button>
+    <ion-button *ngIf="caja.estado =='abierta'" class="button-rounded" (click)="irIngreso()"  expand="block">Ingreso</ion-button>
+    <ion-button *ngIf="caja.estado =='abierta'" class="button-rounded" color="danger" (click)="irCierre()"  expand="block">Cierre</ion-button>
+    <ion-button *ngIf="caja.estado =='cerrada'" class="button-rounded" color="primary" (click)="irApertura()"  expand="block">Abrir</ion-button>
   </ion-toolbar>
 
   

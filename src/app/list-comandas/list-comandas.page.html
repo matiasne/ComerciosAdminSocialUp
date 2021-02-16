@@ -33,10 +33,9 @@
       </ion-searchbar>
     </ion-col>    
     <ion-col size="4">
-      <ion-item [class.invalid]="submitted && !datosForm.controls.cocina.valid">
+      <ion-item class="form-select"> 
         <ion-label>Seleccionar Cocina</ion-label>
-        <ion-select (ionChange)="onChangeCocina($event)" [(ngModel)]="cocinaFiltro">
-          <ion-select-option  [value]="todas" selected>todas</ion-select-option>
+        <ion-select multiple="true" (ionChange)="onChangeCocina($event)" [(ngModel)]="cocinaFiltro">
           <ion-select-option *ngFor="let cocina of cocinas" [value]="cocina.id" selected>{{cocina.nombre}}</ion-select-option>
         </ion-select>       
       </ion-item>  

@@ -29,7 +29,7 @@
       <ion-label text-wrap>
         <h2><b>{{cliente.nombre}}</b></h2>           
         <p>documento: {{cliente.documento}}</p>  
-        <p>fecha nacimiento: {{cliente.fecha_nacimiento}}</p>  
+        <p>fecha nacimiento: {{cliente.fecha_nacimiento | date:'dd/MM/yyyy'}}</p>  
         <p>Cliente desde: {{cliente.createdAt}}</p>    
       </ion-label>  
     </ion-item>

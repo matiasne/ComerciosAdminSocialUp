@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button  (click)="atras()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Impresora</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-text color="primary"> 
+    <h4>Nombre</h4>         
+  </ion-text>   
+  <ion-item>
+    <ion-input type="text" [(ngModel)]="impresora.nombre"></ion-input>
+  </ion-item>
+
+  <ion-text color="primary"> 
+    <h4>Numero de Mac</h4>         
+  </ion-text>   
+  <ion-item>
+    <ion-input type="text" [(ngModel)]="impresora.mac"></ion-input>
+  </ion-item>
+ 
+  <ion-item>
+    <ion-label>Comandas</ion-label>
+    <ion-toggle [(ngModel)]="impresora.comandas"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item> 
+  <ion-item>
+    <ion-label>Tickets</ion-label>
+    <ion-toggle [(ngModel)]="impresora.ticketConsumidor"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>
+  <ion-item>
+    <ion-label>Subscripcion a Panel Comandas</ion-label>
+    <ion-toggle [(ngModel)]="impresora.comandasCocina"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>
+  <!--div *ngIf="impresora.comandasCocina">
+    <ion-item>  
+    <ion-label>Seleccionar Cocina</ion-label>
+    <ion-select multiple="true" [(ngModel)]="impresora.cocinas">
+      <ion-select-option  *ngFor="let cocina of cocinas" [value]="cocina.id" selected>{{cocina.nombre}}</ion-select-option>
+    </ion-select> 
+    </ion-item>
+  </div--> 
+  <div *ngIf="conexionActual">
+    <ion-item>Conectada</ion-item>    
+  </div>
+  <div *ngIf="!conexionActual">
+    <ion-item>Sin conexión</ion-item>
+  </div>
+  <ion-button *ngIf="impresora.mac != ''" color="success" (click)="conectar()">Conectar</ion-button>
+  <ion-button *ngIf="impresora.mac != ''" color="success" (click)="probar()">Probar</ion-button>     
+</ion-content>
+<ion-footer>
+  <ion-toolbar>   
+    <ion-button slot="start"  color="danger" (click)="cancelar()">Cancelar</ion-button>
+    <ion-button slot="end"  color="success" (click)="guardar()">Guardar</ion-button>
+  </ion-toolbar> 
+</ion-footer>

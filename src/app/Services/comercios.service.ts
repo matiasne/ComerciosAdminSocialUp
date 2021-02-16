@@ -6,6 +6,7 @@ import * as firebase from 'firebase';
 import { RolesService } from './roles.service';
 import { CajasService } from './cajas.service';
 import { Comercio } from '../Models/comercio';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -58,14 +59,22 @@ export class ComerciosService {
       subs2.unsubscribe();
     })    
    
-  }
+  } 
 
   getByNombre(nombre){
     return this.firestore.collection(this.collection, ref =>  ref.where('nombre','==',nombre)).valueChanges();    
   }
 
-  public get(documentId: string) {
-    return this.firestore.collection(this.collection).doc(documentId).snapshotChanges();
+  public get(documentId: string) { 
+    return this.firestore.collection(this.collection).doc(documentId).get().pipe(
+      map(a => {
+          let item:any; 
+          if(a){
+            item = a.data() ;
+          }
+          return item;
+      })
+    )
   }
 
   public getAll(){
@@ -76,7 +85,7 @@ export class ComerciosService {
     return this.firestore.collection(this.collection).doc(id).ref;
   }
 
-  public update(data: any) {
+  public update(data: any) { 
     
     const param = JSON.parse(JSON.stringify(data));
    
@@ -91,11 +100,9 @@ export class ComerciosService {
   public setSelectedCommerce(comercioId){    
     localStorage.setItem('comercio_seleccionadoId',comercioId);
     if(comercioId){        
-        this.get(comercioId).subscribe(data =>{         
-          var commerce:any = data.payload.data();
-          commerce.id = data.payload.id;        
-          this.commerceSubject.next(commerce);
-          this.comercio.asignarValores(commerce);
+        this.get(comercioId).subscribe(data =>{     
+          this.commerceSubject.next(data);
+          this.comercio.asignarValores(data);
         });
     }
     else{

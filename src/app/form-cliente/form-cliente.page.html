@@ -7,8 +7,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding" >
-      
+<ion-content class="ion-padding">     
   
   <div class="icono-foto-producto">
     <app-seleccionar-imagen
@@ -16,9 +15,7 @@
       [croppedImage]="cliente.foto"
       (onSelectValue)=imagenSeleccionadaIcono($event)>
     </app-seleccionar-imagen>
-  </div>
-
-  
+  </div> 
 
     <form [formGroup]="datosForm">
 

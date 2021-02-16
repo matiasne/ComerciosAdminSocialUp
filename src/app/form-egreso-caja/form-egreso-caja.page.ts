@@ -4,7 +4,6 @@ import { NavController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { AuthenticationService } from '../Services/authentication.service';
 import { AngularFirestore } from 'angularfire2/firestore';
-import { LoadingService } from '../Services/loading.service';
 import { CajasService } from '../Services/cajas.service';
 import { MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientosService } from '../Services/movimientos.service';

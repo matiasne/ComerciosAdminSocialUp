@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { ComerciosService } from '../Services/comercios.service';
 import { Router } from '@angular/router';
 import { CajasService } from '../Services/cajas.service';
 import { VentasService } from '../Services/ventas.service';
-import { LoadingService } from '../Services/loading.service';
 import { AlertController } from '@ionic/angular';
 import { Caja } from '../models/caja';
 import { MovimientoCaja } from '../models/movimientoCaja';
@@ -40,7 +38,6 @@ export class DashboardCajasPage implements OnInit {
     public cajasService:CajasService,
     public ventasServices:VentasService,
     public router:Router,
-    public loadingService:LoadingService,
     public alertController:AlertController,
     private movimientosService:MovimientosService
   ) { 
@@ -58,11 +55,8 @@ export class DashboardCajasPage implements OnInit {
     this.cajasSubs  = this.cajasService.list().subscribe(cajas=>{
       console.log(cajas);
       this.cajas = cajas;      
-      this.cajas.forEach((item: any) => {           
-         
-          
-          this.movSubs = this.movimientosService.getMovimientosCaja(item.id).subscribe(snapshot =>{
-      
+      this.cajas.forEach((item: any) => {          
+          this.movSubs = this.movimientosService.getMovimientosCaja(item.id).subscribe(snapshot =>{     
             item.movimientos = [];
             snapshot.forEach((snap: any) => {           
               var mov = snap.payload.doc.data();
@@ -91,9 +85,6 @@ export class DashboardCajasPage implements OnInit {
   }
 
   ionViewDidLeave(){
-    console.log("!!!!!!!!!!!LEAVE")
-  //  this.cajasSubs.unsubscribe();
-  //  this.movSubs.unsubscribe();
   }
   
   obtenerDatosCaja(){   

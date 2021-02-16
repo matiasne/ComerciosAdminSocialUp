@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { ModalController, NavParams, NavController } from '@ionic/angular';
-import { ListClientesPage } from '../list-clientes/list-clientes.page';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ListServiciosPage } from '../list-servicios/list-servicios.page';
-import { DataService } from '../Services/data.service';
 import { SubscripcionesService } from '../Services/subscripciones.service';
 import { AuthenticationService } from '../Services/authentication.service';
 import { PlanesService } from '../Services/planes.service';
@@ -71,7 +68,7 @@ export class AddServicioSubscripcionPage implements OnInit {
 
     this.datosForm.patchValue({
       pagoAdelantado: "true"
-    })
+    }) 
 
     if(this.route.snapshot.params.id){
       var subs = this.servicioService.get(this.route.snapshot.params.id).subscribe(servicio=>{        
@@ -180,7 +177,7 @@ export class AddServicioSubscripcionPage implements OnInit {
       this.carritoService.agregarServicio(this.servicio,this.servicio.plan.precio);  
 
       this.toastServices.mensaje("Se agregó la primer cuota al carrito","");
-    }
+    } 
     this.navCtrl.back();
     
   }

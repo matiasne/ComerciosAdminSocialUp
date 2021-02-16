@@ -49,13 +49,27 @@ export class ProductosService {
     return this.firestore.collection(this.getCollection()).snapshotChanges();
   }
 
-  public update(data:Producto) {
-    this.keywordService.agregarKeywords(data, [data.nombre,...data.categorias]);
+  public update(data) {
+
+    console.log(data)
+
+    if(data.keywords)
+      this.keywordService.agregarKeywords(data, [data.nombre,...data.categorias]);
+
     const param = JSON.parse(JSON.stringify(data));
     return this.firestore.collection(this.getCollection()).doc(data.id).set({...param,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    },{merge:true});
+  } 
+
+
+  public updateStock(data) {
+  
+    const param = JSON.parse(JSON.stringify(data));
+    return this.firestore.collection(this.getCollection()).doc(data.id).update({...param,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
-  }
+  } 
 
   public updateValue(id,data){
     console.log("!!!!!")

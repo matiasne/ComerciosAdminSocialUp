@@ -6,16 +6,14 @@ import { Categoria } from '../models/categoria';
 @Injectable({
   providedIn: 'root'
 })
-export class CategoriasService {
-
-  
+export class CategoriasService { 
   
   constructor(
     private firestore: AngularFirestore
   ) {
     
   }
-
+  
   getCollection(comercioId){    
     return 'comercios/'+comercioId+'/categorias';
   }

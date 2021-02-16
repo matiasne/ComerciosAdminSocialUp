@@ -61,6 +61,7 @@ export class ListClientesPage implements OnInit {
     let limit = 5;
     var palabra = this.palabraFiltro.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
+    this.loadingService.presentLoadingText("Cargando Clientes")
     this.clientesSubs = this.clientesService.search(limit,"nombre",palabra,this.ultimoCliente.nombre).subscribe((snapshot) => {
      
       this.loadingService.dismissLoading();
@@ -84,12 +85,8 @@ export class ListClientesPage implements OnInit {
       
       console.log(this.clientes);         
       this.clientesSubs.unsubscribe();
-    });
-
-    
-  }
-
-  
+    });    
+  }  
 
   seleccionar(item){
     this.router.navigate(['details-cliente',{"id":item.id}]);

@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FormCajaPage } from '../form-caja/form-caja.page';
 import { Router } from '@angular/router';
+import { LoadingService } from '../Services/loading.service';
 
 @Component({
   selector: 'app-list-cajas',
@@ -18,7 +19,8 @@ export class ListCajasPage implements OnInit {
   constructor(
     private cajasService:CajasService,
     private modalController:ModalController,
-    private router:Router
+    private router:Router,
+    private loadingService:LoadingService
   ) { }
 
   ngOnInit() {
@@ -28,7 +30,9 @@ export class ListCajasPage implements OnInit {
   }
 
   ionViewDidEnter(){
+    this.loadingService.presentLoadingText("Cargando Cajas")
     this.cajasSubs = this.cajasService.list().subscribe((caja:any)=>{                 
+      this.loadingService.dismissLoading()
       this.cajas = caja;      
     });
   }

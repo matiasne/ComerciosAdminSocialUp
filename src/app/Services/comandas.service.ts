@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import * as firebase from 'firebase';
-import { CarritoService } from './global/carrito.service';
 import { AuthenticationService } from './authentication.service';
 import { VentasService } from './ventas.service';
 import { BehaviorSubject, Observable, Subscribable, Subscription } from 'rxjs';
@@ -17,19 +16,13 @@ import { CocinasService } from './cocinas.service';
 })
 export class ComandasService {
 
-  private collection:string;
-  private carritoSubs:Subscription;
   public comandaCantidad = new BehaviorSubject <any>("");
 
   constructor(
     private firestore: AngularFirestore,
     private authService:AuthenticationService,
-    private ventasService:VentasService,
     private notificacionesService:NotificacionesService,
     private comercioService:ComerciosService,
-    private cocinaService:CocinasService,
-    private rolesService:RolesService,
-    private alertController:AlertController
   ) {
     
   }
@@ -56,9 +49,10 @@ export class ComandasService {
   }
   
  
-  public create(carrito) {
+  public create(pedido) {
 
-    let cocinas = this.groupBy(carrito.productos, 'cocina');
+    console.log(pedido)
+    let cocinas = this.groupBy(pedido.productos, 'cocina');
 
     Object.keys(cocinas).forEach((cocina) =>{
       //console.log(index) 
@@ -66,50 +60,40 @@ export class ComandasService {
 
       var comanda = new Comanda(this.authService.getUID(),this.authService.getActualUser().displayName,this.authService.getActualUser().email);
       comanda.clienteId = "";
-      comanda.clienteNombre = "";
+      comanda.clienteNombre = ""; 
       comanda.cocinaId = cocina;
-      carrito.productos = cocinas[cocina];
-      comanda.carrito = JSON.stringify(carrito);
+      comanda.pedidoId = pedido.id;
 
-      if(carrito.cliente.id){
-        comanda.clienteId = carrito.cliente.id;
-        comanda.clienteNombre = carrito.cliente.nombre;
-        comanda.clienteEmail = carrito.cliente.email;
-        this.notificacionesService.enviarById(carrito.cliente.id,"Su pedido ha sido comandado!","Revisa tu panel de comandas para Tomarla");
+      cocinas[cocina].forEach(p=>{
+        comanda.productos.push(JSON.parse(JSON.stringify(p)))
+      })    
+
+      if(pedido.clienteId){
+        comanda.clienteId = pedido.clienteId;
+        comanda.clienteNombre = pedido.clienteNombre;
+        comanda.clienteEmail = pedido.clienteEmail;
+        this.notificacionesService.enviarById(pedido.clienteId,"Su pedido ha sido comandado!","Revisa tu panel de comandas para Tomarla");
+      }
+
+      if(pedido.mesaId){
+        comanda.mesaId = pedido.mesaId;
+        comanda.mesaNombre = pedido.mesaNombre;
       }
 
       console.log(comanda)
 
       this.firestore.collection(this.getCollection()).add( {...comanda,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });  
+      }); 
 
-    })
-
-
-    /*cocinas.forEach(cocina =>{
       
-
-    })*/
-   
-    
-
-    //ACa debe revisar comandatarios si están offline cartel de advertencia!!!!
-
-
-
-    
-    
-
-
+      
+      
+    })    
   
     this.comercioService.comercio.rolComandatarios.forEach(rolId => {
       this.notificacionesService.enviarByRolId(rolId,"Comanda Nueva!","Revisa tu panel de comandas para Tomarla");
-    }); 
-    
-                
-      
-    
+    });    
         
   }
 
@@ -133,17 +117,26 @@ export class ComandasService {
 
   }
 
-  public delete(comandaId) {
+  public delete(comanda) {   
+    console.log(this.getCollection())
+    this.firestore.collection(this.getCollection()).doc(comanda.id).delete();
+  }
 
-    
-    /*if(comanda.empleadoId)
+
+  public rechazado(comanda) {    
+
+    console.log(comanda)
+
+    if(comanda.empleadoId)
       this.notificacionesService.enviarById(comanda.empleadoId,"La Comanda que generaste ha sido rechazada!","");
     
     if(comanda.clienteId)
-      this.notificacionesService.enviarById(comanda.empleadoId,"Tu pedido ha sido descartado","");*/
+      this.notificacionesService.enviarById(comanda.clienteId,"Tu pedido ha sido rechazado!","");
 
-    return this.firestore.collection(this.getCollection()).doc(comandaId).delete();
+    this.firestore.collection(this.getCollection()).doc(comanda.id).delete();
+
   }
+
 
   public setComandaTomada(comanda:Comanda){   
     this.firestore.collection(this.getCollection()).doc(comanda.id).update({status: 1});
@@ -168,8 +161,7 @@ export class ComandasService {
   }
 
   public setComandaCobrada(comandaId){
-       //Acá se borra y se crea la venta
-       console.log(comandaId)
+    console.log(comandaId)
     this.firestore.collection(this.getCollection()).doc(comandaId).update({status: 3});
     this.delete(comandaId);
     

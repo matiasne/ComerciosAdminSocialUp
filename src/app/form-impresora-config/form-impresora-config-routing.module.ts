@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { TicketPrintPage } from './ticket-print.page';
+import { FormImpresoraConfigPage } from './form-impresora-config.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: TicketPrintPage
+    component: FormImpresoraConfigPage
   }
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class TicketPrintPageRoutingModule {}
+export class FormImpresoraConfigPageRoutingModule {}

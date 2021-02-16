@@ -7,6 +7,8 @@ export class Producto {
     public id="";
     public nombre = "";
     public barcode="";
+    public cocinaId ="";
+    public cocinaNombre =""; //Se rellena cuando se pide el producto
     public precio = 0;
     public precioTotal = 0;
     public promocion="";
@@ -17,13 +19,14 @@ export class Producto {
     public descripcion="";
     public categorias=[];
     public foto="";
-    public createdAt=""; 
+    public createdAt="";  
     public cantidad =0;
     public descripcion_venta="";
     public recibirPedidos=true;
     public gruposOpciones:GrupoOpciones[];
     public opcionesSeleccionadas =[];
     public keywords = [];
+    public estadoComanda = "";
 
 	public constructor() {
         this.gruposOpciones = [];

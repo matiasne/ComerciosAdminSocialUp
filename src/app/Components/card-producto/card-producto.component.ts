@@ -9,10 +9,11 @@ export class CardProductoComponent implements OnInit {
 
   @Input() item:any;
   @Input() multiplicador:number; 
-  @Input() showImage= true;
-  @Input() showStock = true;
+  @Input() showImage = true;
+  @Input() showStock = true; 
   @Input() showOpcionesSeleccionadas = true;
   @Input() showEnCarrito = true;
+  @Input() showEstadoComanda = true;
   @Output() select = new EventEmitter<any>();
     
   constructor() { 
