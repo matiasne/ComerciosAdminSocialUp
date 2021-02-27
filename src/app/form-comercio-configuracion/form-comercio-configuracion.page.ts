@@ -41,6 +41,10 @@ export class FormComercioConfiguracionPage implements OnInit {
       obs.unsubscribe();
     })
   } 
+
+  openEditOpciones(){
+    this.router.navigate(['list-grupos-opciones']); 
+  }
   
   openEditCategorias(){
     this.router.navigate(['list-categorias']);

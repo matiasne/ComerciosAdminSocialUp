@@ -8,38 +8,60 @@
 </ion-header>
 
 <ion-content class="ion-padding">   
- 
-   
+    
+    <span *ngIf="pedido.statusComanda == pEstado.rechazado" style="color: red;">Rechazado por Cocina</span>
+    <span *ngIf="pedido.statusComanda == pEstado.tomado" style="color: green;">En Curso</span>
+    <span *ngIf="pedido.statusComanda == pEstado.solicitado" style="color: blue;"> Solicitado</span>
     
     <ion-item *ngIf="pedido.clienteId">
       Cliente: {{pedido.clienteNombre}}
     </ion-item>
     
     <ion-item *ngIf="pedido.mesaId">
-
       Mesa: {{pedido.mesaNombre}}
-    </ion-item>   
-    
+    </ion-item>
        
-
     
+    <div  class="form-card" *ngIf="comentarios.length > 0">
+      <ion-button *ngIf="pedido.id != ''" class="button-rounded" (click)="agregarComentario()">Agregar Comentario</ion-button>
+      <ion-text color="primary">
+        <h4>Comentarios</h4>
+      </ion-text> 
+      
+      <ion-list>                   
+        <ion-item *ngFor="let comentario of comentarios; let i = index">
+          <ion-label text-wrap>
+            <h2>{{comentario.text}}</h2>
+            <p>
+              {{comentario.senderEmail}} | 
+              
+                <ion-icon name="time-outline"></ion-icon>
+                {{comentario.createdAt | date:'hh:mm aaa - dd/MM'}}
+        
+               
+            </p>            
+          </ion-label>         
+        </ion-item>      
+      </ion-list>
+    </div>   
 
     <div  class="form-card" *ngIf="pedido.productos.length > 0">
       <ion-text color="primary">
         <h4>Productos</h4>
       </ion-text>       
-    <ion-list>                   
-      <span *ngFor="let producto of pedido.productos; let i = index">
-       
-          <app-card-producto
-            [item]="producto"
-            [showStock]="false"
-            [showImage]="false"
-            [multiplicador]="1"
-          ></app-card-producto>  
-         
-      </span>
-
+    <ion-list> 
+      <ion-item-sliding *ngFor="let producto of pedido.productos; let i = index">           
+        <app-card-producto
+          [item]="producto"  
+          [showStock]="false" 
+          [showImage]="false"
+          [multiplicador]="1" 
+        ></app-card-producto>        
+        <ion-item-options side="end" *ngIf="pedido.suspendido == 0 && pedido.cobrado == 0">
+          <ion-item-option *ngIf="producto.suspendido == 0" color="danger" (click)="suspenderProducto(producto)"><ion-icon name="trash"></ion-icon>Suspender</ion-item-option>
+          <ion-item-option *ngIf="producto.suspendido == 1" (click)="reanudarProducto(producto)"><ion-icon name="trash"></ion-icon>Reanudar</ion-item-option>
+        </ion-item-options> 
+      </ion-item-sliding>   
       
     
     </ion-list>
@@ -66,25 +88,24 @@
             </h3>
             <h3>{{servicio.descripcion_venta}}</h3>
             <h3 *ngIf="servicio.pagoAdelantado == 'false'" style="color:red">El abono se pagará al finalizar el periodo</h3>
-          </ion-label>
-         
-        </ion-item>      
+          </ion-label>         
+        </ion-item>     
       </ion-list>
     </div>
     
 </ion-content> 
 
 <ion-footer class="ion-no-border ion-padding"> 
-  <ion-item *ngIf="cajas.length > 0" class="item-card">
+  <ion-item *ngIf="pedido.cobrado == 0 && cajas.length > 0" class="item-card">
     <ion-label>Seleccionar Caja</ion-label>
     <ion-select [(ngModel)]="cajaSeleccionadaIndex" (ionChange)="setearCaja()">
       <span *ngFor="let caja of cajas;let i=index">
         <ion-select-option [value]="i" selected>{{caja.nombre}}</ion-select-option>
       </span>          
-    </ion-select>
+    </ion-select> 
   </ion-item>
     
-  <ion-item class="item-card" *ngIf="cajas[cajaSeleccionadaIndex]">
+  <ion-item class="item-card" *ngIf="pedido.cobrado == 0 && cajas[cajaSeleccionadaIndex]">
     <ion-label>Seleccione Método de Pago</ion-label>
     <ion-select [(ngModel)]="metodoPagoSeleccionado">
       <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].efectivo" [value]="'efectivo'">Efectivo</ion-select-option>
@@ -94,15 +115,18 @@
     </ion-select>    
   </ion-item>
   
-  <ion-item class="item-card" *ngIf="metodoPagoSeleccionado == 'ctaCorriente'">
+  <ion-item class="item-card" *ngIf="pedido.cobrado == 0 && metodoPagoSeleccionado == 'ctaCorriente'">
     <ion-label >Seleccione Cuenta Corriente:</ion-label>
     <ion-select  [(ngModel)]="ctaCorrienteSelecccionadaId">
       <ion-select-option *ngFor="let cta of ctasCorrientes" [value]="cta.id">{{cta.nombre}}</ion-select-option>
     </ion-select>
-  </ion-item>
+  </ion-item> 
   
   <ion-toolbar>   
-    <ion-button class="button-rounded" color="danger" (click)="cancelar()">Cancelar</ion-button>
-    <ion-button class="button-rounded"  color="success" (click)="continuar()">Cobrar: ${{pedido.totalProductos + pedido.totalServicios}}</ion-button>
+    <ion-button slot="start" class="button-rounded" color="light" (click)="cancelar()">Cancelar</ion-button>
+    <ion-button *ngIf="pedido.cobrado == 1" slot="end" class="button-rounded"  color="danger" (click)="devolver()">Devolver: ${{pedido.totalProductos + pedido.totalServicios}}</ion-button>
+    <ion-button *ngIf="pedido.cobrado == 0" slot="end" class="button-rounded"  color="success" (click)="cobrar()">Cobrar: ${{pedido.totalProductos + pedido.totalServicios}}</ion-button>
   </ion-toolbar> 
+
+ 
 </ion-footer>

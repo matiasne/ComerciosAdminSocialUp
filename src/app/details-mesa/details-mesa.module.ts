@@ -9,13 +9,13 @@ import { DetailsMesaPageRoutingModule } from './details-mesa-routing.module';
 import { DetailsMesaPage } from './details-mesa.page';
 import { ComponentsModule } from '../Components/components.module';
 
-@NgModule({
+@NgModule({ 
   imports: [
     CommonModule,
     ComponentsModule,
     FormsModule,
     IonicModule,
-    DetailsMesaPageRoutingModule
+    DetailsMesaPageRoutingModule,
   ],
   declarations: [DetailsMesaPage]
 })

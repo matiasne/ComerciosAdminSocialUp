@@ -47,7 +47,7 @@ export class ListClientesPage implements OnInit {
   }
 
   ionViewDidLeave(){
-    this.subsItems.unsubscribe(); 
+    
   }
 
   onChange(event){

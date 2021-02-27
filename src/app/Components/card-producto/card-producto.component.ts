@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Producto } from 'src/app/models/producto';
 
 @Component({
   selector: 'app-card-producto',
@@ -7,7 +8,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 })
 export class CardProductoComponent implements OnInit {
 
-  @Input() item:any;
+  @Input() item:Producto;
   @Input() multiplicador:number; 
   @Input() showImage = true;
   @Input() showStock = true; 
@@ -17,10 +18,11 @@ export class CardProductoComponent implements OnInit {
   @Output() select = new EventEmitter<any>();
     
   constructor() { 
-   
+    this.item = new Producto()
   }
 
-  ngOnInit() {
+  ngOnInit() { 
+   
     if(this.item.cantidad == 0)
       this.item.cantidad = 1;
     }

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial/ngx';
+import { Platform } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { Comanda } from '../models/comanda';
 import { Comercio } from '../Models/comercio';
@@ -27,7 +28,8 @@ export class ImpresoraService {
     private toastService:ToastService,
     private loadingService:LoadingService,
     private comandaService:ComandasService,
-    private toastServices:ToastService
+    private toastServices:ToastService,
+    private platform: Platform,
   ) {
      
     this.comercio = new Comercio();
@@ -55,38 +57,39 @@ export class ImpresoraService {
   }
 
   public conectar(){
+    if (this.platform.is('cordova')) {
+      this.loadingService.presentLoading();
+      let impresora = this.obtenerImpresora();
 
-    this.loadingService.presentLoading();
-    let impresora = this.obtenerImpresora();
+      if(impresora.mac == ""){
+        console.log("impresora no configurada")
+        this.loadingService.dismissLoading();
+        return false
+      }
 
-    if(impresora.mac == ""){
-      console.log("impresora no configurada")
-      this.loadingService.dismissLoading();
-      return false
+    
+      console.log("conectando...")
+      this.bluetoothSerial.isEnabled().then(data=>{
+        console.log("bluetooth habilitado")      
+        this.conectarImpresora();
+        this.loadingService.dismissLoading();
+      },
+      err=>{
+        console.log("bluetooth deshabilitado")
+        this.loadingService.dismissLoading();
+        //preguntar si lo quiere habilitar
+        this.bluetoothSerial.enable().then(
+          data => {
+              console.log("Bluetooth is enabled");
+              this.conectarImpresora();
+          },
+          err=> {
+              console.log("The user did *not* enable Bluetooth");
+          
+          }
+      );
+      })     
     }
-
-   
-    console.log("conectando...")
-    this.bluetoothSerial.isEnabled().then(data=>{
-      console.log("bluetooth habilitado")      
-      this.conectarImpresora();
-      this.loadingService.dismissLoading();
-    },
-    err=>{
-      console.log("bluetooth deshabilitado")
-      this.loadingService.dismissLoading();
-      //preguntar si lo quiere habilitar
-      this.bluetoothSerial.enable().then(
-        data => {
-            console.log("Bluetooth is enabled");
-            this.conectarImpresora();
-        },
-        err=> {
-            console.log("The user did *not* enable Bluetooth");
-         
-        }
-    );
-    })    
   }
 
   conectarImpresora(){

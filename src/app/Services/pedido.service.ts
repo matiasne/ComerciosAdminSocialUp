@@ -53,10 +53,13 @@ export class PedidoService extends BaseService{
   }     
 
 
-  getByPersonal(personalId) {
+  listCurso() {
+
+  
+
     console.log('[BaseService] list: '+this.path);    
 
-    return this.afs.collection(this.path, ref => ref.where('personalId', '==', personalId)).snapshotChanges()
+    return this.afs.collection(this.path, ref => ref.where('searchLogic', '==', '00')).snapshotChanges()
         .pipe(
             map(changes => {
                 return changes.map(a => {
@@ -68,14 +71,60 @@ export class PedidoService extends BaseService{
                     }
                     else{
                         data.createdAt = data.createdAt.toDate();
-                    }
-                       
+                    }                       
                     return data;
                 });
             })
         );          
   }
-  
+
+  listSuspendidos() {
+
+
+    console.log('[BaseService] list: '+this.path);    
+
+    return this.afs.collection(this.path, ref => ref.where('searchLogic', '==', '10')).snapshotChanges()
+        .pipe(
+            map(changes => {
+                return changes.map(a => {
+                    const data:any = a.payload.doc.data();
+                    data.id = a.payload.doc.id;
+                    data.fromCache = a.payload.doc.metadata.fromCache;
+                    if(data.createdAt instanceof String || Number){
+                        data.createdAt = new Date(Number(data.createdAt))
+                    }
+                    else{
+                        data.createdAt = data.createdAt.toDate();
+                    }                       
+                    return data;
+                });
+            })
+        );          
+  }
+
+  listCobrados() {
+
+
+    console.log('[BaseService] list: '+this.path);    
+
+    return this.afs.collection(this.path, ref => ref.where('searchLogic', '==', '01')).snapshotChanges()
+        .pipe(
+            map(changes => {
+                return changes.map(a => {
+                    const data:any = a.payload.doc.data();
+                    data.id = a.payload.doc.id;
+                    data.fromCache = a.payload.doc.metadata.fromCache;
+                    if(data.createdAt instanceof String || Number){
+                        data.createdAt = new Date(Number(data.createdAt))
+                    }
+                    else{
+                        data.createdAt = data.createdAt.toDate();
+                    }                       
+                    return data;
+                });
+            })
+        );          
+  }
   
 
   

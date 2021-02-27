@@ -226,22 +226,14 @@ export class AppComponent implements OnInit {
     }
 
     this.comerciosService.getSelectedCommerce().subscribe(data=>{
-
+ 
       console.log(data) 
 
       if(data)
         this.comercioSeleccionado.asignarValores(data);
       else{
         this.comercioSeleccionado = new Comercio();
-      }
-     
-      if(this.comercioSeleccionado.modulos.comandas){
-        this.comandasService.getCantidad().subscribe((snapshot) => {
-          this.cantComandas = snapshot;
-        });   
-      }
-        
-      
+      } 
     });       
   }
 

@@ -22,6 +22,9 @@ import { Pedido } from '../Models/pedido';
 import { PedidoService } from '../Services/pedido.service';
 import { AuthenticationService } from '../Services/authentication.service';
 import { ImpresoraService } from '../Services/impresora.service';
+import { ComentariosService } from '../Services/comentarios.service';
+import { async } from 'rxjs/internal/scheduler/async';
+import { Comentario } from '../models/comentario';
 
 @Component({
   selector: 'app-details-carrito',
@@ -36,6 +39,7 @@ export class DetailsCarritoPage implements OnInit {
   public subsComercio: Subscription;
   public subsCarrio:Subscription;
   public pedido:Pedido;
+  public comentario = "";
 
   constructor(
     public authenticationService:AuthenticationService,
@@ -48,7 +52,8 @@ export class DetailsCarritoPage implements OnInit {
     private toastServices:ToastService,
     private mesasSerivce:MesasService,
     private pedidoServices: PedidoService,
-    private impresoraService:ImpresoraService
+    private impresoraService:ImpresoraService,
+    private comentariosService:ComentariosService
   ) {
     this.comercio = new Comercio();
     this.carrito = new Carrito("","");
@@ -86,9 +91,9 @@ export class DetailsCarritoPage implements OnInit {
 
   crearComandas(pedido){      
     this.impresoraService.impresionComanda(pedido);
-    if(this.comercio.modulos.comandas){
-      this.comandasServices.create(pedido);
-    }
+  //  if(this.comercio.modulos.comandas){
+    //  this.comandasServices.create(pedido);
+    //}
       
   }
 
@@ -133,6 +138,8 @@ export class DetailsCarritoPage implements OnInit {
     this.pedido.mesaId = this.carrito.mesa.id;
     this.pedido.mesaNombre = this.carrito.mesa.nombre;
     this.pedido.totalProductos = this.carrito.totalProductos;
+
+    this.pedido.searchLogic = "00";
     
     this.carritoService.vaciar();   
     this.modalController.dismiss(); 
@@ -142,12 +149,22 @@ export class DetailsCarritoPage implements OnInit {
 
     this.pedidoServices.add(this.pedido).then((data:any)=>{
       this.crearComandas(data);  
+      if(this.comentario != ""){ 
+        this.comentariosService.setearPath("pedidos",data.id);      
+        let comentario = new Comentario();
+        comentario.text =this.comentario;
+        comentario.senderId=this.authenticationService.getUID();
+        comentario.senderEmail =this.authenticationService.getEmail();
+        this.comentariosService.add(comentario).then(data=>{
+          console.log("comentario agregado")
+        })
+      }
+      
     },
     err=>{
       alert("Advertencia, te encuentras en modo offline")
-
     });
- 
+  
     
   }
 

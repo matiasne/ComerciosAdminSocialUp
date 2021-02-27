@@ -20,15 +20,15 @@ export class ListMesasPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    
-  } 
-  
-  ionViewDidEnter(){
     this.loadingService.presentLoadingText("Cargando Mesas")
     this.mesasService.list().subscribe(mesas=>{
       this.loadingService.dismissLoading()                
       this.mesas = mesas;
     });
+  } 
+  
+  ionViewDidEnter(){
+    
   }
   
   async openAddMesa(){
@@ -42,6 +42,4 @@ export class ListMesasPage implements OnInit {
   verMesa(mesa){
     this.router.navigate(['details-mesa',{id:mesa.id}]);
   }
-
-
 }

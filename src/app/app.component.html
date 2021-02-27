@@ -5,16 +5,14 @@
         <ion-list id="inbox-list" >
             <ion-list-header *ngIf="comercioSeleccionado.id">{{comercioSeleccionado.nombre}}</ion-list-header>
             <ion-note *ngIf="usuario">{{usuario.email}}</ion-note>
-            <ion-buttons  class="button-rounded" *ngIf="usuario.state == 'online'" slot="primary">
-              <ion-button class="button-rounded" fill="solid" color="secondary">
+            <!--ion-buttons slot="primary"-->
+              <ion-button *ngIf="usuario.state == 'online'" class="button-rounded"  color="secondary">
                 Modo {{usuario.state}}
               </ion-button>
-            </ion-buttons>
-            <ion-buttons class="button-rounded" *ngIf="usuario.state == 'offline'" slot="primary">
-              <ion-button class="button-rounded" fill="solid" color="danger">
+              <ion-button  *ngIf="usuario.state == 'offline'" class="button-rounded"  color="danger">
                 Modo {{usuario.state}} 
               </ion-button>
-            </ion-buttons>
+            <!--/ion-buttons-->
         </ion-list>
         <ion-list id="inbox-list" *ngIf="comercioSeleccionado.id">          
 
@@ -46,16 +44,16 @@
                 <ion-icon slot="start" name="people-outline"></ion-icon>
                 <ion-label>Personal</ion-label>               
               </ion-item>
-            </span>
+            </span> 
 
            
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cocinero'">
-              <ion-item *ngIf="comercioSeleccionado.modulos.comandas" [routerLink]="['/list-comandas']" lines="none" detail="false">
+              <ion-item *ngIf="comercioSeleccionado.modulos.comandas" [routerLink]="['/list-comandas-v2']" lines="none" detail="false">
                 <ion-icon slot="start" name="receipt-outline"></ion-icon>
                 <ion-label>Comandas</ion-label>
                 <ion-badge color="primary" *ngIf="cantComandas != 0" slot="end">{{cantComandas}}</ion-badge>
               </ion-item>
-            </span>
+            </span> 
 
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
               <ion-item *ngIf="comercioSeleccionado.modulos.clientes" [routerLink]="['/list-clientes']" lines="none" detail="false">

@@ -7,10 +7,12 @@ import { IonicModule } from '@ionic/angular';
 import { ListPedidosPageRoutingModule } from './list-pedidos-routing.module';
 
 import { ListPedidosPage } from './list-pedidos.page';
+import { ComponentsModule } from '../Components/components.module';
 
 @NgModule({
   imports: [
     CommonModule,
+    ComponentsModule, 
     FormsModule,
     IonicModule,
     ListPedidosPageRoutingModule

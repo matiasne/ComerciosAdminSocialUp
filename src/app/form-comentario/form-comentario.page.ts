@@ -24,6 +24,7 @@ export class FormComentarioPage implements OnInit {
     private comentarioService:ComentariosService,
     private authService:AuthenticationService
   ) { 
+    this.titulo = this.navParams.get('comentableTitulo'); 
     this.comentario = new Comentario();
     this.comentario.senderId = this.authService.getUID();
     this.comentario.senderEmail = this.authService.getEmail();
@@ -44,7 +45,7 @@ export class FormComentarioPage implements OnInit {
 
     this.comentarioService.add(this.comentario).then(data=>{
       console.log(data);
-      this.modalCtrl.dismiss();
+      this.modalCtrl.dismiss(this.comentario);
     })
     
   }

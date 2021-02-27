@@ -1,0 +1,47 @@
+<ion-header>  
+  <ion-buttons slot="start">
+    <ion-back-button></ion-back-button>
+  </ion-buttons>   
+  <ion-toolbar> 
+    <ion-title>Seleccionar Empleado</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content style="margin-top: 50px;" class="ion-padding">  
+  
+  <ion-searchbar animated 
+    placeholder="Buscar nombre"
+    animated="true"
+    showCancelButton="never" 
+    color="light" 
+    autocomplete="on"
+    enterkeyhint="send"
+    inputmode="text"
+    type="text"
+    debounce="300"
+    value="{{palabraFiltro}}"
+    (ionChange)="onChange($event)">
+  </ion-searchbar>
+  
+  <ion-list lines="none"> 
+    <ion-item *ngFor="let item of items" (click)="seleccionar(item)" class="item-card">  
+      <ion-label text-wrap>
+        <h2><b>{{item.nombre}}</b> </h2>   
+        <p *ngFor="let opcion of item.opciones">
+          {{opcion.nombre}} {{opcion.precioVariacion}}$
+        </p>         
+      </ion-label>  
+    </ion-item>
+  </ion-list>
+
+  <div class="space">
+    
+  </div> 
+  
+</ion-content>
+<ion-footer class="ion-no-border ion-padding">
+  <ion-toolbar>    
+    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-footer>

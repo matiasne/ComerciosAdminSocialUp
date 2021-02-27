@@ -4,7 +4,9 @@
     <ion-icon name="cube-outline" *ngIf="!item.foto"></ion-icon>
   </div>      
   <ion-label>                
-    <h2><b>{{item.nombre}}</b> <span *ngIf="showEstadoComanda">{{item.estadoComanda}}</span></h2>
+    <h2><b>{{item.nombre}}</b> 
+      <span *ngIf="item.suspendido == 1"> <b style="color: red;"> Suspendido</b></span>
+    </h2>
     <p>
       <span *ngIf="item.valorPor && (item.valorPor * item.cantidad)==1 && item.unidad == 'unidades'">
         {{item.valorPor * item.cantidad}} unidad

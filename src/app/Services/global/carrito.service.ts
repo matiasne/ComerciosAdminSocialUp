@@ -35,7 +35,7 @@ export class CarritoService {
     pedido.productos.forEach(producto =>{
       this.agregarProducto(producto);
     });
-    this.carrito.pedido = pedido;
+    this.carrito.pedido = pedido; 
   }
 
   public agregarProducto(producto:Producto){      

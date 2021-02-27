@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { GrupoOpciones } from '../models/grupoOpciones';
-import { GrupoOpcionesService } from '../Services/grupo-opciones.service';
 import { ActivatedRoute } from '@angular/router';
 import { AlertController, NavController, ModalController, NavParams } from '@ionic/angular';
 import { Validators, FormGroup, FormBuilder } from '@angular/forms';
@@ -21,7 +20,6 @@ export class FormProductoGrupoOpcionesPage implements OnInit {
   datosForm: FormGroup;
 
   constructor(
-    private grupoOpcionesService:GrupoOpcionesService,
     private route:ActivatedRoute,
     private formBuilder: FormBuilder,
     private alertController:AlertController,
@@ -41,7 +39,7 @@ export class FormProductoGrupoOpcionesPage implements OnInit {
       habilitado:['true']
     });
 
-    if(this.navParams.get('grupo')){
+    if(this.navParams.get('grupo')){ 
 
       let grupo = this.navParams.get('grupo');
       this.grupoOpciones = grupo;

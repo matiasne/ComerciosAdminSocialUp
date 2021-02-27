@@ -10,6 +10,7 @@ import { GrupoOpciones } from '../models/grupoOpciones';
 import { Opcion } from '../models/opcion';
 import { Subscription } from 'rxjs';
 import { CocinasService } from '../Services/cocinas.service';
+import { GrupoOpcionesService } from '../Services/grupo-opciones.service';
 
 @Component({
   selector: 'app-add-producto-venta',
@@ -30,6 +31,8 @@ export class AddProductoVentaPage implements OnInit {
   public precioShow = 0;
   public showOpcionesSeleccionadas = true;
 
+  public gruposOpciones = [];
+
   constructor(
     public router:Router,
     private modalCtrl: ModalController,
@@ -39,7 +42,8 @@ export class AddProductoVentaPage implements OnInit {
     public toastServices:ToastService,
     public productoService:ProductosService,
     private navParams:NavParams,
-    private cocinasService:CocinasService
+    private cocinasService:CocinasService,
+    private gruposOpcionesService:GrupoOpcionesService
   ) { }
 
   ngOnInit() {
@@ -49,14 +53,19 @@ export class AddProductoVentaPage implements OnInit {
     this.producto.cantidad = 1;
     this.producto.descripcion_venta = "";
 
-    
+    this.gruposOpciones = []; 
+    this.producto.gruposOpcionesId.forEach(id =>{
+      let sub = this.gruposOpcionesService.get(id).subscribe(data=>{
+        data.opciones.forEach(opcion =>{
+          opcion.cantidad = 0;
+          opcion.sumaHabilitada = true;
+        })
 
-    this.producto.gruposOpciones.forEach(grupo=>{
-      grupo.opciones.forEach(opcion =>{
-        opcion.cantidad = 0;
-        opcion.sumaHabilitada = true;
+        this.gruposOpciones.push(data);
+        sub.unsubscribe()
       })
     })
+
     this.producto.opcionesSeleccionadas = [];
 
     console.log(this.producto)
@@ -120,12 +129,12 @@ export class AddProductoVentaPage implements OnInit {
      
     var isOk = false;
    
-    if(this.producto.gruposOpciones.length > 0){
+    if(this.gruposOpciones.length > 0){
       
       console.log("validando")
-      for (var i = 0; i < this.producto.gruposOpciones.length; ++i){
+      for (var i = 0; i < this.gruposOpciones.length; ++i){
         var isOk = false;
-        let grupo = this.producto.gruposOpciones[i]
+        let grupo = this.gruposOpciones[i]
                 
         if(grupo.minimo > 0){
 
@@ -205,31 +214,31 @@ export class AddProductoVentaPage implements OnInit {
 
   restarCantidadOpcion(grupoIndex,i){
     
-    if(!this.producto.gruposOpciones[grupoIndex].opciones[i].cantidad){
-      this.producto.gruposOpciones[grupoIndex].opciones[i].cantidad = 0;
+    if(!this.gruposOpciones[grupoIndex].opciones[i].cantidad){
+      this.gruposOpciones[grupoIndex].opciones[i].cantidad = 0;
     }
 
-    if(!this.producto.gruposOpciones[grupoIndex].cantidadTotal){
-      this.producto.gruposOpciones[grupoIndex].cantidadTotal = 0;
+    if(!this.gruposOpciones[grupoIndex].cantidadTotal){
+      this.gruposOpciones[grupoIndex].cantidadTotal = 0;
     }   
 
-    if(this.producto.gruposOpciones[grupoIndex].opciones[i].cantidad <= 0){
-      this.producto.gruposOpciones[grupoIndex].opciones[i].cantidad = 0;
-      this.producto.gruposOpciones[grupoIndex].opciones[i].seleccionada = false;
+    if(this.gruposOpciones[grupoIndex].opciones[i].cantidad <= 0){
+      this.gruposOpciones[grupoIndex].opciones[i].cantidad = 0;
+      this.gruposOpciones[grupoIndex].opciones[i].seleccionada = false;
     }
     else{
       
-      this.producto.gruposOpciones[grupoIndex].opciones[i].cantidad -=1;
-      this.producto.gruposOpciones[grupoIndex].cantidadTotal -=1;      
+      this.gruposOpciones[grupoIndex].opciones[i].cantidad -=1;
+      this.gruposOpciones[grupoIndex].cantidadTotal -=1;      
     }
 
-    if(this.producto.gruposOpciones[grupoIndex].cantidadTotal < 0){
-      this.producto.gruposOpciones[grupoIndex].cantidadTotal = 0;
+    if(this.gruposOpciones[grupoIndex].cantidadTotal < 0){
+      this.gruposOpciones[grupoIndex].cantidadTotal = 0;
     }
     
 
-    if(this.producto.gruposOpciones[grupoIndex].cantidadTotal >= this.producto.gruposOpciones[grupoIndex].maximo){
-      this.producto.gruposOpciones[grupoIndex].opciones.forEach(opcion=>{
+    if(this.gruposOpciones[grupoIndex].cantidadTotal >= this.gruposOpciones[grupoIndex].maximo){
+      this.gruposOpciones[grupoIndex].opciones.forEach(opcion=>{
         opcion.sumaHabilitada = false;  
         if(opcion.cantidad >= opcion.maximaSeleccion){
           opcion.sumaHabilitada = false;
@@ -241,7 +250,7 @@ export class AddProductoVentaPage implements OnInit {
      
     }
     else{
-      this.producto.gruposOpciones[grupoIndex].opciones.forEach(opcion=>{
+      this.gruposOpciones[grupoIndex].opciones.forEach(opcion=>{
         opcion.sumaHabilitada = true;     
         if(opcion.cantidad >= opcion.maximaSeleccion){
           opcion.sumaHabilitada = false;
@@ -254,8 +263,8 @@ export class AddProductoVentaPage implements OnInit {
      
     }    
 
-    if(this.producto.gruposOpciones[grupoIndex].opciones[i].cantidad == 0)
-      this.producto.gruposOpciones[grupoIndex].opciones[i].seleccionada = false;
+    if(this.gruposOpciones[grupoIndex].opciones[i].cantidad == 0)
+      this.gruposOpciones[grupoIndex].opciones[i].seleccionada = false;
     
 
     let precioViejo = this.producto.precioTotal;
@@ -268,35 +277,35 @@ export class AddProductoVentaPage implements OnInit {
 
   sumarCantidadOpcion(grupoIndex,i){
 
-    if(!this.producto.gruposOpciones[grupoIndex].opciones[i].cantidad){
-      this.producto.gruposOpciones[grupoIndex].opciones[i].cantidad = 0;
+    if(!this.gruposOpciones[grupoIndex].opciones[i].cantidad){
+      this.gruposOpciones[grupoIndex].opciones[i].cantidad = 0;
     }
 
-    if(!this.producto.gruposOpciones[grupoIndex].cantidadTotal){
-      this.producto.gruposOpciones[grupoIndex].cantidadTotal = 0;
+    if(!this.gruposOpciones[grupoIndex].cantidadTotal){
+      this.gruposOpciones[grupoIndex].cantidadTotal = 0;
     }     
-    this.producto.gruposOpciones[grupoIndex].opciones[i].cantidad +=1;
-    this.producto.gruposOpciones[grupoIndex].cantidadTotal +=1;
+    this.gruposOpciones[grupoIndex].opciones[i].cantidad +=1;
+    this.gruposOpciones[grupoIndex].cantidadTotal +=1;
 
     
-    if(this.producto.gruposOpciones[grupoIndex].opciones[i].precioVariacion){
+    if(this.gruposOpciones[grupoIndex].opciones[i].precioVariacion){
         
     }
-    this.producto.gruposOpciones[grupoIndex].opciones[i].seleccionada = true;
+    this.gruposOpciones[grupoIndex].opciones[i].seleccionada = true;
 
    
 
-    if(this.producto.gruposOpciones[grupoIndex].cantidadTotal == this.producto.gruposOpciones[grupoIndex].maximo){
-      this.toastServices.mensaje("Ya has seleccionado el máximo de: "+this.producto.gruposOpciones[grupoIndex].nombre,"");
+    if(this.gruposOpciones[grupoIndex].cantidadTotal == this.gruposOpciones[grupoIndex].maximo){
+      this.toastServices.mensaje("Ya has seleccionado el máximo de: "+this.gruposOpciones[grupoIndex].nombre,"");
       
          
       
-      this.producto.gruposOpciones[grupoIndex].opciones.forEach(opcion=>{
+      this.gruposOpciones[grupoIndex].opciones.forEach(opcion=>{
         opcion.sumaHabilitada = false;
       })     
     }
     else{
-      this.producto.gruposOpciones[grupoIndex].opciones.forEach(opcion=>{
+      this.gruposOpciones[grupoIndex].opciones.forEach(opcion=>{
         opcion.sumaHabilitada = true;
         if(opcion.cantidad >= opcion.maximaSeleccion){
           opcion.sumaHabilitada = false;
@@ -314,14 +323,14 @@ export class AddProductoVentaPage implements OnInit {
     this.producto.precioTotal = this.valorTotal();
     this.addToTotal(precioViejo,this.producto.precioTotal,10);
 
-    console.log(this.producto.gruposOpciones[grupoIndex].maximo)
-    console.log(this.producto.gruposOpciones[grupoIndex].cantidadTotal)
-    console.log(this.producto.gruposOpciones[grupoIndex].opciones[i].cantidad)
+    console.log(this.gruposOpciones[grupoIndex].maximo)
+    console.log(this.gruposOpciones[grupoIndex].cantidadTotal)
+    console.log(this.gruposOpciones[grupoIndex].opciones[i].cantidad)
   }
 
   valorTotal(){
     let valorUno = this.producto.precio;
-    this.producto.gruposOpciones.forEach(grupos =>{
+    this.gruposOpciones.forEach(grupos =>{
       grupos.opciones.forEach (opcion =>{
         if(opcion.seleccionada || opcion.cantidad > 0)
           valorUno += opcion.precioVariacion * opcion.cantidad;

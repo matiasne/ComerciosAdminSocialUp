@@ -13,11 +13,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Producto } from '../models/producto';
 import { FormCategoriaPage } from '../form-categoria/form-categoria.page';
 import { LoadingService } from '../Services/loading.service';
-import { GrupoOpcionesService } from '../Services/grupo-opciones.service';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { ToastService } from '../Services/toast.service';
 import { FormProductoGrupoOpcionesPage } from '../form-producto-grupo-opciones/form-producto-grupo-opciones.page';
 import { CocinasService } from '../Services/cocinas.service';
+import { SelectGruposOpcionesPage } from '../select-grupos-opciones/select-grupos-opciones.page';
+import { GrupoOpcionesService } from '../Services/grupo-opciones.service';
 
 @Component({
   selector: 'app-form-producto',
@@ -36,6 +37,7 @@ export class FormProductoPage implements OnInit {
 
   public categorias =[];
   public cocinas = [];
+  public gruposOpciones = [];
 
   public datosForm: FormGroup;
   
@@ -61,12 +63,12 @@ export class FormProductoPage implements OnInit {
     public alertController: AlertController,
     private navCtrl: NavController, 
     private loaadingService:LoadingService,
-    private grupoOpcionesService:GrupoOpcionesService,
     private router:Router,
     private firestore: AngularFirestore,
     private toastServices:ToastService,
     private cocinasService:CocinasService,
     public changeRef:ChangeDetectorRef,
+    public gruposOpcionesService:GrupoOpcionesService
   ) { 
     this.producto = new Producto();
 
@@ -104,6 +106,16 @@ export class FormProductoPage implements OnInit {
         this.producto.asignarValores(data.payload.data())
         this.producto.id = data.payload.id;
         this.croppedImageIcono = this.producto.foto;
+
+        this.gruposOpciones = []; 
+        this.producto.gruposOpcionesId.forEach(id =>{
+          let sub = this.gruposOpcionesService.get(id).subscribe(data=>{
+            console.log(data)
+            this.gruposOpciones.push(data);
+            sub.unsubscribe()
+          })
+        })
+
         this.changeRef.detectChanges()        
       })
     } 
@@ -136,41 +148,29 @@ export class FormProductoPage implements OnInit {
 
   }
 
-  async openAddGrupoOpciones(){
+  async openAddGrupoOpciones(){   
+      const modal = await this.modalController.create({
+        component: SelectGruposOpcionesPage      
+      });  
+      modal.present().then(()=>{
+        
+      })
+  
+      modal.onDidDismiss()
+      .then((retorno) => {
+        if(retorno.data){
+          this.gruposOpciones.push(retorno.data.item);
+        }        
+      });
+      return await modal.present();
+    }
 
-    const modal = await this.modalController.create({
-      component: FormProductoGrupoOpcionesPage,   
-    });  
 
-    modal.onDidDismiss().then((retorno) => {
-      if(retorno.data){
-        this.producto.gruposOpciones.push(retorno.data);
-      }        
-    });
-    return await modal.present();
+  
 
-  }
-
-  async editarGrupoOpciones(index,grupo){
-
-    const modal = await this.modalController.create({
-      component: FormProductoGrupoOpcionesPage, 
-      componentProps:{
-        grupo: grupo
-      }  
-    });  
-
-    modal.onDidDismiss().then((retorno) => {
-      if(retorno.data){
-
-        if(retorno.data == "eliminar"){
-          this.producto.gruposOpciones.splice(index,1);
-        }
-        else
-          this.producto.gruposOpciones[index] = retorno.data;
-      }        
-    });
-    return await modal.present();
+  async eliminarGrupoOpciones(index){
+    console.log(index)
+    this.gruposOpciones.splice(index,1);
   }
 
   guardar(){
@@ -179,10 +179,13 @@ export class FormProductoPage implements OnInit {
 
     if (this.datosForm.invalid) {
       this.toastServices.alert('Por favor completar todos los campos marcados con * antes de continuar',"");
-      return;
-    } 
+      return; 
+    }  
 
-    
+    this.producto.gruposOpcionesId =[]
+    this.gruposOpciones.forEach(grupo =>{
+      this.producto.gruposOpcionesId.push(grupo.id);
+    })
 
     this.producto.asignarValores(this.datosForm.value);
 

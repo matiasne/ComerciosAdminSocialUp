@@ -6,42 +6,42 @@
     <ion-title>Pedidos</ion-title>
   </ion-toolbar>
 </ion-header>
-
+<ion-toolbar>
+  <ion-segment (ionChange)="segmentChanged($event)">
+    <ion-segment-button value="curso">En curso</ion-segment-button>
+    <ion-segment-button value="suspendidos">Suspendidos</ion-segment-button>
+    <ion-segment-button value="cobrados">Cobrados</ion-segment-button>
+  </ion-segment>
+</ion-toolbar>
+ 
 <ion-content class="ion-padding">
 
   <ion-searchbar animated 
-        placeholder="Buscar por cliente, empleado o mesa"
-        animated="true"
-        showCancelButton="never" 
-        color="light" 
-        autocomplete="on"
-        enterkeyhint="send"
-        inputmode="text"
-        type="text"
-        debounce="300"
-        value="{{palabraFiltro}}"
-        (ionChange)="onChange($event)">
-      </ion-searchbar>
+    placeholder="Buscar por cliente, empleado o mesa"
+    animated="true"
+    showCancelButton="never" 
+    color="light" 
+    autocomplete="on"
+    enterkeyhint="send"
+    inputmode="text"
+    type="text"
+    debounce="300"
+    value="{{palabraFiltro}}"
+    (ionChange)="onChange($event)">
+  </ion-searchbar>
 
   <h2 *ngIf="pedidos.length == 0">No tienes pedidos en curso.</h2>
-  <ion-list lines="none">        
-    <ion-item-sliding *ngFor="let pedido of pedidos" class="item-card">
-      <ion-item (click)="seleccionar(pedido)">  
-        <div slot="start">
-          <ion-icon name="file-tray-full-outline"></ion-icon>
-        </div>      
-        <ion-label>
-          <p *ngIf="pedido.personalNombre">Cargado por: {{pedido.personalNombre}}</p>
-          <b><span *ngIf="pedido.mesaNombre" > Mesa: {{pedido.mesaNombre}}</span> <span *ngIf="pedido.clienteNombre" >/ Cliente: {{pedido.clienteNombre}}</span> > {{pedido.createdAt | date:'hh:mm aaa - dd/MM'}} </b>         
-        </ion-label> 
-        <ion-badge color="danger" *ngIf="pedido.countRechazados > 0" slot="end">{{pedido.countRechazados}}</ion-badge>   
-        <ion-badge color="ligth" *ngIf="pedido.countPendientes > 0" slot="end">{{pedido.countPendientes}}</ion-badge>     
-        <ion-badge color="primary" *ngIf="pedido.countEnProcesos > 0" slot="end">{{pedido.countEnProcesos}}</ion-badge>        
-        <ion-badge color="success" *ngIf="pedido.countListos > 0" slot="end">{{pedido.countListos}}</ion-badge>        
-     </ion-item>  
-     <ion-item-options side="end">
-        <ion-item-option (click)="cancelar(pedido)"><ion-icon name="trash" ></ion-icon>Cancelar</ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>   
+  <ion-list lines="none" >        
+    <ion-item-sliding *ngFor="let pedido of pedidos"  class="item-card">
+      <app-card-pedido [item]="pedido" (click)="seleccionar(pedido)"></app-card-pedido>
+      <ion-item-options *ngIf="pedido.suspendido == 0 && pedido.cobrado == 0" side="end">
+        <ion-item-option color="danger" (click)="cancelar(pedido)"><ion-icon name="trash" ></ion-icon>Suspender</ion-item-option>
+      </ion-item-options> 
+      <ion-item-options *ngIf="pedido.suspendido == 1 && pedido.cobrado == 0" side="end">
+        <ion-item-option  (click)="reanudar(pedido)"><ion-icon name="trash" ></ion-icon>Reanudar</ion-item-option>
+      </ion-item-options> 
+    </ion-item-sliding>  
   </ion-list>
+
+
 </ion-content>

@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { FormDireccionPage } from './form-direccion.page';
+import { ListGruposOpcionesPage } from './list-grupos-opciones.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: FormDireccionPage
+    component: ListGruposOpcionesPage
   }
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class FormDireccionPageRoutingModule {}
+export class ListGruposOpcionesPageRoutingModule {}

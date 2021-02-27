@@ -161,14 +161,6 @@ const routes: Routes = [
     loadChildren: () => import('./list-cajas/list-cajas.module').then( m => m.ListCajasPageModule)
   },
   {
-    path: 'list-comandas',
-    loadChildren: () => import('./list-comandas/list-comandas.module').then( m => m.ListComandasPageModule)
-  },
-  {
-    path: 'form-direccion',
-    loadChildren: () => import('./form-direccion/form-direccion.module').then( m => m.FormDireccionPageModule)
-  },
-  {
     path: 'dashboard-cajas',
     loadChildren: () => import('./dashboard-cajas/dashboard-cajas.module').then( m => m.DashboardCajasPageModule)
   },
@@ -371,6 +363,22 @@ const routes: Routes = [
   {
     path: 'form-impresora-config',
     loadChildren: () => import('./form-impresora-config/form-impresora-config.module').then( m => m.FormImpresoraConfigPageModule)
+  },
+  {
+    path: 'list-grupos-opciones',
+    loadChildren: () => import('./list-grupos-opciones/list-grupos-opciones.module').then( m => m.ListGruposOpcionesPageModule)
+  },
+  {
+    path: 'select-grupos-opciones',
+    loadChildren: () => import('./select-grupos-opciones/select-grupos-opciones.module').then( m => m.SelectGruposOpcionesPageModule)
+  },
+  {
+    path: 'list-comandas-v2',
+    loadChildren: () => import('./list-comandas-v2/list-comandas-v2.module').then( m => m.ListComandasV2PageModule)
+  },
+  {
+    path: 'details-comanda',
+    loadChildren: () => import('./details-comanda/details-comanda.module').then( m => m.DetailsComandaPageModule)
   },
   
 ];

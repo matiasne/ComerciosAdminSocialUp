@@ -1,9 +1,9 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar> 
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>{{titulo}}</ion-title>    
+    <ion-title>{{titulo}} <p class="header-subtitulo">{{producto.nombre}}</p></ion-title>    
   </ion-toolbar>
 </ion-header>
 
@@ -162,22 +162,16 @@
         <h4>Grupo de Opciones</h4>
       </ion-text> 
       
-      <ion-item-sliding  *ngFor="let grupo of producto.gruposOpciones;let i=index" class="item-card">
+      <ion-item-sliding  *ngFor="let grupo of gruposOpciones;let i=index" class="item-card">
         <ion-item>     
           <ion-label>
-            {{grupo.nombre}}          
-          </ion-label> 
-          <ion-item>
-            <ion-label>Habilitado</ion-label>
-            <ion-toggle [(ngModel)]="grupo.habilitado" [ngModelOptions]="{standalone: true}"></ion-toggle>
-          </ion-item>          
+            {{grupo.nombre}}           
+          </ion-label>           
         </ion-item>    
-        <ion-item-options side="end">
-          <ion-item-option color="primary" (click)="editarGrupoOpciones(i,grupo)"><ion-icon name="create-outline" ></ion-icon> Editar</ion-item-option>
+        <ion-item-options side="end"> 
+          <ion-item-option color="danger" (click)="eliminarGrupoOpciones(i)"><ion-icon name="trash-outline" ></ion-icon>Quitar</ion-item-option>
         </ion-item-options>
-      </ion-item-sliding>
-
-        
+      </ion-item-sliding>       
       <ion-button size="large"   expand="block" (click)="openAddGrupoOpciones()">Agregar Nuevo Grupo</ion-button>
     </ion-list>
     

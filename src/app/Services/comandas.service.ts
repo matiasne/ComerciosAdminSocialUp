@@ -54,17 +54,17 @@ export class ComandasService {
     console.log(pedido)
     let cocinas = this.groupBy(pedido.productos, 'cocina');
 
-    Object.keys(cocinas).forEach((cocina) =>{
+    Object.keys(cocinas).forEach((cocinaId) =>{
       //console.log(index) 
-      console.log(cocinas[cocina])
+      console.log(cocinas[cocinaId])
 
       var comanda = new Comanda(this.authService.getUID(),this.authService.getActualUser().displayName,this.authService.getActualUser().email);
       comanda.clienteId = "";
       comanda.clienteNombre = ""; 
-      comanda.cocinaId = cocina;
+      comanda.cocinaId = cocinaId;
       comanda.pedidoId = pedido.id;
 
-      cocinas[cocina].forEach(p=>{
+      cocinas[cocinaId].forEach(p=>{
         comanda.productos.push(JSON.parse(JSON.stringify(p)))
       })    
 

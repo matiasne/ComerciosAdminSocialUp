@@ -11,8 +11,8 @@ import { MesasService } from '../Services/mesas.service';
   styleUrls: ['./select-mesa.page.scss'],
 })
 export class SelectMesaPage implements OnInit {
-
-  items:any = [];
+ 
+  items:any = []; 
   public itemsAll:any = [];
   public subsItems: Subscription;
   public palabraFiltro = "";

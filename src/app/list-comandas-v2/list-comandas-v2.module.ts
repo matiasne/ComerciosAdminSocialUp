@@ -4,19 +4,19 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { ListComandasPageRoutingModule } from './list-comandas-routing.module';
+import { ListComandasV2PageRoutingModule } from './list-comandas-v2-routing.module';
 
-import { ListComandasPage } from './list-comandas.page';
+import { ListComandasV2Page } from './list-comandas-v2.page';
 import { ComponentsModule } from '../Components/components.module';
 
 @NgModule({
-  imports: [
+  imports: [ 
     CommonModule,
     ComponentsModule,
     FormsModule,
     IonicModule,
-    ListComandasPageRoutingModule
+    ListComandasV2PageRoutingModule
   ],
-  declarations: [ListComandasPage]
+  declarations: [ListComandasV2Page]
 })
-export class ListComandasPageModule {}
+export class ListComandasV2PageModule {}

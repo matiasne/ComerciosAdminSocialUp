@@ -83,13 +83,11 @@ export class HomePage implements OnInit {
     this.rolesService.getAllRolesbyUser(this.authService.getActualUserId()).subscribe(roles =>{        
       this.comercios = [];
       console.log("!!!!!!")     
-      roles.forEach(rol =>{
-        console.log(rol)               
+      roles.forEach(rol =>{            
         if(rol.comercioId){   
           if(rol.estado != "pendiente" || rol.estado != "rechazada"){
             this.loadingService.presentLoading()
             this.comerciosService.get(rol.comercioId).subscribe(data =>{ 
-              console.log(data) 
               if(data){
                 this.loadingService.dismissLoading()  
                 var comercio:any = data; 

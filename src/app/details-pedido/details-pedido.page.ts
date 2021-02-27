@@ -1,17 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController, NavController, NavParams } from '@ionic/angular';
+import { AlertController, ModalController, NavController, NavParams } from '@ionic/angular';
 import { AngularFirestore } from 'angularfire2/firestore';
+import { FormComentarioPage } from '../form-comentario/form-comentario.page';
 import { Caja } from '../models/caja';
 import { Comercio } from '../Models/comercio';
 import { MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';
-import { Pedido } from '../Models/pedido';
+import { EnumEstadoComanda, Pedido } from '../Models/pedido';
 import { variacionStock } from '../models/variacionStock';
 import { Venta } from '../models/venta';
 import { AuthenticationService } from '../Services/authentication.service';
 import { CajasService } from '../Services/cajas.service';
 import { ComandasService } from '../Services/comandas.service';
+import { ComentariosService } from '../Services/comentarios.service';
 import { ComerciosService } from '../Services/comercios.service';
 import { CtaCorrientesService } from '../Services/cta-corrientes.service';
 import { ImpresoraService } from '../Services/impresora.service';
@@ -45,6 +47,10 @@ export class DetailsPedidoPage implements OnInit {
   public metodoTexto =""; 
   public ctaCorrienteSelecccionada:any;
   public ctaCorrienteSelecccionadaId ="";
+
+  public pEstado = EnumEstadoComanda; 
+  
+  public comentarios = [];
   
   constructor(
     public comerciosService:ComerciosService,
@@ -64,7 +70,9 @@ export class DetailsPedidoPage implements OnInit {
     private pedidosService:PedidoService,
     private navParams:NavParams,
     private productosService:ProductosService,
-    private impresoraService:ImpresoraService  
+    private impresoraService:ImpresoraService,
+    private comentariosService:ComentariosService,
+    private alertController:AlertController  
   ) { 
 
     this.comercio = new Comercio()
@@ -115,8 +123,50 @@ export class DetailsPedidoPage implements OnInit {
           console.log(cta)
         })
       })
-    }    
+    }   
+    
+    this.comentariosService.setearPath("pedidos",this.pedido.id);   
+    let obs =this.comentariosService.list().subscribe(data =>{
+      this.comentarios = data;
+      //obs.unsubscribe();
+    })
   }
+
+  async eliminarProducto(p,i){
+
+    const alert = await this.alertController.create({
+      header: 'Está seguro que desea eliminar el producto'+p.nombre+'?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Eliminar',
+          handler: () => {           
+            this.pedido.productos.splice(i,1);
+            if(this.pedido.productos.length > 0){
+              this.pedidosService.update(this.pedido).then(data=>{
+                console.log("Pedido actualizado")
+              }) 
+            }
+            else{
+              this.pedidosService.delete(this.pedido.id).then(data=>{
+                console.log("Pedido Eliminado")
+              })
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+
+    
+  }
+
+
+  
 
   setSavedCaja(){
     this.cajaSeleccionadaIndex = Number(localStorage.getItem('cajaSeleccionadaIndex'));
@@ -168,7 +218,86 @@ export class DetailsPedidoPage implements OnInit {
     this.modalController.dismiss("cancelado")
   }
 
-  async continuar(){
+  async devolver(){
+
+    if(this.pedido.cobrado = 1){
+
+      this.pedido.cobrado = 0;
+      this.pedido.searchLogic = "00";
+
+      if(this.pedido.productos.length > 0){
+
+        let productosId = [];
+        this.pedido.productos.forEach(p =>{
+
+          
+
+          if(p.valorPor)
+            p.stock = Number(p.stock) + (Number(p.cantidad) * Number(p.valorPor));
+          else
+            p.stock = Number(p.stock) + Number(p.cantidad);
+
+          
+          
+          let vStock:variacionStock = new variacionStock();
+          vStock.productoId = p.id; 
+          vStock.stock = p.stock;
+
+          this.variacionesStockService.setPathProducto(p.id);
+          this.variacionesStockService.add(vStock).then(resp =>{
+            
+            let data = {
+              "id":p.id,
+              "stock":p.stock
+            }
+
+            this.productosService.updateStock(data).then(data=>{
+              console.log()
+            })          
+          }); 
+          let data = {
+            "stock":p.stock
+          }
+          
+          
+          productosId.push(p.id);        
+        })
+  
+        if(this.metodoPagoSeleccionado != "ctaCorriente"){
+          
+          var devolucion = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
+          devolucion.id = this.firestore.createId();
+          devolucion.clienteId = this.pedido.clienteId;
+          devolucion.cajaId = this.cajaSeleccionada.id;
+          devolucion.metodoPago = this.metodoPagoSeleccionado;
+          devolucion.monto= -this.pedido.totalProductos;
+          devolucion.ventaId = this.pedido.id;  
+          devolucion.vendedorNombre = this.authenticationService.getNombre();         
+          devolucion.motivo="Venta de productos";   
+          this.movimientosService.createMovimientoCaja(this.cajaSeleccionada,devolucion);
+        }
+        else{
+
+          var deposito = new MovimientoCtaCorriente(this.authenticationService.getUID(), this.authenticationService.getNombre());
+          deposito.id = this.firestore.createId();
+          deposito.clienteId=this.pedido.clienteId;
+          deposito.ctaCorrienteId=this.ctaCorrienteSelecccionadaId;
+          deposito.motivo="Venta de productos";
+          deposito.monto = Number(this.pedido.totalProductos);
+          deposito.vendedorNombre = this.authenticationService.getNombre();
+          console.log(deposito.vendedorNombre);
+          deposito.ventaId = this.pedido.id;
+          this.movimientosService.crearMovimientoCtaCorriente(deposito);
+
+        }     
+        this.modalController.dismiss("ok")
+        
+      } 
+    }
+      
+  }
+
+  async cobrar(){
 
     
    
@@ -188,13 +317,17 @@ export class DetailsPedidoPage implements OnInit {
         return;
       }
     }  
-
    
+    this.pedido.cobrado = 1;
+
+    this.pedido.searchLogic = "01";
+
+    this.pedido.metodoPago = this.metodoPagoSeleccionado;
+
     this.impresoraService.impresionTicket(this.pedido)
     this.modalController.dismiss("ok")
- 
 
-    if(this.pedido.mesaId != ""){
+   /* if(this.pedido.mesaId != ""){
       let mesaId = this.pedido.mesaId;
       var sub = await this.comandasServices.getAll().subscribe(snapshot=>{
         snapshot.forEach((snap: any) => {         
@@ -208,7 +341,7 @@ export class DetailsPedidoPage implements OnInit {
         });
         sub.unsubscribe();
       })
-    } 
+    } */
 
     if(this.pedido.productos.length > 0){
 
@@ -360,12 +493,47 @@ export class DetailsPedidoPage implements OnInit {
   }
 
 
+  suspenderProducto(producto){
+    producto.suspendido = 1
+    producto.estadoComanda = "Listo"
+    this.pedido.totalProductos -= Number(producto.total)
+    this.pedidosService.update(this.pedido).then(data=>{
+      console.log("Actualizado")
+    })
+  }
+ 
+  reanudarProducto(producto){
+    producto.suspendido = 0
+    this.pedido.totalProductos += Number(producto.total)
+    this.pedidosService.update(this.pedido).then(data=>{
+      console.log("Actualizado")
+    })
+  } 
 
-  
-  
-
-  
-
-  
+  async agregarComentario(){
+    const modal = await this.modalController.create({
+      component: FormComentarioPage,
+      componentProps:{
+        comentableId:this.pedido.id,
+        comentableTipo:"pedidos"
+      }      
+    });
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data)
+        this.comentariosService.add(retorno.data).then(data=>{
+          console.log("comentario agregado");
+        })        
+    });
+    return await modal.present();
+  }
 
 }
+  
+  
+
+  
+
+  
+
+

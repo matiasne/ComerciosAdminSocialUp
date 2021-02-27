@@ -10,7 +10,6 @@ import { DataService } from '../Services/data.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ListClientesPage } from '../list-clientes/list-clientes.page';
 import { AuthenticationService } from '../Services/authentication.service';
-import { FormDireccionPage } from '../form-direccion/form-direccion.page';
 import { LoadingService } from '../Services/loading.service';
 import { Cliente } from '../models/cliente';
 import { Subscription } from 'rxjs';
@@ -59,17 +58,12 @@ export class FormClientePage implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private imagePicker: ImagePicker,
-    private camera: Camera,
-    private crop: Crop,
     public actionSheetController: ActionSheetController,
-    private file: File,
     private clientesService:ClientesService,
-    private dataService:DataService,
     public router:Router,
     public modalController: ModalController,
     private authService:AuthenticationService,
     private navParams: NavParams,
-    private route: ActivatedRoute,
     public alertController: AlertController,
     public loadingService:LoadingService,
     private toastServices:ToastService,

@@ -54,7 +54,6 @@
       
     <ion-list>                   
       <span *ngFor="let producto of carrito.productos; let i = index">
-
         <ion-item-sliding>
           <app-card-producto
             [item]="producto"
@@ -102,6 +101,15 @@
     </div>
   
  
+    <div class="form-card">
+      <ion-text color="primary">
+        <h4>Comentario</h4>
+      </ion-text> 
+      
+      <ion-textarea [(ngModel)]="comentario"></ion-textarea>
+   
+    </div>
+
 </ion-content> 
 
 <ion-footer class="ion-no-border ion-padding"> 

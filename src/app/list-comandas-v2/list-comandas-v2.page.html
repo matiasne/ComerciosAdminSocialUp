@@ -8,6 +8,7 @@
 </ion-header>
 <ion-toolbar [hidden]="devWidth > 576">
   <ion-segment (ionChange)="segmentChanged($event)">
+    <ion-segment-button value="rechazados">Rechazados ({{itemsRechazados.length}})</ion-segment-button>
     <ion-segment-button value="pendientes">Pendientes ({{itemsPendientes.length}})</ion-segment-button>
     <ion-segment-button value="proceso">En proceso ({{itemsProceso.length}})</ion-segment-button>
     <ion-segment-button value="listas">Listas ({{itemsListas.length}})</ion-segment-button>
@@ -44,21 +45,28 @@
   
 
   <span [hidden]="devWidth > 576">
+    
     <ion-list lines="none" *ngIf="seccionActiva == 'pendientes'">     
       <div *ngFor="let item of itemsPendientes">   
-        <app-card-comanda [item]="item"></app-card-comanda>
+        <app-card-comanda-v2 [pedido]="item"></app-card-comanda-v2>
       </div>
     </ion-list>
 
     <ion-list lines="none" *ngIf="seccionActiva == 'proceso'">     
       <div *ngFor="let item of itemsProceso">   
-        <app-card-comanda  [item]="item"></app-card-comanda>
+        <app-card-comanda-v2  [pedido]="item"></app-card-comanda-v2>
       </div>
-    </ion-list>
+    </ion-list> 
 
     <ion-list lines="none" *ngIf="seccionActiva == 'listas'">     
       <div *ngFor="let item of itemsListas">   
-        <app-card-comanda  [item]="item"></app-card-comanda>
+        <app-card-comanda-v2  [pedido]="item"></app-card-comanda-v2>
+      </div>
+    </ion-list>
+
+    <ion-list lines="none" *ngIf="seccionActiva == 'rechazados'">     
+      <div *ngFor="let item of itemsRechazados">   
+        <app-card-comanda-v2 [pedido]="item"></app-card-comanda-v2>
       </div>
     </ion-list>
 
@@ -66,11 +74,12 @@
   <span [hidden]="devWidth < 576">
     <ion-grid>
       <ion-row>
+        
         <ion-col>
           <ion-list lines="none">   
             <h5>Pendientes ({{itemsPendientes.length}})</h5>  
             <div *ngFor="let item of itemsPendientes">   
-              <app-card-comanda  [item]="item"></app-card-comanda>
+              <app-card-comanda-v2  [pedido]="item"></app-card-comanda-v2>
             </div>
           </ion-list> 
         </ion-col>
@@ -78,21 +87,34 @@
           <ion-list lines="none">  
             <h5>En Proceso ({{itemsProceso.length}})</h5>    
             <div *ngFor="let item of itemsProceso">   
-              <app-card-comanda  [item]="item"></app-card-comanda>
+              <app-card-comanda-v2  [pedido]="item"></app-card-comanda-v2>
+            </div>
+          </ion-list> 
+        </ion-col>
+        <ion-col> 
+          <ion-list lines="none">  
+            <h5>Listas  ({{itemsListas.length}})</h5>     
+            <div *ngFor="let item of itemsListas">   
+              <app-card-comanda-v2  [pedido]="item"></app-card-comanda-v2>
             </div>
           </ion-list> 
         </ion-col>
         <ion-col>
-          <ion-list lines="none">  
-            <h5>Listas  ({{itemsListas.length}})</h5>     
-            <div *ngFor="let item of itemsListas">   
-              <app-card-comanda  [item]="item"></app-card-comanda>
+          <ion-list lines="none">   
+            <h5>Suspendidos ({{itemsRechazados.length}})</h5>  
+            <div *ngFor="let item of itemsRechazados">   
+              <app-card-comanda-v2  [pedido]="item"></app-card-comanda-v2>
             </div>
           </ion-list> 
         </ion-col>
       </ion-row>
     </ion-grid>
   </span>
+ 
+  
+
+  
+
 
 </ion-content>
 

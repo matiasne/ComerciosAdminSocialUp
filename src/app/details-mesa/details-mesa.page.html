@@ -23,26 +23,15 @@
   <ion-list lines="none">  
     <h5>Pedidos ({{pedidos.length}})</h5>       
     <ion-item-sliding *ngFor="let pedido of pedidos" class="item-card">
-      <ion-item>  
-        <div slot="start">
-          <ion-icon name="file-tray-full-outline"></ion-icon>
-        </div>      
-        <ion-label>
-          <b>{{pedido.createdAt | date:'hh:mm aaa - dd/MM'}}</b>         
-        </ion-label> 
-        <ion-badge color="danger" *ngIf="pedido.countRechazados > 0" slot="end">{{pedido.countRechazados}}</ion-badge>   
-        <ion-badge color="ligth" *ngIf="pedido.countPendientes > 0" slot="end">{{pedido.countPendientes}}</ion-badge>     
-        <ion-badge color="primary" *ngIf="pedido.countEnProcesos > 0" slot="end">{{pedido.countEnProcesos}}</ion-badge>        
-        <ion-badge color="success" *ngIf="pedido.countListos > 0" slot="end">{{pedido.countListos}}</ion-badge>        
-     </ion-item>  
+      <app-card-pedido [item]="pedido"></app-card-pedido>
      <ion-item-options side="end"> 
         <ion-item-option (click)="cancelar(pedido)"><ion-icon name="trash" ></ion-icon>Cancelar</ion-item-option>
       </ion-item-options> 
     </ion-item-sliding> 
-  </ion-list>
+  </ion-list> 
 </ion-content>
 <ion-footer class="ion-no-border ion-padding"> 
   <ion-toolbar>   
-    <ion-button slot="start"  color="danger" (click)="cerrar()">Cerrar</ion-button>
+    <ion-button class="button-rounded" slot="start"  color="danger" (click)="cerrar()">Cerrar</ion-button>
   </ion-toolbar> 
 </ion-footer>

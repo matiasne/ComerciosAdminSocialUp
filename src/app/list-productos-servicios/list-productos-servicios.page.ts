@@ -41,6 +41,9 @@ export class ListProductosServiciosPage implements OnInit {
   itemsServicios:any = [];
   itemsAllProductos:any=[];
   itemsAllServicios:any=[];
+
+  public itemsSeparadosAlfabeticamente = [];
+
   public categorias =[];
   public subsItemsServ: Subscription;
   public subsItemsProd: Subscription;
@@ -137,6 +140,10 @@ export class ListProductosServiciosPage implements OnInit {
     this.marcarEnCarrito();
   }
 
+  ionViewDidLeave(){
+    this.subsItemsProd.unsubscribe();
+  }
+
   marcarEnCarrito(){
     console.log("scando marcado en carrito")
     this.itemsProductos.forEach(element => {
@@ -149,12 +156,9 @@ export class ListProductosServiciosPage implements OnInit {
           element.enCarrito += prod.cantidad;
         }
       });
-    })
+    }) 
   }
 
-  ionViewDidLeave(){
-    
-  }
 
   buscar(event){ 
 
@@ -218,6 +222,8 @@ export class ListProductosServiciosPage implements OnInit {
           this.toastServices.mensaje("Se seleccionó el producto: "+this.itemsProductos[0].nombre,"");
         }
       }
+
+      
       
      
 
@@ -259,15 +265,30 @@ export class ListProductosServiciosPage implements OnInit {
           this.itemsServicios.push(item);
           return true;
         }
-      });
-
-        
+      });       
       
     }
     else{
       this.itemsServicios = this.itemsAllServicios;
       this.itemsProductos = this.itemsAllProductos;
     }
+
+    this.itemsSeparadosAlfabeticamente = []
+    let data = this.itemsProductos.reduce((r, e) => {
+      // get first letter of name of current element
+      let group = e.nombre[0];
+      // if there is no property in accumulator with this letter create it
+      if(!r[group]) r[group] = {group, children: [e]}
+      // if there is push current element to children array for that letter
+      else r[group].children.push(e);
+      // return accumulator
+      return r; 
+    }, {}); 
+
+    this.itemsSeparadosAlfabeticamente = Object.values(data)
+
+    console.log(this.itemsSeparadosAlfabeticamente)
+
     this.marcarEnCarrito();
     this.changeRef.detectChanges()
     
@@ -291,7 +312,7 @@ export class ListProductosServiciosPage implements OnInit {
     this.subsItemsProd = this.productosService.getAll().subscribe((snapshotProd) => {
       this.itemsAllProductos =[];  
       this.loadingService.dismissLoading();
-      
+      console.log("!!!!!")
       snapshotProd.forEach((snapP: any) => {         
           var producto = snapP.payload.doc.data();
           producto.id = snapP.payload.doc.id;  
@@ -349,6 +370,7 @@ export class ListProductosServiciosPage implements OnInit {
 
   seleccionar(item){
     
+    
     if(this.comercio.modulos.cajas || this.comercio.modulos.comandas || this.comercio.modulos.mesas){
       if(item.producto){      
         this.agregarProducto(item);      
@@ -369,7 +391,7 @@ export class ListProductosServiciosPage implements OnInit {
   async presentAlertSeleccionar() {
     let user = this.AuthenticationService.getActualUser();
 
-    if(user.maxProducto){
+  /*  if(user.maxProducto){ //Esto como estrategia de marketing no sirve. mejor dejar cargar mucho y limitar a 7 días
       if((this.itemsAllProductos.length + this.itemsAllServicios.length)  >= user.maxProducto){
         this.toastServices.alert("Limitado","Se ha superado la cantidad máxima de productos, si desea agregar más por favor contrate un plan mayor.")
         return;
@@ -380,8 +402,8 @@ export class ListProductosServiciosPage implements OnInit {
       if((this.itemsAllProductos.length + this.itemsAllServicios.length) > 0){
         this.toastServices.alert("Limitado","Se ha superado la cantidad máxima de productos, si desea agregar más por favor contrate un plan mayor.")
         return;
-      }
-    }
+      } 
+    }*/ 
 
     if(this.comercio.modulos.productos && !this.comercio.modulos.servicios){
       this.nuevoProducto();   

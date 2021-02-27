@@ -39,12 +39,12 @@
       </span>  
       <ion-button class="button-block"  slot="end" (click)="sumarCantidad()">
         <ion-icon name="add"> </ion-icon>
-      </ion-button>
+      </ion-button> 
     </ion-item>
    
   </div>
 
-  <div *ngFor="let grupo of producto.gruposOpciones; let grupoIndex=index" class="form-card">
+  <div *ngFor="let grupo of gruposOpciones; let grupoIndex=index" class="form-card">
     <ion-text color="primary" id="{{grupo.nombre}}">
       <h4>{{grupo.nombre}} </h4>
     </ion-text> 
@@ -68,7 +68,7 @@
     <div *ngIf="grupo.maximo > 1">
       <p>Seleccione de {{grupo.minimo}} a {{grupo.maximo}} opciones</p>
       <ion-item *ngFor="let opcion of grupo.opciones; let i = index">
-        <ion-label>
+        <ion-label> 
           {{opcion.nombre}}
           <span *ngIf="opcion.precioVariacion != 0">
             {{opcion.precioVariacion | currency}}  

@@ -33,7 +33,6 @@ import { ListServiciosPage } from './list-servicios/list-servicios.page';
 import { ListVentaPage } from './list-venta/list-venta.page';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { FormCajaPage } from './form-caja/form-caja.page';
-import { FormDireccionPage } from './form-direccion/form-direccion.page';
 import { CallNumber } from '@ionic-native/call-number/ngx';
 import { EmailComposer } from '@ionic-native/email-composer/ngx';
 import { FormHorarioPage } from './form-horario/form-horario.page';
@@ -116,7 +115,7 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     ComponentsModule,
     ReactiveFormsModule,
     BrowserModule,
-    NgxQRCodeModule,
+    NgxQRCodeModule, 
     HttpClientModule,
     ImageCropperModule,
     FullCalendarModule, 
@@ -127,7 +126,8 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     AngularFireDatabaseModule,
     AngularFireAuthModule,
     AngularFireMessagingModule,
-    ServiceWorkerModule.register('combined-sw.js', { enabled: environment.production })  
+    
+   // ServiceWorkerModule.register('combined-sw.js', { enabled: environment.production })  
   ],
   providers: [
     StatusBar,

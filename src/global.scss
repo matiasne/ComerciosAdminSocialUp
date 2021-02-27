@@ -214,6 +214,12 @@ button{
   -webkit-box-shadow: 0px 2px 5px 1px #ee2711;
   -moz-box-shadow: 0px 2px 5px 1px #ee2711;
   box-shadow: 0px 2px 5px 1px #ee2711;
+} 
+
+.header-subtitulo{
+  font-size: 13px;
+  margin: 2px;
+  font-weight: 300;
 }
 
 .icono-foto{
@@ -322,13 +328,14 @@ producto-foto img{
 }
 
 .form-card{ 
+  border-style: none !important; 
   border-bottom: none;
   border-radius: 0;
   border-top: none;
   margin-bottom: 16px;
-  -webkit-box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.75);
-  -moz-box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.75);
-  box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.75);
+  -webkit-box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.40);
+  -moz-box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.40);
+  box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.40);
   padding: 10px;
   border-radius: 15px;
 }
@@ -356,16 +363,17 @@ producto-foto img{
 }
 
 .item-card{
-  
+  border-style: none !important;  
   border-bottom: none;
   border-radius: 15px;
-  border-top: none;
+  border-top: none; 
   margin-bottom: 16px;
-  -webkit-box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.75);
-  -moz-box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.75);
-  box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.75);
+  -webkit-box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.32);
+  -moz-box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.32);
+  box-shadow: 0px 2px 5px -2px rgba(0,0,0,0.32);
   
-}
+} 
+
 
 
 .sc-ion-searchbar-md-h{

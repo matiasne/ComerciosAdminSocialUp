@@ -5,6 +5,8 @@ import { OpcionSeleccionada } from './opcionSeleccionada';
 export class Producto {
 
     public id="";
+    public suspendido = 0;
+    
     public nombre = "";
     public barcode="";
     public cocinaId ="";
@@ -23,6 +25,7 @@ export class Producto {
     public cantidad =0;
     public descripcion_venta="";
     public recibirPedidos=true;
+    public gruposOpcionesId = [];
     public gruposOpciones:GrupoOpciones[];
     public opcionesSeleccionadas =[];
     public keywords = [];

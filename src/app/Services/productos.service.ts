@@ -40,13 +40,13 @@ export class ProductosService {
   getByNombre(nombre){
     return this.firestore.collection(this.getCollection(), ref =>  ref.where('nombre','==',nombre)).valueChanges();    
   }
-
+ 
   public get(documentId: string) {
-    return this.firestore.collection(this.getCollection()).doc(documentId).snapshotChanges();
-  }
+    return this.firestore.collection(this.getCollection(),ref=> ref.orderBy('nombre')).doc(documentId).snapshotChanges();
+  } 
 
   public getAll() {   
-    return this.firestore.collection(this.getCollection()).snapshotChanges();
+    return this.firestore.collection(this.getCollection(),ref=> ref.orderBy('nombre')).snapshotChanges();
   }
 
   public update(data) {
