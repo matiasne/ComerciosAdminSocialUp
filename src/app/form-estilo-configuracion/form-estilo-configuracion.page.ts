@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 import { ComerciosService } from '../Services/comercios.service';
 
 @Component({

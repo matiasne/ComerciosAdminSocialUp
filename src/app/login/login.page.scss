@@ -3,7 +3,13 @@ ion-content{
 }
 
 .background{
-    background-image: url(../../assets/img/h-3-01.jpg);
+    background-color: #E91D62;
+    text-align: center;
+
+}
+
+.background img{
+    max-width: 1080px;
 }
 
 .btn_eye_icon{ 

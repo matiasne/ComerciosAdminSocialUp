@@ -13,6 +13,11 @@ import { FormComentarioPage } from '../form-comentario/form-comentario.page';
 import { ComentariosService } from '../Services/comentarios.service';
 import { FormClienteEstadoPage } from '../form-cliente-estado/form-cliente-estado.page';
 import { ClientesEstadosService } from '../Services/clientes-estados.service';
+import { Cliente } from '../models/cliente';
+import { Comercio } from '../models/comercio';
+import { ComerciosService } from '../Services/comercios.service';
+import { BeneficiosService } from '../Services/beneficios.service';
+import { SelectBeneficioPage } from '../select-beneficio/select-beneficio.page';
 declare var google: any;
 
 @Component({
@@ -28,7 +33,8 @@ export class DetailsClientePage implements OnInit {
   public markers:any =[];
   public posicion:any;
 
-  public cliente:any ={};
+  public cliente:Cliente;
+  public comercio:Comercio
   public subscripciones:any = [];
   public mostrarMapa:boolean = false;
 
@@ -38,8 +44,9 @@ export class DetailsClientePage implements OnInit {
 
   public ctasCorrientes =[];
   public comentarios =[];
-
   public estadosClientes =[];
+
+  public beneficios = []; 
 
   constructor(
     private route: ActivatedRoute,
@@ -53,22 +60,24 @@ export class DetailsClientePage implements OnInit {
     private ctasCorreintesService:CtaCorrientesService,
     private modalController:ModalController,
     private comentarioService:ComentariosService,
-    private clientesEstadosService:ClientesEstadosService
+    private clientesEstadosService:ClientesEstadosService,
+    private comerciosService:ComerciosService,
+    private beneficiosService:BeneficiosService
   ) { 
 
-    
+    this.cliente = new Cliente()
    
+    this.comercio = new Comercio();
 
+    this.comercio.asignarValores(this.comerciosService.getSelectedCommerceValue())
     
   }
 
   ngOnInit() {
 
-    this.cliente = {};
-
-    this.subsCliente = this.clientesServices.get(this.route.snapshot.params.id).subscribe(resp=>{
+    this.subsCliente = this.clientesServices.get(this.route.snapshot.params.id).subscribe((resp:any)=>{
      
-      this.cliente = resp.payload.data();
+      this.cliente.asignarValores(resp.payload.data());
       this.cliente.id = resp.payload.id;
       console.log(this.cliente); 
       
@@ -82,7 +91,7 @@ export class DetailsClientePage implements OnInit {
           options: {
             disableDefaultUI: true,
             scrollwheel: true,
-            streetViewControl: false,
+            streetViewControl: false, 
           },    
         });
       }
@@ -92,12 +101,6 @@ export class DetailsClientePage implements OnInit {
       this.comentarioService.list().subscribe(data =>{
         this.comentarios = data;
         this.comentarios.forEach(item =>{
-
-        //  if(item.createdAt)
-          //  item.createdAt = this.toDateTime(item.createdAt.seconds)
-          //else
-            //item.createdAt = new Date();
-
           console.log(item)
         })        
       })
@@ -108,48 +111,8 @@ export class DetailsClientePage implements OnInit {
       this.estadosClientes = data;
     });
 
-    this.subscripcionesService.list().subscribe((data) => {
-      data.forEach(item =>{
-        if(item.clienteId == this.route.snapshot.params.id){
-
-          item.clienteRef.get().then(snap=>{
-            item["cliente"].nombre = snap.data().nombre;
-          });
-  
-          item.servicioRef.get().then(snap=>{
-            item["servicio"].nombre = snap.data().nombre;
-          });
-  
-          if(item.planRef){
-            item.planRef.get().then(snap=>{
-              item["plan"].nombre = snap.data().nombre;
-              item["plan"].precio = snap.data().precio;
-            });
-          }
-          else{
-            item["plan"].precio = item.precio;
-           
-          }
-          
-  
-          let fechaActual = new Date();
-          let fechaAMesActual = new Date(item.fechaInicio);
-          fechaAMesActual.setMonth(fechaActual.getMonth());
-  
-          if(fechaActual > fechaAMesActual){
-            fechaAMesActual.setMonth(fechaActual.getMonth()+1);
-          }
-  
-          let fechaProximoPago = fechaAMesActual;
-          item.proximoPago = fechaProximoPago;
-  
-          console.log(fechaProximoPago);
-  
-
-          this.subscripciones.push(item);
-        }
-      })
-      console.log(this.subscripciones);
+    this.beneficiosService.getByCliente(this.route.snapshot.params.id).subscribe(data=>{
+      this.beneficios = data;
     }) 
 
     this.ctasCorreintesService.getAll().subscribe(snapshot =>{
@@ -166,8 +129,6 @@ export class DetailsClientePage implements OnInit {
       });  
       console.log(this.ctasCorrientes)
     })
-    
-
   }
 
   async openAddEstado(){
@@ -185,12 +146,7 @@ export class DetailsClientePage implements OnInit {
       console.log(data);
     });
   }
-
-  toDateTime(secs) {
-    var t = new Date(1970, 0, 1); // Epoch
-    t.setSeconds(secs);
-    return t;
-  }
+ 
 
   initMap(el, options) {
     this.map = this.makeMap(el, options)
@@ -210,8 +166,6 @@ export class DetailsClientePage implements OnInit {
       title: 'Hello World!',
       draggable:true,
     });
-
-
   }
 
   makeMap(el, options) {
@@ -221,6 +175,43 @@ export class DetailsClientePage implements OnInit {
       console.log(mapEle);
       return new google.maps.Map(mapEle, options)
     }
+  }
+
+  async agregarBeneficio(){
+    const modal = await this.modalController.create({
+      component: SelectBeneficioPage      
+    });
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data)
+        this.beneficiosService.agregarBeneficioAUsuario(this.cliente,retorno.data.item).then(data=>{
+          console.log(data)
+        })
+    });
+    return await modal.present();
+  }
+
+  async cancelarBeneficio(beneficio){ 
+    const alert = await this.alertController.create({
+      header: 'Está seguro?',
+      message: '',
+      buttons: [
+        { 
+          text: 'No',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Si',
+          handler: () => {           
+            this.beneficiosService.eliminarBeneficioAUsuario(this.cliente,beneficio).then(data=>{
+              console.log(data)
+            })           
+          }
+        }
+      ]
+    });
+    await alert.present();    
   }
 
   crearCuentaCorriente(){
@@ -235,10 +226,7 @@ export class DetailsClientePage implements OnInit {
 
   verDetallesSubscripcion(id){
     this.router.navigate(['details-subscripcion',{id:id}]);
-  }
-
-
-  
+  } 
 
   ionViewDidLeave(){
     this.subsCliente.unsubscribe();

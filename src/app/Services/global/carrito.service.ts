@@ -3,6 +3,8 @@ import { BehaviorSubject } from 'rxjs';
 import { AuthenticationService } from '../authentication.service';
 import { Carrito } from 'src/app/models/carrito';
 import { Producto } from 'src/app/models/producto';
+import { Descuento, EnumTipoDescuento } from 'src/app/models/descuento';
+import { EnumTipoRecargo, Recargo } from 'src/app/models/recargo';
 
 @Injectable({
   providedIn: 'root'
@@ -38,23 +40,7 @@ export class CarritoService {
     this.carrito.pedido = pedido; 
   }
 
-  public agregarProducto(producto:Producto){      
-    
-    producto.gruposOpciones.forEach(grupo =>{
-      grupo.opciones.forEach(opcion => {
-        if(opcion.cantidad > 0){               
-          var opcionSeleccionada   = {
-            nombreGrupo : grupo.nombre,
-            nombre : opcion.nombre,
-            precioVariacion : opcion.precioVariacion,
-            cantidad : opcion.cantidad,
-          }
-          console.log(producto);
-          producto.opcionesSeleccionadas.push(opcionSeleccionada);
-          opcion.cantidad = 0;
-        }
-      });
-    })   
+  public agregarProducto(producto:Producto){          
    
     producto.gruposOpciones =[];
     this.carrito.totalProductos += Number(producto.precioTotal);
@@ -70,6 +56,15 @@ export class CarritoService {
     
     
   }
+
+  public agregarDescuento(descuento:Descuento){
+    this.carrito.descuentos.push(descuento)
+  }
+
+  public agregarRecargo(recargo:Recargo){
+    this.carrito.recargos.push(recargo)
+  }
+
 /*
   public agregarPagare(pagare){
     this.carrito.pagare = pagare;
@@ -91,6 +86,14 @@ export class CarritoService {
     this.carrito.on = true;     
     console.log(this.carrito);
     this.actualCarritoSubject.next(this.carrito);    
+  }
+
+  public eliminarDescuento(index){
+    this.carrito.descuentos.splice(index,1)
+  }
+
+  public eliminarRecargo(index){
+    this.carrito.recargos.splice(index,1)
   }
 
   public eliminarProducto(index){
@@ -117,6 +120,60 @@ export class CarritoService {
     this.actualCarritoSubject.next(this.carrito);    
   }
 
+  public getTotal(){
+ 
+    let total = this.carrito.totalProductos + this.carrito.totalServicios;
+
+    let totalPorcentaje = 0;
+    this.carrito.descuentos.forEach(descuento =>{
+      if(descuento.tipo == EnumTipoDescuento.porcentaje){
+        totalPorcentaje += Number(descuento.monto)
+      }
+    })
+
+    let descontar = (total*totalPorcentaje)/100;
+
+    total = total-descontar;
+
+    let totalMonto = 0;
+    this.carrito.descuentos.forEach(descuento =>{
+      if(descuento.tipo == EnumTipoDescuento.monto){
+        totalMonto += Number(descuento.monto)
+      }
+    })
+
+    total = total-totalMonto;
+
+
+
+    totalPorcentaje = 0;
+    this.carrito.recargos.forEach(recargo =>{
+      if(recargo.tipo == EnumTipoRecargo.porcentaje){
+        totalPorcentaje += Number(recargo.monto)
+      }
+    })
+
+    let sumar = (total*totalPorcentaje)/100;
+
+    total = total+sumar;
+
+    totalMonto = 0;
+    this.carrito.recargos.forEach(recargo =>{
+      if(recargo.tipo == EnumTipoRecargo.monto){
+        totalMonto += Number(recargo.monto)
+      }
+    })
+
+    total = total+totalMonto;
+
+
+    return total;
+
+
+
+
+  }
+
   setearCliente(cliente){
     this.carrito.cliente = cliente;   
     if(this.carrito.cliente.keywords)
@@ -133,11 +190,9 @@ export class CarritoService {
 
   
 
-  vaciar(){
-  
+  vaciar(){ 
       this.carrito = new Carrito(this.authenticationService.getUID(),this.authenticationService.getNombre());
-      this.actualCarritoSubject.next(this.carrito); 
-    
+      this.actualCarritoSubject.next(this.carrito);   
      
 
     

@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { ComentariosService } from '../Services/comentarios.service';
 import { LoadingService } from '../Services/loading.service';
 import { PedidoService } from '../Services/pedido.service';
-import { EnumEstadoComanda } from 'src/app/Models/pedido';
+import { EnumEstadoComanda } from 'src/app/models/pedido';
 import { CocinasService } from '../Services/cocinas.service';
 import { AlertController, Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
@@ -35,16 +35,23 @@ export class ListComandasV2Page implements OnInit {
   public cocinaFiltro = [];
   public todas ="";
 
+  public obsPedidos:any
+
+  public fechaDesde = new Date();
+
+  public buscando = true;
+
   constructor(
     private pedidosService:PedidoService,
     private loadingService:LoadingService,
     private comentariosService:ComentariosService,
     private cocinasService:CocinasService,
     private alertController:AlertController,
-    private router:Router,
+    private router:Router,  
     private platform:Platform,
   ) { 
     this.devWidth = this.platform.width();
+    this.fechaDesde.setDate(this.fechaDesde.getDate() - 1);
   }
 
   ngOnInit() {
@@ -59,8 +66,17 @@ export class ListComandasV2Page implements OnInit {
         this.presentAlertCrearCocinas();
       }
     })
+    this.refrescar()
+  }
 
-    this.pedidosService.list().subscribe((pedidos:any)=>{  
+  refrescar(){
+  
+    if(this.obsPedidos){
+      this.obsPedidos.unsubscribe();
+    } 
+
+    this.obsPedidos = this.pedidosService.listFechaDesde(this.fechaDesde).subscribe((pedidos:any)=>{  
+      this.buscando = false;
       this.itemsPendientes = []; 
       this.itemsProceso = []; 
       this.itemsListas = [];  
@@ -69,9 +85,8 @@ export class ListComandasV2Page implements OnInit {
       this.loadingService.dismissLoading()               
       this.pedidosAll = pedidos;  
       console.log(this.pedidosAll)          
-      this.buscar();
+      this.filtrar(); 
     });
-
   }
 
   async presentAlertCrearCocinas() {
@@ -79,7 +94,7 @@ export class ListComandasV2Page implements OnInit {
       header: 'Agregar Cocina',
       message: 'Debes agregar una cocina antes de continuar',
       buttons: [
-        { 
+        {  
           text: 'Ok',
           handler: () => {
             this.router.navigate(['list-cocinas']);
@@ -90,15 +105,20 @@ export class ListComandasV2Page implements OnInit {
     await alert.present();
   }
 
+
+  onChangeAtras(event){
+    this.fechaDesde.setDate(this.fechaDesde.getDate() - Number(event.target.value));
+    this.refrescar()   
+  }
   
   onChange(event){
     this.palabraFiltro = event.target.value;    
-    this.buscar();
+    this.refrescar();
   }
  
   onChangeCocina(event){
     this.cocinaFiltro = event.target.value;
-    this.buscar();
+    this.refrescar();
   }
 
   segmentChanged(event){
@@ -106,7 +126,7 @@ export class ListComandasV2Page implements OnInit {
     this.seccionActiva = event.target.value;
   }
 
-  buscar(){ 
+  filtrar(){ 
 
     this.itemsPendientes = []; 
     this.itemsListas = [];

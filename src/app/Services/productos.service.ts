@@ -31,7 +31,7 @@ export class ProductosService {
 
 
       const param = JSON.parse(JSON.stringify(data));
-      this.firestore.collection(this.getCollection()).add( {...param,
+      this.firestore.doc(this.getCollection()+"/"+data.id).set( {...param,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       });   
      
@@ -42,7 +42,7 @@ export class ProductosService {
   }
  
   public get(documentId: string) {
-    return this.firestore.collection(this.getCollection(),ref=> ref.orderBy('nombre')).doc(documentId).snapshotChanges();
+    return this.firestore.collection(this.getCollection(),ref=> ref.orderBy('nombre')).doc(documentId).get();
   } 
 
   public getAll() {   

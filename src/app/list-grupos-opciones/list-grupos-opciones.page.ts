@@ -13,6 +13,7 @@ import { LoadingService } from '../Services/loading.service';
 export class ListGruposOpcionesPage implements OnInit {
 
   public grupos = [];
+  public buscando = true;
 
   constructor(
     public grupoOpcionesService:GrupoOpcionesService,
@@ -27,6 +28,7 @@ export class ListGruposOpcionesPage implements OnInit {
     this.grupoOpcionesService.list().subscribe(grupos=>{
       this.loadingService.dismissLoading()                
       this.grupos = grupos;
+      this.buscando = false;
     });
 
   }

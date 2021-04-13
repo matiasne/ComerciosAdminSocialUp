@@ -8,6 +8,16 @@
 </ion-header>
 
 <ion-content class="ion-padding" >
+
+  <ion-item class="form-select"> 
+    <ion-label position="floating">Desde</ion-label>
+    <ion-select multiple="false" (ionChange)="onChangeAtras($event)">
+      <ion-select-option  [value]="1" selected>Ayer</ion-select-option>
+      <ion-select-option  [value]="2">2 días atras</ion-select-option>
+      <ion-select-option  [value]="7">Una semana atrás</ion-select-option>
+    </ion-select>       
+  </ion-item> 
+  
   <ion-toolbar>  
     <ion-text slot="start" color="primary">
       <h4> {{ctaCorriente.montoTotal | currency}}</h4>        
@@ -55,7 +65,7 @@
         {{item.motivo}}
       </p>         
       <p style="font-size: 12px;">
-        {{item.vendedorNombre}} - {{item.createdAt | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
+        {{item.vendedorNombre}} - {{item.createdAt.toDate() | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
       </p>           
     </ion-label> 
 
@@ -65,7 +75,7 @@
         {{item.motivo}}
       </p> 
       <p style="font-size: 12px;">
-        {{item.vendedorNombre}} - {{item.createdAt | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
+        {{item.vendedorNombre}} - {{item.createdAt.toDate() | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
       </p>           
     </ion-label>   
   </ion-item>

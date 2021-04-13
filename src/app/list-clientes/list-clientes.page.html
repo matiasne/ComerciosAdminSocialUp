@@ -23,11 +23,15 @@
     (ionChange)="onChange($event)">
   </ion-searchbar>
 
-  <!--ion-row>    
-      <ion-input placeholder="Buscar" style="border:1px solid rgb(206, 206, 206); border-radius: 5px;"
-      [(ngModel)]="palabraFiltro" (ionChange)="buscar()"
-      ></ion-input> 
-  </ion-row--> 
+  <div *ngIf="buscando" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/buscando.fw.png" alt="">
+    <p>Cargando comandas, aguarde unos segundos por favor</p>
+  </div>
+
+  <div *ngIf="!buscando && clientes.length == 0" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/clientes.fw.png" alt="">
+    <p>Aún no tienes clientes</p>
+  </div>
 
   <ion-list lines="none">   
     
@@ -59,14 +63,6 @@
       loadingText="Cargando más trabajos...">
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
-
-  <span *ngIf="clientes.length == 0">
-
-    <h5>No exite ningún cliente con ese Nombre</h5> 
-
-    <ion-button color="primary" (click)="nuevo()">Crear Uno Nuevo!</ion-button>
-    
-  </span>
 
   <!-- fab placed to the bottom end -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" (click)="nuevo()">

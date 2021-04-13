@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Beneficios</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-item-sliding *ngFor="let beneficio of beneficios" class="item-card">
+    <ion-item  class="item-card">  
+      <div slot="start">
+        <ion-icon name="file-tray-full-outline"></ion-icon>
+      </div>      
+      <ion-label text-wrap>
+        <p *ngIf="beneficio.disparador == enumBeneficioDisparador.compraMayorA">El beneficio se generará si el cliente realiza una compra mayor a: {{beneficio.monto}}</p>
+        <p *ngIf="beneficio.disparador == enumBeneficioDisparador.primerRegitro">El beneficio se generará al registrar por primera vez el cliente</p>
+        <b>{{beneficio.descripcion}}</b>         
+      </ion-label> 
+    </ion-item>  
+    <ion-item-options side="end">
+      <ion-item-option  (click)="editar(beneficio)"><ion-icon name="create" ></ion-icon>Editar</ion-item-option>
+    </ion-item-options>
+  </ion-item-sliding>
+  
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" (click)="openAddBeneficio()">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

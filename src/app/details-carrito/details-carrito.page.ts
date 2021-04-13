@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CarritoService } from '../Services/global/carrito.service';
 import { NavController, ModalController, AlertController } from '@ionic/angular';
 import { ListClientesPage } from '../list-clientes/list-clientes.page';
-import { ComandasService } from '../Services/comandas.service';
 import { Subscription } from 'rxjs';
 import { ComerciosService } from '../Services/comercios.service';
 import { CajasService } from '../Services/cajas.service';
@@ -17,14 +16,17 @@ import { FormClientePage } from '../form-cliente/form-cliente.page';
 import { MesasService } from '../Services/mesas.service';
 import { Mesa } from '../models/mesa';
 import { Cliente } from '../models/cliente';
-import { Comercio } from '../Models/comercio';
-import { Pedido } from '../Models/pedido';
+import { Comercio } from '../models/comercio';
+import { Pedido } from '../models/pedido';
 import { PedidoService } from '../Services/pedido.service';
 import { AuthenticationService } from '../Services/authentication.service';
 import { ImpresoraService } from '../Services/impresora.service';
 import { ComentariosService } from '../Services/comentarios.service';
 import { async } from 'rxjs/internal/scheduler/async';
 import { Comentario } from '../models/comentario';
+import { EnumTipoDescuento } from '../models/descuento';
+import { DetailsPedidoPage } from '../details-pedido/details-pedido.page';
+import { ComandaPage } from '../impresiones/comanda/comanda.page';
 
 @Component({
   selector: 'app-details-carrito',
@@ -41,19 +43,19 @@ export class DetailsCarritoPage implements OnInit {
   public pedido:Pedido;
   public comentario = "";
 
+  public enumTipo = EnumTipoDescuento
+
   constructor(
     public authenticationService:AuthenticationService,
     public carritoService:CarritoService,
     private navCtrl: NavController,
     public modalController: ModalController,
-    public comandasServices:ComandasService,
     public comerciosService:ComerciosService,
     private loadingService:LoadingService,
     private toastServices:ToastService,
-    private mesasSerivce:MesasService,
     private pedidoServices: PedidoService,
     private impresoraService:ImpresoraService,
-    private comentariosService:ComentariosService
+    private comentariosService:ComentariosService,
   ) {
     this.comercio = new Comercio();
     this.carrito = new Carrito("","");
@@ -62,6 +64,9 @@ export class DetailsCarritoPage implements OnInit {
 
     this.loadingService.presentLoading()
     this.comercio.asignarValores(this.comerciosService.getSelectedCommerceValue());
+
+    
+
     console.log(this.comercio)    
     this.subsCarrio = this.carritoService.getActualCarritoSubs().subscribe(data=>{
       this.carrito = data;      
@@ -82,41 +87,30 @@ export class DetailsCarritoPage implements OnInit {
   } 
 
   atras(){
-    this.modalController.dismiss();
+   // this.modalController.dismiss();
+    this.navCtrl.back();
   }
 
   async cancelar(){
-    this.modalController.dismiss();
+    //this.modalController.dismiss();
+    this.navCtrl.back();
   }
 
-  crearComandas(pedido){      
-    this.impresoraService.impresionComanda(pedido);
-  //  if(this.comercio.modulos.comandas){
-    //  this.comandasServices.create(pedido);
-    //}
-      
-  }
 
-  continuar(){
+  continuar(){ 
 
-    if(this.carrito.servicios.length == 0 && this.carrito.productos.length == 0){
+    if(this.comercio.modulos.servicios && this.carrito.servicios.length == 0 && this.carrito.productos.length == 0){
       this.toastServices.alert("Debes ingresar al menos un producto o servicio","");      
       return;
     }
     
-    if(this.carrito.mesa.id == "" && this.carrito.cliente.id == ""){
-      this.toastServices.alert("Por favor seleccione un cliente o una mesa para continuar","")
-    }
         
-    if(this.carrito.mesa.id == ""){
+    if(this.comercio.modulos.mesas && this.carrito.mesa.id == ""){
         this.toastServices.alert("Debes seleccionar al menos una mesa!","");
         return;
-    } 
-     
-            
+    }            
     
-    this.crearPedido();    
-    
+    this.crearPedido();       
   }
 
  
@@ -126,6 +120,14 @@ export class DetailsCarritoPage implements OnInit {
     this.carrito.productos.forEach(p=>{
       this.pedido.productos.push(Object.assign({}, p))
     })  
+
+    this.carrito.descuentos.forEach(p=>{
+      this.pedido.descuentos.push(Object.assign({}, p))
+    }) 
+
+    this.carrito.recargos.forEach(p=>{
+      this.pedido.recargos.push(Object.assign({}, p))
+    }) 
 
     this.pedido.personalId = this.authenticationService.getUID();
     this.pedido.personalEmail = this.authenticationService.getEmail();
@@ -139,16 +141,14 @@ export class DetailsCarritoPage implements OnInit {
     this.pedido.mesaNombre = this.carrito.mesa.nombre;
     this.pedido.totalProductos = this.carrito.totalProductos;
 
-    this.pedido.searchLogic = "00";
+    
+    this.navCtrl.back();
     
     this.carritoService.vaciar();   
-    this.modalController.dismiss(); 
 
-    console.log(this.pedido)
-      
+    this.impresoraService.impresionComanda(this.pedido);
 
-    this.pedidoServices.add(this.pedido).then((data:any)=>{
-      this.crearComandas(data);  
+    this.pedidoServices.add(this.pedido).then((data:any)=>{     
       if(this.comentario != ""){ 
         this.comentariosService.setearPath("pedidos",data.id);      
         let comentario = new Comentario();
@@ -158,14 +158,19 @@ export class DetailsCarritoPage implements OnInit {
         this.comentariosService.add(comentario).then(data=>{
           console.log("comentario agregado")
         })
-      }
-      
+      }      
     },
     err=>{
       alert("Advertencia, te encuentras en modo offline")
-    });
-  
-    
+    });  
+  }  
+
+  eliminarDescuento(i){
+    this.carritoService.eliminarDescuento(i);
+  }
+
+  eliminarRecargo(i){
+    this.carritoService.eliminarRecargo(i);
   }
 
   eliminarProducto(i){
@@ -216,8 +221,6 @@ export class DetailsCarritoPage implements OnInit {
       component: FormClientePage      
     });    
     modal.present().then(()=>{
-    
-
     })
 
     modal.onDidDismiss()

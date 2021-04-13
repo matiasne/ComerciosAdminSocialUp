@@ -1,9 +1,9 @@
-<ion-item (click)="seleccionar()">
+<ion-item (click)="seleccionar()" class="remove_inner_bottom">
   <div slot="start" *ngIf="showImage">
-    <img src="{{item.foto}}" *ngIf="item.foto">
-    <ion-icon name="cube-outline" *ngIf="!item.foto"></ion-icon>
+    <img class="producto-preview" src="{{item.fotoPrincipal}}" *ngIf="item.fotoPrincipal">
+    <ion-icon name="cube-outline" *ngIf="!item.fotoPrincipal"></ion-icon>
   </div>      
-  <ion-label>                
+  <ion-label style="color:black">                
     <h2><b>{{item.nombre}}</b> 
       <span *ngIf="item.suspendido == 1"> <b style="color: red;"> Suspendido</b></span>
     </h2>
@@ -19,8 +19,7 @@
       <span *ngIf="item.valorPor && (item.valorPor * item.cantidad)!=1">
         <span *ngIf="item.valorPor">
           {{item.valorPor * item.cantidad}}
-        </span>
-        
+        </span>        
         <span *ngIf="item.unidad">
           {{item.unidad}}
         </span> 
@@ -44,8 +43,8 @@
     </p>
 
     <span *ngIf="showEnCarrito">
-      <ion-badge *ngIf="item.enCarrito && item.valorPor">agregado: {{item.enCarrito * item.valorPor}} {{item.unidad}}</ion-badge> 
-      <ion-badge *ngIf="item.enCarrito && !item.valorPor">agregado: {{item.enCarrito}} {{item.unidad}}</ion-badge>      
+      <ion-badge color="success" *ngIf="item.enCarrito && item.valorPor">En Carrito: {{item.enCarrito * item.valorPor}} {{item.unidad}}</ion-badge> 
+      <ion-badge color="success" *ngIf="item.enCarrito && !item.valorPor">En carrito: {{item.enCarrito}} {{item.unidad}}</ion-badge>      
     </span>
   </ion-label>  
 </ion-item>

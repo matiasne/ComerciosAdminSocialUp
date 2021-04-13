@@ -6,7 +6,7 @@ import { AuthenticationService } from './authentication.service';
 import { Invitacion } from '../models/invitacion';
 import { NotificacionesService } from './notificaciones.service';
 import { ComerciosService } from './comercios.service';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 import { UsuariosService } from './usuarios.service';
 
 @Injectable({

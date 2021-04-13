@@ -6,8 +6,8 @@
           <span *ngIf="item.statusComanda == pEstado.rechazado" style="color: red;">Rechazado por Cocina</span>
           <span *ngIf="item.statusComanda == pEstado.tomado" style="color: green;">En Curso</span>
           <span *ngIf="item.statusComanda == pEstado.solicitado" style="color: blue;"> Solicitado</span>
-          <span *ngIf="item.suspendido == 1"> <b style="color: red;"> Suspendido </b></span>
-          <span *ngIf="item.cobrado == 1"> <b style="color: green;"> Cobrado</b></span> <br>
+          <span *ngIf="item.statusCaja == cEstado.suspendido"> <b style="color: red;"> Suspendido </b></span>
+          <span *ngIf="item.statusCaja == cEstado.cobrado"> <b style="color: green;"> Cobrado</b></span> <br>
            
           <span *ngIf="item.mesaNombre" > Mesa: {{item.mesaNombre}}</span>  
           <span *ngIf="item.clienteNombre" > - Cliente: {{item.clienteNombre}}</span>
@@ -18,19 +18,14 @@
           
           <!--span *ngIf="item.suspendido == 0"><b>{{item.status}}</b></span-->
           <ion-row> 
-            <ion-col center text-center>            
+            <ion-col *ngIf="comercio.modulos.comandas" center text-center>            
               {{item.countListos}} / {{item.productos.length}}
-            </ion-col>
-            <ion-col center text-center>
-              <ion-icon *ngIf="item.cantidadComentarios == 0" name="chatbox-outline"></ion-icon>
-              <ion-icon *ngIf="item.cantidadComentarios != 0" name="chatbox"></ion-icon>
-              {{item.cantidadComentarios}}
             </ion-col>
             <ion-col center text-center>        
                 <ion-icon name="time-outline"></ion-icon>
-                {{item.createdAt | date:'hh:mm aaa - dd/MM'}}      
+                {{item.createdAt.toDate() | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
             </ion-col>
-          </ion-row> 
+          </ion-row>  
         </p>
       </ion-label>       
            

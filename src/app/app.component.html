@@ -3,16 +3,16 @@
     <ion-menu contentId="main-content" type="overlay">
       <ion-content>
         <ion-list id="inbox-list" >
-            <ion-list-header *ngIf="comercioSeleccionado.id">{{comercioSeleccionado.nombre}}</ion-list-header>
-            <ion-note *ngIf="usuario">{{usuario.email}}</ion-note>
-            <!--ion-buttons slot="primary"-->
-              <ion-button *ngIf="usuario.state == 'online'" class="button-rounded"  color="secondary">
-                Modo {{usuario.state}}
-              </ion-button>
-              <ion-button  *ngIf="usuario.state == 'offline'" class="button-rounded"  color="danger">
-                Modo {{usuario.state}} 
-              </ion-button>
-            <!--/ion-buttons-->
+          <ion-list-header *ngIf="comercioSeleccionado.id">{{comercioSeleccionado.nombre}}</ion-list-header>
+          <ion-note *ngIf="usuario">{{usuario.email}}</ion-note>
+          <!--ion-buttons slot="primary"-->
+          <ion-button *ngIf="usuario.state == 'online'" class="button-rounded"  color="secondary">
+            Modo {{usuario.state}}
+          </ion-button>
+          <ion-button  *ngIf="usuario.state == 'offline'" class="button-rounded"  color="danger">
+            Modo {{usuario.state}} 
+          </ion-button>
+          <!--/ion-buttons-->
         </ion-list>
         <ion-list id="inbox-list" *ngIf="comercioSeleccionado.id">          
 
@@ -23,13 +23,13 @@
                 <ion-icon slot="start" name="cart-outline"></ion-icon>
                 <ion-label>Catálogo</ion-label>
               </ion-item>
-            </span> 
+            </span>  
 
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
-              <ion-item  [routerLink]="['/list-pedidos']" lines="none" detail="false">
-                <ion-icon slot="start" name="restaurant-outline"></ion-icon>
-                <ion-label>Pedidos</ion-label>
-              </ion-item>
+              <ion-item  *ngIf="comercioSeleccionado.modulos.pedidos" [routerLink]="['/list-pedidos']" lines="none" detail="false">
+                <ion-icon slot="start" name="archive-outline"></ion-icon>
+                <ion-label>Pedidos</ion-label> 
+              </ion-item> 
             </span>
 
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
@@ -37,16 +37,8 @@
                 <ion-icon slot="start" name="grid-outline"></ion-icon>
                 <ion-label>Mesas</ion-label>               
               </ion-item>
-            </span>
-
-            <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
-              <ion-item *ngIf="comercioSeleccionado.modulos.mesas" [routerLink]="['/list-personal']" lines="none" detail="false">
-                <ion-icon slot="start" name="people-outline"></ion-icon>
-                <ion-label>Personal</ion-label>               
-              </ion-item>
             </span> 
 
-           
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cocinero'">
               <ion-item *ngIf="comercioSeleccionado.modulos.comandas" [routerLink]="['/list-comandas-v2']" lines="none" detail="false">
                 <ion-icon slot="start" name="receipt-outline"></ion-icon>
@@ -60,16 +52,14 @@
                 <ion-icon slot="start" name="people-outline"></ion-icon>
                 <ion-label>Clientes</ion-label>
               </ion-item>
-            </span>
-            
+            </span>           
       
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
               <ion-item *ngIf="comercioSeleccionado.modulos.clientes" [routerLink]="['/list-cta-corrientes']" lines="none" detail="false">
                 <ion-icon slot="start" name="wallet-outline"></ion-icon>
                 <ion-label>Ctas. Corrientes</ion-label>
               </ion-item>
-            </span>
-            
+            </span>         
 
             <!--ion-item [routerLink]="['/list-calendarios']" lines="none" detail="false">
               <ion-icon slot="start" name="calendar-outline"></ion-icon>
@@ -81,8 +71,6 @@
                 <ion-label>Cajas</ion-label> 
               </ion-item> 
             </span>
-            
-
           
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
               <ion-item *ngIf="comercioSeleccionado.modulos.servicios" [routerLink]="['/list-subscripciones']" lines="none" detail="false">
@@ -90,27 +78,33 @@
                 <ion-label>Subscripciones</ion-label>
               </ion-item>
             </span>
+
+            <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
+              <ion-item *ngIf="comercioSeleccionado.modulos.mesas" [routerLink]="['/list-personal']" lines="none" detail="false">
+                <ion-icon slot="start" name="people-outline"></ion-icon>
+                <ion-label>Personal</ion-label>               
+              </ion-item>
+            </span> 
             
             <span>
               <ion-item [routerLink]="['/form-comercio-configuracion']" lines="none" detail="false">
                 <ion-icon slot="start" name="cog-outline"></ion-icon>
                 <ion-label>Configuración</ion-label>
               </ion-item>   
-            </span>
-                     
+            </span>                    
 
           </ion-menu-toggle>
-     
-
         </ion-list>
 
         <ion-list id="inbox-list" *ngIf="usuario">
+
           <ion-menu-toggle auto-hide="false" >
             <ion-item (click)="verComercios()" routerDirection="root" lines="none" detail="false">
               <ion-icon slot="start" name="home-outline"></ion-icon>
-              <ion-label>Mis Comercios</ion-label>
+              <ion-label> Mis Comercios </ion-label>
             </ion-item>
           </ion-menu-toggle>
+
           <ion-menu-toggle auto-hide="false" *ngFor="let p of appActions; let i = index">
             <ion-item (click)="selectedIndex = i" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false">
               <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-outline'"></ion-icon>
@@ -118,15 +112,15 @@
               <ion-badge color="danger" *ngIf="p.badge != 0" slot="end">{{p.badge}}</ion-badge>
             </ion-item>
           </ion-menu-toggle>
+
           <ion-menu-toggle auto-hide="false" >
             <ion-item (click)="cerrarSesion()" routerDirection="root" lines="none" detail="false">
               <ion-icon slot="start" name="exit-outline"></ion-icon>
               <ion-label>Cerrar Sesión</ion-label>
             </ion-item>
           </ion-menu-toggle>
-        </ion-list>
 
-        
+        </ion-list>       
       </ion-content>
     </ion-menu>
     <ion-router-outlet id="main-content"></ion-router-outlet>

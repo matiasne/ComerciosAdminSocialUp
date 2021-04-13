@@ -5,7 +5,7 @@ import { ComerciosService } from '../Services/comercios.service';
 import { DataService } from '../Services/data.service';
 import { CajasService } from '../Services/cajas.service';
 import { Subscription } from 'rxjs';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 import { LoadingService } from '../Services/loading.service';
 declare var google: any;
 import * as firebase from 'firebase/app';
@@ -13,6 +13,10 @@ import * as geofirex from 'geofirex';
 import { ToastService } from '../Services/toast.service';
 import { AuthenticationService } from '../Services/authentication.service';
 import { RolesService } from '../Services/roles.service';
+import { AngularFirestore } from 'angularfire2/firestore';
+import { FotoService } from '../Services/fotos.service';
+import { ImagesService } from '../Services/images.service';
+import { Archivo } from '../models/foto';
 
 @Component({
   selector: 'app-form-comercio',
@@ -40,7 +44,6 @@ export class FormComercioPage implements OnInit {
   public comercioId ="";
 
   public croppedImageIcono = "";
-  public croppedImagePortada ="";
 
   imagePickerOptions = {
     maximumImagesCount: 1,
@@ -60,6 +63,8 @@ export class FormComercioPage implements OnInit {
   _SUFFIX: any;
   public IsMobile = false;
 
+  public iconChange = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private comerciosService:ComerciosService,
@@ -74,7 +79,10 @@ export class FormComercioPage implements OnInit {
     private toastServices:ToastService,
     private authenticationService:AuthenticationService,
     private rolesService:RolesService,
-    private navParams:NavParams
+    private navParams:NavParams,
+    private firestore: AngularFirestore,
+    private fotosService:FotoService,
+    private imageService:ImagesService
   ) {
 
     this.comercio = new Comercio();
@@ -86,25 +94,16 @@ export class FormComercioPage implements OnInit {
       direccion: ['', Validators.required],
       telefono:[''],
       icono:[''/*,Validators.required*/],
-      portada:[''/*,Validators.required*/],
       createdAt:[''],
       descripcion:['',Validators.required]
-    });
-
-
-    
-
-   
+    });  
   }
 
-  imagenSeleccionadaPortada(newValue : any){
-    console.log(newValue);
-    this.croppedImagePortada = newValue;
-  }
 
   imagenSeleccionadaIcono(newValue : any){
     console.log(newValue);
     this.croppedImageIcono = newValue;
+    this.iconChange = true;
   }
 
 
@@ -156,8 +155,7 @@ export class FormComercioPage implements OnInit {
       this.updating = true;
       this.titulo = "Editar Comercio";
 
-      this.croppedImageIcono = this.comercio.icono;      
-      this.croppedImagePortada = this.comercio.portada;      
+      this.croppedImageIcono = this.comercio.icono;        
       
       this.horarios = this.comercio.horarios;
 
@@ -209,9 +207,7 @@ export class FormComercioPage implements OnInit {
       icono: this.croppedImageIcono
     });
 
-    this.datosForm.patchValue({
-      portada: this.croppedImagePortada
-    })   
+    
 
     console.log(this.datosForm.value)
 
@@ -235,8 +231,7 @@ export class FormComercioPage implements OnInit {
     this.comercio.nombre = this.datosForm.controls.nombre.value;
     this.comercio.direccion = this.datosForm.controls.direccion.value;
     this.comercio.telefono = this.datosForm.controls.telefono.value;
-    this.comercio.icono = this.datosForm.controls.icono.value;
-    this.comercio.portada = this.datosForm.controls.portada.value;
+    this.comercio.icono = this.datosForm.controls.icono.value; 
     this.comercio.descripcion = this.datosForm.controls.descripcion.value;
     
 
@@ -244,38 +239,40 @@ export class FormComercioPage implements OnInit {
     this.categorias.forEach(element => {     
         palabras.push(element.nombre)
     });
-    console.log("!kaywords: "+palabras);
-
-
+    
     console.log(this.comercio)
 
-    let comSub = this.comerciosService.get(this.comercio.id).subscribe(data =>{
-      console.log(data.payload.exists);
+   
+    if(this.updating == false){ 
+      this.comercio.id = this.firestore.createId();
+      this.comerciosService.create(this.comercio).then(data=>{
 
-      if(this.updating == false && data.payload.exists){ //esta creando y ya existe
-        this.toastServices.alert("El ID del comercio ya existe","");
-      }
-      else{
-        
-        this.comerciosService.update(this.comercio);
-        this.modalCtrl.dismiss();  
-        
 
-        if(this.updating == false){
-          let user = this.authenticationService.getActualUser();
-          this.rolesService.setUserAsAdmin(this.comercio.id);
+        if(this.iconChange){
+          let blob = this.imageService.getBlob(this.croppedImageIcono) 
+          console.log("subiendo archivo");          
+          this.fotosService.cargarFotoAElemeto("comercios",this.comercio.id,this.croppedImageIcono,true)
         }
-      }
-      comSub.unsubscribe(); //para que no me notifique que ya existe cuanto lo cree
-    })
-    //if(this.updating){
+        
+      });
+      //let user = this.authenticationService.getActualUser();
+      this.rolesService.setUserAsAdmin(this.comercio.id);
+    }
+    else{
       
-    //}
-    //else{
-      //this.comerciosService.create(this.comercio);
-    //}    
+      this.comerciosService.update(this.comercio);
 
-     
+      if(this.iconChange){
+        let blob = this.imageService.getBlob(this.croppedImageIcono) 
+        console.log("subiendo archivo");          
+        this.fotosService.cargarFotoAElemeto("comercios",this.comercio.id,this.croppedImageIcono,true)
+      }
+
+      this.modalCtrl.dismiss();
+    
+    }
+      
+    
 
   }
 

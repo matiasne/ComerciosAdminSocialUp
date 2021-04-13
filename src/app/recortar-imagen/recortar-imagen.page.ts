@@ -37,13 +37,14 @@ export class RecortarImagenPage implements OnInit {
   }
   loadImageFailed() {
       // show message
-}
+} 
 
   ngOnInit() {
     this.imageChangedEvent = this.navParams.get("event");
   }
 
   imageCropped(event: ImageCroppedEvent) {
+    console.log(event)
     this.croppedImage = event.base64;
   }
 

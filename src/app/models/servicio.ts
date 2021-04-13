@@ -7,7 +7,7 @@ export class Servicio {
         id:"",
         nombre:"",
         precio:0,
-        tipo:"",
+        tipo:"", 
         dias:""
     }
     nombre ="";

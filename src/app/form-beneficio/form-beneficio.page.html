@@ -1,0 +1,53 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Beneficio</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content> 
+
+  <ion-item class="item-card">
+    <ion-label position="floating">Disparador</ion-label>
+    <ion-select [(ngModel)]="beneficio.disparador">
+      <ion-select-option [value]="enumBeneficioDisparador.sinDefinir">No Definido</ion-select-option>
+      <ion-select-option [value]="enumBeneficioDisparador.compraMayorA">Compra Mayor a un monto</ion-select-option>
+      <ion-select-option [value]="enumBeneficioDisparador.primerRegitro">Primer Registro</ion-select-option>
+    </ion-select>    
+  </ion-item> 
+
+  <div *ngIf="beneficio.disparador == enumBeneficioDisparador.compraMayorA" class="form-card">
+    
+    <p *ngIf="beneficio.disparador == enumBeneficioDisparador.compraMayorA">El cliente recibirá un beneficio cada vez que realice una compra mayor al monto:</p>
+    
+    <p *ngIf="beneficio.disparador == enumBeneficioDisparador.primerRegitro">El cliente recibirá un beneficio la primera vez que sea registrado en el sistema.</p>
+   
+    <ion-text color="primary">
+      <h4>Monto *</h4> 
+    </ion-text>             
+    <ion-input name="monto" type="number" [(ngModel)]="beneficio.monto"></ion-input>
+  </div>
+  
+  <div class="form-card">
+    <ion-text color="primary">
+      <h4>Descripción</h4>    
+    </ion-text> 
+    <ion-item>
+      <ion-textarea type="text" name="descripcion" [(ngModel)]="beneficio.descripcion"></ion-textarea>
+    </ion-item>     
+  </div>
+  
+  
+  <ion-button class="button-rounded" *ngIf="updating"  color="danger" (click)="eliminar()">Eliminar</ion-button>
+    
+
+
+  
+
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-button class="button-rounded" slot="end" (click)="guardar()">Guardar</ion-button>
+    
+    <ion-button class="button-rounded" slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-footer>

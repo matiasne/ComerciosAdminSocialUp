@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { firestore } from 'firebase';
-import { subscribeOn } from 'rxjs/operators';
+import { map, subscribeOn } from 'rxjs/operators';
 import * as firebase from 'firebase';
 import { Cliente } from '../models/cliente';
 import { KeywordService } from './keyword.service';
@@ -12,6 +12,7 @@ import { KeywordService } from './keyword.service';
 export class ClientesService {
 
   private collection:string;
+  private collectionGroup:string;
   
   constructor(
     private firestore: AngularFirestore,
@@ -19,6 +20,7 @@ export class ClientesService {
   ) {
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
     this.collection = 'comercios/'+comercio_seleccionadoId+'/clientes';
+    this.collectionGroup ='/clientes';
   }
 
   getCollection(){
@@ -31,7 +33,7 @@ export class ClientesService {
     this.keywordService.agregarKeywords(data, [data.nombre,data.email]);
    
     const param = JSON.parse(JSON.stringify(data));
-    this.firestore.collection(this.getCollection()).doc(data.id).set({...param,
+    return this.firestore.collection(this.getCollection()).doc(data.id).set({...param,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()});
            
     
@@ -110,6 +112,23 @@ export class ClientesService {
             .startAfter(ultimo)
             .limit(limit)).snapshotChanges();    
     }    
-}  
+  }  
+
+  //Esto para ver todos los beneficios o cuestiones del cliente particular en todo el entorno
+  public getAllClientesbyEmail(email) {  
+    return this.firestore.collectionGroup(this.collectionGroup, ref => ref.where('email', '==', email)).get(/*{ source: 'server' }*/)
+    .pipe(
+      map(actions => {
+        const data = [];       
+        actions.forEach(a => {
+          const item = a.data() ;
+          item.id = a.id;
+          data.push(item);
+        });
+        return data;
+      })
+    )
+
+  }
 
 }

@@ -30,6 +30,11 @@ export class SelectGruposOpcionesPage implements OnInit {
     })
   }
 
+  onChange(event){
+    this.palabraFiltro = event.target.value;    
+    this.buscar();
+  }
+
   buscar(){
     if(this.palabraFiltro != ""){
       this.items = [];

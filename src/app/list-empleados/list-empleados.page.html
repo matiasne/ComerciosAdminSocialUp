@@ -16,6 +16,16 @@
     ></ion-input>
   </ion-row>
 
+  <div *ngIf="buscando" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/buscando.fw.png" alt="">
+    <p>Cargando comandas, aguarde unos segundos por favor</p>
+  </div>
+
+  <div *ngIf="!buscando && items.length == 0" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/ctasCorrientes.fw.png" alt="">
+    <p>Aún no tienes empleados.</p>
+  </div>
+
   <ion-list lines="none">
     <ion-item-sliding *ngFor="let item of items" class="item-card" >    
     

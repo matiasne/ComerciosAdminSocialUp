@@ -4,14 +4,14 @@
   [maintainAspectRatio]="true"
   [aspectRatio]="aspectRatio"
   format="jpg"
-  resizeToWidth="75"
-  resizeToHeight="75"
+  resizeToWidth="400"
+  resizeToHeight="400"
   (imageCropped)="imageCropped($event)"
   (imageLoaded)="imageLoaded()"
   (cropperReady)="cropperReady()"
   (loadImageFailed)="loadImageFailed()"
 ></image-cropper>
-</ion-content>
+</ion-content> 
 <ion-footer class="ion-no-border ion-padding">
   <ion-toolbar> 
     <ion-button slot="end" (click)="guardar()">Guardar</ion-button>  

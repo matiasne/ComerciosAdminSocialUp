@@ -22,16 +22,10 @@
       [croppedImage]="croppedImageIcono"
       (onSelectValue)=imagenSeleccionadaIcono($event)>
     </app-seleccionar-imagen>
-  </div>
-
-  
-  
+  </div> 
   
   <div class="ion-padding">
 
-    <div *ngIf="submitted && f.portada.errors" class="invalid-feedback">
-      <div *ngIf="f.portada.errors.required"><h5>Ingresa una foto de portada</h5></div>
-    </div>
     <div *ngIf="submitted && f.icono.errors" class="invalid-feedback">
       <div *ngIf="f.icono.errors.required"><h5>Ingresa el logo de tu negocio</h5></div>
     </div>
@@ -50,18 +44,7 @@
       </div> 
     </div>
 
-    <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.id.valid}">
-      <ion-text color="primary">
-        <h4>ID *</h4>
-        <p>en minúsculas sin espacios ni caracteres especiales: solo se aceptan letras, números y los caracteres _ y .</p>
-      </ion-text>  
-      <ion-item>
-        <ion-input name="id" type="text" formControlName="id" required></ion-input>
-      </ion-item>
-      <div *ngIf="submitted && f.id.errors" class="invalid-feedback">
-          <div *ngIf="f.id.errors.required"><h5>Ingresa un id</h5></div>
-      </div> 
-    </div>
+
 
     <h4>Habilitar mi comercio para:</h4>   
     <ion-item>
@@ -127,20 +110,19 @@
       </div>
     </div>
 
-    <div [ngClass]="{'form-card': true}" *ngIf="updating">
-      <ion-text color="danger">
-        <h5 color="danger">zona de riesgo</h5>
-      </ion-text>      
-      <ion-button  color="danger" (click)="elimiar()">Eliminar Comercio</ion-button>
-    </div>
+   
+    <ion-button *ngIf="updating"  class="button-rounded" color="danger" (click)="elimiar()">Eliminar Comercio</ion-button>
+   
     
   </form>
 
-  <ion-toolbar>
-    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
-    
-    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
-  </ion-toolbar>
+  
 </div>
 </ion-content>
-
+<ion-footer>
+  <ion-toolbar>
+    <ion-button class="button-rounded" slot="end" (click)="guardar()">Guardar</ion-button>
+    
+    <ion-button class="button-rounded" slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+  </ion-toolbar>
+</ion-footer>

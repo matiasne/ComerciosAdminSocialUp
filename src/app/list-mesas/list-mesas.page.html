@@ -9,22 +9,32 @@
 
 <ion-content class="ion-padding">
  
+  <div *ngIf="buscando" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/buscando.fw.png" alt="">
+    <p>Cargando comandas, aguarde unos segundos por favor</p>
+  </div>
 
-  <ion-list lines="none">
+  <div *ngIf="!buscando && mesas.length == 0" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/mesas.fw.png" alt="">
+    <p>Aún no tienes mesas.</p>
+  </div>
 
-    <ion-item-sliding *ngFor="let mesa of mesas;let i=index" class="item-card">
-      <ion-item (click)="verMesa(mesa)">       
-        <ion-label>
-          <b>{{mesa.nombre}}</b>         
-        </ion-label> 
-      </ion-item>  
-  
-      <ion-item-options side="end">
-        <ion-item-option (click)="openEditMesa(mesa)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
-      </ion-item-options>
-  
-    </ion-item-sliding>
-  </ion-list>
+  <ion-grid *ngIf="mesas.length > 0">       
+    <ion-row>          
+      <ion-col size="12" size-xs="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let mesa of mesas;let i=index">
+        <ion-item-sliding  class="item-card">
+          <ion-item (click)="verMesa(mesa)">       
+            <ion-label>
+              <b>{{mesa.nombre}}</b>         
+            </ion-label> 
+          </ion-item>        
+          <ion-item-options side="end">
+            <ion-item-option (click)="openEditMesa(mesa)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
+          </ion-item-options>      
+        </ion-item-sliding>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
   
     
   

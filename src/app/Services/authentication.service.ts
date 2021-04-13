@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 import { AngularFirestoreDocument, AngularFirestore } from 'angularfire2/firestore';
 import { UsuariosService } from './usuarios.service';
 import { LoadingService } from './loading.service';
+import { EnumPlanes } from '../models/user';
 
 @Injectable({
   providedIn: 'root'
@@ -218,15 +219,14 @@ export class AuthenticationService {
       } else {
         console.log('User doesnt exist. Creating...');
         data = { 
+          plan: EnumPlanes.free,
           uid: user.uid, 
           email: user.email, 
           displayName: user.displayName, 
           photoURL: user.photoURL,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         }    
-      }
-
-     
+      }     
       return userRef.set(data, { merge: true });
     })
   }

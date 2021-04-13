@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
+import { Beneficio } from '../models/beneficio';
+import { User } from '../models/user';
 
 @Injectable({
   providedIn: 'root'
@@ -46,6 +48,10 @@ export class UsuariosService {
       comercioSeleccionadoId:comercioId
     }
     this.firestore.collection(this.collection).doc(id).set(param, { merge: true });
+  }
+ 
+  public update(user:User){
+      this.firestore.collection(this.collection).doc(user.uid).update(user)
   }
 
 }

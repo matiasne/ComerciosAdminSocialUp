@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormInvitacionPage } from '../form-invitacion/form-invitacion.page';
 import { ModalController, AlertController, NavParams } from '@ionic/angular';
 import { Rol } from '../models/rol';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 import { RolesService } from '../Services/roles.service';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { FormHorarioPage } from '../form-horario/form-horario.page';

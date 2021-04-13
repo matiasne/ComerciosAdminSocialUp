@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Pedido } from 'src/app/Models/pedido';
+import { Pedido } from 'src/app/models/pedido';
 import { BehaviorSubject } from 'rxjs';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { BaseService } from './base.service';
 import { map } from 'rxjs/operators';
+import { EnumTipoDescuento } from '../models/descuento';
+import { EnumTipoRecargo } from '../models/recargo';
 
 @Injectable({
   providedIn: 'root'
@@ -30,22 +32,15 @@ export class PedidoService extends BaseService{
   }
 
   getByMesa(mesaId) {
-    console.log('[BaseService] list: '+this.path);    
+        
 
-    return this.afs.collection(this.path, ref => ref.where('mesaId', '==', mesaId)).snapshotChanges()
-        .pipe(
+    return this.afs.collection(this.path, ref => ref.where('mesaId', '==', mesaId).limit(40)).snapshotChanges()
+        .pipe( 
             map(changes => {
                 return changes.map(a => {
                     const data:any = a.payload.doc.data();
                     data.id = a.payload.doc.id;
                     data.fromCache = a.payload.doc.metadata.fromCache;
-                    if(data.createdAt instanceof String || Number){
-                        data.createdAt = new Date(Number(data.createdAt))
-                    }
-                    else{
-                        data.createdAt = data.createdAt.toDate();
-                    }
-                       
                     return data;
                 });
             })
@@ -53,77 +48,67 @@ export class PedidoService extends BaseService{
   }     
 
 
-  listCurso() {
 
-  
+  listFechaDesde(fecha){
+    
+    console.log(fecha); 
 
-    console.log('[BaseService] list: '+this.path);    
-
-    return this.afs.collection(this.path, ref => ref.where('searchLogic', '==', '00')).snapshotChanges()
+    return this.afs.collection(this.path, ref => ref.where('createdAt', '>=', fecha).orderBy('createdAt',"desc").limit(50)).snapshotChanges()
         .pipe(
             map(changes => {
-                return changes.map(a => {
+                return changes.map(a => {   
                     const data:any = a.payload.doc.data();
                     data.id = a.payload.doc.id;
-                    data.fromCache = a.payload.doc.metadata.fromCache;
-                    if(data.createdAt instanceof String || Number){
-                        data.createdAt = new Date(Number(data.createdAt))
-                    }
-                    else{
-                        data.createdAt = data.createdAt.toDate();
-                    }                       
+                    data.fromCache = a.payload.doc.metadata.fromCache;  
                     return data;
                 });
             })
-        );          
+        );     
   }
 
-  listSuspendidos() {
+  public getTotal(pedido){
+ 
+    let total = pedido.totalProductos + pedido.totalServicios;
 
+    let totalPorcentaje = 0;
+    pedido.descuentos.forEach(descuento =>{
+      if(descuento.tipo == EnumTipoDescuento.porcentaje){
+        totalPorcentaje += Number(descuento.monto)
+      }
+    })
 
-    console.log('[BaseService] list: '+this.path);    
+    let descontar = (total*totalPorcentaje)/100;
 
-    return this.afs.collection(this.path, ref => ref.where('searchLogic', '==', '10')).snapshotChanges()
-        .pipe(
-            map(changes => {
-                return changes.map(a => {
-                    const data:any = a.payload.doc.data();
-                    data.id = a.payload.doc.id;
-                    data.fromCache = a.payload.doc.metadata.fromCache;
-                    if(data.createdAt instanceof String || Number){
-                        data.createdAt = new Date(Number(data.createdAt))
-                    }
-                    else{
-                        data.createdAt = data.createdAt.toDate();
-                    }                       
-                    return data;
-                });
-            })
-        );          
-  }
+    total = total-descontar;
 
-  listCobrados() {
+    let totalMonto = 0;
+    pedido.descuentos.forEach(descuento =>{
+      if(descuento.tipo == EnumTipoDescuento.monto){
+        totalMonto += Number(descuento.monto)
+      }
+    })
 
+    total = total-totalMonto;
+    totalPorcentaje = 0;
+    pedido.recargos.forEach(recargo =>{
+      if(recargo.tipo == EnumTipoRecargo.porcentaje){
+        totalPorcentaje += Number(recargo.monto)
+      }
+    })
 
-    console.log('[BaseService] list: '+this.path);    
+    let sumar = (total*totalPorcentaje)/100;
 
-    return this.afs.collection(this.path, ref => ref.where('searchLogic', '==', '01')).snapshotChanges()
-        .pipe(
-            map(changes => {
-                return changes.map(a => {
-                    const data:any = a.payload.doc.data();
-                    data.id = a.payload.doc.id;
-                    data.fromCache = a.payload.doc.metadata.fromCache;
-                    if(data.createdAt instanceof String || Number){
-                        data.createdAt = new Date(Number(data.createdAt))
-                    }
-                    else{
-                        data.createdAt = data.createdAt.toDate();
-                    }                       
-                    return data;
-                });
-            })
-        );          
+    total = total+sumar;
+
+    totalMonto = 0;
+    pedido.recargos.forEach(recargo =>{
+      if(recargo.tipo == EnumTipoRecargo.monto){
+        totalMonto += Number(recargo.monto)
+      }
+    })
+
+    total = total+totalMonto;
+    return total;
   }
   
 

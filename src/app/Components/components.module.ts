@@ -9,6 +9,7 @@ import { CardProductoComponent } from './card-producto/card-producto.component';
 import { CardUsuarioComponent } from './card-usuario/card-usuario.component';
 import { CardPedidoComponent } from './card-pedido/card-pedido.component';
 import { CardComandaV2Component } from './card-comanda-v2/card-comanda-v2.component';
+import { BtnSeleccionarImagenComponent } from './btn-seleccionar-imagen/btn-seleccionar-imagen.component';
 
 
 
@@ -21,6 +22,7 @@ imports: [
     ImageCropperModule,
     ],
   declarations: [
+    BtnSeleccionarImagenComponent,
     SeleccionarImagenComponent,
     CardComandaV2Component,
     CardUsuarioComponent,
@@ -29,6 +31,7 @@ imports: [
     CardPedidoComponent
   ],
   exports: [
+    BtnSeleccionarImagenComponent,
     SeleccionarImagenComponent,
     CardComandaV2Component,
     CardUsuarioComponent,

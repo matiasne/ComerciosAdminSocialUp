@@ -15,7 +15,7 @@ export class GrupoOpciones{
   cantidadTotal: any;
 
 	constructor(){
-        this.opciones = [];
+        this.opciones = []; 
         this.seleccionadas = [];
     }
     

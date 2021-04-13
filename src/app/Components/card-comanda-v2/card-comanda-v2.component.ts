@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Comercio } from 'src/app/Models/comercio';
-import { Pedido } from 'src/app/Models/pedido';
+import { Comercio } from 'src/app/models/comercio';
+import { EnumEstadoEnCaja, Pedido } from 'src/app/models/pedido';
 import { ComerciosService } from 'src/app/Services/comercios.service';
 import { PedidoService } from 'src/app/Services/pedido.service';
-import { EnumEstadoComanda } from 'src/app/Models/pedido';
+import { EnumEstadoComanda } from 'src/app/models/pedido';
 import { AlertController, ModalController } from '@ionic/angular';
 import { FormComentarioPage } from 'src/app/form-comentario/form-comentario.page';
 import { ComentariosService } from 'src/app/Services/comentarios.service';
@@ -20,6 +20,7 @@ export class CardComandaV2Component implements OnInit {
   @Input() showAvatar = true;
   public comercio:Comercio; 
   public pEstado = EnumEstadoComanda;
+  public cEstado = EnumEstadoEnCaja;
   
   constructor(
     private comercioService:ComerciosService,

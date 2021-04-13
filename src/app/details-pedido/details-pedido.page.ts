@@ -1,22 +1,33 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ModalController, NavController, NavParams } from '@ionic/angular';
 import { AngularFirestore } from 'angularfire2/firestore';
+import { FormClientePage } from '../form-cliente/form-cliente.page';
 import { FormComentarioPage } from '../form-comentario/form-comentario.page';
+import { TicketDetallePage } from '../impresiones/ticket-detalle/ticket-detalle.page';
 import { Caja } from '../models/caja';
-import { Comercio } from '../Models/comercio';
+import { Cliente } from '../models/cliente';
+import { Comercio } from '../models/comercio';
+import { EnumTipoDescuento } from '../models/descuento';
+import { Mesa } from '../models/mesa';
 import { MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';
-import { EnumEstadoComanda, Pedido } from '../Models/pedido';
+import { EnumEstadoComanda, EnumEstadoEnCaja, Pedido } from '../models/pedido';
+import { EnumTipoRecargo } from '../models/recargo';
 import { variacionStock } from '../models/variacionStock';
 import { Venta } from '../models/venta';
+import { SelectClientePage } from '../select-cliente/select-cliente.page';
+import { SelectMesaPage } from '../select-mesa/select-mesa.page';
 import { AuthenticationService } from '../Services/authentication.service';
 import { CajasService } from '../Services/cajas.service';
-import { ComandasService } from '../Services/comandas.service';
+import { ClientesService } from '../Services/clientes.service';
 import { ComentariosService } from '../Services/comentarios.service';
 import { ComerciosService } from '../Services/comercios.service';
 import { CtaCorrientesService } from '../Services/cta-corrientes.service';
+import { CarritoService } from '../Services/global/carrito.service';
+import { NavegacionParametrosService } from '../Services/global/navegacion-parametros.service';
 import { ImpresoraService } from '../Services/impresora.service';
+import { MesasService } from '../Services/mesas.service';
 import { MovimientosService } from '../Services/movimientos.service';
 import { NotificacionesService } from '../Services/notificaciones.service';
 import { PedidoService } from '../Services/pedido.service';
@@ -33,6 +44,7 @@ import { VentasService } from '../Services/ventas.service';
 export class DetailsPedidoPage implements OnInit {
 
   public pedido:Pedido;
+  public subPedidos = [];
   public comercio:Comercio;
   
   public cajas = []
@@ -43,6 +55,7 @@ export class DetailsPedidoPage implements OnInit {
 
   public ctasCorrientes =[];
   cliente:any = "";
+  mesa:Mesa
 
   public metodoTexto =""; 
   public ctaCorrienteSelecccionada:any;
@@ -51,16 +64,18 @@ export class DetailsPedidoPage implements OnInit {
   public pEstado = EnumEstadoComanda; 
   
   public comentarios = [];
+
+  public cEstado = EnumEstadoEnCaja
+
+  public enumTipo = EnumTipoDescuento
   
   constructor(
     public comerciosService:ComerciosService,
     public cajasService:CajasService,
     private toastServices:ToastService,
     private router:Router,
-    private comandasServices:ComandasService,
     private modalController:ModalController,
     private ctasCorrientesService:CtaCorrientesService,
-    private navCtrl:NavController,
     private variacionesStockService:VariacionesStocksService,
     private authenticationService:AuthenticationService,
     private firestore: AngularFirestore,
@@ -68,26 +83,65 @@ export class DetailsPedidoPage implements OnInit {
     private movimientosService:MovimientosService,
     private notificacionesService:NotificacionesService,
     private pedidosService:PedidoService,
-    private navParams:NavParams,
     private productosService:ProductosService,
     private impresoraService:ImpresoraService,
     private comentariosService:ComentariosService,
-    private alertController:AlertController  
+    private alertController:AlertController ,
+    private clientesService:ClientesService,
+    private mesasServices:MesasService,
+    private navParamService:NavegacionParametrosService,
+    private navCtrl:NavController,
+    private carritoService:CarritoService
   ) { 
 
     this.comercio = new Comercio()
 
-    
+    this.mesa = new Mesa();
+
+    this.pedido = new Pedido()
+
+    this.subPedidos = [];
+
+    this.pedidosService.setearPath();
+
   }
 
   ngOnInit() { 
     
   }
 
-  ionViewDidEnter(){
+  ionViewDidEnter(){    
 
-    if(this.navParams.get('pedido')){   
-      this.pedido = this.navParams.get('pedido');
+    if(Array.isArray(this.navParamService.param)){ //si es un array de pedidos porque viene de cierre de mesa
+      console.log("ARRAY")
+      if(this.navParamService.param[0] instanceof Pedido){        
+        console.log("Pedido")
+
+        this.pedido.productos = [];
+        this.pedido.totalProductos = 0;
+        this.pedido.mesaId = this.navParamService.param[0].mesaId
+        this.pedido.clienteId = this.navParamService.param[0].clienteId
+        
+        this.navParamService.param.forEach(pedido => {
+          this.subPedidos.push(pedido);
+          pedido.productos.forEach(element => {          
+            this.pedido.productos.push(element);
+          }); 
+
+          pedido.descuentos.forEach(element => {          
+            this.pedido.descuentos.push(element);
+          }); 
+
+          pedido.recargos.forEach(element => {          
+            this.pedido.recargos.push(element);
+          }); 
+          
+          this.pedido.totalProductos += Number(pedido.totalProductos);  
+        }); 
+      }
+    }
+    else if(this.navParamService.param instanceof Pedido){   //si es un solo pedido 
+      this.pedido.asignarValores(this.navParamService.param);
       console.log(this.pedido)
     }  
     else{
@@ -96,25 +150,31 @@ export class DetailsPedidoPage implements OnInit {
  
     this.comercio.asignarValores(this.comerciosService.getSelectedCommerceValue());
     console.log(this.comercio)
-    if(this.comercio.modulos.cajas){
-      this.cajasService.list().subscribe((cajas:any)=>{      
-        for(let i=0;i <cajas.length;i++){
-          if(cajas[i].estado == "abierta"){
-            this.cajas.push(cajas[i]);
-          }   
-        }      
-        console.log(this.cajas);
-        if(this.comercio.modulos.cajas && this.cajas.length == 0){
-          this.toastServices.alert("Debes tener al menos una caja abierta","");
-          this.router.navigate(['/list-cajas']);
-        }
-        else{
-          this.setSavedCaja();
-        }       
-      });
-    }
+    this.cajasService.list().subscribe((cajas:any)=>{      
+      for(let i=0;i <cajas.length;i++){
+        if(cajas[i].estado == "abierta"){ 
+          this.cajas.push(cajas[i]);
+        }   
+      }      
+      console.log(this.cajas);
+      if(this.cajas.length == 0){
+        this.toastServices.alert("Debes tener al menos una caja abierta","");
+        this.modalController.dismiss();
+        this.router.navigate(['/list-cajas']);
+      }
+      else{
+        this.setSavedCaja();
+      }       
+    });
+    
 
     if(this.pedido.clienteId){
+
+      this.clientesService.get(this.pedido.clienteId).subscribe(resp=>{
+        this.cliente = resp.payload.data();
+        this.cliente.id = resp.payload.id;
+      })
+
       this.ctasCorrientesService.getByCliente(this.pedido.clienteId).subscribe(snapshot =>{
         snapshot.forEach(snap =>{
           let cta:any = snap.payload.doc.data();
@@ -124,11 +184,44 @@ export class DetailsPedidoPage implements OnInit {
         })
       })
     }   
+
+    if(this.pedido.mesaId){
+      this.mesasServices.get(this.pedido.mesaId).subscribe(resp=>{
+        this.mesa = resp
+      })
+    }
+
     
-    this.comentariosService.setearPath("pedidos",this.pedido.id);   
-    let obs =this.comentariosService.list().subscribe(data =>{
-      this.comentarios = data;
-      //obs.unsubscribe();
+    if(this.pedido.id){
+      this.comentariosService.setearPath("pedidos",this.pedido.id);   
+      let obs =this.comentariosService.list().subscribe(data =>{
+        this.comentarios = data; 
+        //obs.unsubscribe();
+      })
+    }    
+  }
+
+  eliminarDescuento(i){
+    this.pedido.descuentos.splice(i,1);
+    this.pedidosService.update(this.pedido).then(data=>{
+      console.log("Actualizado")
+    })
+  }
+
+  eliminarRecargo(i){
+    this.pedido.recargos.splice(i,1);
+    this.pedidosService.update(this.pedido).then(data=>{
+      console.log("Actualizado")
+    })
+  }
+
+  eliminarCliente(){
+    this.cliente = new Cliente();
+    this.pedido.clienteId ="";
+    this.pedido.clienteEmail ="";
+    this.pedido.clienteNombre ="";
+    this.pedidosService.update(this.pedido).then(data=>{
+      console.log("Actualizado")
     })
   }
 
@@ -166,7 +259,93 @@ export class DetailsPedidoPage implements OnInit {
   }
 
 
+  async seleccionarCliente(){
+    const modal = await this.modalController.create({
+      component: SelectClientePage      
+    });
+    
+    modal.present().then(()=>{
+    
+
+    })
+
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data){
+        if(retorno.data == "nuevo"){
+          this.abrirNuevoCliente();
+        }
+        if(retorno.data != "nuevo"){
+          this.cliente = retorno.data.item;
+          this.pedido.clienteEmail = this.cliente.email
+          this.pedido.clienteId = this.cliente.id;
+          this.pedido.clienteNombre = this.cliente.nombre
+          
+          this.pedidosService.update(this.pedido).then(data=>{
+            console.log("Actualizado")
+          })
+        }   
+      }
+           
+    });
+    return await modal.present();
+  }
+
+  async abrirNuevoCliente(){
+    const modal = await this.modalController.create({
+      component: FormClientePage      
+    });    
+    modal.present().then(()=>{
+    
+
+    })
+
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data){        
+        this.cliente = retorno.data.item;
+        this.pedido.clienteEmail = this.cliente.email
+        this.pedido.clienteId = this.cliente.id;
+        this.pedido.clienteNombre = this.cliente.nombre
+        this.pedidosService.update(this.pedido).then(data=>{
+          console.log("Actualizado")
+        })
+      }           
+    });
+    return await modal.present();
+  }
+
+  async seleccionarMesa(){
+    const modal = await this.modalController.create({
+      component: SelectMesaPage      
+    });
+
+    modal.present().then(()=>{
+      
+    })
+
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data){
+        this.mesa = retorno.data.item;
+        this.pedido.mesaId = this.mesa.id;
+        this.pedido.mesaNombre = this.mesa.nombre
+        this.pedidosService.update(this.pedido).then(data=>{
+          console.log("Actualizado")
+        })
+      }        
+    });
+    return await modal.present();
+  }
   
+  eliminarMesa(){
+    this.mesa = new Mesa();
+    this.pedido.mesaId = "";
+    this.pedido.mesaNombre ="";
+    this.pedidosService.update(this.pedido).then(data=>{
+      console.log("Actualizado")
+    })
+  }
 
   setSavedCaja(){
     this.cajaSeleccionadaIndex = Number(localStorage.getItem('cajaSeleccionadaIndex'));
@@ -214,16 +393,12 @@ export class DetailsPedidoPage implements OnInit {
       } 
   }
 
-  cancelar(){
-    this.modalController.dismiss("cancelado")
-  }
 
   async devolver(){
 
-    if(this.pedido.cobrado = 1){
+    if(this.pedido.statusCaja == this.cEstado.cobrado){
 
-      this.pedido.cobrado = 0;
-      this.pedido.searchLogic = "00";
+      
 
       if(this.pedido.productos.length > 0){
 
@@ -255,43 +430,55 @@ export class DetailsPedidoPage implements OnInit {
               console.log()
             })          
           }); 
-          let data = {
-            "stock":p.stock
-          }
-          
           
           productosId.push(p.id);        
         })
   
-        if(this.metodoPagoSeleccionado != "ctaCorriente"){
-          
-          var devolucion = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
-          devolucion.id = this.firestore.createId();
-          devolucion.clienteId = this.pedido.clienteId;
-          devolucion.cajaId = this.cajaSeleccionada.id;
-          devolucion.metodoPago = this.metodoPagoSeleccionado;
-          devolucion.monto= -this.pedido.totalProductos;
-          devolucion.ventaId = this.pedido.id;  
-          devolucion.vendedorNombre = this.authenticationService.getNombre();         
-          devolucion.motivo="Venta de productos";   
-          this.movimientosService.createMovimientoCaja(this.cajaSeleccionada,devolucion);
+        if(this.comercio.modulos.movimientosCajas){
+          if(this.metodoPagoSeleccionado != "ctaCorriente"){          
+            var devolucion = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
+            devolucion.id = this.firestore.createId();
+            devolucion.clienteId = this.pedido.clienteId;
+            devolucion.cajaId = this.cajaSeleccionada.id;
+            devolucion.metodoPago = this.metodoPagoSeleccionado;
+            devolucion.monto= -this.pedido.totalProductos;
+            devolucion.ventaId = this.pedido.id;  
+            devolucion.vendedorNombre = this.authenticationService.getNombre();         
+            devolucion.motivo="Venta de productos";   
+            this.movimientosService.createMovimientoCaja(this.cajaSeleccionada,devolucion);
+          }
+          else{
+  
+            var deposito = new MovimientoCtaCorriente(this.authenticationService.getUID(), this.authenticationService.getNombre());
+            deposito.id = this.firestore.createId();
+            deposito.clienteId=this.pedido.clienteId;
+            deposito.ctaCorrienteId=this.ctaCorrienteSelecccionadaId;
+            deposito.motivo="Venta de productos";
+            deposito.monto = Number(this.pedido.totalProductos);
+            deposito.vendedorNombre = this.authenticationService.getNombre();
+            console.log(deposito.vendedorNombre);
+            deposito.ventaId = this.pedido.id;
+            this.movimientosService.crearMovimientoCtaCorriente(deposito);
+          } 
+        }
+                  
+        
+        if(this.subPedidos.length > 0){ //si es un array de pedidos porque viene de cierre de mesa                
+          this.subPedidos.forEach(pedido => {       
+            pedido.statusCaja = this.cEstado.pendiente;
+            pedido.metodoPago = this.metodoPagoSeleccionado;  
+            this.pedidosService.update(pedido).then(data=>{
+              console.log("actualizado pedidos")
+              console.log(data)
+            })
+          });      
         }
         else{
-
-          var deposito = new MovimientoCtaCorriente(this.authenticationService.getUID(), this.authenticationService.getNombre());
-          deposito.id = this.firestore.createId();
-          deposito.clienteId=this.pedido.clienteId;
-          deposito.ctaCorrienteId=this.ctaCorrienteSelecccionadaId;
-          deposito.motivo="Venta de productos";
-          deposito.monto = Number(this.pedido.totalProductos);
-          deposito.vendedorNombre = this.authenticationService.getNombre();
-          console.log(deposito.vendedorNombre);
-          deposito.ventaId = this.pedido.id;
-          this.movimientosService.crearMovimientoCtaCorriente(deposito);
-
-        }     
-        this.modalController.dismiss("ok")
-        
+          this.pedidosService.update(this.pedido).then(data=>{
+            console.log("actualizado pedido")
+            console.log(data)
+          })
+        }        
       } 
     }
       
@@ -299,7 +486,10 @@ export class DetailsPedidoPage implements OnInit {
 
   async cobrar(){
 
-    
+    if(this.cajas.length == 0){
+      this.toastServices.alert("Debe abrir una caja antes de continuar","De este modo podrá tener un registro de los pagos");
+      return;
+    }
    
     if(this.metodoPagoSeleccionado == ""){
       this.toastServices.alert("Por favor seleccione un método de pago antes de continuar","De este modo podrá tener un registro de los pagos");
@@ -318,37 +508,14 @@ export class DetailsPedidoPage implements OnInit {
       }
     }  
    
-    this.pedido.cobrado = 1;
-
-    this.pedido.searchLogic = "01";
-
-    this.pedido.metodoPago = this.metodoPagoSeleccionado;
-
-    this.impresoraService.impresionTicket(this.pedido)
-    this.modalController.dismiss("ok")
-
-   /* if(this.pedido.mesaId != ""){
-      let mesaId = this.pedido.mesaId;
-      var sub = await this.comandasServices.getAll().subscribe(snapshot=>{
-        snapshot.forEach((snap: any) => {         
-          var comanda = snap.payload.doc.data();
-          comanda.id = snap.payload.doc.id; 
-          console.log(comanda)
-          if(comanda.mesaId == mesaId && comanda.status == 2){          
-            this.comandasServices.delete(comanda.id);
-            this.toastServices.alert("Se eliminaron las comandas finalizadas para esta mesa","")
-          }          
-        });
-        sub.unsubscribe();
-      })
-    } */
+    
 
     if(this.pedido.productos.length > 0){
 
       let productosId = [];
       this.pedido.productos.forEach(p =>{
 
-        delete p.foto;   
+        delete p.fotoPrincipal;   
         delete p.keywords;     
 
         if(p.stock > 0){
@@ -386,129 +553,115 @@ export class DetailsPedidoPage implements OnInit {
         productosId.push(p.id);        
       })
  
-      var venta = new Venta(this.authenticationService.getUID(), this.authenticationService.getNombre());
-      venta.id = this.firestore.createId();
-      venta.total = this.pedido.totalProductos;
-      venta.cajaId = this.cajaSeleccionada.id;
-      venta.metodoPago = this.metodoPagoSeleccionado;
-      venta.clienteId = this.pedido.clienteId;    
-      venta.productos = this.pedido.productos;    
-      venta.productosId = productosId;      
-      this.ventasService.create(venta);
-
-      if(this.metodoPagoSeleccionado != "ctaCorriente"){
-        
-        var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
-        pago.id = this.firestore.createId();
-        pago.clienteId = this.pedido.clienteId;
-        pago.cajaId = this.cajaSeleccionada.id;
-        pago.metodoPago = this.metodoPagoSeleccionado;
-        pago.monto= venta.total;
-        pago.ventaId = venta.id;  
-        pago.vendedorNombre = this.authenticationService.getNombre();         
-        pago.motivo="Venta de productos";   
-        this.movimientosService.createMovimientoCaja(this.cajaSeleccionada,pago);
-      }
-      else{
-
-        var extraccion = new MovimientoCtaCorriente(this.authenticationService.getUID(), this.authenticationService.getNombre());
-        extraccion.id = this.firestore.createId();
-        extraccion.clienteId=this.pedido.clienteId;
-        extraccion.ctaCorrienteId=this.ctaCorrienteSelecccionadaId;
-        extraccion.motivo="Venta de productos";
-        extraccion.monto = -Number(venta.total);
-        extraccion.vendedorNombre = this.authenticationService.getNombre();
-        console.log(extraccion.vendedorNombre);
-        extraccion.ventaId = venta.id;
-        this.movimientosService.crearMovimientoCtaCorriente(extraccion);
-
-      }     
+   
       
-    }      
-    
-
-    /*if(this.pedido.servicios && this.pedido.servicios.length > 0){
-      this.pedido.servicios.forEach(servicio =>{ 
+      if(this.comercio.modulos.movimientosCajas){
 
         if(this.metodoPagoSeleccionado != "ctaCorriente"){
+          
           var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
           pago.id = this.firestore.createId();
-          pago.clienteId=this.pedido.clienteId;
-          pago.servicioId=servicio.id;
-          pago.cajaId=this.cajaSeleccionada.id;
-          pago.metodoPago=this.metodoPagoSeleccionado;
-          pago.monto= servicio.plan.precio;         
-          pago.motivo="Venta de servicio";
-          pago.servicioId = servicio.id;
-          this.movimientosService.createMovimientoCaja(this.cajaSeleccionada,pago);          
+          pago.clienteId = this.pedido.clienteId;
+          pago.cajaId = this.cajaSeleccionada.id;
+          pago.metodoPago = this.metodoPagoSeleccionado;
+          pago.monto= this.getTotal();
+          pago.vendedorNombre = this.authenticationService.getNombre();         
+          pago.motivo="Venta de productos";   
+          this.movimientosService.createMovimientoCaja(this.cajaSeleccionada,pago);
         }
         else{
+
           var extraccion = new MovimientoCtaCorriente(this.authenticationService.getUID(), this.authenticationService.getNombre());
           extraccion.id = this.firestore.createId();
-          extraccion.clienteId = this.pedido.clienteId;
-          extraccion.ctaCorrienteId = this.ctaCorrienteSelecccionadaId;
-          extraccion.motivo="Venta de servicio";
-          extraccion.monto = -Number(servicio.plan.precio);
-          extraccion.servicioId = servicio.id;
+          extraccion.clienteId=this.pedido.clienteId;
+          extraccion.ctaCorrienteId=this.ctaCorrienteSelecccionadaId;
+          extraccion.motivo="Venta de productos";
+          extraccion.monto = -Number(this.getTotal());
+          extraccion.vendedorNombre = this.authenticationService.getNombre();
+          console.log(extraccion.vendedorNombre);
           this.movimientosService.crearMovimientoCtaCorriente(extraccion);
-        }
-      });   
-    }
-
+        }           
+      }
+    }         
     
-    if(this.pedido.pagare && this.pedido.pagare.id != ""){
-      console.log("PAGARE")
-      this.pedido.pagare.estado = "pagado";
-      this.pagareService.update(this.pedido.pagare);
-      if(this.metodoPagoSeleccionado != "ctaCorriente"){
-        
-        var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
-        pago.id = this.firestore.createId();
-        pago.clienteId=this.pedido.clienteId;
-        pago.servicioId=this.pedido.pagare.servicioRef.id;
-        pago.cajaId=this.cajaSeleccionada.id;
-        pago.metodoPago=this.metodoPagoSeleccionado;
-        pago.monto= this.pedido.pagare.monto;
-        pago.motivo="Pago cuota de subscripción";
-        pago.pagareId = this.pedido.pagare.id;      
-        this.movimientosService.createMovimientoCaja(this.cajaSeleccionada,pago);
-      }
-      else{
-        var extraccion = new MovimientoCtaCorriente(this.authenticationService.getUID(), this.authenticationService.getNombre());
-        extraccion.id = this.firestore.createId();
-        extraccion.clienteId = this.pedido.clienteId;
-        extraccion.ctaCorrienteId = this.ctaCorrienteSelecccionadaId;
-        extraccion.motivo="Pago cuota de subscripción";
-        extraccion.monto = -Number(this.pedido.pagare.monto);
-        extraccion.servicioId = this.pedido.pagare.servicioRef.id;
-        this.movimientosService.crearMovimientoCtaCorriente(extraccion);
-      }
-    }    */
+    this.pedido.statusCaja = this.cEstado.cobrado;
+    this.pedido.metodoPago = this.metodoPagoSeleccionado;       
 
-    console.log("hasta aca ok")
+    if(this.subPedidos.length > 0){ //si es un array de pedidos porque viene de cierre de mesa      
+        this.subPedidos.forEach(pedido => {       
+        pedido.statusCaja = this.cEstado.cobrado;
+        pedido.metodoPago = this.metodoPagoSeleccionado;  
+        this.pedidosService.update(pedido).then(data=>{
+          console.log("actualizado pedido")
+          console.log(data)
+        })
+      });      
+    }
+    else if(this.pedido.id == ""){
+      this.pedidosService.add(this.pedido).then(data=>{
+        console.log("agregado pedido")
+        console.log(data)
+      })
+    }
+    else{
+      this.pedidosService.update(this.pedido).then(data=>{
+        console.log("actualizado pedido")
+        console.log(data)
+      })
+    }
+    
+    
+
+   this.imprimir()
+
     if(this.pedido.clienteEmail){
       this.notificacionesService.enviarByMail(this.pedido.clienteEmail,"Mensaje a cliente","mensaje de compra");
     }
+
     console.log(this.pedido);
+
+    this.navCtrl.back()
+    this.carritoService.vaciar();  
+
   }
 
 
-  suspenderProducto(producto){
+  suspenderProducto(producto,index){
     producto.suspendido = 1
     producto.estadoComanda = "Listo"
-    this.pedido.totalProductos -= Number(producto.total)
-    this.pedidosService.update(this.pedido).then(data=>{
-      console.log("Actualizado")
-    })
+    console.log(producto)
+    this.pedido.totalProductos -= Number(producto.precioTotal)
+    
+    if(this.pedido.id != ""){
+      this.pedidosService.update(this.pedido).then(data=>{
+        console.log("Actualizado")
+      })
+    }
+    else{ //significa que es un cobro directo
+      console.log("splice"+index)
+      this.pedido.productos.splice(index,1)
+      console.log(this.pedido.productos)
+      console.log(this.carritoService.carrito.productos)
+      this.carritoService.eliminarProducto(index)
+    }
+    
   }
  
-  reanudarProducto(producto){
+  reanudarProducto(producto){ 
     producto.suspendido = 0
-    this.pedido.totalProductos += Number(producto.total)
+    this.pedido.totalProductos += Number(producto.precioTotal)
+    console.log(producto)
     this.pedidosService.update(this.pedido).then(data=>{
-      console.log("Actualizado")
+      console.log("Actualizado") 
     })
   } 
+
+  async imprimir(){
+    let impresora = this.impresoraService.obtenerImpresora();
+    if(impresora.ticketConsumidor){
+      this.impresoraService.impresionTicket(this.pedido);
+    } 
+  }
 
   async agregarComentario(){
     const modal = await this.modalController.create({
@@ -518,15 +671,20 @@ export class DetailsPedidoPage implements OnInit {
         comentableTipo:"pedidos"
       }      
     });
-    modal.onDidDismiss()
+    /*modal.onDidDismiss()
     .then((retorno) => {
       if(retorno.data)
         this.comentariosService.add(retorno.data).then(data=>{
           console.log("comentario agregado");
-        })        
-    });
-    return await modal.present();
+        })       
+    });*/ 
+    return await modal.present(); 
   }
+
+  public getTotal(){ 
+    return this.pedidosService.getTotal(this.pedido) 
+  }
+
 
 }
   

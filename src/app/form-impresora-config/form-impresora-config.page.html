@@ -9,20 +9,19 @@
 
 <ion-content class="ion-padding">
 
-  <ion-text color="primary"> 
-    <h4>Nombre</h4>         
-  </ion-text>   
-  <ion-item>
-    <ion-input type="text" [(ngModel)]="impresora.nombre"></ion-input>
-  </ion-item>
+  <div class="form-card">
+    <ion-item>
+      <ion-label>Impresora Bluetooth</ion-label>
+      <ion-toggle [(ngModel)]="impresora.bluetooth"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+    </ion-item> 
+            
+    <ion-item *ngIf="impresora.bluetooth">
+      <ion-label position="floating" >Mac *</ion-label>
+      <ion-input name="mac" type="text" [(ngModel)]="impresora.mac" required></ion-input>
+    </ion-item>  
+    <ion-button *ngIf="impresora.bluetooth" class="button-rounded" color="primary" (click)="probar()">Imprimir Prueba</ion-button> 
+  </div>
 
-  <ion-text color="primary"> 
-    <h4>Numero de Mac</h4>         
-  </ion-text>   
-  <ion-item>
-    <ion-input type="text" [(ngModel)]="impresora.mac"></ion-input>
-  </ion-item>
- 
   <ion-item>
     <ion-label>Comandas</ion-label>
     <ion-toggle [(ngModel)]="impresora.comandas"  [ngModelOptions]="{standalone: true}"></ion-toggle>
@@ -31,30 +30,24 @@
     <ion-label>Tickets</ion-label>
     <ion-toggle [(ngModel)]="impresora.ticketConsumidor"  [ngModelOptions]="{standalone: true}"></ion-toggle>
   </ion-item>
+
+  <p>Para las siguientes configuraciones tener en cuenta que es necesario abrir la aplicación en un navegardor modo Kiosk</p>
+
   <ion-item>
-    <ion-label>Subscripcion a Panel Comandas</ion-label>
-    <ion-toggle [(ngModel)]="impresora.comandasCocina"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+    <ion-label>Subscripción Panel Comandas</ion-label>
+    <ion-toggle [(ngModel)]="impresora.subsComanda"  [ngModelOptions]="{standalone: true}"></ion-toggle>
   </ion-item>
-  <!--div *ngIf="impresora.comandasCocina">
-    <ion-item>  
-    <ion-label>Seleccionar Cocina</ion-label>
-    <ion-select multiple="true" [(ngModel)]="impresora.cocinas">
-      <ion-select-option  *ngFor="let cocina of cocinas" [value]="cocina.id" selected>{{cocina.nombre}}</ion-select-option>
-    </ion-select> 
-    </ion-item>
-  </div--> 
-  <div *ngIf="conexionActual">
-    <ion-item>Conectada</ion-item>    
-  </div>
-  <div *ngIf="!conexionActual">
-    <ion-item>Sin conexión</ion-item>
-  </div>
-  <ion-button *ngIf="impresora.mac != ''" color="success" (click)="conectar()">Conectar</ion-button>
-  <ion-button *ngIf="impresora.mac != ''" color="success" (click)="probar()">Probar</ion-button>     
+
+  <ion-item>
+    <ion-label>Subscripción Panel Pedidos</ion-label>
+    <ion-toggle [(ngModel)]="impresora.subsPedido"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>
+  
+  
 </ion-content>
 <ion-footer>
   <ion-toolbar>   
-    <ion-button slot="start"  color="danger" (click)="cancelar()">Cancelar</ion-button>
-    <ion-button slot="end"  color="success" (click)="guardar()">Guardar</ion-button>
+    <ion-button class="button-rounded" slot="start"  color="danger" (click)="cancelar()">Cancelar</ion-button>
+    <ion-button class="button-rounded" slot="end"  color="success" (click)="guardar()">Guardar</ion-button>
   </ion-toolbar> 
 </ion-footer>

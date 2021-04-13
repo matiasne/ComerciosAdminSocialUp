@@ -1,14 +1,19 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial/ngx';
-import { Platform } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
+import { ComandaPage } from '../impresiones/comanda/comanda.page';
+import { TicketDetallePage } from '../impresiones/ticket-detalle/ticket-detalle.page';
 import { Comanda } from '../models/comanda';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
+import { EnumTipoDescuento } from '../models/descuento';
 import { Impresora } from '../models/impresora';
-import { Pedido } from '../Models/pedido';
-import { ComandasService } from './comandas.service';
+import { Pedido } from '../models/pedido';
+import { EnumTipoRecargo } from '../models/recargo';
 import { ComerciosService } from './comercios.service';
 import { LoadingService } from './loading.service';
+import { PedidoService } from './pedido.service';
 import { ToastService } from './toast.service';
 
 @Injectable({
@@ -27,9 +32,11 @@ export class ImpresoraService {
     private comercioService:ComerciosService,
     private toastService:ToastService,
     private loadingService:LoadingService,
-    private comandaService:ComandasService,
     private toastServices:ToastService,
     private platform: Platform,
+    private router:Router,
+    private modalController:ModalController,
+    private pedidosService:PedidoService
   ) {
      
     this.comercio = new Comercio();
@@ -56,7 +63,7 @@ export class ImpresoraService {
     return this.estadoImpresoraSubject.asObservable();
   }
 
-  public conectar(){
+  public conectarBluetooth(){
     if (this.platform.is('cordova')) {
       this.loadingService.presentLoading();
       let impresora = this.obtenerImpresora();
@@ -129,7 +136,6 @@ export class ImpresoraService {
 
   async impresionPrueba(usuario){
 
-    this.toastService.mensaje("Imprimiendo...","");
     
     var esc = '\x1B'; //ESC byte in hex notation
     var newLine = '\x0A'; //LF byte in hex notation
@@ -157,77 +163,86 @@ export class ImpresoraService {
 
 
   async impresionComanda(pedido:Pedido){
-
-    let impresora = this.obtenerImpresora();
-    if(impresora.comandas == false){
-      console.log("aca no se imprime comandas")
-      return false;
-    }
-
-    this.toastService.mensaje("Imprimiendo...","");
     
-    var esc = '\x1B'; //ESC byte in hex notation
-    var newLine = '\x0A'; //LF byte in hex notation
-
-    var cmds = esc + "@"; //Initializes the printer (ESC @)
-    cmds += esc + '!' + '\x38'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
-    if(pedido.mesaId)
-      cmds += "Mesa: "+ pedido.mesaNombre; //text to print
-    cmds += newLine + newLine;
-    cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
-
-    if(pedido.personalEmail)
-      cmds += "Pedido por: "+ pedido.personalEmail; //text to print
-    cmds += newLine
-
-    if(pedido.clienteNombre)
-      cmds += "Para por: "+ pedido.clienteNombre; //text to print
-    cmds += newLine
-
-    pedido.productos.sort(function(a, b) {
-      return Number(a.cocinaId) - Number(b.cocinaId);
-    });
-
-
-    let ultimaCocina = "";
-    pedido.productos.forEach(producto => { 
-
-      let cocinaActual = producto.cocinaNombre;
-
-      if(cocinaActual != ultimaCocina){
-        cmds+='------------------------------'+ newLine;
-        cmds += '  '+cocinaActual+':' + newLine;
-      }
-      
-      let cantidad = producto.cantidad+"x";
-      let nombre = producto.nombre;
-      let total = producto.precioTotal+"$";      
-
-      cmds += cantidad+' '+nombre;
-      
-      producto.opcionesSeleccionadas.forEach(opcion =>{
-        cmds += newLine;
-        cmds += '  '+opcion.cantidad+'x '+' '+opcion.nombre        
-      })       
-      cmds += newLine;
-
-      cmds += producto.descripcion_venta
-      cmds += newLine;
-
-      ultimaCocina = producto.cocinaNombre
-    });
+    let impresora:any = this.obtenerImpresora();
    
+    if(impresora.comandas){
+      if(impresora.bluetooth == false){
+        const modal = await this.modalController.create({
+          component: ComandaPage,
+          componentProps:{
+            pedido:pedido,
+          }      
+        });    
+        return await modal.present();
+      }
+      else{
+      
 
-    cmds +=  esc + "@";
-    cmds += esc + '\x1B'; //Character font A selected (ESC ! 0)
-    cmds += esc + '\x64'; //Character font A selected (ESC ! 0)
-    cmds += '3'; //Character font A selected (ESC ! 0)           
+        var esc = '\x1B'; //ESC byte in hex notation
+        var newLine = '\x0A'; //LF byte in hex notation
 
-    this.bluetoothSerial.write(cmds).then(()=>{ 
-      console.log("impreso");
-    }, ()=>{
-      console.log("error")
-      });
+        var cmds = esc + "@"; //Initializes the printer (ESC @)
+        cmds += esc + '!' + '\x38'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+        if(pedido.mesaId)
+          cmds += "Mesa: "+ pedido.mesaNombre; //text to print
+        cmds += newLine + newLine;
+        cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+
+        if(pedido.personalEmail)
+          cmds += "Pedido por: "+ pedido.personalEmail; //text to print
+        cmds += newLine
+
+        if(pedido.clienteNombre)
+          cmds += "Para por: "+ pedido.clienteNombre; //text to print
+        cmds += newLine
+
+        pedido.productos.sort(function(a, b) {
+          return Number(a.cocinaId) - Number(b.cocinaId);
+        });
+
+
+        let ultimaCocina = "";
+        pedido.productos.forEach(producto => { 
+
+          let cocinaActual = producto.cocinaNombre;
+
+          if(cocinaActual != ultimaCocina){
+            cmds+='------------------------------'+ newLine;
+            cmds += '  '+cocinaActual+':' + newLine;
+          }
+          
+          let cantidad = producto.cantidad+"x";
+          let nombre = producto.nombre;
+          let total = producto.precioTotal+"$";      
+
+          cmds += cantidad+' '+nombre;
+          
+          producto.opcionesSeleccionadas.forEach(opcion =>{
+            cmds += newLine;
+            cmds += '  '+opcion.cantidad+'x '+' '+opcion.nombre        
+          })       
+          cmds += newLine;
+
+          cmds += producto.descripcion_venta
+          cmds += newLine;
+
+          ultimaCocina = producto.cocinaNombre
+        });
+      
+
+        cmds +=  esc + "@";
+        cmds += esc + '\x1B'; //Character font A selected (ESC ! 0)
+        cmds += esc + '\x64'; //Character font A selected (ESC ! 0)
+        cmds += '3'; //Character font A selected (ESC ! 0)           
+
+        this.bluetoothSerial.write(cmds).then(()=>{ 
+          console.log("impreso");
+        }, ()=>{
+          console.log("error")
+        });
+      }
+    }
   }
 
 
@@ -235,81 +250,117 @@ export class ImpresoraService {
 
 
   async impresionTicket(pedido:Pedido){
-
-    let impresora = this.obtenerImpresora();
-    if(impresora.comandas == false){
-      console.log("aca no se imprime ticket")
-      return false;
-    }
-
-    this.toastService.mensaje("Imprimiendo...","");
     
-    var esc = '\x1B'; //ESC byte in hex notation
-    var newLine = '\x0A'; //LF byte in hex notation
+    let impresora:any = this.obtenerImpresora();
 
-    var cmds = esc + "@"; //Initializes the printer (ESC @)
-  //  cmds += esc + '!' + '\x38'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
-    if(pedido.mesaId)
-      cmds += "Gracias por tu visita! "; //text to print
-    cmds += newLine + newLine;
-    cmds += "Mesa: "+ pedido.mesaNombre; //text to print
-    cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+    if(impresora.bluetooth == false){
+      const modal = await this.modalController.create({
+        component: TicketDetallePage,
+        componentProps:{
+          pedido:this.pedido,
+        }      
+      });    
+      return await modal.present();
+    }
+    else{
+      var esc = '\x1B'; //ESC byte in hex notation
+      var newLine = '\x0A'; //LF byte in hex notation
 
-    pedido.productos.forEach(producto => { 
-      
-      let cantidad = producto.cantidad+"x";
-      let nombre = producto.nombre;
-      let total = producto.precioTotal+"$";      
-
-      cmds += cantidad+' '+nombre;
-      
-      producto.opcionesSeleccionadas.forEach(opcion =>{
-        cmds += newLine;
-        cmds += '  '+opcion.cantidad+'x '+' '+opcion.nombre        
-      })
+      var cmds = esc + "@"; //Initializes the printer (ESC @)
+      cmds += esc + '!' + '\x17'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+      cmds +=this.comercio.nombre;
       cmds += newLine;
-      let  espaciosAlineacion = this.largoDeLinea - total.length
-      for(let i=0; i< espaciosAlineacion; i++){
+      cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+      cmds += "Gracias por tu visita! "; //text to print
+      cmds += newLine + newLine;
+      if(pedido.mesaId){        
+        cmds += newLine + newLine;
+        cmds += "Mesa: "+ pedido.mesaNombre; //text to print        
+      }
+      cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+      pedido.productos.forEach(producto => {       
+        if(producto.suspendido == 0){
+          let cantidad = producto.cantidad+"x";
+          let nombre = producto.nombre;
+          let total = producto.precioTotal+"$";      
+    
+          cmds += cantidad+' '+nombre;
+          
+          producto.opcionesSeleccionadas.forEach(opcion =>{
+            cmds += newLine;
+            cmds += '  '+opcion.cantidad+'x '+' '+opcion.nombre        
+          })
+          cmds += newLine;
+          let  espaciosAlineacion = this.largoDeLinea - total.length
+          for(let i=0; i< espaciosAlineacion; i++){
+            cmds += ' '
+          }
+          cmds += total;
+          
+          cmds += newLine;
+        }
+        
+      });
+
+      if(pedido.descuentos.length > 0){
+
+        cmds += 'descuentos:';
+        cmds += newLine;
+        pedido.descuentos.forEach(descuento => {      
+         
+          let signo = "$"
+          if(descuento.tipo == EnumTipoDescuento.porcentaje){
+            signo = "%";
+          }
+          let monto = descuento.monto+signo;
+          let motivo = descuento.motivo;         
+          cmds += motivo+' '+monto;
+          cmds += newLine;          
+        });
+      }
+
+      if(pedido.recargos.length > 0){
+
+        cmds += 'Recargos:';
+        cmds += newLine;
+        pedido.recargos.forEach(recargo => {      
+         
+          let signo = "$"
+          if(recargo.tipo == EnumTipoRecargo.porcentaje){
+            signo = "%";
+          }
+          let monto = recargo.monto+signo;
+          let motivo = recargo.motivo;         
+          cmds += motivo+' '+monto;
+          cmds += newLine;          
+        });
+      }
+      
+      cmds += esc + '!' + '\x2C'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+      cmds += 'TOTAL'
+      let eAlineacion = this.largoDeLinea - 5 - pedido.totalProductos.toString().length - 1
+      for(let i=0; i< eAlineacion; i++){
         cmds += ' '
       }
-      cmds += total;
-       
-      cmds += newLine;
-    });
-    
-    cmds += 'TOTAL'
-    let eAlineacion = this.largoDeLinea - 5 - pedido.totalProductos.toString().length - 1
-    for(let i=0; i< eAlineacion; i++){
-      cmds += ' '
-    }
-    cmds += pedido.totalProductos+"$"
+      cmds += this.pedidosService.getTotal(pedido)+"$"
 
-    cmds += newLine + newLine;
+      cmds += newLine + newLine;
 
-    cmds += 'Ayudanos a mejorar!'+newLine;
-    cmds += 'Danos tu opinion calificando '+newLine;
-    cmds += 'del 1 al 5 cada item:'+newLine+newLine;
-    cmds += 'Atención:'+newLine+newLine; 
-    cmds += 'Comida:'+newLine+newLine;
-    cmds += 'Limpieza:'+newLine+newLine;
-    cmds += 'Rapidez:'+newLine+newLine;
-    cmds += 'Dejanos tu comentario: '+newLine;
+      cmds +=  esc + "@";
+      cmds += esc + '\x1B'; //Character font A selected (ESC ! 0)
+      cmds += esc + '\x64'; //Character font A selected (ESC ! 0)
+      cmds += '3'; //Character font A selected (ESC ! 0)           
 
-
-    cmds +=  esc + "@";
-    cmds += esc + '\x1B'; //Character font A selected (ESC ! 0)
-    cmds += esc + '\x64'; //Character font A selected (ESC ! 0)
-    cmds += '3'; //Character font A selected (ESC ! 0)           
-
-    this.bluetoothSerial.write(cmds).then(()=>{ 
-      console.log("impreso");
-    }, ()=>{
-      console.log("error")
-    });
+      this.bluetoothSerial.write(cmds).then(()=>{ 
+        console.log("impreso");
+      }, ()=>{
+        console.log("error")
+      });
+    }    
   }
 
 
-  async impresionPorCocina(comanda:Comanda){
+/*  async impresionPorCocina(comanda:Comanda){
 
     let impresora = this.obtenerImpresora();
   
@@ -328,7 +379,6 @@ export class ImpresoraService {
     }
 
 
-    this.toastService.mensaje("Imprimiendo...","");
     
     var esc = '\x1B'; //ESC byte in hex notation
     var newLine = '\x0A'; //LF byte in hex notation
@@ -380,7 +430,7 @@ export class ImpresoraService {
     }, ()=>{
       console.log("error")
       });
-  }
+  }*/
 
  /* async impresion(texto="texto de prueba"){
 

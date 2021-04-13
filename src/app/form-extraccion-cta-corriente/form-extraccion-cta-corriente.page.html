@@ -19,14 +19,14 @@
     </div>
 
     <ion-item class="item-card">
-      <ion-label>Seleccionar Caja</ion-label>
+      <ion-label position="floating">Caja</ion-label>
       <ion-select [(ngModel)]="cajaSeleccionada" (ionChange)="seleccionarCaja()" [ngModelOptions]="{standalone: true}">
         <ion-select-option *ngFor="let caja of cajas" [value]="caja" selected>{{caja.nombre}}</ion-select-option>
       </ion-select>
     </ion-item>
 
     <ion-item class="item-card">
-      <ion-label>Seleccione Método de Pago</ion-label>
+      <ion-label position="floating">Método de Pago</ion-label>
       <ion-select [(ngModel)]="metodoPagoSeleccionado" (ionChange)="setearMetodoPago()" [ngModelOptions]="{standalone: true}">
         <ion-select-option *ngIf="caja.efectivo" [value]="'efectivo'">Efectivo</ion-select-option>
         <ion-select-option *ngIf="caja.debito" [value]="'debito'">Débito</ion-select-option>

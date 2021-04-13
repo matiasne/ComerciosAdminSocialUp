@@ -12,6 +12,8 @@ import { LoadingService } from '../Services/loading.service';
 export class ListMesasPage implements OnInit {
 
   public mesas = [];
+  public buscando = true;
+
   constructor(
     public modalController: ModalController,
     public mesasService:MesasService,
@@ -21,9 +23,11 @@ export class ListMesasPage implements OnInit {
 
   ngOnInit() {
     this.loadingService.presentLoadingText("Cargando Mesas")
+    this.mesasService.setOrderBy("nombre","asc");
     this.mesasService.list().subscribe(mesas=>{
       this.loadingService.dismissLoading()                
       this.mesas = mesas;
+      this.buscando = false;
     });
   } 
   

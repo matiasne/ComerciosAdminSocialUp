@@ -14,6 +14,13 @@ import { ToastService } from '../Services/toast.service';
 import { FormComercioPage } from '../form-comercio/form-comercio.page';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial/ngx';
 import { ImpresoraService } from '../Services/impresora.service';
+import { WoocommerceService } from '../Services/woocommerce/woocommerce.service';
+import { WPMediaService } from '../Services/wordpress/media.service';
+import { FotoService } from '../Services/fotos.service';
+import { Archivo } from '../models/foto';
+import { ImagesService } from '../Services/images.service';
+import { CambiarPlanPage } from '../cambiar-plan/cambiar-plan.page';
+import { EnumPlanes, User } from '../models/user';
 
 
 @Component({
@@ -29,12 +36,13 @@ export class HomePage implements OnInit {
 
   public conexionEstado = "offline";
 
-  public user = {
-    maxComercios:1,
-    stopTrial:false,
-    createdAt:0
-  };
   public habilitadoCrearComercio = true;
+
+  foto:any
+
+  public buscandoComercios = true;
+
+  public user:User
 
   constructor(
     public authService:AuthenticationService,
@@ -48,24 +56,24 @@ export class HomePage implements OnInit {
     public toastService:ToastService,
     private modalCtrl:ModalController,
     private impresoraService:ImpresoraService,
+    private wcService:WoocommerceService,
+    private wpMedia:WPMediaService,
+    private fotosService:FotoService,
+    private imageService:ImagesService
   ) { 
-    
-
+     
+    this.user = new User()
   }
 
   ngOnInit() {
     this.comercios = [];
-    this.user = this.authService.getActualUser();
-   
-   
+    this.user.asignarValores(this.authService.getActualUser())
   } 
-
+ 
   async getAfipStatus(){
-    //const serverStatus = await afip.ElectronicBilling.getServerStatus();
-
     console.log('Este es el estado del servidor:');
-    //console.log(serverStatus);
   }
+
 
   refresh(event) {
     console.log('Begin async operation');
@@ -77,8 +85,8 @@ export class HomePage implements OnInit {
   }
 
   ionViewDidEnter(){    
-    
-    
+    this.buscandoComercios = true;
+    this.comercios = [];
     console.log("!entrando a home"); 
     this.rolesService.getAllRolesbyUser(this.authService.getActualUserId()).subscribe(roles =>{        
       this.comercios = [];
@@ -86,10 +94,10 @@ export class HomePage implements OnInit {
       roles.forEach(rol =>{            
         if(rol.comercioId){   
           if(rol.estado != "pendiente" || rol.estado != "rechazada"){
-            this.loadingService.presentLoading()
+            
             this.comerciosService.get(rol.comercioId).subscribe(data =>{ 
+              this.buscandoComercios = false;
               if(data){
-                this.loadingService.dismissLoading()  
                 var comercio:any = data; 
                 comercio.rol = rol; 
                 this.comercios.push(comercio);
@@ -104,32 +112,30 @@ export class HomePage implements OnInit {
      // this.loadingService.dismissLoading();      
      
     });
-    this.impresoraService.conectar()
+
+    /*let impresora = this.impresoraService.obtenerImpresora()
+    if(impresora.bluetooth)
+      this.impresoraService.conectarBluetooth()*/
   }
 
   ionViewDidLeave(){
     
   }
 
+  imprimir(){
+    this.router.navigate(['prueba']); 
+  }
   
 
   async nuevoComercio(){
     this.user = this.authService.getActualUser();
-    if(this.user.maxComercios){
-      console.log(this.comercios.length+" "+this.user.maxComercios)
-      if(this.comercios.length >= this.user.maxComercios){
-        this.habilitadoCrearComercio = false;
-        this.toastService.mensaje("Has superado el máximo de comercios que puedes agregar","Para agregar más amplia tu plan contactandonos");
-        return;
-      }
+
+
+    if(this.user.plan == EnumPlanes.free && this.comercios.length > 0){
+      this.mostrartCambiarDePlan();
+      return;      
     }
-    else{
-      this.user.maxComercios = 1;
-      if(this.comercios.length > 0){
-        this.toastService.mensaje("Has superado el máximo de comercios que puedes agregar","Para agregar más amplia tu plan contactandonos");
-        return;
-      }
-    }
+   
 
     const modal = await this.modalCtrl.create({
       component: FormComercioPage,
@@ -139,31 +145,22 @@ export class HomePage implements OnInit {
     .then((retorno) => {  
         this.refresh(undefined);  
     });
-    return await modal.present();
+    return await modal.present();      
+  }
 
-    
-    
+
+  async mostrartCambiarDePlan(){
+    const modal = await this.modalCtrl.create({
+      component: CambiarPlanPage,
+      componentProps:undefined
+    });
+    return await modal.present();
   }
 
   seleccionar(comercio){
-    this.user = this.authService.getActualUser();
-    console.log(this.user.stopTrial);
-    if(!this.user.stopTrial){
-      console.log(this.user)
-      let lastDay = Number(this.user.createdAt) + (15*24*60*60);
-      var seconds = new Date().getTime() / 1000;
-
-      console.log(seconds+" "+lastDay)
-      if(seconds > lastDay){
-        this.toastService.alert("","Su periodo de prueba ha expirado");
-        return;
-      }
-    }
-    
-    
-    this.comerciosService.setSelectedCommerce(comercio.id);
-   
-    this.authService.setRol(comercio.rol.rol);
+    this.user = this.authService.getActualUser();    
+    this.comerciosService.setSelectedCommerce(comercio.id);   
+    this.authService.setRol(comercio.rol);
     this.router.navigate(['dashboard-comercio',{id:comercio.id}]);
     this.usuariosService.setComecioSeleccionado(this.authService.getActualUserId(),comercio.id);
        
@@ -191,28 +188,6 @@ export class HomePage implements OnInit {
 
   }
 
-  async desvincular(comercio){   
-
-      const alert = await this.alertController.create({
-        header: 'Eliminar',
-        message: 'Está seguro que desea eliminar el comercio?',
-        buttons: [
-          {
-            text: 'Cancelar',
-            handler: (blah) => {
-              
-            }
-          }, {
-            text: 'Desvincular',
-            handler: () => {
-              console.log(comercio)
-              this.rolesService.delete(comercio.id,comercio.rol.id);    
-              this.ionViewDidEnter();
-            }
-          }
-        ]
-      });
-      await alert.present();
-    }
+  
 
   }

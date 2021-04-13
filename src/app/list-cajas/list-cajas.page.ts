@@ -15,6 +15,8 @@ export class ListCajasPage implements OnInit {
 
   cajasSubs:Subscription;
   public cajas =[];
+
+  public buscando = true;
   
   constructor(
     private cajasService:CajasService,
@@ -30,10 +32,10 @@ export class ListCajasPage implements OnInit {
   }
 
   ionViewDidEnter(){
-    this.loadingService.presentLoadingText("Cargando Cajas")
-    this.cajasSubs = this.cajasService.list().subscribe((caja:any)=>{                 
-      this.loadingService.dismissLoading()
-      this.cajas = caja;      
+    this.cajasService.setOrderBy("nombre","desc");
+    this.cajasSubs = this.cajasService.list().subscribe((caja:any)=>{        
+      this.cajas = caja;  
+      this.buscando = false;    
     });
   }
 

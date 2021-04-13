@@ -15,7 +15,7 @@ export class Cliente{
     public foto="";
     public latitud="";
     public longitud="";
-    public createdAt="";
+    public createdAt:any;
     public vendedorId="";
     public estado="";
     public keywords = [];

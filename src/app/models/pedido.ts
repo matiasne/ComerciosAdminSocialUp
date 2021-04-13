@@ -3,6 +3,8 @@ import { Comercio } from './comercio';
 import { Servicio } from './servicio';
 import { MovimientoCtaCorriente } from './movimientoCtaCorriente';
 import { Pagare } from './pagare';
+import { Descuento } from './descuento';
+import { Recargo } from './recargo';
 
 export enum EnumEstadoComanda {
     rechazado = 1, 
@@ -13,15 +15,21 @@ export enum EnumEstadoComanda {
     suspendido = 6
 }
 
+
+export enum EnumEstadoEnCaja {
+    pendiente = 1, 
+    suspendido = 2, 
+    cobrado = 3,  
+}
+
+
 export class Pedido{      
 
     public id="";
 
     public statusComanda = EnumEstadoComanda.solicitado;
-    public suspendido = 0;
-    public cobrado = 0;
+    public statusCaja = EnumEstadoEnCaja.pendiente;
 
-    public searchLogic = "00";
 
     public metodoPago = "";
 
@@ -41,15 +49,20 @@ export class Pedido{
     public totalServicios=0;
   
     public on=false;
-
+ 
+    public descuentos:Descuento[] =[];
+    public recargos:Recargo[]=[];
     public productos:Producto[] = [];
     public servicios:Servicio[] = [];
 	 
     public cantidadComentarios = 0;
+
+    public createdAt:any
+
+    public countListos = 0
     
 	constructor(){
 
-       
 
     }
 

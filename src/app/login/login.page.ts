@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AuthenticationService } from '../Services/authentication.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
 
 @Component({
@@ -22,11 +22,16 @@ export class LoginPage implements OnInit {
   iconpassword1  =  'eye-off';
   iconpassword2  =  'eye-off';
 
+  public devWidth
+
   constructor(
     private authService:AuthenticationService,
     public alertController: AlertController,
     public router:Router,
-  ) { }
+    public platform:Platform
+  ) { 
+    this.devWidth = this.platform.width();
+  }
 
   ngOnInit() {
   }

@@ -22,6 +22,7 @@ export class ListInvitacionesPage implements OnInit {
   public palabraFiltro = "";
   public ultimoItem = "";
   public loadingActive = false;
+  public buscando = true;
   
   constructor(
     public modalController: ModalController,
@@ -39,7 +40,7 @@ export class ListInvitacionesPage implements OnInit {
   ngOnInit() {
     
     this.subsItems = this.invitacionesServices.getAll(this.authService.getUID()).subscribe((snapshot) => {
-     
+      this.buscando = false;
       this.items = [];   
       console.log(snapshot)
       snapshot.forEach((snap: any) => {         
@@ -52,7 +53,6 @@ export class ListInvitacionesPage implements OnInit {
       if(this.items.length > 0)
         this.ultimoItem = this.items[this.items.length - 1].name;
   
-      this.hideLoading();   
   
       
     });
@@ -80,22 +80,6 @@ export class ListInvitacionesPage implements OnInit {
   
 
   
-
-  async presentLoading() {
-    this.loadingActive = true;
-    const loading = await this.loadingController.create({
-      message: 'Cargando...',
-    });
-    await loading.present();
-  }
-
-
-  hideLoading(){
-    if(this.loadingActive){
-      this.loadingController.dismiss();
-      this.loadingActive = false;
-    }
-  }
 
   eliminarInvitacion(item){
 

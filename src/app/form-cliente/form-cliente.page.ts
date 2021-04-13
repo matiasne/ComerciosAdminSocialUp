@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 import { ToastService } from '../Services/toast.service';
 import { SelectClientePage } from '../select-cliente/select-cliente.page';
 import { AngularFirestore } from 'angularfire2/firestore';
+import { BeneficiosService } from '../Services/beneficios.service';
 
 declare var google: any;
 
@@ -26,8 +27,8 @@ declare var google: any;
 })
 export class FormClientePage implements OnInit {
 
-  @ViewChild('map',{static: false}) mapElement: ElementRef;
-  public map: any;
+//  @ViewChild('map',{static: false}) mapElement: ElementRef;
+//  public map: any;
 
   public autocomplete:any;
   public place:any;
@@ -49,11 +50,11 @@ export class FormClientePage implements OnInit {
 
   imagePickerOptions = {
     maximumImagesCount: 1,
-    quality: 5
+    quality: 5 
   };
 
   public updating:boolean = false;
-  public titulo = "Nuevo Cliente";
+  public titulo = "Nuevo Cliente"; 
   
   constructor(
     private formBuilder: FormBuilder,
@@ -68,6 +69,7 @@ export class FormClientePage implements OnInit {
     public loadingService:LoadingService,
     private toastServices:ToastService,
     private firestore: AngularFirestore,
+    private beneficiosService:BeneficiosService
   ) { 
 
     this.cliente = new Cliente();
@@ -106,7 +108,7 @@ export class FormClientePage implements OnInit {
         
         this.datosForm.patchValue(this.cliente);          
 
-        this.initMap("map3",{
+        /*this.initMap("map3",{
           center:{
             lat:Number(this.cliente.latitud), 
             lng:Number(this.cliente.longitud)
@@ -117,16 +119,16 @@ export class FormClientePage implements OnInit {
             scrollwheel: true,
             streetViewControl: false,
           },    
-        });
+        });*/
 
-        this.posicion = {lat: this.cliente.latitud, lng: this.cliente.longitud};
+        //this.posicion = {lat: this.cliente.latitud, lng: this.cliente.longitud};
 
-        var marker = new google.maps.Marker({
+        /*var marker = new google.maps.Marker({
           posicion: this.posicion,
           map: this.map,
           title: 'Hello World!',
           draggable:true,
-        });
+        });*/
 
       });
     }
@@ -142,7 +144,7 @@ export class FormClientePage implements OnInit {
   ngOnInit() {
 
 
-    this.initMap("map3",{
+  /*  this.initMap("map3",{
       center:{
         lat:0, //Aca localizar por gps
         lng:0
@@ -152,7 +154,7 @@ export class FormClientePage implements OnInit {
         disableDefaultUI: true,
         scrollwheel: true,
         streetViewControl: false,
-      },    
+      },     
     });
 
     this.loadingService.presentLoading();
@@ -161,7 +163,7 @@ export class FormClientePage implements OnInit {
       this.loadingService.dismissLoading();
     }, 500);  
     
-    this.geocoder = new google.maps.Geocoder();
+    this.geocoder = new google.maps.Geocoder();*/
 
   }
 
@@ -220,36 +222,16 @@ export class FormClientePage implements OnInit {
         'item': this.cliente
       }); 
     }
-    else{
-
-  
-      this.clientesService.create(this.cliente);             
+    else{  
+      this.clientesService.create(this.cliente).then(data=>{
+        this.beneficiosService.activarBeneficioRegistro(this.cliente)
+      });             
       this.modalController.dismiss({
         'item': this.cliente
-      });  
-        
-       
-
-      
+      });        
     }   
-
-   
-
   }
-/*
-  async verClientes(){
-    const modal = await this.modalController.create({
-      component: SelectClientePage      
-    });
-    modal.onDidDismiss()
-    .then((retorno) => {
-      console.log(retorno.data.item);
-      if(retorno.data)
-        this.router.navigate(['details-cliente',{"id":retorno.data.item.id}]);
-    });
-    return await modal.present();
-  }
-*/
+
   cancelar(){
     this.modalController.dismiss();    
   }
@@ -285,7 +267,7 @@ export class FormClientePage implements OnInit {
     this.router.navigate(['form-direccion']);
   }
 
-  initMap(el, options) {
+  /*initMap(el, options) {
     this.map = this.makeMap(el, options)
 
     var markerOptions = {
@@ -294,19 +276,19 @@ export class FormClientePage implements OnInit {
         posicion: options.center,
         zoom:5 ,
     }    
-  }
+  }*/
 
-  makeMap(el, options) {
+ /* makeMap(el, options) {
     if(google){
       console.log(el);
       let mapEle: HTMLElement = document.getElementById(el);
       console.log(mapEle);
       return new google.maps.Map(mapEle, options)
     }
-  }
+  }*/
 
   
-  initAutocomplete(el = "autocomplete", options = { types: ["geocode"], componentRestrictions: { country: "ar" }}, fields = ["address_components", "geometry", "icon", "name"]) {
+ /* initAutocomplete(el = "autocomplete", options = { types: ["geocode"], componentRestrictions: { country: "ar" }}, fields = ["address_components", "geometry", "icon", "name"]) {
     // Create the autocomplete object, restricting the search predictions to geographical location types.
     this.autocomplete = new google.maps.places.Autocomplete(
         document.getElementById(el).getElementsByTagName('input')[0], options
@@ -407,5 +389,5 @@ export class FormClientePage implements OnInit {
     var marker = new google.maps.Marker(options)
     this.markers.push(marker)
     return marker
-  }
+  }*/
 }

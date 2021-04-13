@@ -25,6 +25,7 @@ export class DetailsCajaPage implements OnInit {
 
   public optionCaja = "";
 
+  public fechaDesde = new Date();
 
   public totales = {
     efectivo: 0,
@@ -40,15 +41,61 @@ export class DetailsCajaPage implements OnInit {
     public loadingService:LoadingService,
     public alertController:AlertController,
     private movimientosService:MovimientosService,
-    private route:ActivatedRoute
+    private route:ActivatedRoute,
+    private comercioService:ComerciosService
   ) { 
 
     this.caja = new Caja();
     this.caja.id = this.route.snapshot.params.id;
-    
+    this.fechaDesde.setDate(this.fechaDesde.getDate() - 1);
   }
 
   ngOnInit() {
+    
+  }
+
+  onChangeAtras(event){
+    this.fechaDesde.setDate(this.fechaDesde.getDate() - Number(event.target.value));
+    this.refrescar()   
+  }
+
+  refrescar(){
+    let comercio = this.comercioService.getSelectedCommerceValue()
+    if(comercio.modulos.movimientosCajas){
+      this.movSubs = this.movimientosService.getMovimientosCaja(this.caja.id,this.fechaDesde).subscribe(snapshot =>{
+      
+        this.items = [];
+        snapshot.forEach((snap: any) => {  
+  
+          var mov = snap.payload.doc.data();
+          mov.id = snap.payload.doc.id;   
+          
+          if(mov.monto > 0)
+            mov.pago =true;   
+          else
+            mov.egreso = true; 
+            
+          if(mov.isCierre){
+            mov.pago = false;   
+            mov.egreso = false; 
+            mov.cierre = true;
+            mov.apertura = false;
+          }    
+  
+          if(mov.isApertura){
+            mov.pago = false;   
+            mov.egreso = false; 
+            mov.cierre = false;
+            mov.apertura = true;
+          }    
+  
+          
+          
+          this.items.push(mov);  
+        });    
+        console.log(this.items)     
+      }); 
+    }
     
   }
 
@@ -59,51 +106,12 @@ export class DetailsCajaPage implements OnInit {
       console.log()
       //cajaSub.unsubscribe();
     })
-   
-    this.movSubs = this.movimientosService.getMovimientosCaja(this.caja.id).subscribe(snapshot =>{
-      
-      this.items = [];
-      snapshot.forEach((snap: any) => {  
-
-        var mov = snap.payload.doc.data();
-        mov.id = snap.payload.doc.id;   
-        
-        if(mov.monto > 0)
-          mov.pago =true;   
-        else
-          mov.egreso = true; 
-          
-        if(mov.isCierre){
-          mov.pago = false;   
-          mov.egreso = false; 
-          mov.cierre = true;
-          mov.apertura = false;
-        }    
-
-        if(mov.isApertura){
-          mov.pago = false;   
-          mov.egreso = false; 
-          mov.cierre = false;
-          mov.apertura = true;
-        }    
-        
-        if(mov.createdAt)
-          mov.createdAt = this.toDateTime(mov.createdAt.seconds)
-        
-        
-        this.items.push(mov);  
-      });    
-      console.log(this.items)     
-    }); 
+    this.refrescar();
+    
          
           
   }
 
-  toDateTime(secs) {
-    var t = new Date(1970, 0, 1); // Epoch
-    t.setSeconds(secs);
-    return t;
-  }
 
   ionViewDidLeave(){
     console.log("!!!!!!!!!!!LEAVE")

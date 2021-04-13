@@ -25,12 +25,8 @@
     </div>
 
     <div class="form-card">
-      <ion-text color="primary">
-        <h4>Seleccionar periodo</h4>
-      </ion-text> 
-      
-      <h5></h5>  
-      <ion-item [class.invalid]="submitted && !datosForm.controls.tipo.valid" (ionChange)="tipoChange()">                    
+      <ion-item [class.invalid]="submitted && !datosForm.controls.tipo.valid" (ionChange)="tipoChange()">  
+        <ion-label position="floating">Periodo</ion-label>                  
         <ion-select  formControlName="tipo" value="datosForm.controls.tipo.value">        
           <ion-select-option [value]="'mensual'" selected>mensual</ion-select-option>
           <ion-select-option [value]="'anual'" selected>anual</ion-select-option>

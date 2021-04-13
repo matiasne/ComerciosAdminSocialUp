@@ -13,7 +13,7 @@ import { AngularFireMessagingModule } from '@angular/fire/messaging';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuth, AngularFireAuthModule } from 'angularfire2/auth';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { AngularFirestore, AngularFirestoreModule } from 'angularfire2/firestore';
 import { Camera } from '@ionic-native/Camera/ngx';
@@ -57,8 +57,10 @@ import { Network } from '@ionic-native/network/ngx';
 import { Printer, PrintOptions } from '@ionic-native/printer/ngx';
 import { FormComercioPage } from './form-comercio/form-comercio.page';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial/ngx';
+import { WoocommerceInterceptorService } from './Services/woocommerce/woocommerce-interceptor.service';
 
-
+import { FileTransfer } from '@ionic-native/file-transfer/ngx';
+import { AngularFireStorageModule } from 'angularfire2/storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAenr8VfNta7u8NL5J4jpMtosnENy-Gcqc",
@@ -124,6 +126,7 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFirestoreModule.enablePersistence(), 
     AngularFireDatabaseModule,
+    AngularFireStorageModule,
     AngularFireAuthModule,
     AngularFireMessagingModule,
     
@@ -133,19 +136,25 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     StatusBar,
     SplashScreen,
     GooglePlus,
+    FileTransfer,
     Crop,
     Camera,
     ImagePicker,
     BluetoothSerial,
     File,
     FCM,
-    AngularFirestore,
+    AngularFirestore, 
     BarcodeScanner,
     CallNumber,
     EmailComposer,
     SpeechRecognition,
     Network,
     Printer,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: WoocommerceInterceptorService,
+      multi: true
+    },  
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
   ],
   bootstrap: [AppComponent]

@@ -9,9 +9,8 @@ import { FCM } from '@ionic-native/fcm/ngx';
 import { ComerciosService } from './Services/comercios.service';
 import { NotificacionesDesktopService } from './Services/notificaciones-desktop.service';
 import { NotifificacionesAppService } from './Services/notifificaciones-app.service';
-import { Comercio } from './Models/comercio';
+import { Comercio } from './models/comercio';
 import { InvitacionesService } from './Services/invitaciones.service';
-import { ComandasService } from './Services/comandas.service';
 import { ToastService } from './Services/toast.service';
 import { MesasService } from './Services/mesas.service';
 import * as firebase from 'firebase';
@@ -19,11 +18,13 @@ import { PresenceService } from './Services/presence.service';
 import { UsuariosService } from './Services/usuarios.service';
 import { Network } from '@ionic-native/network/ngx';
 import { PedidoService } from './Services/pedido.service';
+import { Printer } from '@ionic-native/printer/ngx';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
-  styleUrls: ['app.component.scss']
+  styleUrls: ['app.component.scss'],
+  
 })
 export class AppComponent implements OnInit {
   public selectedIndex = 0;
@@ -106,7 +107,7 @@ export class AppComponent implements OnInit {
   };
 
   public onlineOffline: boolean = navigator.onLine;
-  public rolActual = "";
+  public rolActual = ""; 
 
   constructor(
     private platform: Platform,
@@ -120,19 +121,16 @@ export class AppComponent implements OnInit {
     private notifiacionesDesktopService:NotificacionesDesktopService,
     private notificacionesAppService:NotifificacionesAppService,
     private invitacionesService:InvitacionesService,
-    private comandasService:ComandasService,
     private toastService:ToastService,
     public presenceService:PresenceService,
     private usuariosService:UsuariosService,
-    private alertController:AlertController,
     private usuarioService:UsuariosService,
-    private pedidosService: PedidoService
   ) {
     this.comercioSeleccionado = new Comercio();   
     this.initializeApp();  
 
     this.authService.observeRol().subscribe(data=>{
-      this.rolActual = data;
+      this.rolActual = data.rol;
       console.log(this.rolActual)
       //Aca setea todos los shows
 
@@ -148,6 +146,7 @@ export class AppComponent implements OnInit {
       console.log("ERROR"); 
     });*/
 
+  
     this.fcm.onNotification().subscribe(data => {      
       if(data.wasTapped){
 
@@ -206,16 +205,21 @@ export class AppComponent implements OnInit {
       else{
         this.router.navigate(['login']);
       }    
-    });
-
-    
-
-   
+    });  
 
 
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+
+      this.platform.pause.subscribe(async () => {
+        console.log("Salió del sistema"); 
+      });
+  
+      this.platform.resume.subscribe(async () => {
+        console.log("Salió del sistema");
+      });
+
     });
   }
 
@@ -228,7 +232,7 @@ export class AppComponent implements OnInit {
     this.comerciosService.getSelectedCommerce().subscribe(data=>{
  
       console.log(data) 
-
+ 
       if(data)
         this.comercioSeleccionado.asignarValores(data);
       else{

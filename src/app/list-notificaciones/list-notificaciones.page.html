@@ -9,6 +9,16 @@
 
 <ion-content class="ion-padding">
 
+  <div *ngIf="buscando" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/buscando.fw.png" alt="">
+    <p>Cargando comandas, aguarde unos segundos por favor</p>
+  </div>
+
+  <div *ngIf="!buscando && notificaciones.length == 0" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/notificaciones.fw.png" alt="">
+    <p>Aún no tienes notificaciones.</p>
+  </div>
+
     <ion-item *ngFor="let notificacion of notificaciones;let i=index" class="item-card">   
       <!--div slot="start">
         <img src="{{notificacion.foto}}" *ngIf="notificacion.foto">
@@ -17,7 +27,7 @@
       <ion-label>
         <p>{{notificacion.titulo}}</p>
         <h3>{{notificacion.mensaje}}</h3>
-        <p>{{notificacion.createdAt | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}</p>       
+        <p>{{notificacion.createdAt.toDate() | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}</p>       
       </ion-label> 
       <ion-button slot="end" color="danger" (click)="eliminar(notificacion)"><ion-icon name="trash" ></ion-icon></ion-button>
      

@@ -3,13 +3,8 @@
     <ion-buttons slot="start">
       <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Catálogo</ion-title>     
-  </ion-toolbar>
-</ion-header> 
-  
-<ion-content>  
-  <ion-row class="ion-padding">    
-    <ion-searchbar animated 
+    <!--ion-title>Catálogo</ion-title-->   
+    <ion-searchbar animated *ngIf="itemsAllProductos.length > 0" class="FadeOut FadeIn"
       placeholder="Buscar por nombre o categoría"
       animated="true"
       showCancelButton="never" 
@@ -18,119 +13,99 @@
       enterkeyhint="send"
       inputmode="text"
       type="text"
-      debounce="300"
+      debounce="50"
       value="{{palabraFiltro}}"
       (ionChange)="buscar($event)">
     </ion-searchbar>        
-    <ion-col size="6">
-      <ion-button class="button-rounded" size="large" color="primary" style="margin-top: -1px; height: 42px;"  (click)="lectorDeCodigo()">
-          <ion-icon name="barcode"></ion-icon>
-      </ion-button>
-    </ion-col>
-    <ion-col size="6"> 
-      <ion-button class="button-rounded" size="large" color="primary" style="margin-top: -1px; height: 42px;"  (click)="reconocimientoPorVoz()">
-          <ion-icon name="mic-outline"></ion-icon>
-      </ion-button>
-    </ion-col>
-  </ion-row>
-
-  <ion-slides [options]="slideOpts" slidesPerView="3">
-    <ion-slide (click)="verProductos('')" >
-      <span >Ver Todo</span>
-    </ion-slide>
-    <ion-slide *ngFor="let categoria of categorias"  (click)="verProductos(categoria)" 
-      [class.seleccionado]="categoria.seleccionado == true"
-      
-    >
-      <img  src="categoria.foto" alt="">
-      <span >{{categoria.nombre}}</span>
-    </ion-slide>
-    <ion-slide>
-    </ion-slide>
-  </ion-slides>
+  </ion-toolbar>
+</ion-header> 
   
-  <div class="ion-padding">
-    <ion-item  class="list-item" *ngIf="itemsAllProductos.length == 0 && itemsAllServicios.length == 0" (click)="presentAlertSeleccionar()">  
-      <ion-avatar slot="start">       
-        <ion-icon name="star"></ion-icon>
-      </ion-avatar>      
-      <ion-label>
-        <h2><b>Aún no tienes productos ni servicios agregados a tu comercio! Agregar uno nuevo</b></h2>        
-      </ion-label>
-    </ion-item>
+<ion-content class="ion-padding">  
+ 
+    <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+
     
-    <ion-grid>
-      <span *ngFor="let letra of itemsSeparadosAlfabeticamente">
-        <ion-row >
-          <ion-col size="12">
-            <ion-item class="item-card">
-              <h5>{{letra.group}}</h5> 
-            </ion-item> 
+    <ion-grid *ngIf="itemsAllProductos.length > 0">       
+        <ion-row>          
+          <ion-col *ngIf="palabraFiltro == ''" size="6" size-xs="6" size-sm="6" size-md="4" size-lg="3">
+            <ion-item (click)="agregarDescuento()" class="item-card">
+                  
+              <ion-label>                
+                <h2>
+                  Descuento 
+                </h2>
+              </ion-label>  
+            </ion-item>
           </ion-col>
-        </ion-row>
-        <ion-row> 
-          <ion-col size="12" size-xs="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let child of letra.children">         
-            <ion-item-sliding class="item-card" >
+
+          <ion-col *ngIf="palabraFiltro == ''" size="6" size-xs="6" size-sm="6" size-md="4" size-lg="3">
+            <ion-item (click)="agregarRecargo()" class="item-card">
+               
+              <ion-label>                
+                <h2>
+                  Recargo
+                </h2>
+              </ion-label>  
+            </ion-item>
+          </ion-col>          
+
+          <ion-col size="12" size-xs="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let producto of itemsProductos">           
+
+            <ion-item-sliding class="item-card fivePhasesFadeIn"  > 
               <app-card-producto   
-                [item]="child"   
-                [multiplicador]="1"
+                [item]="producto"
+                [multiplicador]="1" 
                 [showOpcionesSeleccionadas]="false"
                 [showEstadoComanda]="false"
-                (select)="seleccionar(child)"
-              ></app-card-producto>   
+                (select)="agregarProducto(producto)"
+              ></app-card-producto>    
             
               <ion-item-options side="end">
-                <ion-item-option  (click)="editarProducto(child)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
+                <ion-item-option  (click)="editarProducto(producto)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
               </ion-item-options>
         
               <ion-item-options side="start" *ngIf="comercio.modulos.stock">
-                <ion-item-option color="success" (click)="agregarStock(child)">Stock</ion-item-option>
+                <ion-item-option color="success" (click)="agregarStock(producto)">Stock</ion-item-option>
               </ion-item-options>
 
             </ion-item-sliding>
           </ion-col>
 
-          <ion-col size="12" size-xs="12" size-sm="6" size-md="4" size-lg="3"  *ngFor="let item of itemsServicios" >
-            <ion-item-sliding class="item-card">
-              <ion-item (click)="seleccionar(item)" *ngIf="!item.producto">
-                <div slot="start"> 
-                  <img src="{{item.foto}}" *ngIf="item.foto">
-                  <ion-icon name="document-attach-outline" *ngIf="!item.foto"></ion-icon>
-                </div>      
-                <ion-label>
-                  <h2><b>{{item.nombre}}</b> </h2>
-                  <p>
-                    {{item.descripcion}}
-                  </p>           
-                </ion-label>  
-              </ion-item>
-        
-              
-            
-              <ion-item-options side="end">
-                <ion-item-option (click)="editarServicio(item)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
-              </ion-item-options>
-        
-            </ion-item-sliding>
-          </ion-col> 
+          
   
         </ion-row>
-      </span>
     </ion-grid>
-  </div>
-    
+ 
 
-    
-
-
+  
   <!-- fab placed to the bottom end -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" (click)="presentAlertSeleccionar()">
-    <ion-fab-button>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
+
+    <ion-fab-button *ngIf="isMobile"  color="success" (click)="lectorDeCodigo()">
+      <ion-icon name="barcode"></ion-icon>
+    </ion-fab-button><br>
+
+    <ion-fab-button *ngIf="isMobile"  color="success" (click)="reconocimientoPorVoz()">
+      <ion-icon name="mic-outline"></ion-icon>
+    </ion-fab-button><br>
+
+    <ion-fab-button (click)="nuevoProducto()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 
-    
+  <div *ngIf="buscandoProductos" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/buscando.fw.png" alt="">
+    <p>Cargando productos, <br> aguarde unos segundos por favor</p>
+  </div>
+
+  <div *ngIf="!buscandoProductos && itemsAllProductos.length == 0" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/producto.png" alt="">
+    <p >Aún no tienes productos ni servicios agregados a tu comercio!</p>
+  </div>
+
   <div class="space">
     
   </div> 
@@ -138,8 +113,8 @@
 
 </ion-content>
 
-<ion-footer class="ion-no-border ion-padding" *ngIf="carrito.on" style="padding: 0px;">
+<ion-footer class="ion-no-border ion-padding" *ngIf="carrito.on" style="padding: 0px;"> 
   <ion-toolbar>
-    <ion-button class="margin0 button-rounded" style="height: 60px;" color="success" (click)="verCarrito()">{{carrito.productos.length + carrito.servicios.length}} Items = {{carrito.totalProductos+carrito.totalServicios | currency}} <ion-icon name="arrow-forward"></ion-icon></ion-button>
+    <ion-button class="margin0 button-rounded" style="height: 60px;" color="success" (click)="siguiente()">{{carrito.productos.length + carrito.servicios.length}} Items = {{carritoService.getTotal() | currency}} <ion-icon name="arrow-forward"></ion-icon></ion-button>
   </ion-toolbar> 
 </ion-footer>

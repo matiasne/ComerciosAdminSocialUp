@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Estas listo para el siguiente paso?</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <p>Tu plan actual "Free" alcanzó su limite, para seguir optimizando tu negocio necesitas ir al siguiente nivel!</p>
+  <p>Con el plan "Spark" podes:</p>
+  <ul>
+    <li>Crear hasta 4 cajas</li>
+    <li>Generar Factura Electrónica AFIP.</li>
+    <li>Crear Cuentas Corrientes para tus clientes</li>
+    <li>Llevar tus datos a una tienda online</li>
+    <li>Cargar hasta 3 sucursales o comercios</li>
+    <li>Cargar hasta 40 productos</li>
+    <li>Invitar hasta 5 empleados</li>
+    <li>2 horas de soporte online</li>
+    <li>Videos instructivos</li>    
+  </ul>
+  <p>Todo esto por 2899$ mensuales</p>
+  <ion-button class="button-rounded"  color="primary" >Siguiente Nivel!</ion-button>
+  <ion-button class="button-rounded"  color="light" (click)="cerrar()" >No gracias</ion-button>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-button slot="end" class="button-rounded"  color="primary" >Siguiente Nivel!</ion-button>
+    <ion-button slot="start" class="button-rounded"  color="light" (click)="cerrar()" >No gracias</ion-button>
+  </ion-toolbar>
+</ion-footer>

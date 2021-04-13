@@ -41,7 +41,7 @@
   </form>  
 
   <ion-item class="item-card">
-    <ion-label>Seleccione Método de Pago</ion-label>
+    <ion-label position="floating">Método de Pago</ion-label>
       <ion-select [(ngModel)]="metodoPagoSeleccionado">
         <ion-select-option  [value]="'efectivo'">Efectivo</ion-select-option>
         <ion-select-option  [value]="'debito'">Débito</ion-select-option>
@@ -52,9 +52,9 @@
   
 
   <ion-toolbar>
-    <ion-button slot="end" (click)="guardar()">Guardar</ion-button>
+    <ion-button class="button-rounded" slot="end" (click)="guardar()">Guardar</ion-button>
     
-    <ion-button slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
+    <ion-button class="button-rounded" slot="start"  color="light" (click)="cancelar()">Cancelar</ion-button>
   </ion-toolbar>
 
 </ion-content>

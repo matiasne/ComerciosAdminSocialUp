@@ -12,6 +12,8 @@ export class ListNotificacionesPage implements OnInit {
 
   private notiSub:Subscription;
   public notificaciones = [];
+  public buscando = true;
+
   constructor(
     private notificacionesAppService:NotifificacionesAppService,
     private authService:AuthenticationService
@@ -24,10 +26,10 @@ export class ListNotificacionesPage implements OnInit {
     console.log(usuario)
     this.notiSub = this.notificacionesAppService.getAll(usuario.uid).subscribe(snapshot=>{                 
       this.notificaciones = [];
+      this.buscando = false;
       snapshot.forEach((snap: any) => {           
           var item = snap.payload.doc.data();
           item.id = snap.payload.doc.id; 
-          item.createdAt = this.toDateTime(item.createdAt.seconds);
           this.notificaciones.push(item);             
       });
       console.log(this.notificaciones);
@@ -50,11 +52,6 @@ export class ListNotificacionesPage implements OnInit {
   }
 
   
-  toDateTime(secs) {
-    var t = new Date(1970, 0, 1); // Epoch
-    t.setSeconds(secs);
-    return t;
-  }
 
   ngOnInit() {
   }

@@ -20,6 +20,7 @@ export class ListEmpleadosPage implements OnInit {
   public subsItems: Subscription;
   public palabraFiltro = "";
   public user:User;
+  public buscando = true;
 
   constructor(
     public authService:AuthenticationService,
@@ -43,6 +44,7 @@ export class ListEmpleadosPage implements OnInit {
         this.itemsAll.push(rol);      
 
       });
+      this.buscando = false;
       this.buscar();
       rolSub.unsubscribe();
     });

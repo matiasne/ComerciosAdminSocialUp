@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NavController } from '@ionic/angular';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthenticationService } from '../Services/authentication.service';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { CajasService } from '../Services/cajas.service';
@@ -9,6 +9,9 @@ import { MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientosService } from '../Services/movimientos.service';
 import { Caja } from '../models/caja';
 import { ToastService } from '../Services/toast.service';
+import { Subscription } from 'rxjs';
+import { Comercio } from '../models/comercio';
+import { ComerciosService } from '../Services/comercios.service';
 
 @Component({
   selector: 'app-form-egreso-caja',
@@ -20,8 +23,17 @@ export class FormEgresoCajaPage implements OnInit {
   public datosForm: FormGroup;
   submitted = false;
   public totalActual=0;
+  public cajas = []
+  public cajaSeleccionadaIndex=-1;
+  public cajaSeleccionada:Caja;
+
   public caja:Caja;
   private egreso:MovimientoCaja;
+  cajasSubs:Subscription;
+
+  public comercio:Comercio;
+
+  public metodoPagoSeleccionado = "efectivo"
 
   constructor(
     private formBuilder: FormBuilder,
@@ -32,22 +44,19 @@ export class FormEgresoCajaPage implements OnInit {
     private firestore:AngularFirestore,
     private movimientosService:MovimientosService,
     private toastServices:ToastService,
+    private comerciosService:ComerciosService,
+    private router:Router,
   ) { 
 
+    this.cajasService.setearPath();    
+    this.comercio = new Comercio()
     this.caja = new Caja();
     this.egreso = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getEmail());
     this.egreso.id = this.firestore.createId();
 
-    this.totalActual = Number(this.route.snapshot.params.totalActual);
-
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.cajasService.get(this.route.snapshot.params.cajaId).subscribe(caja =>{
-      this.caja = caja;
-      this.caja.comercioId = comercio_seleccionadoId;
-    })
+    
     
     this.datosForm = this.formBuilder.group({
-      cajaId:[this.route.snapshot.params.cajaId,Validators.required],
       monto: ['', Validators.required],
       motivo:['', Validators.required]
     });
@@ -59,6 +68,43 @@ export class FormEgresoCajaPage implements OnInit {
   ngOnInit() {
   }
 
+  ionViewDidEnter(){
+
+    this.comercio.asignarValores(this.comerciosService.getSelectedCommerceValue());
+    
+    this.cajasService.list().subscribe((cajas:any)=>{      
+      for(let i=0;i <cajas.length;i++){
+        if(cajas[i].estado == "abierta"){ 
+          this.cajas.push(cajas[i]);
+        }   
+      }      
+      console.log(this.cajas);
+      if(this.cajas.length == 0){
+        this.toastServices.alert("Debes tener al menos una caja abierta","");
+        this.router.navigate(['/list-cajas']);
+      }
+      else{
+        this.setCaja();
+      }       
+    });
+  }
+
+  setCaja(){
+
+    for(let i=0;i <this.cajas.length;i++){
+      if(this.cajas[i].id == this.route.snapshot.params.cajaId){ 
+        this.cajaSeleccionadaIndex = i;
+        this.caja = this.cajas[i]
+        this.totalActual = this.cajas[i].totalEfectivo;
+      }   
+    } 
+  }
+
+  setearCaja(){
+    this.caja = this.cajas[this.cajaSeleccionadaIndex]
+    this.totalActual = this.caja[this.cajaSeleccionadaIndex].totalEfectivo;
+  }
+
   guardar(){
 
     this.submitted = true;
@@ -68,20 +114,26 @@ export class FormEgresoCajaPage implements OnInit {
       return;
     } 
 
-    console.log()
-    if(this.datosForm.controls.monto.value > this.route.snapshot.params.totalActual){
+    if (this.metodoPagoSeleccionado =="efectivo" && this.caja.id == "") {
+      this.toastServices.alert('Por favor seleccione una caja antes de continuar',"");
+      return;
+    } 
+
+    if(this.metodoPagoSeleccionado =="efectivo" && this.datosForm.controls.monto.value > this.totalActual){
       this.toastServices.alert("El monto de egreso no puede ser mayor al monto total de efectivo en caja","");
       return;
     }
 
-   
+    
+    
+
     this.egreso.asignarValores(this.datosForm.value);
-    this.egreso.metodoPago = "efectivo";
+    this.egreso.metodoPago = this.metodoPagoSeleccionado;
     this.egreso.monto = - Number(this.datosForm.controls.monto.value);
     this.egreso.motivo = this.datosForm.controls.motivo.value;
     this.movimientosService.createMovimientoCaja(this.caja,this.egreso);
     
-    this.navCtrl.back();
+    this.navCtrl.back(); 
   }
 
   cancelar(){

@@ -1,99 +1,57 @@
-<ion-content>
-  <ion-row style="height: 100%;">
-    <ion-col size-md="8" size-xs="0" class="background">
-      
-    </ion-col>
-    <ion-col size-md="4" class="ion-padding">
-      <form  #form="ngForm" (ngSubmit)="login()">
-        <!--ion-grid>
-          <ion-row color="primary" justify-content-center>
-            <ion-col align-self-center size-md="6" size-lg="5" size-xs="12"-->
-              <img width="200px" src="../../assets/img/logo.png" alt="">
-              <!--div text-center>
-                <h3>Ingresa a tu cuenta</h3>
-              </div-->
-             
-                <ion-item >
-                  <ion-input name="email" type="email" [(ngModel)]="email" placeholder="your@email.com" ngModel required></ion-input>
-                </ion-item>
-                <ion-item>
-                  <ion-input name="password" [(ngModel)]="password" placeholder="Password" ngModel required
-                        [type]="passwordTypeInput1" #passwordEye clear-on-edit="true"></ion-input>
-                  <button  item-end  type="button" class="btn_eye_icon" (click)="togglePasswordMode()">
-                    <ion-icon [name]="iconpassword1"></ion-icon>
-                  </button>
-                </ion-item>           
+<ion-content >
+  <ion-grid class="login-background" style="padding: 0px;">
+    <ion-row style="height: 100%;">
+      <ion-col size-md="0" size-sm="0" size-xs="0">
+        <div class="login-imagen-container" [hidden]="devWidth < 576">
+          <img src="../../assets/img/login.fw.png" alt="">
+        </div>
+        
+      </ion-col >
+      <ion-col size-md="4" style="text-align:center;">
+        
+        <div class="login-section"> 
+          <img  width="80px" src="../../assets/img/icon.fw.png" alt="">
+        
+          <form  #form="ngForm" (ngSubmit)="login()" class="login-card">
+            <ion-item>
+              <ion-label position="floating">Email</ion-label>
+              <ion-input name="email" type="email" [(ngModel)]="email" ngModel required></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Password</ion-label>
+              <ion-input name="password" [(ngModel)]="password" ngModel required
+                    [type]="passwordTypeInput1" #passwordEye clear-on-edit="true"></ion-input>
+              <button  item-end  type="button" class="btn_eye_icon" (click)="togglePasswordMode()">
+                <ion-icon [name]="iconpassword1"></ion-icon>
+              </button>
+            </ion-item>           
+          
+            <p>
+              <a routerLink="/recuperar-contrasena">Olvidaste tu contraseña?</a>
+            </p>
+          
+            <ion-button class="button-rounded" size="large" type="submit" [disabled]="form.invalid" expand="block">Login</ion-button>
+
+            <p>o conectate con</p>
+                            
+            <ion-button class="button-rounded" size="large"  expand="block" (click)="googleLogin()">Google</ion-button>                   
+          
+            
+            <p> No tienes cuenta? <a routerLink="/registro">Registrate</a> </p>     
               
-              <ion-row style="margin-top:30px;margin-bottom: 20px;" justify-content-center>
-                <a routerLink="/recuperar-contrasena">Olvidaste tu contraseña?</a>
-              </ion-row>
-             
-                <ion-button size="large" type="submit" [disabled]="form.invalid" expand="block">Login</ion-button>
-              
-              
-             
-              <ion-row justify-content-center>
-                o conectate con
-              </ion-row>
-             
-                <ion-button size="large"  expand="block" (click)="googleLogin()">Google</ion-button>                   
-             
-              <ion-row justify-content-center>
-                <div text-center>
-                   <p> No tienes cuenta? <a routerLink="/registro">Registrate</a> </p>     
-                </div>                 
-              </ion-row>
-            <!--/ion-col>
-          </ion-row>
-        </ion-grid-->
-      </form>
-    </ion-col>
-  </ion-row>
+
+          </form>            
+        </div>  
+       
+      </ion-col>
+      <ion-col size-md="1" size-xs="0">
+
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  
   
 
 
 </ion-content>
-
-<!--ion-content class="ion-padding">
-  <form #form="ngForm" (ngSubmit)="login()">
-    <ion-grid>
-      <ion-row color="primary" justify-content-center>
-        <ion-col align-self-center size-md="6" size-lg="5" size-xs="12">
-          <div text-center>
-            <h3>Ingresa a tu cuenta</h3>
-          </div>
-          <div class="ion-padding">
-            <ion-item >
-              <ion-input name="email" type="email" [(ngModel)]="email" placeholder="your@email.com" ngModel required></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input name="password" type="password" [(ngModel)]="password" placeholder="Password" ngModel required></ion-input>
-            </ion-item>
-          </div>
-          <ion-row justify-content-center>
-            <a routerLink="/recuperar-contrasena">Olvidaste tu contraseña?</a>
-          </ion-row>
-          <div class="ion-padding">
-            <ion-button size="large" type="submit" [disabled]="form.invalid" expand="block">Login</ion-button>
-          </div>   
-          
-         
-          <ion-row justify-content-center>
-            o conectate con
-          </ion-row>
-         
-            <ion-button size="large"  expand="block" (click)="googleLogin()">Google</ion-button>                   
-         
-          <ion-row justify-content-center>
-            <div text-center>
-               <p> No tienes cuenta? <a routerLink="/registro">Registrate</a> </p>     
-            </div>                 
-          </ion-row>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </form>
-
-
-</ion-content-->
 

@@ -1,12 +1,12 @@
 
 
 <input #fileInput  type="file" multiple="multiple" name="files[]" accept="image/*;" (change)="seleccionarImagenWeb($event)" style="display:none;" /> 
-<div *ngIf="croppedImage">
+<div *ngIf="croppedImage && showImageCroped"> 
   <img  src="{{croppedImage}}" alt="" (click)="fileInput.click()" *ngIf="!IsMobile" >
   <img  src="{{croppedImage}}" alt="" (click)="selectImage()" *ngIf="IsMobile">
 </div>
 
-<div *ngIf="!croppedImage">
+<div *ngIf="!croppedImage || !showImageCroped">
   <div *ngIf="!IsMobile" (click)="fileInput.click()">
     <div style="padding: 30px;">
       <ion-icon name="camera-outline" style="font-size: 20px;"></ion-icon><br>

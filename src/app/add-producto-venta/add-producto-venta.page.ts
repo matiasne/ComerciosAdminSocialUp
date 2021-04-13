@@ -11,6 +11,7 @@ import { Opcion } from '../models/opcion';
 import { Subscription } from 'rxjs';
 import { CocinasService } from '../Services/cocinas.service';
 import { GrupoOpcionesService } from '../Services/grupo-opciones.service';
+import { CarritoService } from '../Services/global/carrito.service';
 
 @Component({
   selector: 'app-add-producto-venta',
@@ -43,7 +44,8 @@ export class AddProductoVentaPage implements OnInit {
     public productoService:ProductosService,
     private navParams:NavParams,
     private cocinasService:CocinasService,
-    private gruposOpcionesService:GrupoOpcionesService
+    private gruposOpcionesService:GrupoOpcionesService,
+    private carritoService:CarritoService
   ) { }
 
   ngOnInit() {
@@ -53,7 +55,8 @@ export class AddProductoVentaPage implements OnInit {
     this.producto.cantidad = 1;
     this.producto.descripcion_venta = "";
 
-    this.gruposOpciones = []; 
+    this.gruposOpciones = [];  
+    this.gruposOpcionesService.setearPath()
     this.producto.gruposOpcionesId.forEach(id =>{
       let sub = this.gruposOpcionesService.get(id).subscribe(data=>{
         data.opciones.forEach(opcion =>{
@@ -128,6 +131,24 @@ export class AddProductoVentaPage implements OnInit {
 
      
     var isOk = false;
+
+    this.producto.opcionesSeleccionadas = [];
+    this.gruposOpciones.forEach(grupo =>{
+      grupo.opciones.forEach(opcion => {
+        if(opcion.cantidad > 0){               
+          var opcionSeleccionada   = {
+            nombreGrupo : grupo.nombre,
+            nombre : opcion.nombre,
+            precioVariacion : opcion.precioVariacion,
+            cantidad : opcion.cantidad,
+          } 
+         
+          this.producto.opcionesSeleccionadas.push(opcionSeleccionada);
+          opcion.cantidad = 0;
+        }
+      });
+    })   
+
    
     if(this.gruposOpciones.length > 0){
       
@@ -183,14 +204,15 @@ export class AddProductoVentaPage implements OnInit {
     } 
 
     console.log("!!!!!! isOK"+isOk)
-    if(isOk){
-  
+    if(isOk){  
       this.cocinasService.setearPath();
       this.cocinasService.get(this.producto.cocinaId).subscribe(data=>{
         this.producto.cocinaNombre = data.nombre;
-      })
-
-      this.modalCtrl.dismiss(this.producto);      
+      }) 
+      console.log(this.producto)
+      this.modalCtrl.dismiss(this.producto); 
+      delete this.producto.keywords;
+      this.carritoService.agregarProducto(this.producto);      
       this.toastServices.mensaje('Agregado!', this.producto.cantidad+' '+this.producto.unidad+' de '+this.producto.nombre);     
     }  
    

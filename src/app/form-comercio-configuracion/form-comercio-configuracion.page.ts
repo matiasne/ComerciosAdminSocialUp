@@ -2,8 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { ComerciosService } from '../Services/comercios.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 import { AuthenticationService } from '../Services/authentication.service';
+import { FormComercioPage } from '../form-comercio/form-comercio.page';
+import { AlertController, ModalController } from '@ionic/angular';
+import { RolesService } from '../Services/roles.service';
+import { Rol } from '../models/rol';
 
 @Component({
   selector: 'app-form-comercio-configuracion',
@@ -18,13 +22,16 @@ export class FormComercioConfiguracionPage implements OnInit {
   public cajas =[];
   public horarios =[];
   public categorias = [];
-  public rolActual = "";
+  public rolActual:any;
 
   constructor(
     private comerciosService:ComerciosService,
     private route:ActivatedRoute,
     private router:Router,
-    private authService:AuthenticationService
+    private authService:AuthenticationService,
+    private modalCtrl:ModalController,
+    private alertController:AlertController,
+    private rolesService:RolesService
   ) { 
     this.comercio = new Comercio();
   }
@@ -34,13 +41,57 @@ export class FormComercioConfiguracionPage implements OnInit {
       this.comercio.asignarValores(data);
     });
 
+    
+  } 
+
+  ionViewDidEnter(){
     let obs = this.authService.observeRol().subscribe(data=>{
-      this.rolActual = data;
+      this.rolActual = data.rol;
       console.log(this.rolActual)
       //Aca setea todos los shows
       obs.unsubscribe();
     })
-  } 
+  }
+
+  async editarComercio(){
+    // this.seleccionar(item);
+ 
+     const modal = await this.modalCtrl.create({
+       component: FormComercioPage,
+       componentProps: {
+         comercio:this.comercio      
+       }
+     });
+    
+     return await modal.present();
+     
+ 
+ 
+   }
+
+   async desvincular(){   
+
+    const alert = await this.alertController.create({
+      header: 'Eliminar',
+      message: 'Está seguro que desea eliminar el comercio?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Desvincular',
+          handler: () => {
+            this.rolesService.delete(this.comercio.id,this.rolActual.id);
+            this.router.navigate(['home']);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
 
   openEditOpciones(){
     this.router.navigate(['list-grupos-opciones']); 
@@ -85,6 +136,18 @@ export class FormComercioConfiguracionPage implements OnInit {
   verImpresora(){
     this.router.navigate(['form-impresora-config']);
   }  
+
+  openEditWoocommerce(){
+    this.router.navigate(['form-woocommerce-configuracion']);
+  }
+
+  openBeneficiosClientes(){
+    this.router.navigate(['list-beneficios']);
+  }
+
+  openBeneficiosPuntaje(){
+    
+  }
   
   update(){
     this.comerciosService.update(this.comercio);

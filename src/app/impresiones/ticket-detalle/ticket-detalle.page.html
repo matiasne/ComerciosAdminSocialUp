@@ -1,0 +1,53 @@
+<ion-content>
+  
+  <img width="40px" src="{{comercio.icono}}">
+              
+  <h2><b>{{comercio.nombre}}</b></h2>
+  <p>Gracias por su visita!</p>
+    
+  
+  
+  <div *ngFor="let item of pedido.productos">   
+    <p *ngIf="item.suspendido != 1">             
+    <b>{{item.nombre}}</b><br>
+    
+      <span *ngIf="item.valorPor && (item.valorPor * item.cantidad)==1 && item.unidad == 'unidades'">
+        {{item.valorPor * item.cantidad}} unidad
+      </span>
+
+      <span *ngIf="item.valorPor && (item.valorPor * item.cantidad)==1 && item.unidad != 'unidades'">
+        {{item.valorPor * item.cantidad}}  {{item.unidad}}
+      </span>
+
+      <span *ngIf="item.valorPor && (item.valorPor * item.cantidad)!=1">
+        <span *ngIf="item.valorPor">
+          {{item.valorPor * item.cantidad}}
+        </span>        
+        <span *ngIf="item.unidad">
+          {{item.unidad}}
+        </span> 
+      </span>     
+      <b>{{item.precio * item.cantidad | currency}} </b> <br> 
+      <span class="subitem" *ngFor="let opcion of item.opcionesSeleccionadas">
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{opcion.cantidad}}X {{opcion.nombreGrupo}} {{opcion.nombre}} <span *ngIf="opcion.precioVariacion != 0">{{opcion.precioVariacion | currency}}</span>
+      </span>    
+    </p>            
+  </div>  
+  <p>
+    <b *ngIf="pedido.descuentos.length > 0">Descuentos</b> <br>
+
+    <span *ngFor="let descuento of pedido.descuentos; let i = index">    
+    <span *ngIf="descuento.tipo== enumTipo.porcentaje">%</span> <span *ngIf="descuento.tipo== enumTipo.monto">$</span> {{descuento.monto}}  {{descuento.motivo}}     
+    </span>
+  </p>
+
+  <p>
+    <b  *ngIf="pedido.recargos.length > 0">Recargos</b><br>
+
+    <span *ngFor="let recargo of pedido.recargos; let i = index">    
+      <span *ngIf="recargo.tipo== enumTipo.porcentaje">%</span> <span *ngIf="recargo.tipo== enumTipo.monto">$</span> {{recargo.monto}}  {{recargo.motivo}}       
+    </span>
+  </p>
+
+  <h3>Total: ${{getTotal()}}</h3>
+</ion-content>

@@ -96,6 +96,7 @@ export class FormIngresoCajaPage implements OnInit {
     pago.cajaId = this.caja.id;
     pago.metodoPago = this.metodoPagoSeleccionado;
     pago.monto= this.datosForm.controls.monto.value;
+    pago.motivo = this.datosForm.controls.motivo.value;
     
       
     console.log(this.caja.id);

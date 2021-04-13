@@ -9,40 +9,48 @@
 
 <ion-content class="ion-padding">   
  
-    
-  <ion-button class="button-rounded"  *ngIf="!carrito.cliente.id" (click)="seleccionarCliente()"  >Seleccionar Cliente</ion-button>
+  <ion-grid>
+    <ion-row >
+      <ion-col size="6">
+        <ion-button class="button-rounded"  *ngIf="!carrito.cliente.id && comercio.modulos.clientes" (click)="seleccionarCliente()"  ><ion-icon name="add"></ion-icon>  Cliente</ion-button>
+        <ion-item-sliding *ngIf="carrito.cliente.id && comercio.modulos.clientes">
+          <app-card-usuario
+            [cliente]="carrito.cliente"
+            (select)="seleccionarCliente()">
+          </app-card-usuario>
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="eliminarCliente()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-col>
+      <ion-col size="6">
 
-  <ion-item-sliding *ngIf="carrito.cliente.id">
-    <app-card-usuario
-      [cliente]="carrito.cliente"
-      (select)="seleccionarCliente()">
-    </app-card-usuario>
-    <ion-item-options side="end">
-      <ion-item-option color="danger" (click)="eliminarCliente()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
-    </ion-item-options>
-  </ion-item-sliding>
+        <ion-button *ngIf="!carrito.mesa.id && comercio.modulos.mesas" (click)="seleccionarMesa()" class="button-rounded" ><ion-icon name="add"></ion-icon>  Mesa</ion-button>
+
+        <ion-item-sliding *ngIf="carrito.mesa.id && comercio.modulos.mesas">
+      
+          <ion-item class="item-card">
+            <ion-avatar slot="start" (click)="seleccionarMesa()">
+              <img src="{{carrito.mesa.foto}}" *ngIf="carrito.cliente.foto">
+              <ion-icon name="person" *ngIf="!carrito.mesa.foto"></ion-icon>
+            </ion-avatar>
+            <ion-label (click)="seleccionarMesa()">
+              <h2>{{carrito.mesa.nombre}}</h2>
+            </ion-label>      
+          </ion-item>
+      
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="eliminarMesa()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-col>
+    </ion-row >
+  </ion-grid>  
+  
         
      
     
 
-  <ion-button *ngIf="!carrito.mesa.id" (click)="seleccionarMesa()" class="button-rounded" >Seleccionar Mesa</ion-button>
-
-  <ion-item-sliding *ngIf="carrito.mesa.id">
-
-    <ion-item *ngIf="carrito.mesa.id" class="item-card">
-      <ion-avatar slot="start" (click)="seleccionarMesa()">
-        <img src="{{carrito.mesa.foto}}" *ngIf="carrito.cliente.foto">
-        <ion-icon name="person" *ngIf="!carrito.mesa.foto"></ion-icon>
-      </ion-avatar>
-      <ion-label (click)="seleccionarMesa()">
-        <h2>{{carrito.mesa.nombre}}</h2>
-      </ion-label>      
-    </ion-item>
-
-    <ion-item-options side="end">
-      <ion-item-option color="danger" (click)="eliminarMesa()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
-    </ion-item-options>
-  </ion-item-sliding>
       
 
    
@@ -68,6 +76,45 @@
         </ion-item-sliding>
       </span>
 
+      <ion-text color="primary" *ngIf="carrito.descuentos.length > 0">
+        <h4>Descuentos</h4>
+      </ion-text> 
+
+      <span *ngFor="let item of carrito.descuentos; let i = index">
+        <ion-item-sliding>
+          <ion-item>
+            <ion-label>                
+              <h2>
+                <b><span *ngIf="item.tipo== enumTipo.porcentaje">%</span> <span *ngIf="item.tipo== enumTipo.monto">$</span> {{item.monto}}</b>  {{item.motivo}}             
+              </h2>
+            </ion-label>
+          </ion-item>
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="eliminarDescuento(i)"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+          </ion-item-options>
+    
+        </ion-item-sliding>
+      </span>
+
+      <ion-text color="primary" *ngIf="carrito.recargos.length > 0">
+        <h4>Recargos</h4>
+      </ion-text> 
+
+      <span *ngFor="let item of carrito.recargos; let i = index">
+        <ion-item-sliding>
+          <ion-item>
+            <ion-label>                
+              <h2>
+                <b><span *ngIf="item.tipo== enumTipo.porcentaje">%</span> <span *ngIf="item.tipo== enumTipo.monto">$</span> {{item.monto}}</b>  {{item.motivo}}             
+              </h2>
+            </ion-label>
+          </ion-item>
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="eliminarRecargo(i)"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+          </ion-item-options>
+    
+        </ion-item-sliding>
+      </span>
       
     
     </ion-list>
@@ -114,7 +161,7 @@
 
 <ion-footer class="ion-no-border ion-padding"> 
   <ion-toolbar>   
-    <ion-button class="button-rounded" slot="start"  color="danger" (click)="cancelar()">Cancelar</ion-button>
-    <ion-button class="button-rounded" slot="end"  color="primary" (click)="continuar()">Cargar Pedido</ion-button>
+    <!--ion-button class="button-rounded" slot="start"  color="danger" (click)="cancelar()">Cancelar</ion-button-->
+    <ion-button class="button-rounded"  color="success" (click)="continuar()">Cargar Pedido</ion-button>
   </ion-toolbar>
 </ion-footer> 

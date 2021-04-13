@@ -4,7 +4,7 @@ import { HorariosService } from '../Services/horarios.service';
 import { FormHorarioPage } from '../form-horario/form-horario.page';
 import { ModalController, AlertController } from '@ionic/angular';
 import { ComerciosService } from '../Services/comercios.service';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 
 @Component({
   selector: 'app-list-horarios',
@@ -16,6 +16,7 @@ export class ListHorariosPage implements OnInit {
   public horariosSubs:Subscription;
   public horarios = [];
   public comercio:Comercio;
+  public buscando = true;
   constructor(
     private comercioService:ComerciosService,
     private modalController:ModalController,
@@ -30,6 +31,7 @@ export class ListHorariosPage implements OnInit {
     this.horariosSubs = this.comercioService.get(comercio_seleccionadoId).subscribe(snap=>{                 
       this.comercio.asignarValores(snap.payload.data());
       this.comercio.id = snap.payload.id;
+      this.buscando = false;
     });  
     
   }

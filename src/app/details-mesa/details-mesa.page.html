@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button  (click)="atras()"></ion-back-button>
+      <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
     <ion-title>Mesa/{{mesa.nombre}}</ion-title>    
   </ion-toolbar>
@@ -10,27 +10,63 @@
 <ion-content class="ion-padding">
   <h2 *ngIf="pedidos.length == 0">No tienes pedidos cargado a esta mesa.</h2>
 
-  <h5>Productos ({{pedidoTotal.productos.length}})</h5>  
-  <span *ngFor="let producto of pedidoTotal.productos; let i = index">       
-    <app-card-producto
-      [item]="producto" 
-      [showStock]="false"
-      [showImage]="false"
-      [multiplicador]="1"
-    ></app-card-producto>      
-  </span>
+  
 
   <ion-list lines="none">  
     <h5>Pedidos ({{pedidos.length}})</h5>       
-    <ion-item-sliding *ngFor="let pedido of pedidos" class="item-card">
+    <ion-item-sliding *ngFor="let pedido of pedidos" class="item-card" (click)="seleccionar(pedido)">
       <app-card-pedido [item]="pedido"></app-card-pedido>
+
+      
+
      <ion-item-options side="end"> 
         <ion-item-option (click)="cancelar(pedido)"><ion-icon name="trash" ></ion-icon>Cancelar</ion-item-option>
       </ion-item-options> 
     </ion-item-sliding> 
   </ion-list> 
+
+  <span *ngIf="productos.length > 0">
+    <h5>Productos ({{productos.length}})</h5>  
+    <span *ngFor="let producto of productos; let i = index">       
+      <app-card-producto
+        [item]="producto" 
+        [showStock]="false"
+        [showImage]="false"
+        [multiplicador]="1"
+      ></app-card-producto>       
+    </span>
+  </span>
+  
+  <ion-text color="primary" *ngIf="descuentos.length > 0">
+    <h4>Descuentos</h4>
+  </ion-text> 
+
+  <span *ngFor="let descuento of descuentos; let i = index">
+      <ion-item>
+        <ion-label>                
+          <h2>
+            <b><span *ngIf="descuento.tipo== enumTipo.porcentaje">%</span> <span *ngIf="descuento.tipo== enumTipo.monto">$</span> {{descuento.monto}}</b>  {{descuento.motivo}}             
+          </h2>
+        </ion-label>
+      </ion-item>
+  </span>
+
+  <ion-text color="primary" *ngIf="recargos.length > 0">
+    <h4>Recargos</h4>
+  </ion-text> 
+
+  <span *ngFor="let recargo of recargos; let i = index">
+      <ion-item>
+        <ion-label>                
+          <h2>
+            <b><span *ngIf="recargo.tipo== enumTipo.porcentaje">%</span> <span *ngIf="recargo.tipo== enumTipo.monto">$</span> {{recargo.monto}}</b>  {{recargo.motivo}}             
+          </h2>
+        </ion-label>
+      </ion-item>
+  </span>
+
 </ion-content>
-<ion-footer class="ion-no-border ion-padding"> 
+<ion-footer *ngIf="pedidos.length == 0" class="ion-no-border ion-padding"> 
   <ion-toolbar>   
     <ion-button class="button-rounded" slot="start"  color="danger" (click)="cerrar()">Cerrar</ion-button>
   </ion-toolbar> 

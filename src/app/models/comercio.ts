@@ -37,9 +37,11 @@ export class Comercio {
         mesas:true,
         clientes:true,
         pedidos: true,
-        cajas:true,
+        movimientosCajas:true,
         ctasCorrientes:true,
-        stock:true
+        stock:true,
+        beneficiosClientes:true,
+        beneficiosPorPuntaje:false
     }
 
     public colores = {
@@ -52,6 +54,12 @@ export class Comercio {
         light:"",
         medium:"",
         dark:""
+    }
+
+    public woocommerce = {
+        url:"",
+        consumerKey:"",
+        consumerSecret:""
     }
 
     public keywords = [];

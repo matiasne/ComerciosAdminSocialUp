@@ -20,7 +20,6 @@ export class RolesService {
   ) {
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
     this.collection = 'comercios/'+comercio_seleccionadoId+'/roles';
-
     this.collectionGroup = "roles";
   }
   
@@ -41,9 +40,7 @@ export class RolesService {
     return this.firestore.collection(this.collection).doc(documentId).snapshotChanges();
   }
 
-  public getAllTipos() {   
-
-    
+  public getAllTipos() {       
     return this.firestore.collection('roles_tipos').snapshotChanges();
   }
 

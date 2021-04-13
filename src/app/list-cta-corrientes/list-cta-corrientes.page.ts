@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CtaCorrientesService } from '../Services/cta-corrientes.service';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 import { ClientesService } from '../Services/clientes.service';
 import { Router } from '@angular/router';
 import { CtaCorriente } from '../models/ctacorriente';
@@ -15,8 +15,9 @@ import { LoadingService } from '../Services/loading.service';
 export class ListCtaCorrientesPage implements OnInit {
 
   public items =[];
-  public palabraFiltro ="";
+  public palabraFiltro =""; 
   public itemsView =[];
+  public buscando = true;
 
   constructor(
     private ctasCorreintesService:CtaCorrientesService,
@@ -26,12 +27,12 @@ export class ListCtaCorrientesPage implements OnInit {
     private loadingService:LoadingService
   ) {
 
-    this.loadingService.presentLoadingText("Cargando Ctas Corrientes")
+   
 
     this.ctasCorreintesService.getAll().subscribe(snapshot =>{
       this.items = [];
 
-
+      this.buscando = false;
       snapshot.forEach((snap: any) => {           
           var item:CtaCorriente = new CtaCorriente(this.authenticationService.getUID(), this.authenticationService.getNombre());
           item.asignarValores(snap.payload.doc.data());
@@ -50,7 +51,6 @@ export class ListCtaCorrientesPage implements OnInit {
 
           console.log(item);
       });  
-      this.loadingService.dismissLoading()
       this.buscar();
     })
   }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ListClientesPage } from '../list-clientes/list-clientes.page';
-import { ModalController, NavController } from '@ionic/angular';
+import { AlertController, ModalController, NavController } from '@ionic/angular';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { ListComerciosOwnerPage } from '../list-comercios-owner/list-comercios-owner.page';
 import { AuthenticationService } from '../Services/authentication.service';
@@ -44,6 +44,7 @@ export class FormCtaCorrientePage implements OnInit {
     private clientesServices:ClientesService,
     private comerciosServices:ComerciosService,
     private toastServices:ToastService,
+    private alertController:AlertController
   ) {
 
     this.ctaCorriente = new CtaCorriente(this.authenticationService.getUID(),this.authenticationService.getNombre());
@@ -153,9 +154,28 @@ export class FormCtaCorrientePage implements OnInit {
     this.navCtrl.back();
   }
 
-  eliminar(){
-    this.ctasCorreintesService.delete(this.ctaCorriente);
-    this.navCtrl.back();
+  async eliminar() {
+    const alert = await this.alertController.create({
+      header: 'Eliminar',
+      message: 'Está seguro que desea eliminar el cliente?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Eliminar',
+          handler: () => {
+            this.ctasCorreintesService.delete(this.ctaCorriente);
+            this.navCtrl.back();
+         
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
+
 
 }

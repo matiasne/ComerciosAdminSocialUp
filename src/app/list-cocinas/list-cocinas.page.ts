@@ -14,6 +14,7 @@ export class ListCocinasPage implements OnInit {
 
   cocinasSubs:Subscription;
   public cocinas =[];
+  public buscando = true;
   
   constructor(
     private cocinaService:CocinasService,
@@ -24,7 +25,8 @@ export class ListCocinasPage implements OnInit {
   ngOnInit() {
     this.cocinaService.setearPath();
     this.cocinasSubs = this.cocinaService.list().subscribe((cocinas:any)=>{                 
-      this.cocinas = cocinas;      
+      this.cocinas = cocinas;     
+      this.buscando = false;
     });
 
   }

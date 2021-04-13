@@ -10,23 +10,16 @@
 <ion-content  class="ion-padding">
 
   <div class="icono-foto">
-    <app-seleccionar-imagen
-      [aspectRatio] = "1/1"
-      [croppedImage]="croppedImageIcono"
+    <!--app-seleccionar-imagen
+      [aspectRatio] = "1/1" 
+      [croppedImage]="producto.fotoPrincipal"
       (onSelectValue)=imagenSeleccionadaIcono($event)>
-    </app-seleccionar-imagen>
+    </app-seleccionar-imagen-->
+    <img  src="{{producto.fotoPrincipal}}" alt="">
   </div>
   
-  <!--div class="icono-foto-producto">
-    <app-seleccionar-imagen-producto
-      [aspectRatio] = "1/1"
-      [croppedImage]="producto.foto"
-      (onSelectValue)=imagenSeleccionadaIcono($event)>
-    </app-seleccionar-imagen-producto>
-  </div-->
-
   <form [formGroup]="datosForm">
-    <div class="form-card">
+    <div class="form-card"> 
       <ion-text color="primary">
         <h4>Nombre *</h4> 
       </ion-text>              
@@ -36,7 +29,26 @@
       <div *ngIf="submitted && f.nombre.errors" class="invalid-feedback">
           <div *ngIf="f.nombre.errors.required"><h5>Ingresa un nombre</h5></div>
       </div>  
-    </div>
+    </div> 
+  
+      <ion-slides *ngIf="fotos.length > 0" pager="true" [options]="slideOpts">
+        <ion-slide *ngFor="let foto of fotos;let i=index">
+          <ion-card>
+            <img src="{{foto.url}}"/>
+            <ion-card-content>
+              <ion-button color="light" (click)="fotoPrincipal(i)">Seleccionar principal</ion-button>
+              <ion-button color="danger" (click)="eliminarFoto(i)">Eliminar</ion-button>
+            </ion-card-content>
+          </ion-card>    
+        </ion-slide>        
+      </ion-slides>              
+            
+      
+      <app-btn-seleccionar-imagen 
+        [aspectRatio] = "1/1" 
+        (onSelectValue)=addFoto($event)>
+      </app-btn-seleccionar-imagen>    
+  
     
     <div class="form-card">
       <ion-text color="primary">
@@ -64,7 +76,7 @@
       
 
       <ion-item [class.invalid]="submitted && !datosForm.controls.unidad.valid">
-        <ion-label>Unidad de medida</ion-label>
+        <ion-label position="floating">Unidad de medida</ion-label>
         <ion-select formControlName="unidad">
           <ion-select-option [value]="'unidades'" selected>Unidad</ion-select-option>
           <ion-select-option [value]="'gr.'">Gramos</ion-select-option>
@@ -92,7 +104,7 @@
     
     <div class="form-card">
       <ion-item [class.invalid]="submitted && !datosForm.controls.categorias.valid">
-        <ion-label>Seleccionar Categorías</ion-label>
+        <ion-label position="floating">Categorías</ion-label>
         <ion-select multiple="true" formControlName="categorias" cancelText="Cancelar" okText="Listo">
           <ion-select-option *ngFor="let categoria of categorias" [value]="categoria.nombre" selected>{{categoria.nombre}}</ion-select-option>
         </ion-select>       
@@ -105,7 +117,7 @@
 
     <div class="form-card">  
       <ion-item [class.invalid]="submitted && !datosForm.controls.cocinaId.valid">
-        <ion-label>Seleccionar Cocina</ion-label>
+        <ion-label position="floating">Cocina</ion-label>
         <ion-select formControlName="cocinaId" cancelText="Cancelar" okText="Listo">
           <ion-select-option *ngFor="let cocina of cocinas" [value]="cocina.id" selected>{{cocina.nombre}}</ion-select-option>
         </ion-select>        
@@ -189,14 +201,7 @@
    
   </form>  
 
-  <div class="form-card" *ngIf="updating">
-    <ion-text color="danger">
-      <h5 color="danger">zona de riesgo</h5>
-    </ion-text>
-    
-    <ion-button  color="danger" (click)="elimiar()">Eliminar Producto</ion-button>
-  </div>
-
+  <ion-button *ngIf="updating" class="button-rounded"  color="danger" (click)="elimiar()">Eliminar Producto</ion-button>
   
 
 </ion-content>

@@ -84,10 +84,6 @@ const routes: Routes = [
     loadChildren: () => import('./list-comercios/list-comercios.module').then( m => m.ListComerciosPageModule)
   },
   {
-    path: 'invitar-usuario',
-    loadChildren: () => import('./invitar-usuario/invitar-usuario.module').then( m => m.InvitarUsuarioPageModule)
-  },
-  {
     path: 'mensajes',
     loadChildren: () => import('./mensajes/mensajes.module').then( m => m.MensajesPageModule)
   },
@@ -161,10 +157,6 @@ const routes: Routes = [
     loadChildren: () => import('./list-cajas/list-cajas.module').then( m => m.ListCajasPageModule)
   },
   {
-    path: 'dashboard-cajas',
-    loadChildren: () => import('./dashboard-cajas/dashboard-cajas.module').then( m => m.DashboardCajasPageModule)
-  },
-  {
     path: 'form-egreso-caja',
     loadChildren: () => import('./form-egreso-caja/form-egreso-caja.module').then( m => m.FormEgresoCajaPageModule)
   },
@@ -183,10 +175,6 @@ const routes: Routes = [
   {
     path: 'form-cta-corriente',
     loadChildren: () => import('./form-cta-corriente/form-cta-corriente.module').then( m => m.FormCtaCorrientePageModule)
-  },
-  {
-    path: 'form-ingreso-cta-corriente',
-    loadChildren: () => import('./form-ingreso-cta-corriente/form-ingreso-cta-corriente.module').then( m => m.FormIngresoCtaCorrientePageModule)
   },
   {
     path: 'details-cta-corriente',
@@ -245,10 +233,6 @@ const routes: Routes = [
     loadChildren: () => import('./select-cliente/select-cliente.module').then( m => m.SelectClientePageModule)
   },
   {
-    path: 'form-comanda-configuracion',
-    loadChildren: () => import('./form-comanda-configuracion/form-comanda-configuracion.module').then( m => m.FormComandaConfiguracionPageModule)
-  },
-  {
     path: 'form-pedidos-configuracion',
     loadChildren: () => import('./form-pedidos-configuracion/form-pedidos-configuracion.module').then( m => m.FormPedidosConfiguracionPageModule)
   },
@@ -301,20 +285,12 @@ const routes: Routes = [
     loadChildren: () => import('./form-estilo-configuracion/form-estilo-configuracion.module').then( m => m.FormEstiloConfiguracionPageModule)
   },
   {
-    path: 'form-nota',
-    loadChildren: () => import('./form-nota/form-nota.module').then( m => m.FormNotaPageModule)
-  },
-  {
     path: 'form-comentario',
     loadChildren: () => import('./form-comentario/form-comentario.module').then( m => m.FormComentarioPageModule)
   },
   {
     path: 'form-cliente-estado',
     loadChildren: () => import('./form-cliente-estado/form-cliente-estado.module').then( m => m.FormClienteEstadoPageModule)
-  },
-  {
-    path: 'form-mi-perfil',
-    loadChildren: () => import('./form-mi-perfil/form-mi-perfil.module').then( m => m.FormMiPerfilPageModule)
   },
   {
     path: 'form-stock',
@@ -331,10 +307,6 @@ const routes: Routes = [
   {
     path: 'details-mesa',
     loadChildren: () => import('./details-mesa/details-mesa.module').then( m => m.DetailsMesaPageModule)
-  },
-  {
-    path: 'select-producto',
-    loadChildren: () => import('./select-producto/select-producto.module').then( m => m.SelectProductoPageModule)
   },
   {
     path: 'form-cocina',
@@ -380,7 +352,42 @@ const routes: Routes = [
     path: 'details-comanda',
     loadChildren: () => import('./details-comanda/details-comanda.module').then( m => m.DetailsComandaPageModule)
   },
-  
+  {
+    path: 'form-descuento',
+    loadChildren: () => import('./form-descuento/form-descuento.module').then( m => m.FormDescuentoPageModule)
+  },
+  {
+    path: 'form-recargo',
+    loadChildren: () => import('./form-recargo/form-recargo.module').then( m => m.FormRecargoPageModule)
+  },
+  {
+    path: 'form-woocommerce-configuracion',
+    loadChildren: () => import('./form-woocommerce-configuracion/form-woocommerce-configuracion.module').then( m => m.FormWoocommerceConfiguracionPageModule)
+  },
+  {
+    path: 'ticket-detalle',
+    loadChildren: () => import('./impresiones/ticket-detalle/ticket-detalle.module').then( m => m.TicketDetallePageModule)
+  },
+  {
+    path: 'comanda',
+    loadChildren: () => import('./impresiones/comanda/comanda.module').then( m => m.ComandaPageModule)
+  },
+  {
+    path: 'cambiar-plan',
+    loadChildren: () => import('./cambiar-plan/cambiar-plan.module').then( m => m.CambiarPlanPageModule)
+  },   {
+    path: 'form-beneficio',
+    loadChildren: () => import('./form-beneficio/form-beneficio.module').then( m => m.FormBeneficioPageModule)
+  },
+  {
+    path: 'list-beneficios',
+    loadChildren: () => import('./list-beneficios/list-beneficios.module').then( m => m.ListBeneficiosPageModule)
+  },
+  {
+    path: 'select-beneficio',
+    loadChildren: () => import('./select-beneficio/select-beneficio.module').then( m => m.SelectBeneficioPageModule)
+  }
+ 
 ];
 
 @NgModule({

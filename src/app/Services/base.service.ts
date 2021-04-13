@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestoreCollection, AngularFirestore } from 'angularfire2/firestore';
+import { AngularFirestoreCollection, AngularFirestore, CollectionReference } from 'angularfire2/firestore';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as firebase from 'firebase';
@@ -12,36 +12,49 @@ export class BaseService {
     
     private collection: AngularFirestoreCollection;
 
+    private orderBy = {
+        campo:"",
+        direction:""
+    }
+
     public path:string ="";
     
     constructor(
         protected afs: AngularFirestore
         ) {
-      
+     
     } 
   
     public setPath(path){
       this.path = path;
       this.collection = this.afs.collection(path);
     }
+
+    
+
+    public setOrderBy(campo,direction){
+        this.collection = this.afs.collection(this.path,ref=>ref.orderBy(campo,direction));      
+    }
+
+   
   
     get(identifier: string) {
       console.log('[BaseService] get: '+this.collection+identifier);
   
       return this.collection
-          .doc(identifier)
-          .snapshotChanges()
+          .doc(identifier) 
+          .get()
           .pipe(
               map(doc => {
-                  if (doc.payload.exists) {
+                  if (doc.exists) {
               /* workaround until spread works with generic types */
-                      const data = doc.payload.data() as any;
-                      const id = doc.payload.id;
-                      data.fromCache = doc.payload.metadata.fromCache;
+                      const data = doc.data() as any;
+                      const id = doc.id;
+                      data.fromCache = doc.metadata.fromCache;
                       return { id, ...data };
                   }
               })
-          );
+          ); 
     }
 
     public search(limit,orderBy,palabra,ultimo){      
@@ -67,9 +80,6 @@ export class BaseService {
       return this.collection.doc(id).ref;
     }
 
-    getCollection(){
-        return this.collection;
-    }
   
   
     list() {
@@ -83,13 +93,6 @@ export class BaseService {
                         const data = a.payload.doc.data();
                         data.id = a.payload.doc.id;
                         data.fromCache = a.payload.doc.metadata.fromCache;
-                        if(data.createdAt instanceof String || Number){
-                            data.createdAt = new Date(Number(data.createdAt))
-                        }
-                        else{
-                            data.createdAt = data.createdAt.toDate();
-                        }
-                           
                         return data;
                     });
                 })
@@ -100,8 +103,10 @@ export class BaseService {
         delete item.id;  
         console.log('[BaseService] adding item'+this.path);
         console.log(item);
+
+        let time = new Date();
         const promise = new Promise((resolve, reject) => {
-            this.collection.add({...item, createdAt: firebase.firestore.FieldValue.serverTimestamp()}).then(ref => {
+            this.collection.add({...item, createdAt: time}).then(ref => {
                 const newItem = {
                     id: ref.id,
                     /* workaround until spread works with generic types */

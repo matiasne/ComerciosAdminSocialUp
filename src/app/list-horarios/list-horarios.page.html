@@ -12,6 +12,17 @@
     <ion-text color="primary">
       <h4>Horarios Disponibles</h4>
     </ion-text> 
+
+    <div *ngIf="buscando" class="mensaje FadeOut FadeIn">
+      <img src="../../assets/img/buscando.fw.png" alt="">
+      <p>Cargando comandas, aguarde unos segundos por favor</p>
+    </div>
+  
+    <div *ngIf="!buscando && comercio.horarios.length == 0" class="mensaje FadeOut FadeIn">
+      <img src="../../assets/img/horarios.fw.png" alt="">
+      <p>No tienes horarios configurados.</p>
+    </div>
+
     
     <ion-item-sliding *ngFor="let horario of comercio.horarios;let i=index" class="item-card">
 

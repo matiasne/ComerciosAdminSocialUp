@@ -1,0 +1,21 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button  (click)="atras()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Seleccione un beneficios</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item-sliding *ngFor="let beneficio of beneficios" (click)="seleccionar(beneficio)" class="item-card">
+    <ion-item  class="item-card">  
+      <div slot="start">
+        <ion-icon name="file-tray-full-outline"></ion-icon>
+      </div>      
+      <ion-label text-wrap>
+        <b>{{beneficio.descripcion}}</b>         
+      </ion-label> 
+    </ion-item>  
+  </ion-item-sliding>  
+</ion-content>

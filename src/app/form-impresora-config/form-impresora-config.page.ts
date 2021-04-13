@@ -38,6 +38,12 @@ export class FormImpresoraConfigPage implements OnInit {
   }
 
   guardar(){
+
+    if(this.impresora.bluetooth && this.impresora.mac == ""){
+      alert("Ingrese un valor de MAC ADDRESS");
+      return;
+    }
+
     this.impresoraService.guardarImpresora(this.impresora);
     this.navCtrl.back();
   }
@@ -50,9 +56,6 @@ export class FormImpresoraConfigPage implements OnInit {
     this.navCtrl.back()
   }
 
-  conectar(){
-    this.impresoraService.conectar();
-  }
 
   probar(){
     this.impresoraService.impresionPrueba(this.authService.getEmail());

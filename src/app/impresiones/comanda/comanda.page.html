@@ -1,0 +1,36 @@
+<ion-content>
+                     
+    <h2 *ngIf="pedido.mesaNombre"><b>{{pedido.mesaNombre}}</b></h2>
+    <h2 *ngIf="pedido.clienteNombre"><b>{{pedido.clienteNombre}}</b></h2>
+    <p>{{pedido.personalNombre}}</p>
+ 
+
+  <div *ngFor="let item of pedido.productos">   
+    <p>             
+    <b>{{item.nombre}}</b><br>
+    
+      <span *ngIf="item.valorPor && (item.valorPor * item.cantidad)==1 && item.unidad == 'unidades'">
+        {{item.valorPor * item.cantidad}} unidad
+      </span>
+
+      <span *ngIf="item.valorPor && (item.valorPor * item.cantidad)==1 && item.unidad != 'unidades'">
+        {{item.valorPor * item.cantidad}}  {{item.unidad}}
+      </span>
+
+      <span *ngIf="item.valorPor && (item.valorPor * item.cantidad)!=1">
+        <span *ngIf="item.valorPor">
+          {{item.valorPor * item.cantidad}}
+        </span>        
+        <span *ngIf="item.unidad">
+          {{item.unidad}}
+        </span> 
+      </span>     
+      <b>{{item.precio * item.cantidad | currency}} </b> <br> 
+      <span class="subitem" *ngFor="let opcion of item.opcionesSeleccionadas">
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{opcion.cantidad}}X {{opcion.nombreGrupo}} {{opcion.nombre}} <span *ngIf="opcion.precioVariacion != 0">{{opcion.precioVariacion | currency}}</span>
+      </span>    
+    </p>
+            
+  </div>  
+
+</ion-content>

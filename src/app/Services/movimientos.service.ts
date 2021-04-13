@@ -28,15 +28,15 @@ export class MovimientosService {
     return this.firestore.collection('comercios/'+comercioId+'/cajas/'+cajaId+'/movimientos').doc(movId).snapshotChanges();
   }
 
-  getMovimientoCtaCorriente(ctaCorrienteId,movId){
+  getMovimientoCtaCorriente(ctaCorrienteId,movId,fechaDesde){
     var comercioId = localStorage.getItem('comercio_seleccionadoId');
-    return this.firestore.collection('comercios/'+comercioId+'/ctascorrientes/'+ctaCorrienteId+'/movimientos').doc(movId).snapshotChanges();
+    return this.firestore.collection('comercios/'+comercioId+'/ctascorrientes/'+ctaCorrienteId+'/movimientos',ref=>ref.where('createdAt', '>=', fechaDesde).orderBy('createdAt',"desc")).doc(movId).snapshotChanges();
   }
 
  
-  public getMovimientosCaja(cajaId){
+  public getMovimientosCaja(cajaId,fechaDesde){
     var comercioId = localStorage.getItem('comercio_seleccionadoId');
-    return this.firestore.collection('comercios/'+comercioId+'/cajas/'+cajaId+'/movimientos',ref=>ref.orderBy('createdAt',"desc").limit(10)).snapshotChanges();
+    return this.firestore.collection('comercios/'+comercioId+'/cajas/'+cajaId+'/movimientos',ref=>ref.where('createdAt', '>=', fechaDesde).orderBy('createdAt',"desc")).snapshotChanges();
   }
 
 
@@ -49,7 +49,7 @@ export class MovimientosService {
       //let caja:Caja = new Caja();
       //caja.asignarValores(doc.data())
       //caja.id = doc.id;
-
+      mov.cajaId = caja.id
       mov.fotoCaja = caja;
 
       if(mov.metodoPago == "efectivo"){
@@ -62,16 +62,28 @@ export class MovimientosService {
         caja.totalDebito = Number(caja.totalDebito) + Number(mov.monto);
       }
      
-      const param1 = JSON.parse(JSON.stringify(caja));
-      this.cajasService.update(param1);
+      
 
       console.log(mov)
     
       const param = JSON.parse(JSON.stringify(mov));
-      this.firestore.collection('comercios/'+comercioId+'/cajas/'+mov.cajaId+'/movimientos').doc(mov.id).set(
-        {...param,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      })  
+
+      if(mov.cajaId != ""){
+        const param1 = JSON.parse(JSON.stringify(caja));
+        this.cajasService.update(param1);
+        this.firestore.collection('comercios/'+comercioId+'/cajas/'+mov.cajaId+'/movimientos').doc(mov.id).set(
+          {...param,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        })  
+      }
+      else{
+        console.log('comercios/'+comercioId+'/movimientos')
+        this.firestore.collection('comercios/'+comercioId+'/movimientos').doc(mov.id).set(
+          {...param,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        })  
+      }
+     
 
     //})
      
@@ -203,7 +215,7 @@ export class MovimientosService {
   
       const param = JSON.parse(JSON.stringify(data));
       this.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.id).delete();
-    }
+    } 
     
 
   }

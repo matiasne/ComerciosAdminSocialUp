@@ -18,6 +18,7 @@ import { RecortarImagenPage } from 'src/app/recortar-imagen/recortar-imagen.page
 export class SeleccionarImagenComponent implements OnInit {
 
   @Input() public croppedImage ="";
+  @Input() public showImageCroped = true;
   @Input() public aspectRatio ="";
   @Input() public resizeToWidth="";
   @Input() public resizeToHeight="";

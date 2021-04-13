@@ -26,7 +26,7 @@ export class DetailsCtaCorrientePage implements OnInit {
 
   public palabraFiltro ="";
   public items:MovimientoCtaCorriente[]=[];
-
+  public fechaDesde = new Date();
 
   constructor(
     private ctasCorreintesService:CtaCorrientesService,
@@ -39,6 +39,7 @@ export class DetailsCtaCorrientePage implements OnInit {
     private movimientosService:MovimientosService
   ) { 
     this.ctaCorriente = new CtaCorriente(this.authenticationSerivce.getUID(), this.authenticationSerivce.getNombre());
+    this.fechaDesde.setDate(this.fechaDesde.getDate() - 1);
   }
 
 
@@ -46,6 +47,11 @@ export class DetailsCtaCorrientePage implements OnInit {
 
     
   
+  }
+
+  onChangeAtras(event){
+    this.fechaDesde.setDate(this.fechaDesde.getDate() - Number(event.target.value));
+    this.refrescar()   
   }
 
 
@@ -66,7 +72,12 @@ export class DetailsCtaCorrientePage implements OnInit {
         })
       });
     })
+    this.refrescar()   
 
+   
+  }
+
+  refrescar(){
     this.loadingService.presentLoading();
     this.movSubs = this.movimientosService.getMovimientosCtaCorriente(this.route.snapshot.params.id).subscribe(snapshot=>{
                 
@@ -80,11 +91,7 @@ export class DetailsCtaCorrientePage implements OnInit {
         else
           item.deposito = "true";
 
-        console.log(item);
-        if(item.createdAt)
-          item.createdAt = this.toDateTime(item.createdAt.seconds)
-        else
-          item.createdAt = new Date();
+        
         
         this.items.push(item);
         
@@ -93,11 +100,7 @@ export class DetailsCtaCorrientePage implements OnInit {
     }); 
   }
 
-  toDateTime(secs) {
-    var t = new Date(1970, 0, 1); // Epoch
-    t.setSeconds(secs);
-    return t;
-  }
+
 
   ionViewDidLeave(){
       if(this.ctaSubs)  

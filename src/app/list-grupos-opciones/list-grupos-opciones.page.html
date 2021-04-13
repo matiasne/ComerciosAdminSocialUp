@@ -9,6 +9,16 @@
  
 <ion-content class="ion-padding">
 
+  <div *ngIf="buscando" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/buscando.fw.png" alt="">
+    <p>Cargando comandas, aguarde unos segundos por favor</p>
+  </div>
+
+  <div *ngIf="!buscando && grupos.length == 0" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/gruposOpciones.fw.png" alt="">
+    <p>Aún no tienes grupos de opciones.</p>
+  </div>
+
   <ion-list lines="none">
     <ion-item-sliding *ngFor="let grupo of grupos;let i=index" class="item-card">
       <ion-item>        

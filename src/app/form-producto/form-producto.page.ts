@@ -19,6 +19,10 @@ import { FormProductoGrupoOpcionesPage } from '../form-producto-grupo-opciones/f
 import { CocinasService } from '../Services/cocinas.service';
 import { SelectGruposOpcionesPage } from '../select-grupos-opciones/select-grupos-opciones.page';
 import { GrupoOpcionesService } from '../Services/grupo-opciones.service';
+import { FotoService } from '../Services/fotos.service';
+import { ComerciosService } from '../Services/comercios.service';
+import { ImagesService } from '../Services/images.service';
+import { Archivo } from '../models/foto';
 
 @Component({
   selector: 'app-form-producto',
@@ -33,6 +37,12 @@ export class FormProductoPage implements OnInit {
   imagePickerOptions = {
     maximumImagesCount: 1,
     quality: 5
+  }; 
+
+  slideOpts = {
+    slidesPerView: 2,
+    initialSlide: 2,
+    speed: 400
   };
 
   public categorias =[];
@@ -46,6 +56,8 @@ export class FormProductoPage implements OnInit {
 
   public producto:Producto;
   public croppedImageIcono ="";
+
+  public fotos = []
   
   constructor(
     private formBuilder: FormBuilder,
@@ -68,8 +80,12 @@ export class FormProductoPage implements OnInit {
     private toastServices:ToastService,
     private cocinasService:CocinasService,
     public changeRef:ChangeDetectorRef,
-    public gruposOpcionesService:GrupoOpcionesService
+    public gruposOpcionesService:GrupoOpcionesService,
+    public fotosService:FotoService,
+    public comercioService:ComerciosService,
+    public imageService:ImagesService
   ) { 
+
     this.producto = new Producto();
 
     this.datosForm = this.formBuilder.group({
@@ -101,11 +117,12 @@ export class FormProductoPage implements OnInit {
       this.updating = true;
       this.productosService.get(this.route.snapshot.params.id).subscribe(data=>{           
         this.loaadingService.dismissLoading();
+        
         this.titulo = "Editar Producto";
-        this.datosForm.patchValue(data.payload.data());
-        this.producto.asignarValores(data.payload.data())
-        this.producto.id = data.payload.id;
-        this.croppedImageIcono = this.producto.foto;
+        this.datosForm.patchValue(data.data());
+        this.producto.asignarValores(data.data())
+        this.producto.id = data.id;
+        this.croppedImageIcono = this.producto.fotoPrincipal;
 
         this.gruposOpciones = []; 
         this.producto.gruposOpcionesId.forEach(id =>{
@@ -114,10 +131,10 @@ export class FormProductoPage implements OnInit {
             this.gruposOpciones.push(data);
             sub.unsubscribe()
           })
-        })
-
+        })      
         this.changeRef.detectChanges()        
       })
+      this.obtenerFotos(this.route.snapshot.params.id);
     } 
     else{
       this.producto.id = this.firestore.createId();
@@ -129,8 +146,8 @@ export class FormProductoPage implements OnInit {
       snapshot.forEach((snap: any) => {         
           var item = snap.payload.doc.data();
           item.id = snap.payload.doc.id;              
-          this.categorias.push(item);  
-      });
+          this.categorias.push(item);   
+      }); 
       console.log(this.categorias);
     })
 
@@ -140,13 +157,66 @@ export class FormProductoPage implements OnInit {
       if(this.cocinas.length == 0){
         this.presentAlertCrearCocinas();
       }
-      console.log(this.categorias);
+      console.log(this.categorias); 
+    })
+
+   
+
+  }
+
+  obtenerFotos(productoId){  
+    this.fotos = [];
+    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
+    this.fotosService.setPathFoto("comercios/"+comercio_seleccionadoId+"/productos",productoId)
+    let obs = this.fotosService.list().subscribe(data=>{
+      this.fotos = data;
+      console.log(this.fotos) 
+      obs.unsubscribe();
     })
   }
 
   ionViewDidLeave(){   
 
   }
+
+  
+  addFoto(newValue : any){   
+    console.log(newValue);
+    let archivo = new Archivo();
+    archivo.url = newValue;
+    this.fotos.push(archivo);
+  }
+
+  agregarFoto(blob,principal){
+    this.fotosService.cargarFotoAElemeto("comercios/"+this.comercioService.getSelectedCommerceValue().id+"/productos",this.producto.id,blob,principal)
+  }
+
+  async eliminarFoto(index){
+
+    const alert = await this.alertController.create({
+      header: 'Está seguro que desea eliminar esta imagen?',
+      message: '',
+      buttons: [
+        { 
+          text: 'No',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Si',
+          handler: () => {           
+            if(this.fotos[index].id){
+              let foto = this.fotos[index]
+              this.fotosService.deleteArchivo(foto,foto.id)
+            }
+            this.fotos.splice(index,1)            
+          }
+        }
+      ]
+    });
+    await alert.present();    
+  }
+
 
   async openAddGrupoOpciones(){   
       const modal = await this.modalController.create({
@@ -210,6 +280,13 @@ export class FormProductoPage implements OnInit {
       this.productosService.create(this.producto);
     }
 
+    this.fotos.forEach(foto=>{
+      if(!foto.id){
+        let blob = this.imageService.getBlob(foto.url)
+        this.agregarFoto(blob,foto.principal)
+      }     
+    })
+
     this.navCtrl.back();
 
   }
@@ -234,19 +311,33 @@ export class FormProductoPage implements OnInit {
       componentProps: { 
         comercioId:localStorage.getItem('comercio_seleccionadoId')
       }
-    });  
+    });   
     return await modal.present();
   }
 
    imagenSeleccionadaIcono(newValue : any){
     console.log(newValue);
+    this.producto.fotoPrincipal = newValue
     this.datosForm.patchValue({
       foto: newValue
     })
-   }
-  
+   } 
 
+   fotoPrincipal(index){
+     console.log(this.fotos[index].url)
+     this.producto.fotoPrincipal = this.fotos[index].url
+     this.datosForm.patchValue({
+      foto: this.fotos[index].url
+    }) 
+   }
+
+ 
   cancelar(){
+    if(this.updating == false){ //si se cancela entonces hay que borrar las fotos guardadas 
+      this.fotos.forEach(foto =>{
+        this.fotosService.deleteArchivo(foto,foto.id);
+      })
+    }
     this.navCtrl.back();
   }
 

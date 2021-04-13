@@ -16,6 +16,16 @@
       <h4>Categorías</h4>
     </ion-text>    
 
+    <div *ngIf="buscando" class="mensaje FadeOut FadeIn">
+      <img src="../../assets/img/buscando.fw.png" alt="">
+      <p>Cargando comandas, aguarde unos segundos por favor</p>
+    </div>
+  
+    <div *ngIf="!buscando && categorias.length == 0" class="mensaje FadeOut FadeIn">
+      <img src="../../assets/img/categorias.fw.png" alt="">
+      <p>Aún no tienes categorias</p>
+    </div>
+
     <ion-item-sliding *ngFor="let categoria of categorias;let i=index" class="item-card">
       <ion-item>   
         <div slot="start">

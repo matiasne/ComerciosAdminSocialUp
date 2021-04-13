@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CajasService } from '../Services/cajas.service';
-import { ComandasService } from '../Services/comandas.service';
 import { MesasService } from '../Services/mesas.service';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 import { CarritoService } from '../Services/global/carrito.service';
 
 @Component({
@@ -17,7 +16,6 @@ export class DashboardComercioPage implements OnInit {
   constructor(
     private cajasService:CajasService,
     public router:Router,
-    private comandasService:ComandasService,
     private mesasService:MesasService,
     private carritoService:CarritoService
   ) { }
@@ -30,10 +28,6 @@ export class DashboardComercioPage implements OnInit {
     this.cajasService.setearPath();
     this.mesasService.setearPath();
    
-    this.comandasService.getAll().subscribe(snap =>{
-      this.comandasService.setCantidad(snap.length);
-    })
-
     
     
   }
@@ -64,6 +58,10 @@ export class DashboardComercioPage implements OnInit {
 
   irPersonal(){
     this.router.navigate(['list-personal']);
+  }
+  
+  irEgresoCaja(){
+    this.router.navigate(['form-egreso-caja']);
   }
 
 }

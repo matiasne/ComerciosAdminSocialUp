@@ -10,8 +10,7 @@ import { ComerciosService } from './comercios.service';
 export class MesasService extends BaseService {
 
   constructor(
-    protected afs: AngularFirestore,
-    private comerciosService:ComerciosService
+    protected afs: AngularFirestore
   ) {     
     super(afs); 
     

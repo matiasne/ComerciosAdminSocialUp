@@ -22,6 +22,8 @@ export class ListPersonalPage implements OnInit {
   public palabraFiltro = "";
   public user:User;
 
+  public buscando = true;
+
   constructor(
     public authService:AuthenticationService,
     public rolesService:RolesService,
@@ -44,6 +46,7 @@ export class ListPersonalPage implements OnInit {
       this.itemsAll = data;
       
       this.buscar();
+      this.buscando = false;
       //rolSub.unsubscribe();
     });
 

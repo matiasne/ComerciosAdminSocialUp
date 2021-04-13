@@ -7,37 +7,62 @@
   </ion-toolbar>
 </ion-header>
 <ion-toolbar>
-  <ion-segment (ionChange)="segmentChanged($event)">
-    <ion-segment-button value="curso">En curso</ion-segment-button>
-    <ion-segment-button value="suspendidos">Suspendidos</ion-segment-button>
-    <ion-segment-button value="cobrados">Cobrados</ion-segment-button>
+  
+  <ion-row>
+    <ion-col size="8"> 
+      <ion-searchbar animated   
+        placeholder="Buscar por cliente, empleado o mesa"
+        animated="true"
+        showCancelButton="never" 
+        color="light"  
+        autocomplete="on"
+        enterkeyhint="send"
+        inputmode="text"
+        type="text"
+        debounce="300"
+        value="{{palabraFiltro}}"
+        (ionChange)="onChange($event)">
+      </ion-searchbar>
+    </ion-col>    
+    <ion-col size="4">
+      <ion-item class="form-select">  
+        <ion-label position="floating">Desde</ion-label>
+        <ion-select multiple="false" (ionChange)="onChangeAtras($event)">
+          <ion-select-option  [value]="1" selected>Ayer</ion-select-option>
+          <ion-select-option  [value]="2">2 días atras</ion-select-option>
+          <ion-select-option  [value]="7">Una semana atrás</ion-select-option>
+        </ion-select>       
+      </ion-item>  
+    </ion-col>
+  </ion-row>
+
+
+  <ion-segment (ionChange)="segmentChanged($event)"> 
+    <ion-segment-button value="{{cEstado.pendiente}}">En curso</ion-segment-button>
+    <ion-segment-button value="{{cEstado.suspendido}}">Suspendidos</ion-segment-button>
+    <ion-segment-button value="{{cEstado.cobrado}}">Cobrados</ion-segment-button>
   </ion-segment>
 </ion-toolbar>
  
-<ion-content class="ion-padding">
+<ion-content class="ion-padding"> 
 
-  <ion-searchbar animated 
-    placeholder="Buscar por cliente, empleado o mesa"
-    animated="true"
-    showCancelButton="never" 
-    color="light" 
-    autocomplete="on"
-    enterkeyhint="send"
-    inputmode="text"
-    type="text"
-    debounce="300"
-    value="{{palabraFiltro}}"
-    (ionChange)="onChange($event)">
-  </ion-searchbar>
+  <div *ngIf="buscando" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/buscando.fw.png" alt="">
+    <p>Cargando comandas, aguarde unos segundos por favor</p>
+  </div>
 
-  <h2 *ngIf="pedidos.length == 0">No tienes pedidos en curso.</h2>
+  <div *ngIf="!buscando && pedidos.length == 0" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/pedidos.fw.png" alt="">
+    <p>No tienes pedidos.</p>
+  </div>
+
   <ion-list lines="none" >        
     <ion-item-sliding *ngFor="let pedido of pedidos"  class="item-card">
       <app-card-pedido [item]="pedido" (click)="seleccionar(pedido)"></app-card-pedido>
-      <ion-item-options *ngIf="pedido.suspendido == 0 && pedido.cobrado == 0" side="end">
+      <ion-item-options *ngIf="pedido.statusCaja == cEstado.pendiente" side="end">
         <ion-item-option color="danger" (click)="cancelar(pedido)"><ion-icon name="trash" ></ion-icon>Suspender</ion-item-option>
       </ion-item-options> 
-      <ion-item-options *ngIf="pedido.suspendido == 1 && pedido.cobrado == 0" side="end">
+      <ion-item-options *ngIf="pedido.statusCaja == cEstado.suspendido" side="end">
         <ion-item-option  (click)="reanudar(pedido)"><ion-icon name="trash" ></ion-icon>Reanudar</ion-item-option>
       </ion-item-options> 
     </ion-item-sliding>  

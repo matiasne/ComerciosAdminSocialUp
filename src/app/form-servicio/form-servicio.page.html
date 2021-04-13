@@ -31,11 +31,8 @@
     </div> 
 
     <div class="form-card">
-      <ion-text color="primary">
-        <h4>Seleccionar Categorías *</h4>      
-      </ion-text> 
-
       <ion-item [class.invalid]="submitted && !datosForm.controls.categorias.valid">
+        <ion-label position="floating">Categoría</ion-label>
         <ion-select multiple="true" formControlName="categorias" cancelText="Cancelar" okText="Listo">
           <ion-select-option *ngFor="let categoria of categorias" [value]="categoria.id" selected>{{categoria.nombre}}</ion-select-option>
         </ion-select>

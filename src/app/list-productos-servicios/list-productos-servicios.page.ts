@@ -1,5 +1,5 @@
 import { Component, OnInit} from '@angular/core';
-import { ModalController, LoadingController, AlertController } from '@ionic/angular';
+import { ModalController, LoadingController, AlertController, NavController, Platform } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductosService } from '../Services/productos.service';
 import { Subscription } from 'rxjs';
@@ -17,10 +17,21 @@ import { Carrito } from '../models/carrito';
 import { CategoriasService } from '../Services/categorias.service';
 import { FormProductoPage } from '../form-producto/form-producto.page';
 import { FormStockPage } from '../form-stock/form-stock.page';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 import { AuthenticationService } from '../Services/authentication.service';
 import { VariacionesStocksService } from '../Services/variaciones-stocks.service';
 import { DetailsCarritoPage } from '../details-carrito/details-carrito.page';
+import { FormDescuentoPage } from '../form-descuento/form-descuento.page';
+import { FormRecargoPage } from '../form-recargo/form-recargo.page';
+import { Pedido } from '../models/pedido';
+import { DetailsPedidoPage } from '../details-pedido/details-pedido.page';
+import { ComandaPage } from '../impresiones/comanda/comanda.page';
+import { ImpresoraService } from '../Services/impresora.service';
+import { EnumPlanes, User } from '../models/user';
+import { CambiarPlanPage } from '../cambiar-plan/cambiar-plan.page';
+import { PedidoService } from '../Services/pedido.service';
+import { NavegacionParametrosService } from '../Services/global/navegacion-parametros.service';
+
 
 @Component({
   selector: 'app-list-productos-servicios',
@@ -29,23 +40,21 @@ import { DetailsCarritoPage } from '../details-carrito/details-carrito.page';
 })
 export class ListProductosServiciosPage implements OnInit {
 
-  slideOpts = {
+  /*slideOpts = {
     slidesPerView: 3,
     initialSlide: 2,
     speed: 400
-  };
+  };*/
 
   comercio:Comercio;
   carrito:Carrito;
-  itemsProductos:any = [];
-  itemsServicios:any = [];
   itemsAllProductos:any=[];
-  itemsAllServicios:any=[];
+  itemsProductos:any = [];
+  
 
   public itemsSeparadosAlfabeticamente = [];
 
   public categorias =[];
-  public subsItemsServ: Subscription;
   public subsItemsProd: Subscription;
   public subsComercio: Subscription;
   public carritoSubs:Subscription;
@@ -62,6 +71,12 @@ export class ListProductosServiciosPage implements OnInit {
     canAgregar:false,
     canCarrito:false,
   }
+
+  public buscandoProductos = true;
+
+  public buscandoBarCode = false;
+
+  public isMobile = false;
 
   constructor(
     public loadingController: LoadingController,
@@ -81,6 +96,10 @@ export class ListProductosServiciosPage implements OnInit {
     public toastServices:ToastService,
     private categoriasService:CategoriasService,
     private AuthenticationService:AuthenticationService,
+    private modalController:ModalController,
+    private authenticationService:AuthenticationService,
+    private navParametrosService:NavegacionParametrosService,
+    private platform:Platform
     
   ) { 
     this.carrito = new Carrito("","");
@@ -95,12 +114,25 @@ export class ListProductosServiciosPage implements OnInit {
         this.permisos.canCarrito = true;
       }
     })
+
+    if (this.platform.is('mobile')) { 
+      this.isMobile = true;
+    }     
   }
+
+  
+  refresh(event) {
+    console.log('Begin async operation');
+    this.ngOnInit();
+    setTimeout(() => {
+        event.target.complete();
+      }, 500);
+  }
+
 
   ngOnInit() {
     
     this.itemsProductos = [];
-    this.itemsServicios = [];
     this.comercio = new Comercio();
 
     this.comerciosService.getSelectedCommerce().subscribe(data=>{
@@ -115,44 +147,39 @@ export class ListProductosServiciosPage implements OnInit {
     /*Mantener toda la lógica en el ngOninit para que solo se subscriba una vez y
     no demande al servidor todos los datso cda vez que se muestra esta pantalla*/
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-      var catSub = this.categoriasService.getAll(comercio_seleccionadoId).subscribe(snapshot =>{
-        this.categorias = [];
-        snapshot.forEach((snap: any) => {       
-          var categoria = snap.payload.doc.data();
-          categoria.id = snap.payload.doc.id; 
-          categoria.seleccionado = false;
-          this.categorias.push(categoria);           
-        });    
-        catSub.unsubscribe();
-      })
- 
+    var catSub = this.categoriasService.getAll(comercio_seleccionadoId).subscribe(snapshot =>{
+      this.categorias = [];
+      snapshot.forEach((snap: any) => {       
+        var categoria = snap.payload.doc.data();
+        categoria.id = snap.payload.doc.id; 
+        categoria.seleccionado = false;
+        this.categorias.push(categoria);           
+      });    
+      catSub.unsubscribe();
+    })
 
     if(this.route.snapshot.params.filtro){
       this.palabraFiltro = this.route.snapshot.params.filtro;
-      this.buscar(undefined);
       this.deseleccionarCategorias()
     }
-    this.obtenerTodo();
-      
+    this.obtenerTodo();      
   }
-
+ 
   ionViewDidEnter(){
     this.marcarEnCarrito();
   }
 
   ionViewDidLeave(){
-    this.subsItemsProd.unsubscribe();
+    //this.subsItemsProd.unsubscribe();
   }
 
   marcarEnCarrito(){
-    console.log("scando marcado en carrito")
     this.itemsProductos.forEach(element => {
       element.enCarrito = 0;
-    });
+    }); 
     this.carrito.productos.forEach(prod => {
       this.itemsProductos.forEach(element => {
         if(prod.id == element.id){
-          console.log(element)
           element.enCarrito += prod.cantidad;
         }
       });
@@ -161,23 +188,19 @@ export class ListProductosServiciosPage implements OnInit {
 
 
   buscar(event){ 
-
-    if(event)
-      this.palabraFiltro = event.target.value;    
     
+    if(event)
+      this.palabraFiltro = event.target.value;     
 
     if(this.palabraFiltro != ""){
-
       var palabra = this.palabraFiltro.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      var encontrado = false;
+
       var retorno = false;
 
       this.itemsProductos = [];
-      this.itemsServicios = [];
       
       this.itemsAllProductos.forEach(item => {      
   
-        var palabra = this.palabraFiltro.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
         var encontrado = false;
         if(item.nombre){
           retorno =  (item.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(palabra.toLowerCase()) > -1);
@@ -193,20 +216,12 @@ export class ListProductosServiciosPage implements OnInit {
 
         if(item.barcode){
           if(item.barcode.includes(palabra)){
-            this.itemsProductos.push(item);
-            return;
+            //this.itemsProductos.push(item);
+            //return;
+            encontrado = true;
           }            
         }
         
-          
-        if(item.categorias.length > 0){
-          item.categorias.forEach(categoria => {
-            retorno =  (categoria.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(palabra.toLowerCase()) > -1);
-            if(retorno){
-              encontrado = true;  
-            }              
-          });
-        }
   
         if(encontrado){
           this.itemsProductos.push(item);
@@ -214,105 +229,50 @@ export class ListProductosServiciosPage implements OnInit {
         }
       });
 
-      console.log("buscando...."+this.palabraFiltro+" "+this.cargaPorVoz.reconociendoPorVoz)
-      if(this.cargaPorVoz.reconociendoPorVoz){
-        this.cargaPorVoz.reconociendoPorVoz = false;
+      if(this.buscandoBarCode){
+        this.buscandoBarCode = false;
         if(this.itemsProductos.length == 1){
-          this.seleccionar(this.itemsProductos[0]);
+          this.agregarProducto(this.itemsProductos[0])
           this.toastServices.mensaje("Se seleccionó el producto: "+this.itemsProductos[0].nombre,"");
         }
       }
 
       
-      
-     
-
-      
-      this.itemsAllServicios.forEach(item => {
-        var palabra = this.palabraFiltro.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        var encontrado = false;
-        console.log(palabra)
-        if(item.nombre){
-          retorno =  (item.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(palabra.toLowerCase()) > -1);
-          if(retorno)
-            encontrado = true;
+      if(this.cargaPorVoz.reconociendoPorVoz){
+        this.cargaPorVoz.reconociendoPorVoz = false;
+        if(this.itemsProductos.length == 1){
+          this.agregarProducto(this.itemsProductos[0]);
+          this.toastServices.mensaje("Se seleccionó el producto: "+this.itemsProductos[0].nombre,"");
         }
-
-        if(item.descripcion){
-          retorno =  (item.descripcion.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(palabra.toLowerCase()) > -1);
-          if(retorno)
-            encontrado = true;
-        }
-
-        if(item.barcode){
-          if(item.barcode.includes(palabra)){
-            this.itemsProductos.push(item);
-            return;
-          }            
-        }
-        
-          
-        if(item.categorias.length > 0){
-          item.categorias.forEach(categoria => {
-            retorno =  (categoria.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(palabra.toLowerCase()) > -1);
-            if(retorno){
-              encontrado = true;  
-            }              
-          });
-        }
-  
-        if(encontrado){
-          this.itemsServicios.push(item);
-          return true;
-        }
-      });       
+      }           
       
     }
-    else{
-      this.itemsServicios = this.itemsAllServicios;
+    else{      
       this.itemsProductos = this.itemsAllProductos;
-    }
-
-    this.itemsSeparadosAlfabeticamente = []
-    let data = this.itemsProductos.reduce((r, e) => {
-      // get first letter of name of current element
-      let group = e.nombre[0];
-      // if there is no property in accumulator with this letter create it
-      if(!r[group]) r[group] = {group, children: [e]}
-      // if there is push current element to children array for that letter
-      else r[group].children.push(e);
-      // return accumulator
-      return r; 
-    }, {}); 
-
-    this.itemsSeparadosAlfabeticamente = Object.values(data)
-
-    console.log(this.itemsSeparadosAlfabeticamente)
-
-    this.marcarEnCarrito();
-    this.changeRef.detectChanges()
-    
+    }    
+    this.changeRef.detectChanges()    
   }
 
   editarProducto(item){
     this.loadingService.presentLoading();
     this.router.navigate(['form-producto',{id:item.id}]);
   }
-    
-  editarServicio(item){  
-    this.loadingService.presentLoading();
-    this.router.navigate(['form-servicio',{id:item.id}]);
+
+  show(){
+
   }
 
+  showMore(){
+
+  }
+    
 
   obtenerTodo(){
      
-    this.loadingService.presentLoading();
-     
+    this.buscandoProductos = true;
     this.subsItemsProd = this.productosService.getAll().subscribe((snapshotProd) => {
       this.itemsAllProductos =[];  
-      this.loadingService.dismissLoading();
-      console.log("!!!!!")
+      this.buscandoProductos = false;
       snapshotProd.forEach((snapP: any) => {         
           var producto = snapP.payload.doc.data();
           producto.id = snapP.payload.doc.id;  
@@ -322,28 +282,12 @@ export class ListProductosServiciosPage implements OnInit {
       }); 
       this.buscar(undefined);   
       
-    });
+    });   
 
+  }
 
-    
-   
-
-    this.loadingService.presentLoading();
-      this.subsItemsServ = this.serviciosService.list().subscribe((snapshotServ) => {
-        this.loadingService.dismissLoading();
-        this.itemsAllServicios = [];
-        snapshotServ.forEach((snaps: any) => {         
-            var servicio = snaps;
-            servicio.producto = false;
-            this.itemsAllServicios.push(servicio);                 
-        });  
-        
-       
-        this.buscar(undefined);
-      });
-    
-    
-
+  vaciarCarrito(){
+    this.carritoService.vaciar()
   }
 
   reconocimientoPorVoz(){
@@ -353,7 +297,7 @@ export class ListProductosServiciosPage implements OnInit {
       this.cargaPorVoz.startReconocimiento().subscribe(matches=>{        
           let message = matches[0]; //Guarda la primera frase que ha interpretado en nuestra variable     
           this.palabraFiltro = message;
-           this.buscar(undefined);        
+          this.buscar(undefined);        
         },
         (onerror) =>{
             if(onerror == 0){
@@ -368,136 +312,70 @@ export class ListProductosServiciosPage implements OnInit {
     }
   }
 
-  seleccionar(item){
-    
-    
-    if(this.comercio.modulos.cajas || this.comercio.modulos.comandas || this.comercio.modulos.mesas){
-      if(item.producto){      
-        this.agregarProducto(item);      
-      }
-      else{
-        this.loadingService.presentLoading();
-        this.agregarServicio(item);
-      }
-    }
-    
-  }
-
-  nuevo(){    
-    this.presentAlertSeleccionar()
-  }
-
-
-  async presentAlertSeleccionar() {
-    let user = this.AuthenticationService.getActualUser();
-
-  /*  if(user.maxProducto){ //Esto como estrategia de marketing no sirve. mejor dejar cargar mucho y limitar a 7 días
-      if((this.itemsAllProductos.length + this.itemsAllServicios.length)  >= user.maxProducto){
-        this.toastServices.alert("Limitado","Se ha superado la cantidad máxima de productos, si desea agregar más por favor contrate un plan mayor.")
-        return;
-      }
-    }
-    else{
-      user.maxProducto = 10;
-      if((this.itemsAllProductos.length + this.itemsAllServicios.length) > 0){
-        this.toastServices.alert("Limitado","Se ha superado la cantidad máxima de productos, si desea agregar más por favor contrate un plan mayor.")
-        return;
-      } 
-    }*/ 
-
-    if(this.comercio.modulos.productos && !this.comercio.modulos.servicios){
-      this.nuevoProducto();   
-    }
-
-    if(!this.comercio.modulos.productos && this.comercio.modulos.servicios){
-      this.nuevoServicio();
-    }
-
-    if(this.comercio.modulos.productos && this.comercio.modulos.servicios){
-      const alert = await this.alertController.create({
-        header: 'Agregar Elemento',
-        message: 'Que tipo de elemento quieres agregar?',
-        buttons: [
-          {
-            text: 'Producto',
-            handler: (blah) => {
-              this.nuevoProducto();     
-            }
-          }, {
-            text: 'Servicio',
-            handler: () => {
-              this.nuevoServicio();
-            }
-          }
-        ]
-      });
-      await alert.present();
-    }    
-  }
-
-
-
-  async presentLoading() {
-    this.loadingActive = true;
-    const loading = await this.loadingController.create({
-      message: 'Cargando...',
-    });
-    await loading.present();
-  }
-
-
-  hideLoading(){
-    if(this.loadingActive){
-      this.loadingController.dismiss();
-      this.loadingActive = false;
-    }
-  }
 
   lectorDeCodigo(){
+    this.buscandoBarCode = true;
     this.barcodeScanner.scan().then(barcodeData => {      
       //var codeBar:any =JSON.stringify(barcodeData);
       this.palabraFiltro = barcodeData.text;
-      
+      this.buscar(undefined)
      }).catch(err => {
     
      });
-  }
-
-  
-
-  irDashboardServicios(){
-    this.router.navigate(['dashboard-servicios']);
   }
 
   irDashboardProductos(){
     this.router.navigate(['dashboard-productos']);
   }
 
-  async agregarProducto(producto){
-    
+  async agregarProducto(producto){   
+
     const modal = await this.modalCtrl.create({
       component: AddProductoVentaPage,
       componentProps:{
         producto:producto
       }
-    });  
+    });        
 
     modal.onDidDismiss()
-    .then((retorno) => {
-      this.loadingService.presentLoading();
-      if(retorno.data){ 
-        retorno.data.keywords = []       
-        this.carritoService.agregarProducto(retorno.data);  
-        this.marcarEnCarrito();
-       
-      }
-      this.deseleccionarCategorias()
-      this.palabraFiltro ="";
-      this.buscar(undefined);
-      this.loadingService.dismissLoading();
+    
+    .then((retorno) => { 
+
+      this.palabraFiltro ="";    
+      this.loadingService.presentLoading()
+      setTimeout(()=>{ 
+        this.loadingService.dismissLoading()
+      }, 200);
+      
+
+      if(retorno.data){   
+        
+                 
+        this.marcarEnCarrito();    
+      }else{
+
+      }     
+
+
     });
 
+    await modal.present();
+  }
+
+  async agregarDescuento(){
+    
+    const modal = await this.modalCtrl.create({
+      component: FormDescuentoPage
+    });  
+
     return await modal.present();
+  }
+
+  async agregarRecargo(){
+    const modal = await this.modalCtrl.create({
+      component: FormRecargoPage
+    });  
+    return await modal.present(); 
   }
 
   async agregarStock(producto){
@@ -517,30 +395,72 @@ export class ListProductosServiciosPage implements OnInit {
     }]); 
   }
 
-  async verCarrito(){
-    this.cargaPorVoz.reconociendoPorVoz = false;
+  async siguiente(){    //recordar que el modulo de mesas funciona a través de los pedidos y necesitamos generar el paso intermedio
+    if(this.comercio.modulos.pedidos == true || this.comercio.modulos.mesas){
+      this.verCarrito();
+    }
+    else{
+      this.cobrarDirectamente()
+    }
+  }
 
-    const modal = await this.modalCtrl.create({
-      component: DetailsCarritoPage,
-      componentProps: {
-        rol:"encargado"      
-      }
-    });
-    modal.onDidDismiss()
-    .then((retorno) => {
-      this.marcarEnCarrito()
-      this.palabraFiltro ="";
-      this.buscar(undefined);  
-      this.deseleccionarCategorias()  
-    });
-    return await modal.present();
+  async verCarrito(){
+    this.router.navigate(['details-carrito'])  
+  }
+
+  async cobrarDirectamente(){
+
+    let pedido = new Pedido()
+    this.carrito.productos.forEach(p=>{
+      pedido.productos.push(Object.assign({}, p))
+    })  
+
+    this.carrito.descuentos.forEach(p=>{
+      pedido.descuentos.push(Object.assign({}, p))
+    }) 
+
+    this.carrito.recargos.forEach(p=>{
+      pedido.recargos.push(Object.assign({}, p))
+    }) 
+
+    pedido.personalId = this.authenticationService.getUID();
+    pedido.personalEmail = this.authenticationService.getEmail();
+    pedido.personalNombre = this.authenticationService.getNombre();
+    
+    pedido.clienteId = this.carrito.cliente.id;
+    pedido.clienteNombre = this.carrito.cliente.nombre;
+    pedido.clienteEmail = this.carrito.cliente.email;
+
+    pedido.mesaId = this.carrito.mesa.id;
+    pedido.mesaNombre = this.carrito.mesa.nombre;
+    pedido.totalProductos = this.carrito.totalProductos; 
+
+    let editarPedido = new Pedido();
+    editarPedido.asignarValores(pedido);
+    
+    this.navParametrosService.param = editarPedido;
+    this.router.navigate(['details-pedido'])
 
   }
 
+  async imprimirComanda(pedido){
+    const modal = await this.modalController.create({
+      component: ComandaPage,
+      componentProps:{
+        pedido:pedido,
+      }      
+    });    
+    return await modal.present();
+  }
+
+
   verProductos(categoria){
 
-    this.palabraFiltro = categoria.nombre.toLowerCase();
-    this.buscar(undefined);
+    if(categoria!= '')
+      this.palabraFiltro = categoria.nombre.toLowerCase();
+    else
+      this.palabraFiltro = "";
+   
 
    this.deseleccionarCategorias();
     
@@ -553,9 +473,9 @@ export class ListProductosServiciosPage implements OnInit {
   }
 
   deseleccionarCategorias(){
-    this.categorias.forEach(c =>{
+    /*this.categorias.forEach(c =>{
       c.seleccionado = false;
-    })
+    })*/
   }
 
   nuevoServicio(){

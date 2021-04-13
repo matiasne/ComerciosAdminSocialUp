@@ -5,7 +5,7 @@ import { AuthenticationService } from './authentication.service';
 import * as firebase from 'firebase';
 import { RolesService } from './roles.service';
 import { CajasService } from './cajas.service';
-import { Comercio } from '../Models/comercio';
+import { Comercio } from '../models/comercio';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -39,25 +39,16 @@ export class ComerciosService {
 
   public create(data:any) {
 
-    var subs2 = this.getByNombre(data.nombre).subscribe(resp=>{
-      console.log(resp);
-      subs2.unsubscribe();
-      if(resp.length == 0){       
+   
         
-        const param = JSON.parse(JSON.stringify(data));      
+    const param = JSON.parse(JSON.stringify(data));      
 
-        
+    
 
-        this.firestore.doc(this.collection+'/'+data.id).set({...param,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-      }
-      else{
-        alert("existe el nombre");
-        
-      }
-      subs2.unsubscribe();
-    })    
+    return this.firestore.doc(this.collection+'/'+data.id).set({...param,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+     
    
   } 
 

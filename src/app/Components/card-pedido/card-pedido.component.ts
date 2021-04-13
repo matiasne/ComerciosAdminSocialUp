@@ -1,5 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { EnumEstadoComanda, Pedido } from 'src/app/Models/pedido';
+import * as firebase from 'firebase';
+import { Comercio } from 'src/app/models/comercio';
+import { EnumEstadoComanda, EnumEstadoEnCaja, Pedido } from 'src/app/models/pedido';
+import { ComerciosService } from 'src/app/Services/comercios.service';
 
 @Component({
   selector: 'app-card-pedido',
@@ -8,25 +11,26 @@ import { EnumEstadoComanda, Pedido } from 'src/app/Models/pedido';
 })
 export class CardPedidoComponent implements OnInit {
  
-  @Input() item:any;
+  @Input() item:Pedido;
   @Output() select = new EventEmitter<any>();
   public pEstado = EnumEstadoComanda;
- 
-  constructor() { 
-    console.log(this.item)
-
-    
-    
-     
-
-   }
+  public cEstado = EnumEstadoEnCaja;
+  public comercio:Comercio
+  constructor(
+    private comercioService:ComerciosService
+  ) {  
+    this.item = new Pedido(); 
+    this.item.createdAt = firebase.firestore.Timestamp
+    this.comercio = new Comercio()
+    this.comercio.asignarValores(this.comercioService.getSelectedCommerceValue())
+   } 
 
   ngOnInit() { 
-
+   
   }
 
   seleccionar(){
-    this.select.emit(); 
+    this.select.emit();  
   }
 
 

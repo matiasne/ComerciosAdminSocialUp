@@ -9,7 +9,7 @@
 
 <ion-content class="ion-padding">
 
-  <ion-item *ngIf="rolActual == 'Administrador'">
+  <!--ion-item *ngIf="rolActual == 'Administrador'">
     <ion-label>Habilitar Productos</ion-label>
     <ion-toggle [(ngModel)]="comercio.modulos.productos" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
   </ion-item>
@@ -17,10 +17,26 @@
   <ion-item *ngIf="rolActual == 'Administrador'">
     <ion-label>Habilitar Servicios</ion-label>
     <ion-toggle [(ngModel)]="comercio.modulos.servicios" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item-->
+
+
+  <ion-button *ngIf="rolActual == 'Administrador'" class="button-rounded"  (click)="editarComercio()">Datos Comercio</ion-button>
+
+
+  <ion-button *ngIf="rolActual != 'Administrador'" class="button-rounded"  color="danger" (click)="desvincular()"><ion-icon name="trash" ></ion-icon>Desvincular</ion-button>
+
+  <ion-item *ngIf="rolActual == 'Administrador'"> 
+    <ion-label>Habilitar Pedidos</ion-label>
+    <ion-toggle [(ngModel)]="comercio.modulos.pedidos" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>    
   </ion-item>
 
+  <ion-item *ngIf="rolActual == 'Administrador'"> 
+    <ion-label>Habilitar Mesas</ion-label>
+    <ion-toggle [(ngModel)]="comercio.modulos.mesas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>  
+  <ion-button *ngIf="comercio.modulos.mesas  && rolActual == 'Administrador'" class="button-rounded"    (click)="openEditMesas()">Editar Mesas</ion-button>
 
-
+   
   <ion-item *ngIf="rolActual == 'Administrador'">
     <ion-label>Habilitar Comandas</ion-label>
     <ion-toggle [(ngModel)]="comercio.modulos.comandas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
@@ -28,18 +44,31 @@
   <ion-button *ngIf="comercio.modulos.comandas && rolActual == 'Administrador'" class="button-rounded"    (click)="openEditCocinas()">Editar Cocinas</ion-button>
    
 
-  <ion-item *ngIf="rolActual == 'Administrador'"> 
-    <ion-label>Habilitar Mesas</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.mesas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item>
-
   
-  <ion-button *ngIf="comercio.modulos.mesas  && rolActual == 'Administrador'" class="button-rounded"    (click)="openEditMesas()">Editar Mesas</ion-button>
+
 
   <ion-item *ngIf="rolActual == 'Administrador'">
     <ion-label>Habilitar Clientes</ion-label>
     <ion-toggle [(ngModel)]="comercio.modulos.clientes" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
   </ion-item>
+  
+  <ion-item *ngIf="rolActual == 'Administrador'">
+    <ion-label>Habilitar Gestión Stock</ion-label>
+    <ion-toggle [(ngModel)]="comercio.modulos.stock" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item> 
+
+  
+  <ion-item *ngIf="rolActual == 'Administrador'"> 
+    <ion-label>Habilitar Beneficios Clientes</ion-label>
+    <ion-toggle [(ngModel)]="comercio.modulos.beneficiosClientes" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>  
+  <ion-button *ngIf="comercio.modulos.beneficiosClientes  && rolActual == 'Administrador'" class="button-rounded"    (click)="openBeneficiosClientes()">Editar Beneficios</ion-button>
+
+  <ion-item *ngIf="rolActual == 'Administrador'"> 
+    <ion-label>Habilitar Benificios Por Puntaje</ion-label>
+    <ion-toggle [(ngModel)]="comercio.modulos.beneficiosPorPuntaje" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+  </ion-item>  
+  <ion-button *ngIf="comercio.modulos.beneficiosPorPuntaje  && rolActual == 'Administrador'" class="button-rounded"    (click)="openBeneficiosPuntaje()">Editar Puntaje y Beneficios</ion-button>
 
   <ion-item *ngIf="rolActual == 'Administrador'">
     <ion-label>Habilitar Cajas</ion-label>
@@ -48,19 +77,17 @@
 
   <ion-button *ngIf="comercio.modulos.cajas  && rolActual == 'Administrador'" class="button-rounded"    (click)="openEditCajas()">Editar Cajas</ion-button>
 
-  <ion-item *ngIf="rolActual == 'Administrador'">
-    <ion-label>Habilitar Gestión Stock</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.stock" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item>
 
   
 
   <ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"    (click)="openEditOpciones()">Editar Grupo Opciones</ion-button>
-  <ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"    (click)="openEditPedidos()">Configurar Pedidos</ion-button>
+  <!--ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"    (click)="openEditPedidos()">Configurar Pedidos</ion-button-->
   <ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"   (click)="openEditHorarios()">Editar Horarios</ion-button>
   
   <ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"   (click)="linkWhatsapp()">Link Whatsapp</ion-button>
   <ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"   (click)="openEditCategorias()">Editar Categorias</ion-button>
+  <ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"   (click)="openEditWoocommerce()">Configuración Woocommerce</ion-button>
+
   <ion-button class="button-rounded"    (click)="verImpresora()">Impresora</ion-button>
   
    

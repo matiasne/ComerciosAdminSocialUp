@@ -22,6 +22,7 @@ export class ListClientesPage implements OnInit {
   public clientesSubs:Subscription;
   public ultimoCliente:Cliente;
   public clientes = [];
+  public buscando = true;
 
   @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
   
@@ -61,11 +62,9 @@ export class ListClientesPage implements OnInit {
     let limit = 5;
     var palabra = this.palabraFiltro.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    this.loadingService.presentLoadingText("Cargando Clientes")
     this.clientesSubs = this.clientesService.search(limit,"nombre",palabra,this.ultimoCliente.nombre).subscribe((snapshot) => {
      
-      this.loadingService.dismissLoading();
-     
+      this.buscando = false;
       snapshot.forEach((snap: any) => {         
         var cliente = snap.payload.doc.data();
         cliente.id = snap.payload.doc.id; 
@@ -85,7 +84,7 @@ export class ListClientesPage implements OnInit {
       
       console.log(this.clientes);         
       this.clientesSubs.unsubscribe();
-    });    
+    });     
   }  
 
   seleccionar(item){
@@ -93,7 +92,7 @@ export class ListClientesPage implements OnInit {
   }
   
   async nuevo(){
-    this.loadingService.presentLoading();
+  //  this.loadingService.presentLoading();
     const modal = await this.modalController.create({
       component: FormClientePage      
     });
@@ -120,8 +119,6 @@ export class ListClientesPage implements OnInit {
   async editar(item){
     
 
-     
-      this.loadingService.presentLoading();
       const modal = await this.modalController.create({
         component: FormClientePage,
         componentProps:{
