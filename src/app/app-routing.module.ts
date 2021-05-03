@@ -386,6 +386,18 @@ const routes: Routes = [
   {
     path: 'select-beneficio',
     loadChildren: () => import('./select-beneficio/select-beneficio.module').then( m => m.SelectBeneficioPageModule)
+  },
+  {
+    path: 'select-product',
+    loadChildren: () => import('./select-product/select-product.module').then( m => m.SelectProductPageModule)
+  },
+  {
+    path: 'details-pedido-woocommerce',
+    loadChildren: () => import('./details-pedido-woocommerce/details-pedido-woocommerce.module').then( m => m.DetailsPedidoWoocommercePageModule)
+  },
+  {
+    path: 'form-filter-pedidos',
+    loadChildren: () => import('./form-filter-pedidos/form-filter-pedidos.module').then( m => m.FormFilterPedidosPageModule)
   }
  
 ];

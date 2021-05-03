@@ -6,6 +6,7 @@ import { BaseService } from './base.service';
 import { map } from 'rxjs/operators';
 import { EnumTipoDescuento } from '../models/descuento';
 import { EnumTipoRecargo } from '../models/recargo';
+import { ComerciosService } from './comercios.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,16 +21,17 @@ export class PedidoService extends BaseService{
 
   constructor(
     protected afs: AngularFirestore,
-  ) {     
-    super(afs);      
+    private comerciosService:ComerciosService
+    ) {     
+      super(afs); 
+      this.comerciosService.getSelectedCommerce().subscribe(data=>{
+        if(data){
+          
+          this.setPath('comercios/'+data.id+'/pedidos')   
+         }        
+      })
   }
 
-  setearPath(){
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    console.log(comercioId);
-    if(comercioId)
-      this.setPath('comercios/'+comercioId+'/pedidos')   
-  }
 
   getByMesa(mesaId) {
         
@@ -49,11 +51,13 @@ export class PedidoService extends BaseService{
 
 
 
-  listFechaDesde(fecha){
+  listFechaDesde(fechaFrom,fechaTo){
     
-    console.log(fecha); 
+    console.log(fechaFrom); 
 
-    return this.afs.collection(this.path, ref => ref.where('createdAt', '>=', fecha).orderBy('createdAt',"desc").limit(50)).snapshotChanges()
+    console.log(fechaTo); 
+
+    return this.afs.collection(this.path, ref => ref.where('createdAt', '>=', fechaFrom).where('createdAt', '<=', fechaTo).orderBy('createdAt',"desc").limit(50)).snapshotChanges()
         .pipe(
             map(changes => {
                 return changes.map(a => {   
@@ -66,9 +70,14 @@ export class PedidoService extends BaseService{
         );     
   }
 
-  public getTotal(pedido){
+  public getTotal(pedido:Pedido){
  
-    let total = pedido.totalProductos + pedido.totalServicios;
+   
+    let total = 0;
+
+    pedido.productos.forEach(prod =>{
+      total += prod.precioTotal
+    })    
 
     let totalPorcentaje = 0;
     pedido.descuentos.forEach(descuento =>{

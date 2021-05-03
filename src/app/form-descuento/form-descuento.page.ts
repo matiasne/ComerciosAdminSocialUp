@@ -29,9 +29,11 @@ export class FormDescuentoPage implements OnInit {
 
   agregar(){
     if(this.descuento.monto){
-      this.carritoService.agregarDescuento(this.descuento);  
+      this.modalCtrl.dismiss(this.descuento);
     }   
-    this.modalCtrl.dismiss();
+    else{
+      this.modalCtrl.dismiss()
+    }
   }
 
 }

@@ -4,27 +4,65 @@
   </ion-toolbar>
 </ion-header>
 
+
 <ion-content class="ion-padding">
-  <p>Tu plan actual "Free" alcanzó su limite, para seguir optimizando tu negocio necesitas ir al siguiente nivel!</p>
-  <p>Con el plan "Spark" podes:</p>
-  <ul>
-    <li>Crear hasta 4 cajas</li>
-    <li>Generar Factura Electrónica AFIP.</li>
-    <li>Crear Cuentas Corrientes para tus clientes</li>
-    <li>Llevar tus datos a una tienda online</li>
-    <li>Cargar hasta 3 sucursales o comercios</li>
-    <li>Cargar hasta 40 productos</li>
-    <li>Invitar hasta 5 empleados</li>
-    <li>2 horas de soporte online</li>
-    <li>Videos instructivos</li>    
-  </ul>
-  <p>Todo esto por 2899$ mensuales</p>
-  <ion-button class="button-rounded"  color="primary" >Siguiente Nivel!</ion-button>
-  <ion-button class="button-rounded"  color="light" (click)="cerrar()" >No gracias</ion-button>
+  <p>{{text}}</p>
+  <span *ngIf="plan == 'FREE'">   
+    <p>Con el plan "Básico" podes:</p>
+    <ul>
+      <li>Crear hasta 4 cajas</li>
+      <li>Crear hasta 200 productos</li>
+      <li>Crear hasta 1000 clientes</li>
+      <li>Invitar hasta 5 empleados</li>
+    </ul>
+    <p>Todo esto por 200$ pesos mensuales</p>
+  </span>
+
+  <span *ngIf="plan == 'BASIC'">   
+    <p>Con el plan "STANDART" podes:</p>
+    <ul>
+      <li>Crear hasta 4 cajas</li>
+      <li>Generar Factura Electrónica AFIP.</li>
+      <li>Crear Cuentas Corrientes para tus clientes</li>
+      <li>Llevar tus datos a una tienda online</li>
+      <li>Cargar hasta 3 sucursales o comercios</li>
+      <li>Cargar hasta 40 productos</li>
+      <li>Invitar hasta 5 empleados</li>
+      <li>2 horas de soporte online</li>
+      <li>Videos instructivos</li>    
+    </ul>
+    <p>Todo esto por 2899$ mensuales</p>
+  </span>
+
+  <span *ngIf="plan == 'STANDART'">   
+    <p>Con el plan "PREMIUM" podes:</p>
+    <ul>
+      <li>Crear hasta 4 cajas</li>
+      <li>Generar Factura Electrónica AFIP.</li>
+      <li>Crear Cuentas Corrientes para tus clientes</li>
+      <li>Llevar tus datos a una tienda online</li>
+      <li>Cargar hasta 3 sucursales o comercios</li>
+      <li>Cargar hasta 40 productos</li>
+      <li>Invitar hasta 5 empleados</li>
+      <li>2 horas de soporte online</li>
+      <li>Videos instructivos</li>    
+    </ul>
+    <p>Todo esto por 2899$ mensuales</p>
+  </span>
+  
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-button class="button-rounded"  color="light" (click)="cerrar()" >No gracias</ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button class="button-rounded"  color="primary" >Siguiente Nivel!</ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-button class="button-rounded"  color="success" >Ver todos los planes</ion-button>
+    </ion-row>
+  </ion-grid>
+ 
+  
 </ion-content>
-<ion-footer>
-  <ion-toolbar>
-    <ion-button slot="end" class="button-rounded"  color="primary" >Siguiente Nivel!</ion-button>
-    <ion-button slot="start" class="button-rounded"  color="light" (click)="cerrar()" >No gracias</ion-button>
-  </ion-toolbar>
-</ion-footer>

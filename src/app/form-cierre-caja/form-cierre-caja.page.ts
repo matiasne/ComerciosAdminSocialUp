@@ -5,7 +5,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthenticationService } from '../Services/authentication.service';
 import { CajasService } from '../Services/cajas.service';
 import { Caja } from '../models/caja';
-import { MovimientoCaja } from '../models/movimientoCaja';
+import { EnumTipoMovimientoCaja, MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientosService } from '../Services/movimientos.service';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Subscription } from 'rxjs';
@@ -17,6 +17,8 @@ import { Subscription } from 'rxjs';
 })
 export class FormCierreCajaPage implements OnInit {
 
+  private enumTipoMovimientoCaja = EnumTipoMovimientoCaja
+  
   public datosForm: FormGroup;  
   public fecha = new Date();
   public cajaId = "";
@@ -38,6 +40,7 @@ export class FormCierreCajaPage implements OnInit {
     private cajasServices:CajasService,
     private movimientosService:MovimientosService,
     private firestore: AngularFirestore,
+    private cajasService:CajasService
   ) { 
     this.fecha = new Date();
     this.caja = new Caja();
@@ -46,6 +49,7 @@ export class FormCierreCajaPage implements OnInit {
     this.movSub = this.cajasServices.get(this.route.snapshot.params.cajaId).subscribe(data =>{
       this.caja.asignarValores(data)
     })
+
 
     
   }
@@ -82,29 +86,33 @@ export class FormCierreCajaPage implements OnInit {
 
     this.caja.estado = "cerrada";
 
-    var cierreEfectivo = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
-    cierreEfectivo.id = this.firestore.createId();
-    cierreEfectivo.cajaId = this.caja.id;
-    cierreEfectivo.isCierre = true;
-    cierreEfectivo.metodoPago = "efectivo";
-    cierreEfectivo.monto = - Number(this.extraccionEfectivo);
-    this.movimientosService.createMovimientoCaja(this.caja,cierreEfectivo);
+    this.actualizarMontosCaja()
 
-    var cierreDebito = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
-    cierreDebito.id = this.firestore.createId();
-    cierreDebito.cajaId = this.caja.id;
-    cierreDebito.isCierre = true;
-    cierreDebito.metodoPago = "debito";
-    cierreDebito.monto = - Number(this.extraccionDebito);
-    this.movimientosService.createMovimientoCaja(this.caja,cierreDebito);
+    this.movimientosService.setearPath(this.caja.id)
 
-    var cierreCredito = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
-    cierreCredito.id = this.firestore.createId();
-    cierreCredito.cajaId = this.caja.id;
-    cierreCredito.isCierre = true;
-    cierreCredito.metodoPago = "credito";
-    cierreCredito.monto = - Number(this.extraccionCredito);
-    this.movimientosService.createMovimientoCaja(this.caja,cierreCredito);
+    var mov = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
+    mov.tipo = this.enumTipoMovimientoCaja.cierre;
+    mov.cajaId = this.caja.id;
+    mov.isCierre = true;
+    mov.metodoPago = "efectivo";
+    mov.monto = - Number(this.extraccionEfectivo);
+    this.movimientosService.add(mov);
+
+    var movDebito = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
+    movDebito.tipo = this.enumTipoMovimientoCaja.cierre;
+    movDebito.cajaId = this.caja.id;
+    movDebito.isCierre = true;
+    movDebito.metodoPago = "debito";
+    movDebito.monto = - Number(this.extraccionDebito);
+    this.movimientosService.add(movDebito);
+
+    var movCredito = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
+    movCredito.tipo = this.enumTipoMovimientoCaja.cierre;
+    movCredito.cajaId = this.caja.id;
+    movCredito.isCierre = true;
+    movCredito.metodoPago = "credito";
+    movCredito.monto = - Number(this.extraccionCredito);
+    this.movimientosService.add(movCredito);
 
     
     this.navCtrl.back();
@@ -112,6 +120,18 @@ export class FormCierreCajaPage implements OnInit {
 
   cancelar(){
     this.navCtrl.back();
+  }
+
+  actualizarMontosCaja(){
+      this.caja.totalEfectivo = Number(this.caja.totalEfectivo)- Number(this.extraccionEfectivo);
+   
+      this.caja.totalCredito = Number(this.caja.totalCredito)- Number(this.extraccionCredito);
+    
+      this.caja.totalDebito = Number(this.caja.totalDebito) - Number(this.extraccionDebito);
+    
+
+    const param1 = JSON.parse(JSON.stringify(this.caja));
+    this.cajasService.update(param1);
   }
 
 }

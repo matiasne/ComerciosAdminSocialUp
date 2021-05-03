@@ -1,14 +1,12 @@
 export class Impresora{
 
-    public bluetooth = false;
+    public escposBluetooth = false;
     public mac="";
 
-    public comandas = false;  
-    public ticketConsumidor = false;   
+    public comandas = false;   
     
     public subsComanda = false;
     public subsPedido = false;
-
 	constructor(
 		
 		){

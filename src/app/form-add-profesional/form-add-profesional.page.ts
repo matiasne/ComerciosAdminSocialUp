@@ -48,7 +48,7 @@ export class FormAddProfesionalPage implements OnInit {
 
   eliminar(){
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.rolesServices.delete(comercio_seleccionadoId,this.profesional.rolId);
+    this.rolesServices.delete(this.profesional.rolId);
     this.modalCtrl.dismiss('eliminar');
   }
 

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Plan } from '../models/plan';
 import { BaseService } from './base.service';
+import { ComerciosService } from './comercios.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,21 +10,28 @@ import { BaseService } from './base.service';
 export class PlanesService extends BaseService{
 
   private servicioId = "";
+  protected comercioId = "";
 
   constructor(
-    protected afs: AngularFirestore
-  ) {     
-    super(afs);    
+    protected afs: AngularFirestore,
+    private comerciosService:ComerciosService
+    ) {     
+      super(afs); 
+      this.comerciosService.getSelectedCommerce().subscribe(data=>{
+        // let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+        if(data){
+         this.comercioId = data.id
+         }
+        
+      })
   }
-
   setPathIds(servicioId){
     this.servicioId = servicioId;
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    console.log("comercios/"+comercioId+"/servicios/"+this.servicioId+"/planes")
-    this.setPath("comercios/"+comercioId+"/servicios/"+this.servicioId+"/planes");
+    console.log("comercios/"+this.comercioId+"/servicios/"+this.servicioId+"/planes")
+    this.setPath("comercios/"+this.comercioId+"/servicios/"+this.servicioId+"/planes");
   }
 
-  public set(data) { 
+ /* public set(data) { 
      
 
     this.setPathIds(data.servicioId);
@@ -42,5 +50,5 @@ export class PlanesService extends BaseService{
     this.afs.collection(this.path).doc(id).set(param).then(data=>{
       console.log("!!!")
     });
-  }  
+  }  */
 }

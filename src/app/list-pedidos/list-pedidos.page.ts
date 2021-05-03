@@ -1,14 +1,18 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ModalController } from '@ionic/angular';
-import { Observable } from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
 import { DetailsPedidoPage } from '../details-pedido/details-pedido.page';
-import { EnumEstadoComanda, EnumEstadoEnCaja, Pedido } from '../models/pedido';
+import { FormFilterPedidosPage } from '../form-filter-pedidos/form-filter-pedidos.page';
+import { EnumEstadoCocina, EnumEstadoCobro, Pedido } from '../models/pedido';
+import { WCOrder } from '../models/woocommerce/order';
 import { AuthenticationService } from '../Services/authentication.service';
 import { ComentariosService } from '../Services/comentarios.service';
 import { NavegacionParametrosService } from '../Services/global/navegacion-parametros.service';
 import { LoadingService } from '../Services/loading.service';
 import { PedidoService } from '../Services/pedido.service';
+import { PedidosWoocommerceService } from '../Services/pedidos-woocommerce.service';
+import { OrdersService } from '../Services/woocommerce/orders.service';
 
 @Component({
   selector: 'app-list-pedidos',
@@ -17,20 +21,27 @@ import { PedidoService } from '../Services/pedido.service';
 })
 export class ListPedidosPage implements OnInit {
 
+  public pedidosLocalesAll:any = []
+  public pedidosLocales:any =[]
 
+  public pedidosWoocommerceAll:any = []
+  public pedidosWoocommerce = []
 
-  public pedidosAll:any = []
-  public pedidos:any =[]
   public palabraFiltro = "";
   public userRol = "";
   public fechaDesde = new Date();
+  public fechaHasta = new Date();
+  public estado = "";
+  public fuente = "";
 
   public obsPedidos
 
-  public cEstado = EnumEstadoEnCaja;
+  public cEstado = EnumEstadoCobro;
   public seccionActiva = this.cEstado.pendiente; 
 
   public buscando = true;
+
+  public pedidosObs:any
 
   constructor(
     private pedidosService:PedidoService,
@@ -41,7 +52,8 @@ export class ListPedidosPage implements OnInit {
     public comentariosService:ComentariosService,
     public authService:AuthenticationService,
     public changeRef:ChangeDetectorRef,
-    public navParametrosService:NavegacionParametrosService
+    public navParametrosService:NavegacionParametrosService,
+    public pedidosWoocommerceService:PedidosWoocommerceService
   ) { }
 
   ngOnInit() {
@@ -52,13 +64,10 @@ export class ListPedidosPage implements OnInit {
   }
 
   ionViewDidEnter(){ 
-    this.pedidosService.setearPath()
     this.loadingService.presentLoadingText("Cargando Pedidos") 
     this.refrescar();
     this.changeRef.detectChanges()    
-  }
-
-  
+  }  
 
   onChange(event){
     this.palabraFiltro = event.target.value;    
@@ -66,12 +75,13 @@ export class ListPedidosPage implements OnInit {
   }
 
   onChangeAtras(event){
+    this.fechaDesde = new Date();
     this.fechaDesde.setDate(this.fechaDesde.getDate() - Number(event.target.value));
     this.refrescar()   
   }
  
   reanudar(item){ 
-    item.statusCaja = this.cEstado.pendiente;
+    item.statusCobro = this.cEstado.pendiente;
     this.pedidosService.update(item).then(data=>{
       console.log("El pedido ha sido suspendido");
       this.refrescar();
@@ -89,10 +99,10 @@ export class ListPedidosPage implements OnInit {
           handler: (blah) => {
             
           }
-        }, {
+        }, { 
           text: 'Sí',
           handler: () => {               
-            item.statusCaja = this.cEstado.suspendido;
+            item.statusCobro = this.cEstado.suspendido;
             this.pedidosService.update(item).then(data=>{
               console.log("El pedido ha sido suspendido");
               this.refrescar();
@@ -113,17 +123,65 @@ export class ListPedidosPage implements OnInit {
     this.router.navigate(['details-pedido'])
   }
 
+  buscarWoocommerce(){
+
+    var retorno = false;
+    this.pedidosWoocommerce = []; 
+    this.pedidosWoocommerceAll.forEach(item => {  
+
+      var encontrado = true;    
+      
+      //Por ahora solo el administrador puede ver los pedidos de woocommerce
+      if(this.userRol == "Administrador"){
+        encontrado = true;
+      }
+     
+      if(encontrado){
+        encontrado = false;
+
+        if(this.palabraFiltro != ""){
+
+          encontrado = false;
+          var palabra = this.palabraFiltro.normalize("NFD").replace(/[\u0300-\u036f]/g, "")      
+        
+          if(item.shipping.first_name){
+            retorno =  (item.shipping.first_name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(palabra.toLowerCase()) > -1);
+            if(retorno)
+              encontrado = true;
+          }
+
+          if(item.shipping.last_name){
+            retorno =  (item.shipping.last_name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(palabra.toLowerCase()) > -1);
+            if(retorno)
+              encontrado = true;
+          }   
+        }
+        else{
+          encontrado = true; 
+        }
+      }
+
+      if(encontrado){        
+        if(this.seccionActiva == item.statusCobro){
+          this.pedidosWoocommerce.push(item)
+        }                 
+        return true;
+      }
+
+
+    });
+  }
+
 
   buscar(){ 
 
     var retorno = false;
 
-    this.pedidos = []; 
+    this.pedidosLocales = []; 
 
-    this.pedidosAll.forEach(item => {  
+    this.pedidosLocalesAll.forEach(item => {  
       
       var encontrado = true;      
-
       //si no es administrador solo ve los pedidos generados por el
       if(this.userRol == "Administrador"){
         encontrado = true;
@@ -173,24 +231,18 @@ export class ListPedidosPage implements OnInit {
       
       if(encontrado){         
 
-          let countListos = 0      
-          item.productos.forEach(element => {
-
-            /*this.comentariosService.setearPath("pedidos",item.id);   
-            let obs =this.comentariosService.list().subscribe(data =>{
-              item.cantidadComentarios = data.length;
-            })*/
-            if(element.estadoComanda == "Listo")
-              countListos++; 
-            
-          });   
-          
-          item.countListos = countListos    
-          if(this.seccionActiva == item.statusCaja){
-            this.pedidos.push(item)
-          }
-          
-      //  }        
+        let countListos = 0      
+        item.productos.forEach(element => {
+          if(element.estadoComanda == "Listo")
+            countListos++;             
+        });   
+        
+        item.countListos = countListos 
+        
+        if(this.seccionActiva == item.statusCobro){          
+          this.pedidosLocales.push(item)
+        }
+                 
         return true;
       }
       
@@ -202,26 +254,59 @@ export class ListPedidosPage implements OnInit {
   segmentChanged(event){
     console.log(event.target.value);
     this.seccionActiva = event.target.value;
-    this.pedidosAll = [];
+    this.pedidosLocalesAll = [];
     this.refrescar();
   } 
+
+  async showFiltroAvanzado(){
+    const modal = await this.modalController.create({
+      component: FormFilterPedidosPage      
+    });
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data){
+        this.fechaDesde = retorno.data.fechaDesde,
+        this.fechaHasta = retorno.data.fechaHasta
+        this.estado = retorno.data.estado
+        this.fuente = retorno.data.fuente
+        this.refrescar()
+      }       
+    });
+    return await modal.present();    
+  }
  
   refrescar(){
- 
-    if(this.obsPedidos){
-      this.obsPedidos.unsubscribe();
-    } 
-
+  
     let date = new Date(this.fechaDesde) 
+    let fechaHasta = new Date();
 
-    this.obsPedidos = this.pedidosService.listFechaDesde(date).subscribe((pedidos:any)=>{
-      this.pedidosAll = pedidos; 
-
-      console.log(this.pedidosAll)
+    if(!this.obsPedidos)
+    this.pedidosObs = this.pedidosService.listFechaDesde(date,fechaHasta).subscribe((pedidos:any)=>{
+      this.pedidosLocalesAll = pedidos; 
+      console.log(this.pedidosLocalesAll)
       this.buscando = false;
       this.buscar(); 
+      this.pedidosObs.unsubscribe()
     })  
 
+    this.pedidosWoocommerceService.list().subscribe((pedidos:any) =>{
+      console.log(pedidos)
+      this.pedidosWoocommerceAll = pedidos;
+      this.buscarWoocommerce();      
+    })
+
+  }
+
+  nuevoPedido(){
+    this.router.navigate(['list-productos-servicios',{carritoIntended:'list-pedidos'}])
+  }
+
+  seleccionarPedidoWoocommerce(order){
+    let o = new WCOrder();
+    o.asignarValores(order);
+    
+    this.navParametrosService.param = o;
+    this.router.navigate(['details-pedido-woocommerce'])
   }
 
 

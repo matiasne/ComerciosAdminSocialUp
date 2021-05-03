@@ -13,7 +13,6 @@ import { LoadingService } from '../Services/loading.service';
 import { CargaPorVozService } from '../Services/carga-por-voz.service';
 import { ChangeDetectorRef } from '@angular/core'
 import { ToastService } from '../Services/toast.service';
-import { Carrito } from '../models/carrito';
 import { CategoriasService } from '../Services/categorias.service';
 import { FormProductoPage } from '../form-producto/form-producto.page';
 import { FormStockPage } from '../form-stock/form-stock.page';
@@ -31,6 +30,9 @@ import { EnumPlanes, User } from '../models/user';
 import { CambiarPlanPage } from '../cambiar-plan/cambiar-plan.page';
 import { PedidoService } from '../Services/pedido.service';
 import { NavegacionParametrosService } from '../Services/global/navegacion-parametros.service';
+import { WoocommerceService } from '../Services/woocommerce/woocommerce.service';
+import { WordpressService } from '../Services/wordpress/wordpress.service';
+import { Producto } from '../models/producto';
 
 
 @Component({
@@ -47,10 +49,11 @@ export class ListProductosServiciosPage implements OnInit {
   };*/
 
   comercio:Comercio;
-  carrito:Carrito;
   itemsAllProductos:any=[];
   itemsProductos:any = [];
   
+
+  public carrito:any
 
   public itemsSeparadosAlfabeticamente = [];
 
@@ -78,6 +81,9 @@ export class ListProductosServiciosPage implements OnInit {
 
   public isMobile = false;
 
+  public dragAgregar = false;
+  public dragEvent:any
+
   constructor(
     public loadingController: LoadingController,
     private router: Router,
@@ -99,10 +105,12 @@ export class ListProductosServiciosPage implements OnInit {
     private modalController:ModalController,
     private authenticationService:AuthenticationService,
     private navParametrosService:NavegacionParametrosService,
-    private platform:Platform
+    private platform:Platform,
+    private wordpressService:WordpressService
     
   ) { 
-    this.carrito = new Carrito("","");
+
+    
 
     this.AuthenticationService.observeRol().subscribe(data=>{
       if(data=="Administrador"){
@@ -147,7 +155,7 @@ export class ListProductosServiciosPage implements OnInit {
     /*Mantener toda la lógica en el ngOninit para que solo se subscriba una vez y
     no demande al servidor todos los datso cda vez que se muestra esta pantalla*/
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    var catSub = this.categoriasService.getAll(comercio_seleccionadoId).subscribe(snapshot =>{
+    var catSub = this.categoriasService.getAll().subscribe(snapshot =>{
       this.categorias = [];
       snapshot.forEach((snap: any) => {       
         var categoria = snap.payload.doc.data();
@@ -166,23 +174,31 @@ export class ListProductosServiciosPage implements OnInit {
   }
  
   ionViewDidEnter(){
-    this.marcarEnCarrito();
+
+    console.log("DidEnter")
+    //this.marcarEnCarrito();
+    this.wordpressService.obtainToken()
+    console.log(this.carrito.productos)
+    this.validarEnCarrito()
+  }
+
+  ionViewWillEnter(){
+   
   }
 
   ionViewDidLeave(){
     //this.subsItemsProd.unsubscribe();
   }
 
-  marcarEnCarrito(){
+  validarEnCarrito(){
     this.itemsProductos.forEach(element => {
       element.enCarrito = 0;
-    }); 
-    this.carrito.productos.forEach(prod => {
-      this.itemsProductos.forEach(element => {
-        if(prod.id == element.id){
-          element.enCarrito += prod.cantidad;
-        }
-      });
+      this.carrito.productos.forEach(prod => {        
+         
+          if(prod.id == element.id){
+            element.enCarrito += prod.cantidad;
+          }
+        });
     }) 
   }
 
@@ -250,6 +266,7 @@ export class ListProductosServiciosPage implements OnInit {
     else{      
       this.itemsProductos = this.itemsAllProductos;
     }    
+   
     this.changeRef.detectChanges()    
   }
 
@@ -267,27 +284,88 @@ export class ListProductosServiciosPage implements OnInit {
   }
     
 
-  obtenerTodo(){
-     
+  obtenerTodo(){     
     this.buscandoProductos = true;
-    this.subsItemsProd = this.productosService.getAll().subscribe((snapshotProd) => {
-      this.itemsAllProductos =[];  
+    this.subsItemsProd = this.productosService.list().subscribe(productos => {
+      this.itemsAllProductos = productos;  
       this.buscandoProductos = false;
-      snapshotProd.forEach((snapP: any) => {         
-          var producto = snapP.payload.doc.data();
-          producto.id = snapP.payload.doc.id;  
+      this.itemsAllProductos.forEach(producto => {         
           producto.producto = true;
-          producto.enCarrito = 0;
-          this.itemsAllProductos.push(producto);         
+          producto.enCarrito = 0;      
       }); 
       this.buscar(undefined);   
       
-    });   
-
+    });  
   }
 
-  vaciarCarrito(){
-    this.carritoService.vaciar()
+  async vaciarCarrito(){
+    const alert = await this.alertController.create({
+      header: 'Está seguro que desea vaciar todo el carrito?',
+      message: '',
+      buttons: [
+        { 
+          text: 'No',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Si',
+          handler: () => {     
+            this.itemsAllProductos.forEach(element => {
+              element.enCarrito = 0
+            });      
+            this.carritoService.vaciar()        
+          }
+        }
+      ]
+    });
+    await alert.present();   
+
+    
+  }
+
+  onDrag(event,producto){
+    event.target.getSlidingRatio().then(res=> {
+      console.log(res)
+
+      if(res < -0.8){
+        console.log("agregar true")
+        this.dragAgregar = true
+        this.dragEvent = event.target   
+
+      }
+
+      if(res == -1){
+        this.onDrop2(producto)
+      }
+    })
+  }
+
+  onDrop1(producto){    
+    console.log("onDropEnd")
+  }
+
+  agregarACarrito(producto){
+    this.toastServices.mensaje("Producto "+producto.nombre+" Agregado al carrito","");
+    producto.precioTotal = producto.precio
+    this.carritoService.agregarProducto(producto);
+  }
+
+
+  onDrop2(producto){
+    console.log("DROP")
+    if(this.dragAgregar){
+     
+      this.dragAgregar = false
+      this.toastServices.mensaje("Producto "+producto.nombre+" Agregado al carrito","");
+      producto.precioTotal = producto.precio
+      this.carritoService.agregarProducto(producto);
+      this.dragEvent.close().then(data=>{
+           
+          
+      })
+    }
+    
   }
 
   reconocimientoPorVoz(){
@@ -328,14 +406,14 @@ export class ListProductosServiciosPage implements OnInit {
     this.router.navigate(['dashboard-productos']);
   }
 
-  async agregarProducto(producto){   
+  async agregarProducto(producto:Producto){   
 
     const modal = await this.modalCtrl.create({
       component: AddProductoVentaPage,
       componentProps:{
         producto:producto
       }
-    });        
+    });         
 
     modal.onDidDismiss()
     
@@ -345,13 +423,17 @@ export class ListProductosServiciosPage implements OnInit {
       this.loadingService.presentLoading()
       setTimeout(()=>{ 
         this.loadingService.dismissLoading()
-      }, 200);
+      }, 100);
       
+   
 
       if(retorno.data){   
-        
-                 
-        this.marcarEnCarrito();    
+        producto.enCarrito += retorno.data.cantidad;
+        delete retorno.data.keywords;
+        //producto.cantidad = retorno.data.cantidad
+        //producto.opcionesSeleccionadas = retorno.data.opcionesSeleccionadas
+        this.carritoService.agregarProducto(retorno.data);    
+        //this.marcarEnCarrito();         
       }else{
 
       }     
@@ -368,6 +450,12 @@ export class ListProductosServiciosPage implements OnInit {
       component: FormDescuentoPage
     });  
 
+    modal.onDidDismiss().then((retorno) => {
+      if(retorno.data){  
+        this.carritoService.agregarDescuento(retorno.data);          
+      }        
+    }); 
+
     return await modal.present();
   }
 
@@ -375,65 +463,43 @@ export class ListProductosServiciosPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: FormRecargoPage
     });  
+
+    modal.onDidDismiss().then((retorno) => {
+      if(retorno.data){  
+        this.carritoService.agregarRecargo(retorno.data);          
+      }        
+    }); 
+
     return await modal.present(); 
   }
 
-  async agregarStock(producto){
-    const modal = await this.modalCtrl.create({
-      component: FormStockPage,
-      componentProps:{
-        producto:producto
-      }
-    });  
+  
 
-    return await modal.present();
-  }
 
-  agregarServicio(servicio){   
-    this.router.navigate(['add-servicio-subscripcion',{
-      id:servicio.id
-    }]); 
-  }
-
-  async siguiente(){    //recordar que el modulo de mesas funciona a través de los pedidos y necesitamos generar el paso intermedio
-    if(this.comercio.modulos.pedidos == true || this.comercio.modulos.mesas){
-      this.verCarrito();
-    }
-    else{
+  async siguiente(){
+    
+    if(this.comercio.config.cobrarDirectamente)
       this.cobrarDirectamente()
-    }
+    else
+      this.verCarrito();
   }
 
   async verCarrito(){
-    this.router.navigate(['details-carrito'])  
+    console.log(this.route.snapshot.params.carritoIntended)
+    this.router.navigate(['details-carrito',{carritoIntended:this.route.snapshot.params.carritoIntended}])  
   }
 
   async cobrarDirectamente(){
 
-    let pedido = new Pedido()
-    this.carrito.productos.forEach(p=>{
-      pedido.productos.push(Object.assign({}, p))
-    })  
+    
+    let pedido = new Pedido()  
 
-    this.carrito.descuentos.forEach(p=>{
-      pedido.descuentos.push(Object.assign({}, p))
-    }) 
-
-    this.carrito.recargos.forEach(p=>{
-      pedido.recargos.push(Object.assign({}, p))
-    }) 
+    pedido.asignarValores(this.carrito)
 
     pedido.personalId = this.authenticationService.getUID();
     pedido.personalEmail = this.authenticationService.getEmail();
     pedido.personalNombre = this.authenticationService.getNombre();
     
-    pedido.clienteId = this.carrito.cliente.id;
-    pedido.clienteNombre = this.carrito.cliente.nombre;
-    pedido.clienteEmail = this.carrito.cliente.email;
-
-    pedido.mesaId = this.carrito.mesa.id;
-    pedido.mesaNombre = this.carrito.mesa.nombre;
-    pedido.totalProductos = this.carrito.totalProductos; 
 
     let editarPedido = new Pedido();
     editarPedido.asignarValores(pedido);
@@ -483,12 +549,19 @@ export class ListProductosServiciosPage implements OnInit {
   }
 
   async nuevoProducto(){
-    this.router.navigate(['form-producto']);
-    /*let modal = await this.modalCtrl.create({
-      component: FormProductoPage
-    });
-
-    return await modal.present();*/
+    if(this.itemsAllProductos.length > this.comercio.config.productosMaxLength){
+      let modal = await this.modalCtrl.create({
+        component: CambiarPlanPage,
+        componentProps: {
+          extraText: "Haz alcanzado el límite de productos de tu plan: "+this.comercio.plan,
+          actualPlan:this.comercio.plan
+        }
+      });  
+      return await modal.present();
+    }
+    else{
+      this.router.navigate(['form-producto']);
+    }
     
   }
 }

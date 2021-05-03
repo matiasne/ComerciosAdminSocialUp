@@ -9,14 +9,7 @@
 
 <ion-content class="ion-padding">
   
-  <ion-item class="form-select"> 
-    <ion-label position="floating">Desde</ion-label>
-    <ion-select multiple="false" (ionChange)="onChangeAtras($event)">
-      <ion-select-option  [value]="1" selected>Ayer</ion-select-option>
-      <ion-select-option  [value]="2">2 días atras</ion-select-option>
-      <ion-select-option  [value]="7">Una semana atrás</ion-select-option>
-    </ion-select>       
-  </ion-item> 
+  
 
   <ion-item>  
     <div slot="start">
@@ -29,13 +22,30 @@
   </ion-item> 
   
   <ion-toolbar>
-    <ion-button *ngIf="caja.estado =='abierta'" class="button-rounded" (click)="irEgreso()"  expand="block">Egreso</ion-button>
-    <ion-button *ngIf="caja.estado =='abierta'" class="button-rounded" (click)="irIngreso()"  expand="block">Ingreso</ion-button>
-    <ion-button *ngIf="caja.estado =='abierta'" class="button-rounded" color="danger" (click)="irCierre()"  expand="block">Cierre</ion-button>
-    <ion-button *ngIf="caja.estado =='cerrada'" class="button-rounded" color="primary" (click)="irApertura()"  expand="block">Abrir</ion-button>
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-button *ngIf="caja.estado =='abierta'" class="button-rounded" (click)="irEgreso()"  expand="block">Egreso</ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button *ngIf="caja.estado =='abierta'" class="button-rounded" (click)="irIngreso()"  expand="block">Ingreso</ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button *ngIf="caja.estado =='abierta'" class="button-rounded" color="danger" (click)="irCierre()"  expand="block">Cierre</ion-button>
+          <ion-button *ngIf="caja.estado =='cerrada'" class="button-rounded" color="primary" (click)="irApertura()"  expand="block">Abrir</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>    
   </ion-toolbar>
 
-  
+  <ion-item class="form-select" *ngIf="comercio.config.movimientosCajas"> 
+    <ion-label position="floating">Desde</ion-label>
+    <ion-select multiple="false" (ionChange)="onChangeAtras($event)">
+      <ion-select-option  [value]="1" selected>Ayer</ion-select-option>
+      <ion-select-option  [value]="2">2 días atras</ion-select-option>
+      <ion-select-option  [value]="7">Una semana atrás</ion-select-option>
+    </ion-select>       
+  </ion-item>  
 
   <ion-list lines="none"> 
     <div *ngFor="let item of items" >
@@ -47,25 +57,29 @@
       'egreso-card': item.egreso
     }"
     >
-    <ion-item >
+    <ion-item>
       
-      <div style="color:#50b223" *ngIf="item.pago">
+      <div style="color:#50b223" *ngIf="item.tipo == enumTipoMovimientoCaja.pago">
+        <ion-icon name="caret-up-circle-outline"></ion-icon>
+      </div> 
+
+      <div style="color:#50b223" *ngIf="item.tipo == enumTipoMovimientoCaja.ingreso">
         <ion-icon name="caret-up-circle-outline"></ion-icon>
       </div> 
     
-      <div style="color:#b22323" *ngIf="item.egreso">
+      <div style="color:#b22323" *ngIf="item.tipo == enumTipoMovimientoCaja.egreso">
         <ion-icon name="caret-down-circle-outline"></ion-icon>
       </div>  
       
-      <div style="color:#b223b2" *ngIf="item.cierre">
+      <div style="color:#b223b2" *ngIf="item.tipo == enumTipoMovimientoCaja.cierre">
         <ion-icon name="caret-down-circle-outline"></ion-icon>
       </div>
 
-      <div style="color:#2350b2" *ngIf="item.apertura">
+      <div style="color:#2350b2" *ngIf="item.tipo == enumTipoMovimientoCaja.apertura">
         <ion-icon name="caret-down-circle-outline"></ion-icon>
       </div>
 
-      <ion-label *ngIf="item.pago" class="ion-text-wrap">
+      <ion-label *ngIf="item.tipo == enumTipoMovimientoCaja.pago" class="ion-text-wrap">
         <h2>Pago: <b>{{item.monto | currency}}</b> en {{item.metodoPago}}</h2>     
         <p>
           {{item.motivo}}
@@ -75,7 +89,17 @@
         </p>           
       </ion-label>    
 
-      <ion-label *ngIf="item.egreso" class="ion-text-wrap">
+      <ion-label *ngIf="item.tipo == enumTipoMovimientoCaja.ingreso" class="ion-text-wrap">
+        <h2>Ingreso: <b>{{item.monto | currency}}</b> en {{item.metodoPago}}</h2>     
+        <p>
+          {{item.motivo}}
+        </p>     
+        <p style="font-size: 12px;" >
+          {{item.vendedorNombre}} - {{item.createdAt.toDate() | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
+        </p>           
+      </ion-label> 
+
+      <ion-label *ngIf="item.tipo == enumTipoMovimientoCaja.egreso" class="ion-text-wrap">
         <h2>Egreso: <b>{{item.monto | currency}}</b> en efectivo</h2>         
         <p>
           {{item.motivo}}
@@ -85,7 +109,7 @@
         </p>           
       </ion-label>  
 
-      <ion-label *ngIf="item.cierre" class="ion-text-wrap">
+      <ion-label *ngIf="item.tipo == enumTipoMovimientoCaja.cierre" class="ion-text-wrap">
         <h2>Cierre: <b>{{item.monto | currency}}</b> 
           <span *ngIf="item.metodoPago == 'efectivo'"> en efectivo</span>
           <span *ngIf="item.metodoPago == 'debito'"> en débito</span>
@@ -100,7 +124,7 @@
       </ion-label>   
 
 
-      <ion-label *ngIf="item.apertura" class="ion-text-wrap">
+      <ion-label *ngIf="item.tipo == enumTipoMovimientoCaja.apertura" class="ion-text-wrap">
         <h2>Apertura: <b>{{item.monto | currency}}</b> 
           <span *ngIf="item.metodoPago == 'efectivo'"> en efectivo</span>
           <span *ngIf="item.metodoPago == 'debito'"> en débito</span>

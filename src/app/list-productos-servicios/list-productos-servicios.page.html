@@ -22,16 +22,15 @@
   
 <ion-content class="ion-padding">  
  
-    <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <!--ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
       <ion-refresher-content></ion-refresher-content>
-    </ion-refresher>
+    </ion-refresher-->
 
     
     <ion-grid *ngIf="itemsAllProductos.length > 0">       
         <ion-row>          
           <ion-col *ngIf="palabraFiltro == ''" size="6" size-xs="6" size-sm="6" size-md="4" size-lg="3">
-            <ion-item (click)="agregarDescuento()" class="item-card">
-                  
+            <ion-item (click)="agregarDescuento()" class="item-card remove_inner_bottom">                  
               <ion-label>                
                 <h2>
                   Descuento 
@@ -41,8 +40,7 @@
           </ion-col>
 
           <ion-col *ngIf="palabraFiltro == ''" size="6" size-xs="6" size-sm="6" size-md="4" size-lg="3">
-            <ion-item (click)="agregarRecargo()" class="item-card">
-               
+            <ion-item (click)="agregarRecargo()" class="item-card remove_inner_bottom">               
               <ion-label>                
                 <h2>
                   Recargo
@@ -53,7 +51,7 @@
 
           <ion-col size="12" size-xs="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let producto of itemsProductos">           
 
-            <ion-item-sliding class="item-card fivePhasesFadeIn"  > 
+            <ion-item-sliding class="item-card fivePhasesFadeIn" (ionDrag)="onDrag($event,producto)"> 
               <app-card-producto   
                 [item]="producto"
                 [multiplicador]="1" 
@@ -66,8 +64,8 @@
                 <ion-item-option  (click)="editarProducto(producto)"><ion-icon name="create" ></ion-icon> Editar</ion-item-option>
               </ion-item-options>
         
-              <ion-item-options side="start" *ngIf="comercio.modulos.stock">
-                <ion-item-option color="success" (click)="agregarStock(producto)">Stock</ion-item-option>
+              <ion-item-options side="start" (ionSwipe)="onDrop2(producto)" (click)="agregarACarrito(producto)">
+                <ion-item-option color="success"><ion-icon name="add" ></ion-icon>Agregar A Carrito</ion-item-option>
               </ion-item-options>
 
             </ion-item-sliding>
@@ -83,15 +81,15 @@
   <!-- fab placed to the bottom end -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
 
-    <ion-fab-button *ngIf="isMobile"  color="success" (click)="lectorDeCodigo()">
+    <ion-fab-button *ngIf="palabraFiltro == '' && isMobile"  color="success" (click)="lectorDeCodigo()">
       <ion-icon name="barcode"></ion-icon>
     </ion-fab-button><br>
 
-    <ion-fab-button *ngIf="isMobile"  color="success" (click)="reconocimientoPorVoz()">
+    <ion-fab-button *ngIf="palabraFiltro == '' && isMobile"  color="success" (click)="reconocimientoPorVoz()">
       <ion-icon name="mic-outline"></ion-icon>
     </ion-fab-button><br>
 
-    <ion-fab-button (click)="nuevoProducto()">
+    <ion-fab-button *ngIf="palabraFiltro == '' || itemsProductos.length == 0" (click)="nuevoProducto()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
@@ -103,7 +101,12 @@
 
   <div *ngIf="!buscandoProductos && itemsAllProductos.length == 0" class="mensaje FadeOut FadeIn">
     <img src="../../assets/img/producto.png" alt="">
-    <p >Aún no tienes productos ni servicios agregados a tu comercio!</p>
+    <p >Aún no tienes productos agregados a tu comercio!</p>
+  </div>
+
+  <div *ngIf="!buscandoProductos && itemsProductos.length == 0" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/producto.png" alt="">
+    <p >No existe un producto con ese nombre! Agrega uno nuevo.</p>
   </div>
 
   <div class="space">
@@ -115,6 +118,6 @@
 
 <ion-footer class="ion-no-border ion-padding" *ngIf="carrito.on" style="padding: 0px;"> 
   <ion-toolbar>
-    <ion-button class="margin0 button-rounded" style="height: 60px;" color="success" (click)="siguiente()">{{carrito.productos.length + carrito.servicios.length}} Items = {{carritoService.getTotal() | currency}} <ion-icon name="arrow-forward"></ion-icon></ion-button>
+    <ion-button class="margin0 button-rounded" style="height: 60px;" color="success" (click)="siguiente()">{{carrito.productos.length}} Items = {{carritoService.getTotal() | currency}} <ion-icon name="arrow-forward"></ion-icon></ion-button>
   </ion-toolbar> 
 </ion-footer>

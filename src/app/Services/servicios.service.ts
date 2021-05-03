@@ -7,6 +7,7 @@ import { Servicio } from '../models/servicio';
 import { BaseService } from './base.service';
 import { map } from 'rxjs/internal/operators/map';
 import { SubscripcionesService } from './subscripciones.service';
+import { ComerciosService } from './comercios.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,11 +19,18 @@ export class ServiciosService extends BaseService{
 
   constructor(
     protected afs: AngularFirestore,
-    private subscripcionesService:SubscripcionesService
-  ) {     
-    super(afs);
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    this.setPath("comercios/"+comercioId+"/servicios");
+    private subscripcionesService:SubscripcionesService,
+    private comerciosService:ComerciosService
+    ) {     
+      super(afs); 
+      this.comerciosService.getSelectedCommerce().subscribe(data=>{
+        // let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+        if(data){
+          
+          this.setPath('comercios/'+data.id+'/servicios')   
+         }
+        
+      })
   }
 
   public async deleteS(id:string){

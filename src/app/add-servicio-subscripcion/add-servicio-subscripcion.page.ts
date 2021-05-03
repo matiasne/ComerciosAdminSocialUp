@@ -173,8 +173,7 @@ export class AddServicioSubscripcionPage implements OnInit {
         this.servicio.plan.precio = this.subscripcion.precio;
         this.servicio.plan.tipo = this.subscripcion.tipo;
         this.servicio.plan.dias = this.subscripcion.dias;       
-      }
-      this.carritoService.agregarServicio(this.servicio,this.servicio.plan.precio);  
+      } 
 
       this.toastServices.mensaje("Se agregó la primer cuota al carrito","");
     } 

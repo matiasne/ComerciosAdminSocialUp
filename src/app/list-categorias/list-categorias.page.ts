@@ -21,7 +21,7 @@ export class ListCategoriasPage implements OnInit {
 
   ) { 
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.categoriasSubs = this.categoriaServices.getAll(comercio_seleccionadoId).subscribe(snapshot=>{                 
+    this.categoriasSubs = this.categoriaServices.getAll().subscribe(snapshot=>{                 
       this.categorias = [];
       this.buscando = false;
       snapshot.forEach((snap: any) => {           

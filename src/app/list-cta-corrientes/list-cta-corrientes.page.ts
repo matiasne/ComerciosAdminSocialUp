@@ -29,14 +29,13 @@ export class ListCtaCorrientesPage implements OnInit {
 
    
 
-    this.ctasCorreintesService.getAll().subscribe(snapshot =>{
+    this.ctasCorreintesService.list().subscribe(cuentas =>{
       this.items = [];
 
       this.buscando = false;
-      snapshot.forEach((snap: any) => {           
+      cuentas.forEach((cta: any) => {           
           var item:CtaCorriente = new CtaCorriente(this.authenticationService.getUID(), this.authenticationService.getNombre());
-          item.asignarValores(snap.payload.doc.data());
-          item.id = snap.payload.doc.id;              
+          item.asignarValores(cta);       
           
           
           item.coTitularesId.forEach(async clienteId => {

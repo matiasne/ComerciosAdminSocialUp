@@ -30,18 +30,26 @@ export class Comercio {
     public rolCadetes = [];
     public rolEncargados = [];
 
-    public modulos  = {
+    public plan = "FREE";
+    
+    public config  = {
         productos:true,
         servicios:true,
         comandas: true,
         mesas:true,
         clientes:true,
-        pedidos: true,
+        cobrarDirectamente: false,
         movimientosCajas:true,
         ctasCorrientes:true,
         stock:true,
         beneficiosClientes:true,
-        beneficiosPorPuntaje:false
+        beneficiosPorPuntaje:false,
+        productosImages:true,
+        admob:true,
+        productosMaxLength:40,
+        serviciosMaxLength:40,
+        clientesMaxLength:100,
+        cajasMaxLength:2
     }
 
     public colores = {
@@ -54,9 +62,11 @@ export class Comercio {
         light:"",
         medium:"",
         dark:""
-    }
+    }   
 
     public woocommerce = {
+        user:"",
+        password:"",
         url:"",
         consumerKey:"",
         consumerSecret:""

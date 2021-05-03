@@ -85,7 +85,7 @@ export class FormPedidosConfiguracionPage implements OnInit {
 
     console.log(idABorrar);
 
-    this.rolesServices.delete(localStorage.getItem('comercio_seleccionadoId'),this.cadetes[index].id);    
+    this.rolesServices.delete(this.cadetes[index].id);    
     this.cadetes.splice(index,1);
 
     

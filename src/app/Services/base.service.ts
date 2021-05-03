@@ -97,7 +97,14 @@ export class BaseService {
                     });
                 })
             );          
-      }     
+      }    
+      
+      listPromise() {
+        console.log('[BaseService] list: '+this.path);    
+  
+        return this.collection
+            .snapshotChanges().toPromise()          
+      }   
   
     add(item) {  
         delete item.id;  
@@ -106,9 +113,35 @@ export class BaseService {
 
         let time = new Date();
         const promise = new Promise((resolve, reject) => {
-            this.collection.add({...item, createdAt: time}).then(ref => {
+            this.collection.add({...item, createdAt: time}).then((ref:any) => {
+                
+               
+                
                 const newItem = {
                     id: ref.id,
+                    
+                    ...(item as any)
+                };
+                resolve(newItem);
+                
+               
+                
+                
+            });
+        });
+        return promise;
+    } 
+
+    set(id,item) {  
+        delete item.id;  
+        console.log('[BaseService] adding item'+this.path);
+        console.log(item);
+
+        let time = new Date();
+        const promise = new Promise((resolve, reject) => {
+            this.collection.doc(id).set({...item, createdAt: time}).then(ref => {
+                const newItem = {
+                    id: item.id,
                     /* workaround until spread works with generic types */
                     ...(item as any)
                 };
@@ -116,16 +149,19 @@ export class BaseService {
             });
         });
         return promise;
-    }   
+    } 
+    
+    
     
     update(data) {
   
         console.log(`[BaseService] updating item ${data.id}`);
         console.log(data);
+        let time = new Date();
         const promise = new Promise((resolve, reject) => {
         const docRef = this.collection
             .doc(data.id)
-            .set({...data})
+            .set({...data, updatedAt:time})
             .then(() => {
                 resolve({
                     ...(data as any)

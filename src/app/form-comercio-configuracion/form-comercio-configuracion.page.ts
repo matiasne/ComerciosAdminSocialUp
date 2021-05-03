@@ -83,7 +83,7 @@ export class FormComercioConfiguracionPage implements OnInit {
         }, {
           text: 'Desvincular',
           handler: () => {
-            this.rolesService.delete(this.comercio.id,this.rolActual.id);
+            this.rolesService.delete(this.rolActual.id);
             this.router.navigate(['home']);
           }
         }
@@ -150,6 +150,11 @@ export class FormComercioConfiguracionPage implements OnInit {
   }
   
   update(){
+
+    if(!this.comercio.config.clientes){
+      this.comercio.config.beneficiosClientes = false;
+      this.comercio.config.beneficiosPorPuntaje = false;
+    }
     this.comerciosService.update(this.comercio);
   }
 

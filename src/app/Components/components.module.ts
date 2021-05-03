@@ -10,6 +10,8 @@ import { CardUsuarioComponent } from './card-usuario/card-usuario.component';
 import { CardPedidoComponent } from './card-pedido/card-pedido.component';
 import { CardComandaV2Component } from './card-comanda-v2/card-comanda-v2.component';
 import { BtnSeleccionarImagenComponent } from './btn-seleccionar-imagen/btn-seleccionar-imagen.component';
+import { CardPedidoWoocommerceComponent } from './card-pedido-woocommerce/card-pedido-woocommerce.component';
+import { CardProductoWoocommerceComponent } from './card-producto-woocommerce/card-producto-woocommerce.component';
 
 
 
@@ -28,7 +30,9 @@ imports: [
     CardUsuarioComponent,
     CardProductoComponent,
     CardSubscriptionComponent,
-    CardPedidoComponent
+    CardPedidoComponent,
+    CardPedidoWoocommerceComponent,
+    CardProductoWoocommerceComponent,
   ],
   exports: [
     BtnSeleccionarImagenComponent,
@@ -37,7 +41,9 @@ imports: [
     CardUsuarioComponent,
     CardProductoComponent,
     CardSubscriptionComponent,
-    CardPedidoComponent 
+    CardPedidoComponent,
+    CardPedidoWoocommerceComponent,
+    CardProductoWoocommerceComponent 
     
   ]
 })

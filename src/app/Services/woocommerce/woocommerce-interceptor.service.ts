@@ -30,7 +30,7 @@ export class WoocommerceInterceptorService implements HttpInterceptor {
         }
    
         if (error.status === 0) {      
-            this.toastService.mensaje("¡Ups!", "No hay conexión a internet.")
+           // this.toastService.mensaje("¡Ups!", "No hay conexión a internet.")
         }      
 
         if (error.status === 422) {

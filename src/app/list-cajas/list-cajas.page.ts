@@ -5,6 +5,9 @@ import { ModalController } from '@ionic/angular';
 import { FormCajaPage } from '../form-caja/form-caja.page';
 import { Router } from '@angular/router';
 import { LoadingService } from '../Services/loading.service';
+import { ComerciosService } from '../Services/comercios.service';
+import { Comercio } from '../models/comercio';
+import { CambiarPlanPage } from '../cambiar-plan/cambiar-plan.page';
 
 @Component({
   selector: 'app-list-cajas',
@@ -17,13 +20,18 @@ export class ListCajasPage implements OnInit {
   public cajas =[];
 
   public buscando = true;
+  public comercio:Comercio
   
   constructor(
     private cajasService:CajasService,
-    private modalController:ModalController,
+    private modalCtrl:ModalController,
     private router:Router,
-    private loadingService:LoadingService
-  ) { }
+    private loadingService:LoadingService,
+    private comercioService:ComerciosService
+  ) { 
+    this.comercio = new Comercio()
+    this.comercio.asignarValores(this.comercioService.getSelectedCommerceValue())
+  }
 
   ngOnInit() {
     
@@ -50,19 +58,34 @@ export class ListCajasPage implements OnInit {
   }
 
   async openAddCaja(){
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    const modal = await this.modalController.create({
-      component: FormCajaPage,
-      componentProps: { 
-        comercioId: comercio_seleccionadoId
-      }
-    });
 
-    return await modal.present();
+    if(this.cajas.length > this.comercio.config.productosMaxLength){
+      let modal = await this.modalCtrl.create({
+        component: CambiarPlanPage,
+        componentProps: {
+          extraText: "Haz alcanzado el límite de cajas de tu plan: "+this.comercio.plan,
+          actualPlan:this.comercio.plan
+        }
+      });  
+      return await modal.present();
+    }
+    else{
+      let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
+      const modal = await this.modalCtrl.create({
+        component: FormCajaPage,
+        componentProps: { 
+          comercioId: comercio_seleccionadoId
+        }
+      });
+
+      return await modal.present();
+    }
+
+    
   }
 
   async openEditCaja(item){
-    const modal = await this.modalController.create({
+    const modal = await this.modalCtrl.create({
       component: FormCajaPage,
       componentProps: { 
         caja: item

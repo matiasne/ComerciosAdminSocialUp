@@ -1,0 +1,87 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle Pedido</ion-title>    
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <span *ngIf="order.statusCobro == cEstado.pendiente"> <b style="color: blue;"> Pendiente </b></span>
+  <span *ngIf="order.statusCobro == cEstado.suspendido"> <b style="color: red;"> Suspendido </b></span>
+  <span *ngIf="order.statusCobro == cEstado.cobrado"> <b style="color: green;"> Cobrado</b></span> 
+  <span *ngIf="order.statusCobro == cEstado.reembolsado"> <b style="color: red;"> Reembolsado </b></span> <br>
+
+  <h5>Productos</h5>
+  <app-card-producto-woocommerce *ngFor="let producto of order.line_items "
+          [item]="producto"  
+  ></app-card-producto-woocommerce>
+  <h5>Datos de envío:</h5>
+  <p>
+    {{order.shipping.first_name}} {{order.shipping.last_name}}<br>
+    dirección: {{order.shipping.address_1}}
+    <span *ngIf="order.shipping.address_2">
+      dirección 2: {{order.shipping.address_2}}
+    </span><br>
+    ciudad:{{order.shipping.city}}<br>
+    provincia:{{order.shipping.state}}<br>
+    código postal:{{order.shipping.postcode}}<br>
+    <ion-icon name="mail-outline"></ion-icon><span (click)="enviarMail()">email:{{order.shipping.email}}</span> <br>
+    <ion-icon name="call-outline"></ion-icon><span (click)="llamar()" >phone:{{order.shipping.phone}} </span>
+  </p>
+
+  <h5>Método de pago:</h5>
+  <p> {{order.payment_method_title}} </p>
+
+</ion-content>
+
+<ion-footer *ngIf="order.statusCobro != cEstado.reembolsado" class="ion-no-border ion-padding">    
+  <ion-grid *ngIf="order.payment_method == 'cod' && order.statusCobro != cEstado.suspendido">
+    <ion-row>
+      <ion-col size="6">
+        <ion-item *ngIf="cajas.length > 0" class="item-card">
+          <ion-label position="floating">Caja</ion-label>
+          <ion-select [(ngModel)]="cajaSeleccionadaIndex" (ionChange)="setearCaja()">
+            <span *ngFor="let caja of cajas;let i=index">
+              <ion-select-option [value]="i" selected>{{caja.nombre}}</ion-select-option>
+            </span>          
+          </ion-select> 
+        </ion-item>
+       
+      </ion-col>
+      <ion-col size="6">
+        <ion-item class="item-card" *ngIf="cajas[cajaSeleccionadaIndex]">
+          <ion-label position="floating">Método</ion-label>
+          <ion-select [(ngModel)]="metodoPagoSeleccionado">
+            <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].efectivo" [value]="'efectivo'">Efectivo</ion-select-option>
+            <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].debito" [value]="'debito'">Débito</ion-select-option>
+            <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].credito" [value]="'credito'">Crédito</ion-select-option>
+          </ion-select>    
+        </ion-item>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+   
+  <ion-grid *ngIf="order.payment_method != 'cod'">
+    <ion-row>
+      <ion-col size="6">
+        El pedido ya ha sido cobrado.
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  
+  <ion-toolbar *ngIf="order.payment_method == 'cod' || order.payment_method == 'en_local'">   
+    <ion-button *ngIf="order.statusCobro == cEstado.suspendido" class="button-rounded"  color="primary" (click)="reanudar()">Reanudar</ion-button>
+    <ion-button *ngIf="order.statusCobro == cEstado.cobrado" class="button-rounded"  color="danger" (click)="reembolsar()">Reembolsar: {{order.total | currency}}</ion-button>
+    <ion-button slot="start" *ngIf="order.statusCobro != cEstado.cobrado && order.statusCobro != cEstado.suspendido" class="button-rounded"  color="danger" (click)="suspender()">Suspender</ion-button>
+    <ion-button slot="end" *ngIf="order.statusCobro != cEstado.cobrado && order.statusCobro != cEstado.suspendido" class="button-rounded"  color="success" (click)="cobrar()">Cobrar: {{order.total | currency}}</ion-button>
+  </ion-toolbar>
+
+  <ion-toolbar *ngIf="order.payment_method != 'cod' && order.payment_method != 'en_local'">   
+    <ion-button slot="start" *ngIf="order.statusCobro != cEstado.cobrado && order.statusCobro != cEstado.suspendido" class="button-rounded"  color="danger" (click)="suspender()">Suspender</ion-button>
+    <ion-button slot="end" *ngIf="order.statusCobro != cEstado.cobrado && order.statusCobro != cEstado.suspendido" class="button-rounded"  color="success" (click)="completar()">Completado</ion-button>
+  </ion-toolbar>
+  
+</ion-footer>

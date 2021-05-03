@@ -150,7 +150,7 @@ export class ListPersonalPage implements OnInit {
           handler: () => {  
             console.log("!!!!!")
             let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-            this.rolesService.delete(comercio_seleccionadoId,item.id).then(data=>{
+            this.rolesService.delete(item.id).then(data=>{
               this.ngOnInit();
             });
           }

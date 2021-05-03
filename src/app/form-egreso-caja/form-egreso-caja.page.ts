@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthenticationService } from '../Services/authentication.service';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { CajasService } from '../Services/cajas.service';
-import { MovimientoCaja } from '../models/movimientoCaja';
+import { EnumTipoMovimientoCaja, MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientosService } from '../Services/movimientos.service';
 import { Caja } from '../models/caja';
 import { ToastService } from '../Services/toast.service';
@@ -20,6 +20,8 @@ import { ComerciosService } from '../Services/comercios.service';
 })
 export class FormEgresoCajaPage implements OnInit {
 
+  private enumTipoMovimientoCaja = EnumTipoMovimientoCaja
+  
   public datosForm: FormGroup;
   submitted = false;
   public totalActual=0;
@@ -47,8 +49,6 @@ export class FormEgresoCajaPage implements OnInit {
     private comerciosService:ComerciosService,
     private router:Router,
   ) { 
-
-    this.cajasService.setearPath();    
     this.comercio = new Comercio()
     this.caja = new Caja();
     this.egreso = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getEmail());
@@ -124,20 +124,38 @@ export class FormEgresoCajaPage implements OnInit {
       return;
     }
 
+    this.actualizarMontosCaja()
     
-    
-
-    this.egreso.asignarValores(this.datosForm.value);
-    this.egreso.metodoPago = this.metodoPagoSeleccionado;
-    this.egreso.monto = - Number(this.datosForm.controls.monto.value);
-    this.egreso.motivo = this.datosForm.controls.motivo.value;
-    this.movimientosService.createMovimientoCaja(this.caja,this.egreso);
+    if(this.comercio.config.movimientosCajas){
+      this.egreso.cajaId = this.caja.id;
+      this.egreso.tipo = this.enumTipoMovimientoCaja.egreso;
+      this.egreso.asignarValores(this.datosForm.value);
+      this.egreso.metodoPago = this.metodoPagoSeleccionado;
+      this.egreso.monto = - Number(this.datosForm.controls.monto.value);
+      this.egreso.motivo = this.datosForm.controls.motivo.value;
+      this.movimientosService.add(this.egreso);
+    }
     
     this.navCtrl.back(); 
   }
 
   cancelar(){
     this.navCtrl.back();
+  }
+
+  actualizarMontosCaja(){
+    if(this.metodoPagoSeleccionado == "efectivo"){
+      this.caja.totalEfectivo = Number(this.caja.totalEfectivo)- Number(this.datosForm.controls.monto.value);
+    }
+    if(this.metodoPagoSeleccionado == "credito"){
+      this.caja.totalCredito = Number(this.caja.totalCredito)- Number(this.datosForm.controls.monto.value);
+    }
+    if(this.metodoPagoSeleccionado == "debito"){
+      this.caja.totalDebito = Number(this.caja.totalDebito) - Number(this.datosForm.controls.monto.value);
+    }
+
+    const param1 = JSON.parse(JSON.stringify(this.caja));
+    this.cajasService.update(param1);
   }
 
 }

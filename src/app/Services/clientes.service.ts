@@ -5,58 +5,63 @@ import { map, subscribeOn } from 'rxjs/operators';
 import * as firebase from 'firebase';
 import { Cliente } from '../models/cliente';
 import { KeywordService } from './keyword.service';
+import { ComerciosService } from './comercios.service';
+import { BaseService } from './base.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ClientesService {
+export class ClientesService extends BaseService {
 
-  private collection:string;
   private collectionGroup:string;
   
   constructor(
-    private firestore: AngularFirestore,
-    private keywordService:KeywordService
-  ) {
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
-    this.collection = 'comercios/'+comercio_seleccionadoId+'/clientes';
-    this.collectionGroup ='/clientes';
+    protected afs: AngularFirestore,
+    private keywordService:KeywordService,
+    private comerciosService:ComerciosService
+    ) {     
+      super(afs); 
+      this.comerciosService.getSelectedCommerce().subscribe(data=>{
+        // let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+        if(data){
+         
+         this.setPath('comercios/'+data.id+'/clientes')   
+        }
+        
+      })
+      this.collectionGroup ='/clientes';
   }
 
-  getCollection(){
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
-    return 'comercios/'+comercio_seleccionadoId+'/clientes';
-  }  
 
   public create(data:Cliente) {   
 
     this.keywordService.agregarKeywords(data, [data.nombre,data.email]);
    
     const param = JSON.parse(JSON.stringify(data));
-    return this.firestore.collection(this.getCollection()).doc(data.id).set({...param,
+    return this.afs.collection(this.path).doc(data.id).set({...param,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()});
            
     
   }
 
   public get(documentId: string){
-    return this.firestore.collection(this.getCollection()).doc(documentId).snapshotChanges();
+    return this.afs.collection(this.path).doc(documentId).snapshotChanges();
   }
 
   getByEmail(email){
-    return this.firestore.collection(this.getCollection(), ref =>  ref.where('email','==',email)).valueChanges();    
+    return this.afs.collection(this.path, ref =>  ref.where('email','==',email)).valueChanges();    
   }
 
   getByNombre(nombre){
-    return this.firestore.collection(this.getCollection(), ref =>  ref.where('nombre','==',nombre)).valueChanges();    
+    return this.afs.collection(this.path, ref =>  ref.where('nombre','==',nombre)).valueChanges();    
   }
 
   getRef(id){
-    return this.firestore.collection(this.getCollection()).doc(id).ref;
+    return this.afs.collection(this.path).doc(id).ref;
   }
 
   public getAll() {   
-    return this.firestore.collection(this.getCollection()).snapshotChanges();
+    return this.afs.collection(this.path).snapshotChanges();
   }
   
   public update(cliente:Cliente) {
@@ -66,7 +71,7 @@ export class ClientesService {
 
     console.log(cliente);
     const param = JSON.parse(JSON.stringify(cliente));
-    return this.firestore.collection(this.getCollection()).doc(cliente.id).set({...param,
+    return this.afs.collection(this.path).doc(cliente.id).set({...param,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
   }
@@ -75,22 +80,22 @@ export class ClientesService {
     //Debo eliminar primero cada subscripción
     if(data.subscripciones){
       data.subscripciones.forEach(subscripcion => {
-        this.firestore.doc(subscripcion).delete();
+        this.afs.doc(subscripcion).delete();
       });
     }
     
-    return this.firestore.collection(this.getCollection()).doc(data.id).delete();    
+    return this.afs.collection(this.path).doc(data.id).delete();    
   }
 
   public addCtaCorriente(clienteId,ctaCorrienteId){
     let param ={
       ctaId:ctaCorrienteId
     }
-    this.firestore.collection(this.getCollection()+'/'+clienteId+'/ctasCorrientes').doc(ctaCorrienteId).set(param)
+    this.afs.collection(this.path+'/'+clienteId+'/ctasCorrientes').doc(ctaCorrienteId).set(param)
   }
 
   public deleteCtaCorriente(clienteId,ctaCorrienteId){
-    this.firestore.collection(this.getCollection()+'/'+clienteId+'/ctasCorrientes').doc(ctaCorrienteId).delete();
+    this.afs.collection(this.path+'/'+clienteId+'/ctasCorrientes').doc(ctaCorrienteId).delete();
   }
 
   public search(limit,orderBy,palabra,ultimo){      
@@ -98,7 +103,7 @@ export class ClientesService {
       console.log("!!!!!! primero")
       console.log(palabra)     
       console.log(orderBy)
-      return this.firestore.collection(this.getCollection(), ref => 
+      return this.afs.collection(this.path, ref => 
         ref.where('keywords','array-contains',palabra)
             .orderBy(orderBy)
             .limit(limit)).snapshotChanges();
@@ -106,7 +111,7 @@ export class ClientesService {
     else{
       console.log(palabra)     
       console.log(orderBy)
-      return this.firestore.collection(this.getCollection(), ref => 
+      return this.afs.collection(this.path, ref => 
         ref.where('keywords','array-contains',palabra)
             .orderBy(orderBy)
             .startAfter(ultimo)
@@ -116,7 +121,7 @@ export class ClientesService {
 
   //Esto para ver todos los beneficios o cuestiones del cliente particular en todo el entorno
   public getAllClientesbyEmail(email) {  
-    return this.firestore.collectionGroup(this.collectionGroup, ref => ref.where('email', '==', email)).get(/*{ source: 'server' }*/)
+    return this.afs.collectionGroup(this.collectionGroup, ref => ref.where('email', '==', email)).get(/*{ source: 'server' }*/)
     .pipe(
       map(actions => {
         const data = [];       

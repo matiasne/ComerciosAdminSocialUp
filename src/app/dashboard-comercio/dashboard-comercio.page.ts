@@ -25,8 +25,6 @@ export class DashboardComercioPage implements OnInit {
   }
 
   ionViewDidEnter(){
-    this.cajasService.setearPath();
-    this.mesasService.setearPath();
    
     
     

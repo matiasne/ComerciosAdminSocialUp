@@ -421,7 +421,7 @@ ion-avatar{
 .item-card ion-avatar ion-icon{
   font-size:20px;
 }
-
+/*
 .item-card div{
   width:70px;
   height: 70px;
@@ -429,6 +429,38 @@ ion-avatar{
   text-align: center;
   line-height: 70px;
   font-size: 30px;
+}*/
+
+.encabezado-woocommerce{
+  background-color: #822c82;
+  color: white;
+  padding: 5px;
+  border-radius: 15px 15px 0px 0px;
+}
+
+.encabezado-card-mesa{
+  background-color: #dd5e2b;
+  color: white;
+  padding: 5px;
+  border-radius: 5px 5px 0px 0px;
+}
+
+.encabezado-card-general{
+  background-color: #2b9cdd;
+  color: white;
+  padding: 5px;
+  border-radius: 5px 5px 0px 0px;
+}
+
+.encabezado-time{
+  font-size: 12px;
+  text-align: right;
+}
+
+.contenido-card-pedido{
+  padding: 5px;
+  font-size: 14px;
+  color: #1a1a1a;
 }
 
 .item-card div img{

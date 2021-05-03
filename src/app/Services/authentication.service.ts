@@ -188,12 +188,14 @@ export class AuthenticationService {
   }
 
   setFCMToken(token){
+    console.log(token)
     const userRef: AngularFirestoreDocument = this.afs.doc('users/'+this.getUID());
     const data = { 
       notificationCelulartoken: token, 
     }    
     return userRef.set(data, { merge: true });
   }
+
 
   updateUserData(user){   
 

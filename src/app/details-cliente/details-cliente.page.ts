@@ -115,18 +115,9 @@ export class DetailsClientePage implements OnInit {
       this.beneficios = data;
     }) 
 
-    this.ctasCorreintesService.getAll().subscribe(snapshot =>{
-      this.ctasCorrientes = [];
+    this.ctasCorreintesService.list().subscribe(cuentas =>{
+      this.ctasCorrientes = cuentas;
 
-
-      snapshot.forEach((snap: any) => {           
-          var item:CtaCorriente = new CtaCorriente("","");
-          item.asignarValores(snap.payload.doc.data());
-          item.id = snap.payload.doc.id;        
-                
-          this.ctasCorrientes.push(item);
-         
-      });  
       console.log(this.ctasCorrientes)
     })
   }
@@ -294,11 +285,11 @@ export class DetailsClientePage implements OnInit {
         comentableId:this.route.snapshot.params.id,
         comentableTipo:"clientes"
       }      
-    });
+    }); 
     modal.onDidDismiss()
     .then((retorno) => {
       if(retorno.data)
-        this.cliente = retorno.data.item;        
+        this.cliente.asignarValores(retorno.data.item);        
     });
     return await modal.present();
   }

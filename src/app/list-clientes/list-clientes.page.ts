@@ -6,6 +6,9 @@ import { ClientesService } from '../Services/clientes.service';
 import { Cliente } from '../models/cliente';
 import { LoadingService } from '../Services/loading.service';
 import { FormClientePage } from '../form-cliente/form-cliente.page';
+import { CambiarPlanPage } from '../cambiar-plan/cambiar-plan.page';
+import { ComerciosService } from '../Services/comercios.service';
+import { Comercio } from '../models/comercio';
 
 @Component({
   selector: 'app-list-clientes',
@@ -24,6 +27,8 @@ export class ListClientesPage implements OnInit {
   public clientes = [];
   public buscando = true;
 
+  public comercio:Comercio
+
   @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
   
   constructor(
@@ -33,8 +38,12 @@ export class ListClientesPage implements OnInit {
     private route: ActivatedRoute,
     public clientesService:ClientesService,
     public modalCtrl: ModalController,
-    public loadingService:LoadingService
-  ) { }
+    public loadingService:LoadingService,
+    public comercioService:ComerciosService
+  ) { 
+    this.comercio = new Comercio()
+    this.comercio.asignarValores(this.comercioService.getSelectedCommerceValue())
+  }
 
   ngOnInit() {      
     this.ultimoCliente  =new Cliente();
@@ -92,26 +101,41 @@ export class ListClientesPage implements OnInit {
   }
   
   async nuevo(){
-  //  this.loadingService.presentLoading();
-    const modal = await this.modalController.create({
-      component: FormClientePage      
-    });
-    
-    modal.present().then(()=>{
-      
-    })
 
-    modal.onDidDismiss()
-    .then((retorno) => {
-      if(retorno.data){        
-          this.palabraFiltro = retorno.data.item.nombre;
-           
-      }   
-      this.ultimoCliente = new Cliente();
-      this.clientes = [];
-      this.verMas();               
-    });
-    return await modal.present();
+    if(this.clientes.length > this.comercio.config.clientesMaxLength){
+      let modal = await this.modalCtrl.create({
+        component: CambiarPlanPage,
+        componentProps: {
+          extraText: "Haz alcanzado el límite de clientes de tu plan: "+this.comercio.plan,
+          actualPlan:this.comercio.plan
+        }
+      });  
+      return await modal.present();
+    }
+    else{
+      //  this.loadingService.presentLoading();
+        const modal = await this.modalController.create({
+          component: FormClientePage      
+        });
+        
+        modal.present().then(()=>{
+          
+        })
+
+        modal.onDidDismiss()
+        .then((retorno) => {
+          if(retorno.data){        
+              this.palabraFiltro = retorno.data.item.nombre;
+              
+          }   
+          this.ultimoCliente = new Cliente();
+          this.clientes = [];
+          this.verMas();               
+        });
+        return await modal.present();
+    }
+
+  
   }
 
 

@@ -11,12 +11,12 @@
 
   <!--ion-item *ngIf="rolActual == 'Administrador'">
     <ion-label>Habilitar Productos</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.productos" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+    <ion-toggle [(ngModel)]="comercio.config.productos" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
   </ion-item>
 
   <ion-item *ngIf="rolActual == 'Administrador'">
     <ion-label>Habilitar Servicios</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.servicios" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+    <ion-toggle [(ngModel)]="comercio.config.servicios" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
   </ion-item-->
 
 
@@ -25,60 +25,125 @@
 
   <ion-button *ngIf="rolActual != 'Administrador'" class="button-rounded"  color="danger" (click)="desvincular()"><ion-icon name="trash" ></ion-icon>Desvincular</ion-button>
 
-  <ion-item *ngIf="rolActual == 'Administrador'"> 
-    <ion-label>Habilitar Pedidos</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.pedidos" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>    
-  </ion-item>
-
-  <ion-item *ngIf="rolActual == 'Administrador'"> 
-    <ion-label>Habilitar Mesas</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.mesas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item>  
-  <ion-button *ngIf="comercio.modulos.mesas  && rolActual == 'Administrador'" class="button-rounded"    (click)="openEditMesas()">Editar Mesas</ion-button>
-
-   
-  <ion-item *ngIf="rolActual == 'Administrador'">
-    <ion-label>Habilitar Comandas</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.comandas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item>
-  <ion-button *ngIf="comercio.modulos.comandas && rolActual == 'Administrador'" class="button-rounded"    (click)="openEditCocinas()">Editar Cocinas</ion-button>
-   
-
+  <ion-grid *ngIf="rolActual == 'Administrador'">
+    <ion-row>
+      <ion-col size="10">
+        <p>
+          <b>Cobrar Sin realizar pedido</b><br>
+         Desde el catálogo podrás armar el carrito y cobrarlo directamente sin utilizar el panel de pedidos.
+        </p>
+      </ion-col>
+      <ion-col size="2">
+        <ion-toggle [(ngModel)]="comercio.config.cobrarDirectamente" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>    
+      </ion-col>
+    </ion-row>
+  </ion-grid>
   
+  <ion-grid *ngIf="rolActual == 'Administrador'">
+    <ion-row>
+      <ion-col size="10">
+        <p>
+          <b>Habilitar Mesas</b><br>
+          Podrá asignar una mesa a cada pedido y gestionar los mismos en base a este parámetro
+        </p>
+        <ion-button *ngIf="comercio.config.mesas  && rolActual == 'Administrador'" class="button-rounded"    (click)="openEditMesas()">Editar Mesas</ion-button>
+      </ion-col>
+      <ion-col size="2">
+        <ion-toggle [(ngModel)]="comercio.config.mesas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
+  <ion-grid *ngIf="rolActual == 'Administrador'">
+    <ion-row>
+      <ion-col size="10">
+        <p>
+          <b>Panel Comandas</b><br>
+          Desde un nuevo panel podrá gestionar el estado de sus pedidos. Ideal para una o varias cocinas
+        </p>
+        <ion-button *ngIf="comercio.config.comandas && rolActual == 'Administrador'" class="button-rounded"    (click)="openEditCocinas()">Editar Cocinas</ion-button>
+      </ion-col>
+      <ion-col size="2">
+        <ion-toggle [(ngModel)]="comercio.config.comandas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
-  <ion-item *ngIf="rolActual == 'Administrador'">
-    <ion-label>Habilitar Clientes</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.clientes" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item>
-  
-  <ion-item *ngIf="rolActual == 'Administrador'">
-    <ion-label>Habilitar Gestión Stock</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.stock" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item> 
+  <ion-grid *ngIf="rolActual == 'Administrador'">
+    <ion-row>
+      <ion-col size="10">
+        <p>
+          <b>Habilitar Gestión Stock</b><br>
+          Agregue stock a cada producto manualmente. El sistema resta automáticamente el stock cada vez que genera un pedido
+        </p>
+      </ion-col>
+      <ion-col size="2">
+        <ion-toggle [(ngModel)]="comercio.config.stock" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
-  
-  <ion-item *ngIf="rolActual == 'Administrador'"> 
-    <ion-label>Habilitar Beneficios Clientes</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.beneficiosClientes" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item>  
-  <ion-button *ngIf="comercio.modulos.beneficiosClientes  && rolActual == 'Administrador'" class="button-rounded"    (click)="openBeneficiosClientes()">Editar Beneficios</ion-button>
+  <ion-grid *ngIf="rolActual == 'Administrador'">
+    <ion-row>
+      <ion-col size="10">
+        <p>
+          <b>Habilitar Clientes</b><br>
+          Realice un seguimiento de cada uno de sus clientes.
+        </p>
+      </ion-col>
+      <ion-col size="2">
+        <ion-toggle [(ngModel)]="comercio.config.clientes" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+ 
+ 
 
-  <ion-item *ngIf="rolActual == 'Administrador'"> 
-    <ion-label>Habilitar Benificios Por Puntaje</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.beneficiosPorPuntaje" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item>  
-  <ion-button *ngIf="comercio.modulos.beneficiosPorPuntaje  && rolActual == 'Administrador'" class="button-rounded"    (click)="openBeneficiosPuntaje()">Editar Puntaje y Beneficios</ion-button>
+  <ion-grid *ngIf="rolActual == 'Administrador' && comercio.config.clientes">
+    <ion-row>
+      <ion-col size="10">
+        <p>
+          <b>Habilitar Beneficios de clientes</b><br>
+          Genere y registre beneficios y descuentos a sus clientes.
+          <ion-button *ngIf="comercio.config.beneficiosClientes  && rolActual == 'Administrador'" class="button-rounded"    (click)="openBeneficiosClientes()">Editar Beneficios</ion-button>
+        </p>
+      </ion-col>
+      <ion-col size="2">
+        <ion-toggle [(ngModel)]="comercio.config.beneficiosClientes" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
-  <ion-item *ngIf="rolActual == 'Administrador'">
-    <ion-label>Habilitar Cajas</ion-label>
-    <ion-toggle [(ngModel)]="comercio.modulos.cajas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item>
+  <ion-grid *ngIf="rolActual == 'Administrador' && comercio.config.clientes">
+    <ion-row>
+      <ion-col size="10">
+        <p>
+          <b>Habilitar Beneficio por puntaje</b><br>
+          Cree y administre su propio club de puntos con acciones automatizadas
+          <ion-button *ngIf="comercio.config.beneficiosPorPuntaje  && rolActual == 'Administrador'" class="button-rounded"    (click)="openBeneficiosPuntaje()">Editar Puntaje y Beneficios</ion-button>
+        </p>
+      </ion-col>
+      <ion-col size="2">
+        <ion-toggle [(ngModel)]="comercio.config.beneficiosPorPuntaje" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
-  <ion-button *ngIf="comercio.modulos.cajas  && rolActual == 'Administrador'" class="button-rounded"    (click)="openEditCajas()">Editar Cajas</ion-button>
+ 
+  <ion-grid *ngIf="rolActual == 'Administrador'">
+    <ion-row>
+      <ion-col size="10">
+        <p>
+          <b>Habilitar Movimientos de Cja</b><br>
+          Obtenga un detalle de cada movimiento que se generó en las cajas de su local
+        </p>
+      </ion-col>
+      <ion-col size="2">
+        <ion-toggle [(ngModel)]="comercio.config.movimientosCajas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
-
-  
 
   <ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"    (click)="openEditOpciones()">Editar Grupo Opciones</ion-button>
   <!--ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"    (click)="openEditPedidos()">Configurar Pedidos</ion-button-->

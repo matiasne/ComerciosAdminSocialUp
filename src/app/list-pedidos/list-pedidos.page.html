@@ -3,29 +3,40 @@
     <ion-buttons slot="start">
       <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Pedidos</ion-title>
+
+    <ion-searchbar animated   
+      placeholder="Buscar"
+      animated="true"
+      showCancelButton="never" 
+      color="light"  
+      autocomplete="on"
+      enterkeyhint="send"
+      inputmode="text"
+      type="text"
+      debounce="300"
+      value="{{palabraFiltro}}"
+      (ionChange)="onChange($event)">
+    </ion-searchbar>
+
+    
   </ion-toolbar>
 </ion-header>
-<ion-toolbar>
-  
+ 
+<ion-content class="ion-padding"> 
   <ion-row>
-    <ion-col size="8"> 
-      <ion-searchbar animated   
-        placeholder="Buscar por cliente, empleado o mesa"
-        animated="true"
-        showCancelButton="never" 
-        color="light"  
-        autocomplete="on"
-        enterkeyhint="send"
-        inputmode="text"
-        type="text"
-        debounce="300"
-        value="{{palabraFiltro}}"
-        (ionChange)="onChange($event)">
-      </ion-searchbar>
+    <ion-col size="6"> 
+      <ion-item>  
+        <ion-label position="floating" >Estado</ion-label>
+        <ion-select multiple="false" (ionChange)="segmentChanged($event)">
+          <ion-select-option  value="{{cEstado.pendiente}}" selected>Solicitado</ion-select-option>
+          <ion-select-option  value="{{cEstado.suspendido}}">Suspendido</ion-select-option>
+          <ion-select-option  value="{{cEstado.cobrado}}">Cobrado</ion-select-option>
+          <ion-select-option  value="{{cEstado.reembolsado}}">Reembolsado</ion-select-option>
+        </ion-select>       
+      </ion-item>
     </ion-col>    
-    <ion-col size="4">
-      <ion-item class="form-select">  
+    <ion-col size="6">
+      <ion-item>  
         <ion-label position="floating">Desde</ion-label>
         <ion-select multiple="false" (ionChange)="onChangeAtras($event)">
           <ion-select-option  [value]="1" selected>Ayer</ion-select-option>
@@ -34,39 +45,41 @@
         </ion-select>       
       </ion-item>  
     </ion-col>
+    
   </ion-row>
-
-
-  <ion-segment (ionChange)="segmentChanged($event)"> 
-    <ion-segment-button value="{{cEstado.pendiente}}">En curso</ion-segment-button>
-    <ion-segment-button value="{{cEstado.suspendido}}">Suspendidos</ion-segment-button>
-    <ion-segment-button value="{{cEstado.cobrado}}">Cobrados</ion-segment-button>
-  </ion-segment>
-</ion-toolbar>
- 
-<ion-content class="ion-padding"> 
-
   <div *ngIf="buscando" class="mensaje FadeOut FadeIn">
     <img src="../../assets/img/buscando.fw.png" alt="">
     <p>Cargando comandas, aguarde unos segundos por favor</p>
   </div>
 
-  <div *ngIf="!buscando && pedidos.length == 0" class="mensaje FadeOut FadeIn">
+  <div *ngIf="!buscando && pedidosLocales.length == 0 && pedidosWoocommerce.length == 0" class="mensaje FadeOut FadeIn">
     <img src="../../assets/img/pedidos.fw.png" alt="">
     <p>No tienes pedidos.</p>
   </div>
 
   <ion-list lines="none" >        
-    <ion-item-sliding *ngFor="let pedido of pedidos"  class="item-card">
+    <ion-item-sliding *ngFor="let pedido of pedidosLocales"  class="item-card">
       <app-card-pedido [item]="pedido" (click)="seleccionar(pedido)"></app-card-pedido>
-      <ion-item-options *ngIf="pedido.statusCaja == cEstado.pendiente" side="end">
+      <ion-item-options *ngIf="pedido.statusCobro == cEstado.pendiente" side="end">
         <ion-item-option color="danger" (click)="cancelar(pedido)"><ion-icon name="trash" ></ion-icon>Suspender</ion-item-option>
       </ion-item-options> 
-      <ion-item-options *ngIf="pedido.statusCaja == cEstado.suspendido" side="end">
+      <ion-item-options *ngIf="pedido.statusCobro == cEstado.suspendido" side="end">
         <ion-item-option  (click)="reanudar(pedido)"><ion-icon name="trash" ></ion-icon>Reanudar</ion-item-option>
       </ion-item-options> 
     </ion-item-sliding>  
   </ion-list>
 
+  <ion-list lines="none">        
+    <span *ngFor="let pedido of pedidosWoocommerce"  >
+      <app-card-pedido-woocommerce [item]="pedido" (click)="seleccionarPedidoWoocommerce(pedido)"></app-card-pedido-woocommerce>
+    </span>  
+  </ion-list>
+
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
+    <ion-fab-button (click)="nuevoPedido()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 
 </ion-content>

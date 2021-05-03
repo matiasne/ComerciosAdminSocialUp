@@ -15,7 +15,6 @@ import { FormComercioPage } from '../form-comercio/form-comercio.page';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial/ngx';
 import { ImpresoraService } from '../Services/impresora.service';
 import { WoocommerceService } from '../Services/woocommerce/woocommerce.service';
-import { WPMediaService } from '../Services/wordpress/media.service';
 import { FotoService } from '../Services/fotos.service';
 import { Archivo } from '../models/foto';
 import { ImagesService } from '../Services/images.service';
@@ -55,15 +54,12 @@ export class HomePage implements OnInit {
     public AuthenticationService:AuthenticationService,
     public toastService:ToastService,
     private modalCtrl:ModalController,
-    private impresoraService:ImpresoraService,
-    private wcService:WoocommerceService,
-    private wpMedia:WPMediaService,
-    private fotosService:FotoService,
-    private imageService:ImagesService
   ) { 
      
     this.user = new User()
+
   }
+
 
   ngOnInit() {
     this.comercios = [];
@@ -110,12 +106,9 @@ export class HomePage implements OnInit {
       });
       console.log(this.comercios)
      // this.loadingService.dismissLoading();      
-     
+      
     });
 
-    /*let impresora = this.impresoraService.obtenerImpresora()
-    if(impresora.bluetooth)
-      this.impresoraService.conectarBluetooth()*/
   }
 
   ionViewDidLeave(){

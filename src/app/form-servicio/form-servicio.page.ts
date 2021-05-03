@@ -8,7 +8,7 @@ import { Camera, CameraOptions} from '@ionic-native/Camera/ngx';
 import { FormPlanPage } from '../form-plan/form-plan.page';
 import { ServiciosService } from '../Services/servicios.service';
 import { CategoriasService } from '../Services/categorias.service';
-import { DataService } from '../Services/data.service';
+
 import { ActivatedRoute } from '@angular/router';
 import { PlanesService } from '../Services/planes.service';
 import { Servicio } from '../models/servicio';
@@ -65,7 +65,6 @@ export class FormServicioPage implements OnInit {
     public modalController: ModalController,
     public serviciosService:ServiciosService,
     public categoriaService:CategoriasService,
-    public dataService:DataService,    
     private route: ActivatedRoute,
     public alertController: AlertController,
     private navCtrl: NavController,
@@ -111,7 +110,7 @@ export class FormServicioPage implements OnInit {
 
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
     
-    this.categoriaService.getAll(comercio_seleccionadoId).subscribe((snapshot) => {
+    this.categoriaService.getAll().subscribe((snapshot) => {
       
       this.categorias = [];
       snapshot.forEach((snap: any) => {         
@@ -169,7 +168,7 @@ export class FormServicioPage implements OnInit {
       this.planes.forEach(plan =>{
         plan.servicioId = this.servicio.id;
         console.log(plan);
-        this.planesServices.set(plan);
+      //  this.planesServices.set(plan);
       })
 
       this.serviciosService.update(this.servicio).then((data:any)=>{
@@ -194,7 +193,7 @@ export class FormServicioPage implements OnInit {
         this.planes.forEach(plan =>{
           plan.servicioId = data.id;
           console.log(plan);
-          this.planesServices.set(plan);          
+      //    this.planesServices.set(plan);          
         })
         
         this.calendarios.forEach(calendarios =>{

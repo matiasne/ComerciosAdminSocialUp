@@ -8,4 +8,6 @@ export class WCShipping{
     public state:string
     public postcode:string
     public country:string
+    public email:string
+    public phone:string
 }

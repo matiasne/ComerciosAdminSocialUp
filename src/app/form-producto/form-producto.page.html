@@ -36,7 +36,6 @@
           <ion-card>
             <img src="{{foto.url}}"/>
             <ion-card-content>
-              <ion-button color="light" (click)="fotoPrincipal(i)">Seleccionar principal</ion-button>
               <ion-button color="danger" (click)="eliminarFoto(i)">Eliminar</ion-button>
             </ion-card-content>
           </ion-card>    
@@ -49,6 +48,11 @@
         (onSelectValue)=addFoto($event)>
       </app-btn-seleccionar-imagen>    
   
+    <span *ngIf="comercio.config.stock">
+      <p>Stock actual: {{producto.stock}}</p>
+      <ion-button size="large"   expand="block" (click)="agregarStock()">Agregar Stock</ion-button>
+    </span>
+    
     
     <div class="form-card">
       <ion-text color="primary">

@@ -5,6 +5,7 @@ import { ServiciosService } from './servicios.service';
 import * as firebase from 'firebase';
 import { Pagare } from '../models/pagare';
 import { BaseService } from './base.service';
+import { ComerciosService } from './comercios.service';
 
 
 @Injectable({
@@ -13,18 +14,25 @@ import { BaseService } from './base.service';
 export class PagaresService extends BaseService{
 
   private subsId = "";
-
+  private comercioId=""
   constructor(
-    protected afs: AngularFirestore
-  ) {     
-    super(afs);
-    
+    protected afs: AngularFirestore,
+    private comerciosService:ComerciosService
+    ) {     
+      super(afs); 
+      this.comerciosService.getSelectedCommerce().subscribe(data=>{
+        // let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+        if(data){
+         this.comercioId = data.id
+         }
+        
+      })
   }
+
 
   setSubsId(id){
     this.subsId = id;
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    console.log("comercios/"+comercioId+"/subscripciones/"+this.subsId+"/pagares")
-    this.setPath("comercios/"+comercioId+"/subscripciones/"+this.subsId+"/pagares");
+    console.log("comercios/"+this.comercioId+"/subscripciones/"+this.subsId+"/pagares")
+    this.setPath("comercios/"+this.comercioId+"/subscripciones/"+this.subsId+"/pagares");
   }
 }

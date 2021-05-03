@@ -22,6 +22,7 @@ export class Producto {
     public categorias=[];
     public fotoPrincipal="";
     public createdAt="";  
+    public updatedAt:any;
     public cantidad =0;
     public descripcion_venta="";
     public recibirPedidos=true;
@@ -36,7 +37,7 @@ export class Producto {
     public woocommerce = {
         sincronizado:false,
         id:"",
-        lastUpdate:""
+        lastUpdate:new Date()
     }
     
 

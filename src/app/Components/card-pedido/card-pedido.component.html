@@ -1,39 +1,49 @@
-
-  <ion-item>   
-      <ion-label>            
-                
-        <b>
-          <span *ngIf="item.statusComanda == pEstado.rechazado" style="color: red;">Rechazado por Cocina</span>
-          <span *ngIf="item.statusComanda == pEstado.tomado" style="color: green;">En Curso</span>
-          <span *ngIf="item.statusComanda == pEstado.solicitado" style="color: blue;"> Solicitado</span>
-          <span *ngIf="item.statusCaja == cEstado.suspendido"> <b style="color: red;"> Suspendido </b></span>
-          <span *ngIf="item.statusCaja == cEstado.cobrado"> <b style="color: green;"> Cobrado</b></span> <br>
-           
-          <span *ngIf="item.mesaNombre" > Mesa: {{item.mesaNombre}}</span>  
-          <span *ngIf="item.clienteNombre" > - Cliente: {{item.clienteNombre}}</span>
-        </b>         
-        <p *ngIf="item.personalNombre"> 
-          <span>{{item.personalNombre}} </span>
-         
-          
-          <!--span *ngIf="item.suspendido == 0"><b>{{item.status}}</b></span-->
-          <ion-row> 
-            <ion-col *ngIf="comercio.modulos.comandas" center text-center>            
-              {{item.countListos}} / {{item.productos.length}}
-            </ion-col>
-            <ion-col center text-center>        
-                <ion-icon name="time-outline"></ion-icon>
-                {{item.createdAt.toDate() | date:'dd/MM/yyyy (EEE) - hh:mm aaa'}}
-            </ion-col>
-          </ion-row>  
-        </p>
-      </ion-label>       
-           
-      
+  <div> 
+    <div *ngIf="item.mesaNombre" class="encabezado-card-mesa">
+      <ion-row> 
+        <ion-col size="2" center text-center>            
+          Mesa: {{item.mesaNombre}}
+        </ion-col>     
+        <ion-col size="10" >
+          <div class="encabezado-time">
+            <ion-icon name="time-outline"></ion-icon>
+            {{item.createdAt.toDate() | date:'hh:mm aaa dd/MM/yy'}}
+          </div>              
+        </ion-col>
+      </ion-row>
+    </div> 
     
-    
-
-  </ion-item>  
- 
-  
+    <div *ngIf="!item.mesaNombre" class="encabezado-card-general">     
+      <ion-row> 
+        <ion-col size="2" center text-center>            
+          Local
+        </ion-col>     
+        <ion-col size="10" >
+          <div class="encabezado-time">
+            <ion-icon name="time-outline"></ion-icon>
+            {{item.createdAt.toDate() | date:'hh:mm aaa dd/MM/yy'}}
+          </div>              
+        </ion-col>
+      </ion-row>
+    </div> 
+        
+    <div class="contenido-card-pedido">     
+      <b>
+        <span *ngIf="comercio.config.comandas && item.statusComanda == pEstado.rechazado" style="color: red;">Rechazado por Cocina</span>
+        <span *ngIf="comercio.config.comandas && item.statusComanda == pEstado.tomado" style="color: green;">En Curso</span>
+        <span *ngIf="comercio.config.comandas && item.statusComanda == pEstado.solicitado" style="color: blue;"> Solicitado</span>
+        <span *ngIf="item.statusCobro == cEstado.suspendido"> <b style="color: red;"> Suspendido </b></span>
+        <span *ngIf="item.statusCobro == cEstado.cobrado"> <b style="color: green;"> Cobrado ({{item.metodoPago}})</b></span> 
+        <span *ngIf="item.statusCobro == cEstado.reembolsado"> <b style="color: red;"> Reembolsado</b></span> <br>
+      </b>       
+      <ion-row> 
+        <ion-col size="8" center text-center>
+          <ion-icon name="person-outline"></ion-icon> {{item.clienteNombre}}        
+        </ion-col>     
+        <ion-col size="4" center text-center>        
+          <ion-icon name="cube-outline"></ion-icon> {{item.productos.length}}
+        </ion-col>
+      </ion-row>  
+    </div>
+  </div>
 

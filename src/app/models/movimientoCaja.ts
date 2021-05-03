@@ -1,3 +1,13 @@
+export enum EnumTipoMovimientoCaja {
+    ingreso = 1, 
+    egreso = 2, 
+    devolucion = 3,  
+    pago = 4,
+    apertura = 5, 
+    cierre = 6
+}
+
+
 export class MovimientoCaja{
 
     public id ="";
@@ -16,6 +26,8 @@ export class MovimientoCaja{
     public isCierre = false;
     public isApertura = false;
     public fotoCaja:any; //Estado de la caja al momento de realizar el movimiento
+
+    public tipo
 
 	constructor(
 		public vendedorId:"", 

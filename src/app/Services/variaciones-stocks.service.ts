@@ -2,24 +2,29 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { map } from 'rxjs/operators';
 import { BaseService } from './base.service';
+import { ComerciosService } from './comercios.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VariacionesStocksService extends BaseService {
 
+  private comercioId = "";
   constructor(
-    protected afs: AngularFirestore
-  ) {     
-    super(afs); 
-   
-    
-  } 
+    protected afs: AngularFirestore,
+    private comerciosService:ComerciosService
+    ) {     
+      super(afs); 
+      this.comerciosService.getSelectedCommerce().subscribe(data=>{
+        if(data){
+         this.comercioId = data.id
+         }        
+      })
+  }
+
 
   setPathProducto(productoId){
-    console.log("set");
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    this.setPath('comercios/'+comercioId+'/productos/'+productoId+'/variacionesStock')  
+    this.setPath('comercios/'+this.comercioId+'/productos/'+productoId+'/variacionesStock')  
   }
 
   getLast(productoId){

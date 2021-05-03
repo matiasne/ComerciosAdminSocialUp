@@ -5,7 +5,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthenticationService } from '../Services/authentication.service';
 import { CajasService } from '../Services/cajas.service';
 import { Caja } from '../models/caja';
-import { MovimientoCaja } from '../models/movimientoCaja';
+import { EnumTipoMovimientoCaja, MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientosService } from '../Services/movimientos.service';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Subscription } from 'rxjs';
@@ -17,6 +17,8 @@ import { Subscription } from 'rxjs';
 })
 export class FormAperturaCajaPage implements OnInit {
 
+  private enumTipoMovimientoCaja = EnumTipoMovimientoCaja
+  
   public datosForm: FormGroup;  
   public fecha = new Date();
   public cajaId = "";
@@ -62,34 +64,36 @@ export class FormAperturaCajaPage implements OnInit {
     this.caja.estado = "abierta";
 
     var aperturaEfectivo = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
-    aperturaEfectivo.id = this.firestore.createId();
+    aperturaEfectivo.tipo = this.enumTipoMovimientoCaja.apertura;
     aperturaEfectivo.cajaId = this.caja.id;
     aperturaEfectivo.isApertura = true;
     aperturaEfectivo.metodoPago = "efectivo";
     aperturaEfectivo.monto = Number(this.efectivo);
-    this.movimientosService.createMovimientoCaja(this.caja,aperturaEfectivo);
+    this.movimientosService.add(aperturaEfectivo);
 
     var aperturaDebito = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
-    aperturaDebito.id = this.firestore.createId();
+    aperturaDebito.tipo = this.enumTipoMovimientoCaja.apertura;
     aperturaDebito.cajaId = this.caja.id;
     aperturaDebito.isApertura = true;
     aperturaDebito.metodoPago = "debito";
     aperturaDebito.monto = Number(this.debito);
-    this.movimientosService.createMovimientoCaja(this.caja,aperturaDebito);
+    this.movimientosService.add(aperturaDebito);
 
     var aperturaCredito = new MovimientoCaja(this.authenticationService.getUID(),this.authenticationService.getEmail());
-    aperturaCredito.id = this.firestore.createId();
-    aperturaCredito.cajaId = this.caja.id;
-    aperturaCredito.isApertura = true;
+    aperturaCredito.tipo = this.enumTipoMovimientoCaja.apertura;
     aperturaCredito.metodoPago = "credito";
+    aperturaCredito.cajaId = this.caja.id;
+    aperturaCredito.isApertura = true;    
     aperturaCredito.monto = Number(this.credito);
-    this.movimientosService.createMovimientoCaja(this.caja,aperturaCredito);
+    this.movimientosService.add(aperturaCredito);
 
     this.caja.estado = "abierta";
 
     this.caja.totalEfectivo = Number(this.efectivo);
     this.caja.totalDebito = Number(this.debito);
     this.caja.totalCredito = Number(this.credito);
+
+    this.actualizarMontosCaja()
 
     this.cajasServices.update(this.caja);
 
@@ -99,6 +103,16 @@ export class FormAperturaCajaPage implements OnInit {
   cancelar(){
     this.navCtrl.back();
   }
+
+  actualizarMontosCaja(){
+  
+    this.caja.totalEfectivo = Number(this.efectivo);
+    this.caja.totalDebito = Number(this.debito);
+    this.caja.totalCredito = Number(this.credito);
+
+  const param1 = JSON.parse(JSON.stringify(this.caja));
+  this.cajasServices.update(param1);
+}
 
 }
 

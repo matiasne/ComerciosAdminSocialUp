@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { WPMediaService } from './media.service';
+import { OrdersService } from './orders.service';
 
-describe('MediaService', () => {
-  let service: WPMediaService;
+describe('OrdersService', () => {
+  let service: OrdersService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(WPMediaService);
+    service = TestBed.inject(OrdersService);
   });
 
   it('should be created', () => {

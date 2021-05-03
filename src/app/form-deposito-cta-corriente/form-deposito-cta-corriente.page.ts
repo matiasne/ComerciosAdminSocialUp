@@ -12,7 +12,7 @@ import { CajasService } from '../Services/cajas.service';
 import { ActivatedRoute } from '@angular/router';
 import { Caja } from '../models/caja';
 import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';
-import { MovimientoCaja } from '../models/movimientoCaja';
+import { EnumTipoMovimientoCaja, MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientosService } from '../Services/movimientos.service';
 import { ToastService } from '../Services/toast.service';
 import { SelectClientePage } from '../select-cliente/select-cliente.page';
@@ -24,6 +24,8 @@ import { SelectClientePage } from '../select-cliente/select-cliente.page';
 })
 export class FormDepositoCtaCorrientePage implements OnInit {
 
+  private enumTipoMovimientoCaja = EnumTipoMovimientoCaja
+  
   public monto = 0;
   private deposito:MovimientoCtaCorriente;
   public cliente:Cliente;
@@ -147,6 +149,7 @@ export class FormDepositoCtaCorrientePage implements OnInit {
 
     var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
     pago.id = this.firestore.createId();
+    pago.tipo = this.enumTipoMovimientoCaja.pago;
     pago.clienteId = this.cliente.id;
     pago.cajaId = this.caja.id;
     pago.metodoPago = this.metodoPagoSeleccionado;
@@ -154,15 +157,18 @@ export class FormDepositoCtaCorrientePage implements OnInit {
     pago.depositoId = this.deposito.id;
     pago.monto = this.deposito.monto;
     pago.motivo = this.datosForm.controls.motivo.value;
-    this.movimientosService.createMovimientoCaja(this.caja,pago);
+    pago.motivo="Depostio de cuenta corriente, cliente:"+this.cliente.nombre;   
+    this.movimientosService.add(pago).then((data:any)=>{
+      this.deposito.cajaId =this.caja.id;
+      this.deposito.pagoId = data.id;
+      this.deposito.motivo = pago.motivo;
+      this.deposito.ctaCorrienteId = this.deposito.ctaCorrienteId;
+      this.movimientosService.crearMovimientoCtaCorriente(this.deposito);   
+    })
 
     //this.carritoService.setearCaja(this.datosForm.controls.cajaId.value); 
 
-    this.deposito.cajaId =this.caja.id;
-    this.deposito.pagoId = pago.id;
-    this.deposito.motivo = pago.motivo;
-    this.deposito.ctaCorrienteId = this.deposito.ctaCorrienteId;
-    this.movimientosService.crearMovimientoCtaCorriente(this.deposito);   
+    
 
     this.navCtrl.back();
   }

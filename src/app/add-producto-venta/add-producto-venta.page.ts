@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
 import { CocinasService } from '../Services/cocinas.service';
 import { GrupoOpcionesService } from '../Services/grupo-opciones.service';
 import { CarritoService } from '../Services/global/carrito.service';
+import { LoadingService } from '../Services/loading.service';
 
 @Component({
   selector: 'app-add-producto-venta',
@@ -45,7 +46,7 @@ export class AddProductoVentaPage implements OnInit {
     private navParams:NavParams,
     private cocinasService:CocinasService,
     private gruposOpcionesService:GrupoOpcionesService,
-    private carritoService:CarritoService
+    private loadingService:LoadingService
   ) { }
 
   ngOnInit() {
@@ -56,7 +57,10 @@ export class AddProductoVentaPage implements OnInit {
     this.producto.descripcion_venta = "";
 
     this.gruposOpciones = [];  
-    this.gruposOpcionesService.setearPath()
+    
+    if(this.producto.gruposOpcionesId.length > 0)
+      this.loadingService.presentLoadingText("Cargando Opciones")
+      
     this.producto.gruposOpcionesId.forEach(id =>{
       let sub = this.gruposOpcionesService.get(id).subscribe(data=>{
         data.opciones.forEach(opcion =>{
@@ -66,10 +70,14 @@ export class AddProductoVentaPage implements OnInit {
 
         this.gruposOpciones.push(data);
         sub.unsubscribe()
+        this.loadingService.dismissLoading()
       })
     })
 
     this.producto.opcionesSeleccionadas = [];
+
+    
+
 
     console.log(this.producto)
 
@@ -77,6 +85,11 @@ export class AddProductoVentaPage implements OnInit {
 
     
 
+  }
+
+  editarProducto(){
+    this.modalCtrl.dismiss()
+    this.router.navigate(['form-producto',{id:this.producto.id}]);
   }
 
   
@@ -205,15 +218,13 @@ export class AddProductoVentaPage implements OnInit {
 
     console.log("!!!!!! isOK"+isOk)
     if(isOk){  
-      this.cocinasService.setearPath();
       this.cocinasService.get(this.producto.cocinaId).subscribe(data=>{
         this.producto.cocinaNombre = data.nombre;
       }) 
       console.log(this.producto)
       this.modalCtrl.dismiss(this.producto); 
-      delete this.producto.keywords;
-      this.carritoService.agregarProducto(this.producto);      
-      this.toastServices.mensaje('Agregado!', this.producto.cantidad+' '+this.producto.unidad+' de '+this.producto.nombre);     
+       
+      //this.toastServices.mensaje('Agregado!', this.producto.cantidad+' '+this.producto.unidad+' de '+this.producto.nombre);     
     }  
    
   }

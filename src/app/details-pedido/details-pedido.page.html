@@ -9,18 +9,21 @@
 
 <ion-content class="ion-padding">   
     
-  <div *ngIf="comercio.modulos.comandas">
+  <div *ngIf="comercio.config.comandas">
     <span *ngIf="pedido.statusComanda == pEstado.rechazado" style="color: red;">Rechazado por Cocina</span>
     <span *ngIf="pedido.statusComanda == pEstado.tomado" style="color: green;">En Curso</span>
     <span *ngIf="pedido.statusComanda == pEstado.solicitado" style="color: blue;"> Solicitado</span>
-  </div>
-    
-  <ion-grid>
+  </div><br>
+  <span *ngIf="pedido.statusCobro == cEstado.pendiente"> <b style="color: blue;"> Pendiente </b></span>
+  <span *ngIf="pedido.statusCobro == cEstado.suspendido"> <b style="color: red;"> Suspendido </b></span>
+  <span *ngIf="pedido.statusCobro == cEstado.cobrado"> <b style="color: green;"> Cobrado ({{pedido.metodoPago}})</b></span> 
+  <span *ngIf="pedido.statusCobro == cEstado.reembolsado"> <b style="color: red;"> Reembolsado </b></span> <br>  
+  <ion-grid *ngIf="comercio.config.clientes || comercio.config.mesas">
     <ion-row >
-      <ion-col size="6">
-        <ion-button class="button-rounded"  *ngIf="!cliente.id && comercio.modulos.clientes" (click)="seleccionarCliente()"><ion-icon name="add"></ion-icon> Cliente</ion-button>
+      <ion-col size="6" *ngIf="comercio.config.clientes">
+        <ion-button class="button-rounded"  *ngIf="!cliente.id" (click)="seleccionarCliente()"><ion-icon name="add"></ion-icon> Cliente</ion-button>
     
-        <ion-item-sliding *ngIf="pedido.clienteId && comercio.modulos.clientes">
+        <ion-item-sliding *ngIf="pedido.clienteId">
           <app-card-usuario
             [cliente]="cliente"
             (select)="seleccionarCliente()">
@@ -30,13 +33,13 @@
           </ion-item-options>
         </ion-item-sliding>
       </ion-col>
-      <ion-col size="6">
-        <ion-button class="button-rounded" *ngIf="!mesa.id && comercio.modulos.mesas" (click)="seleccionarMesa()" ><ion-icon name="add"></ion-icon> Mesa</ion-button>
+      <ion-col size="6" *ngIf="comercio.config.mesas">
+        <ion-button class="button-rounded" *ngIf="!mesa.id" (click)="seleccionarMesa()" ><ion-icon name="add"></ion-icon> Mesa</ion-button>
 
-        <ion-item-sliding *ngIf="pedido.mesaId && comercio.modulos.mesas">
+        <ion-item-sliding *ngIf="pedido.mesaId">
           <ion-item class="item-card">
             <ion-label (click)="seleccionarMesa()">
-              <h2>{{mesa.nombre}}</h2>
+              <h2>{{pedido.mesaNombre}}</h2>
             </ion-label>      
           </ion-item>
 
@@ -48,7 +51,7 @@
       </ion-row>
     </ion-grid>   
     
-    <ion-button *ngIf="pedido.id != ''" class="button-rounded" (click)="agregarComentario()">Agregar Comentario</ion-button>
+    
     <div  class="form-card" *ngIf="comentarios.length > 0">
       
       <ion-text color="primary">
@@ -84,7 +87,7 @@
           [showImage]="false"
           [multiplicador]="1" 
         ></app-card-producto>        
-        <ion-item-options side="end" *ngIf="pedido.statusCaja == cEstado.pendiente">
+        <ion-item-options side="end" *ngIf="pedido.statusCobro == cEstado.pendiente">
           <ion-item-option *ngIf="pedido.id != '' &&  producto.suspendido == 0" color="danger" (click)="suspenderProducto(producto,i)"><ion-icon name="trash"></ion-icon>Suspender</ion-item-option>
           <ion-item-option *ngIf="pedido.id == '' &&  producto.suspendido == 0" color="danger" (click)="suspenderProducto(producto,i)"><ion-icon name="trash"></ion-icon>Eliminar</ion-item-option>
           
@@ -92,7 +95,8 @@
 
           
         </ion-item-options> 
-      </ion-item-sliding>      
+      </ion-item-sliding> 
+      <ion-button *ngIf="pedido.statusCobro == cEstado.pendiente" class="button-rounded" color="light" (click)="agregarProducto()"><ion-icon name="add"></ion-icon> Producto</ion-button>     
     </ion-list>
 
     <ion-text color="primary" *ngIf="pedido.descuentos.length > 0">
@@ -137,6 +141,16 @@
 
     </div>
 
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
+     
+      <ion-fab-button *ngIf="pedido.id != ''" (click)="agregarComentario()">
+        <ion-icon name="chatbubble-outline"></ion-icon>
+      </ion-fab-button>
+      <br>
+      <ion-fab-button (click)="imprimir()">
+        <ion-icon name="print-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
    
 </ion-content> 
 
@@ -146,7 +160,7 @@
   <ion-grid>
     <ion-row>
       <ion-col size="6">
-        <ion-item *ngIf="pedido.statusCaja == cEstado.pendiente && cajas.length > 0" class="item-card">
+        <ion-item *ngIf="pedido.statusCobro == cEstado.pendiente && cajas.length > 0" class="item-card">
           <ion-label position="floating">Caja</ion-label>
           <ion-select [(ngModel)]="cajaSeleccionadaIndex" (ionChange)="setearCaja()">
             <span *ngFor="let caja of cajas;let i=index">
@@ -157,7 +171,7 @@
        
       </ion-col>
       <ion-col size="6">
-        <ion-item class="item-card" *ngIf="pedido.statusCaja == cEstado.pendiente && cajas[cajaSeleccionadaIndex]">
+        <ion-item class="item-card" *ngIf="pedido.statusCobro == cEstado.pendiente && cajas[cajaSeleccionadaIndex]">
           <ion-label position="floating">Método</ion-label>
           <ion-select [(ngModel)]="metodoPagoSeleccionado">
             <ion-select-option *ngIf="cajas[cajaSeleccionadaIndex].efectivo" [value]="'efectivo'">Efectivo</ion-select-option>
@@ -170,16 +184,19 @@
     </ion-row>
   </ion-grid>
   
-  <ion-item class="item-card" *ngIf="pedido.statusCaja == cEstado.pendiente && metodoPagoSeleccionado == 'ctaCorriente'">
+  <ion-item class="item-card" *ngIf="pedido.statusCobro == cEstado.pendiente && metodoPagoSeleccionado == 'ctaCorriente'">
     <ion-label position="floating" >Cuenta Corriente:</ion-label>
     <ion-select  [(ngModel)]="ctaCorrienteSelecccionadaId">
       <ion-select-option *ngFor="let cta of ctasCorrientes" [value]="cta.id">{{cta.nombre}}</ion-select-option>
     </ion-select>
   </ion-item> 
+
   
   <ion-toolbar>   
-    <ion-button *ngIf="pedido.statusCaja == cEstado.cobrado" class="button-rounded"  color="danger" (click)="devolver()">Devolver: ${{getTotal()}}</ion-button>
-    <ion-button *ngIf="pedido.statusCaja == cEstado.pendiente" class="button-rounded"  color="success" (click)="cobrar()">Cobrar: ${{getTotal()}}</ion-button>
+    <ion-button *ngIf="pedido.statusCobro == cEstado.suspendido" class="button-rounded"  color="primary" (click)="reanudar()">Reanudar</ion-button>
+    <ion-button *ngIf="pedido.statusCobro == cEstado.cobrado" class="button-rounded"  color="danger" (click)="devolverPedido()">Reembolsar: ${{total}}</ion-button>
+    <ion-button slot="start" *ngIf="pedido.statusCobro != cEstado.cobrado && pedido.statusCobro != cEstado.suspendido" class="button-rounded"  color="danger" (click)="suspender()">Suspender</ion-button>
+    <ion-button slot="end" *ngIf="pedido.statusCobro != cEstado.cobrado && pedido.statusCobro != cEstado.suspendido" class="button-rounded"  color="success" (click)="cobrar()">Cobrar: ${{total}}</ion-button>
   </ion-toolbar> 
 
  

@@ -24,7 +24,8 @@ export class ImpresoraService {
   public largoDeLinea = 32;
   public pedido:any;
   public comercio:Comercio;
-
+  private impresoraBluetoothconectada = false;
+  private reintento = false;
   public estadoImpresoraSubject = new BehaviorSubject<any>("");
   
   constructor(
@@ -56,6 +57,7 @@ export class ImpresoraService {
 
   public guardarImpresora(impresora){
     this.estadoImpresoraSubject.next(impresora);
+    console.log(impresora)  
     localStorage.setItem('impresora',JSON.stringify(impresora))
   }
 
@@ -63,111 +65,96 @@ export class ImpresoraService {
     return this.estadoImpresoraSubject.asObservable();
   }
 
-  public conectarBluetooth(){
+  public async conectarBluetoothEImpresora(){
+
     if (this.platform.is('cordova')) {
-      this.loadingService.presentLoading();
+      //this.loadingService.presentLoading();
       let impresora = this.obtenerImpresora();
 
       if(impresora.mac == ""){
         console.log("impresora no configurada")
         this.loadingService.dismissLoading();
         return false
-      }
-
-    
-      console.log("conectando...")
+      }    
+      
       this.bluetoothSerial.isEnabled().then(data=>{
-        console.log("bluetooth habilitado")      
-        this.conectarImpresora();
-        this.loadingService.dismissLoading();
-      },
-      err=>{
-        console.log("bluetooth deshabilitado")
-        this.loadingService.dismissLoading();
-        //preguntar si lo quiere habilitar
-        this.bluetoothSerial.enable().then(
-          data => {
-              console.log("Bluetooth is enabled");
-              this.conectarImpresora();
-          },
-          err=> {
-              console.log("The user did *not* enable Bluetooth");
-          
-          }
-      );
-      })     
+        //this.loadingService.dismissLoading();
+        this.conectarImpresora()
+        console.log(data)
+      },err=>{
+        //this.loadingService.dismissLoading();
+        this.bluetoothSerial.enable().then(data=>{
+          console.log(data)
+          this.conectarImpresora()
+        },err=>{
+          console.log(err)
+        })        
+      });      
     }
   }
 
-  conectarImpresora(){
+  
 
-    this.loadingService.presentLoading();
+  public async conectarImpresora(){
+
+  //  this.loadingService.presentLoading();
     let impresora:any = this.obtenerImpresora();
 
     if(impresora.mac == ""){
       console.log("impresora no configurada")
-      this.loadingService.dismissLoading();
+    //  this.loadingService.dismissLoading();
       return false
     }
 
-    this.bluetoothSerial.isConnected().then(data=>{
-      console.log("conectada")
-      impresora.conectada = true;
-      this.guardarImpresora(impresora)
-      this.loadingService.dismissLoading();
-    },
-    err =>{     
-      
-      this.guardarImpresora(impresora)
-      this.bluetoothSerial.connect(impresora.mac).subscribe(data=>{
-        console.log("impresora conectada...")
-        impresora.conectada = true;
-        this.guardarImpresora(impresora)
-        this.loadingService.dismissLoading();
-
-      },err=>{
-        this.toastServices.alert("Error al conectar impresora, verifique que esté encendida","")
-        impresora.conectada = false;
-        this.guardarImpresora(impresora)
-        this.loadingService.dismissLoading();
-      });   
-    })
+    this.bluetoothSerial.connect(impresora.mac).subscribe(data=>{
+      console.log(data)
+      this.impresoraBluetoothconectada = true;
+      //this.loadingService.dismissLoading();          
+    },err=>{
+      console.log(err)
+      this.toastServices.alert("Error al conectar impresora, verifique que esté encendida","")
+      this.impresoraBluetoothconectada = false;
+      //this.loadingService.dismissLoading();
+    })     
+    
+    
   }
 
-  async impresionPrueba(usuario){
-
-    
-    var esc = '\x1B'; //ESC byte in hex notation
-    var newLine = '\x0A'; //LF byte in hex notation
-
-    var cmds = esc + "@"; //Initializes the printer (ESC @)
-    cmds += esc + '!' + '\x38'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
-    cmds = "Prueba de impresión"+newLine;
-    cmds = "Usuario: "+usuario
-    cmds += newLine + newLine;
-    cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
-
-
-    cmds +=  esc + "@";
-    cmds += esc + '\x1B'; //Character font A selected (ESC ! 0)
-    cmds += esc + '\x64'; //Character font A selected (ESC ! 0)
-    cmds += '3'; //Character font A selected (ESC ! 0)           
-
-    this.bluetoothSerial.write(cmds).then(()=>{ 
-      console.log("impreso");
-    }, ()=>{
-      console.log("error")
-      });
-
+  async impresionPrueba(usuario){  
+    let impresora:any = this.obtenerImpresora(); 
+    console.log(impresora)  
+    if(impresora.escposBluetooth == false){
+      const modal = await this.modalController.create({
+        component: ComandaPage    
+      });    
+      return await modal.present();
+    }
+    else{
+      var esc = '\x1B'; //ESC byte in hex notation
+      var newLine = '\x0A'; //LF byte in hex notation
+  
+      var cmds = esc + "@"; //Initializes the printer (ESC @)
+      cmds += esc + '!' + '\x38'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+      cmds = "Prueba de impresión"+newLine;
+      cmds = "Usuario: "+usuario
+      cmds += newLine + newLine;
+      cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+  
+      cmds +=  esc + "@";
+      cmds += esc + '\x1B'; //Character font A selected (ESC ! 0)
+      cmds += esc + '\x64'; //Character font A selected (ESC ! 0)
+      cmds += '3'; //Character font A selected (ESC ! 0)          
+  
+      this.validateAndWrite(cmds)
+    }    
   }
 
 
   async impresionComanda(pedido:Pedido){
     
-    let impresora:any = this.obtenerImpresora();
-   
+    let impresora:any = this.obtenerImpresora();   
     if(impresora.comandas){
-      if(impresora.bluetooth == false){
+      if(impresora.escposBluetooth == false){
         const modal = await this.modalController.create({
           component: ComandaPage,
           componentProps:{
@@ -176,8 +163,7 @@ export class ImpresoraService {
         });    
         return await modal.present();
       }
-      else{
-      
+      else{      
 
         var esc = '\x1B'; //ESC byte in hex notation
         var newLine = '\x0A'; //LF byte in hex notation
@@ -236,16 +222,45 @@ export class ImpresoraService {
         cmds += esc + '\x64'; //Character font A selected (ESC ! 0)
         cmds += '3'; //Character font A selected (ESC ! 0)           
 
-        this.bluetoothSerial.write(cmds).then(()=>{ 
-          console.log("impreso");
-        }, ()=>{
-          console.log("error")
-        });
+        this.validateAndWrite(cmds) 
       }
     }
   }
 
 
+  validateAndWrite(cmds){
+    let impresora:any = this.obtenerImpresora();
+
+    this.bluetoothSerial.isConnected().then(() => {
+      this.bluetoothSerial.write(cmds).then((success) => {
+        console.log(success)
+      },
+      error => {
+        console.log(error)
+      });
+    }, (error) => {      
+      console.log(error)
+      let impresora:any = this.obtenerImpresora();
+
+      this.loadingService.presentLoadingText("Conectando con impresora...");
+      this.bluetoothSerial.connect(impresora.mac).subscribe(data=>{
+        this.bluetoothSerial.write(cmds).then((success) => {
+          console.log(success)
+        },
+        error => {
+          console.log(error)
+        });
+        this.loadingService.dismissLoading();          
+      },err=>{
+        console.log(err)
+        this.toastServices.alert("Error al conectar impresora, verifique que esté encendida","")
+        this.impresoraBluetoothconectada = false;
+        this.loadingService.dismissLoading();
+      })    
+    });
+    
+    
+  }
 
 
 
@@ -253,7 +268,7 @@ export class ImpresoraService {
     
     let impresora:any = this.obtenerImpresora();
 
-    if(impresora.bluetooth == false){
+    if(impresora.escposBluetooth == false){
       const modal = await this.modalController.create({
         component: TicketDetallePage,
         componentProps:{
@@ -263,6 +278,7 @@ export class ImpresoraService {
       return await modal.present();
     }
     else{
+  
       var esc = '\x1B'; //ESC byte in hex notation
       var newLine = '\x0A'; //LF byte in hex notation
 
@@ -338,7 +354,7 @@ export class ImpresoraService {
       
       cmds += esc + '!' + '\x2C'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
       cmds += 'TOTAL'
-      let eAlineacion = this.largoDeLinea - 5 - pedido.totalProductos.toString().length - 1
+      let eAlineacion = this.largoDeLinea - 5 - this.pedidosService.getTotal(pedido).toString().length - 1
       for(let i=0; i< eAlineacion; i++){
         cmds += ' '
       }
@@ -350,12 +366,9 @@ export class ImpresoraService {
       cmds += esc + '\x1B'; //Character font A selected (ESC ! 0)
       cmds += esc + '\x64'; //Character font A selected (ESC ! 0)
       cmds += '3'; //Character font A selected (ESC ! 0)           
-
-      this.bluetoothSerial.write(cmds).then(()=>{ 
-        console.log("impreso");
-      }, ()=>{
-        console.log("error")
-      });
+     // alert("Imprimiendo")
+      
+      this.validateAndWrite(cmds)         
     }    
   }
 

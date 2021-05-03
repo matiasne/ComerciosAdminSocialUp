@@ -21,9 +21,6 @@ export class Carrito{
     public productos:Producto[] = []; 
     public servicios:Servicio[] = [];
 
-    public totalProductos=0;
-    public totalServicios=0;
-
 	constructor(
 		public vendedorId:"", 
         public vendedorNombre:""

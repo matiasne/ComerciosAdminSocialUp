@@ -9,27 +9,73 @@
 
 <ion-content class="ion-padding">
 
-  <ion-text color="primary"> 
-    <h4>URL del sitio web</h4>         
-  </ion-text>   
-  <ion-item>
-    <ion-input type="text" [(ngModel)]="comercio.woocommerce.url"></ion-input>
-  </ion-item>
+  <div class="form-card">
+    <ion-text color="primary"> 
+      <h4>Usuario</h4>         
+    </ion-text>   
+    <ion-item>
+      <ion-input type="text" [(ngModel)]="comercio.woocommerce.user" (ionChange)="cambiado()"></ion-input>
+    </ion-item>
 
-  <ion-text color="primary"> 
-    <h4>Consumer Key</h4>         
-  </ion-text>   
-  <ion-item>
-    <ion-input type="text" [(ngModel)]="comercio.woocommerce.consumerKey"></ion-input>
-  </ion-item>
+    <ion-text color="primary"> 
+      <h4>Contraseña</h4>         
+    </ion-text>   
+    <ion-item>
+      <ion-input type="text" [(ngModel)]="comercio.woocommerce.password" (ionChange)="cambiado()"></ion-input>
+    </ion-item>
+  </div>
 
-  <ion-text color="primary"> 
-    <h4>Consumer Secret</h4>         
-  </ion-text>   
-  <ion-item>
-    <ion-input type="text" [(ngModel)]="comercio.woocommerce.consumerSecret"></ion-input>
-  </ion-item>
- 
+  <div class="form-card">
+
+    
+    
+    <ion-text color="primary"> 
+      <h4>URL del sitio web</h4>         
+    </ion-text>   
+    <ion-item>
+      <ion-input type="text" [(ngModel)]="comercio.woocommerce.url" (ionChange)="cambiado()"></ion-input>
+    </ion-item>
+
+    <ion-text color="primary"> 
+      <h4>Consumer Key</h4>         
+    </ion-text>   
+    <ion-item>
+      <ion-input type="text" [(ngModel)]="comercio.woocommerce.consumerKey" (ionChange)="cambiado()"></ion-input>
+    </ion-item>
+
+    <ion-text color="primary"> 
+      <h4>Consumer Secret</h4>         
+    </ion-text>  
+
+    <ion-item>
+      <ion-input type="text" [(ngModel)]="comercio.woocommerce.consumerSecret" (ionChange)="cambiado()"></ion-input>
+    </ion-item>
+
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-button class="button-rounded" color="primary" (click)="probar()">Probar Conexión</ion-button>
+        </ion-col>
+        
+      </ion-row>
+      <ion-row>
+        <ion-col>
+         Sincronizar Productos
+        </ion-col>
+        <!--ion-col>
+          <ion-button class="button-rounded" color="success" (click)="downloadData()" [disabled]="progresoReceived != 0" ><ion-icon name="cloud-download-outline"></ion-icon></ion-button>
+        </ion-col-->
+        <ion-col>
+          <ion-button class="button-rounded" color="success" (click)="uploadData()" [disabled]="progresoReceived != 0" ><ion-icon name="cloud-upload-outline"></ion-icon></ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    
+</div>  
+<ion-progress-bar *ngIf="progresoSend != 0"  [value]="progresoReceived" [buffer]="progresoSend"></ion-progress-bar>
+    <p *ngIf="progresoSend != 0">sincronizado: {{progresoReceived * 100}}%</p>
+  
+  
 </ion-content>
 <ion-footer>
   <ion-toolbar>   

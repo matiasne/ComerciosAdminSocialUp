@@ -66,7 +66,7 @@
   </span>
 
 </ion-content>
-<ion-footer *ngIf="pedidos.length == 0" class="ion-no-border ion-padding"> 
+<ion-footer *ngIf="pedidos.length != 0" class="ion-no-border ion-padding"> 
   <ion-toolbar>   
     <ion-button class="button-rounded" slot="start"  color="danger" (click)="cerrar()">Cerrar</ion-button>
   </ion-toolbar> 

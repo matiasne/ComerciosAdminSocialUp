@@ -12,7 +12,7 @@
     <ion-segment-button value="info">
       <ion-label>Info</ion-label>
     </ion-segment-button>
-    <ion-segment-button  *ngIf="comercio.modulos.beneficiosClientes" value="beneficios">
+    <ion-segment-button  *ngIf="comercio.config.beneficiosClientes" value="beneficios">
       <ion-label>Beneficios</ion-label>
     </ion-segment-button>
     <ion-segment-button value="seguimiento">
@@ -132,7 +132,7 @@
             <p>  
               {{item.text}}
             </p>    
-            <p>{{item.senderEmail}} -  {{item.createdAt | date:'dd/MM/yyyy hh:mm'}}</p>
+            <p>{{item.senderEmail}} -  {{item.createdAt.toDate() | date:'dd/MM/yyyy hh:mm'}}</p>
           </ion-label>         
         </ion-item>
       <ion-item-options side="end">
@@ -144,12 +144,14 @@
 
   </div>
   
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
+     
+    <ion-fab-button (click)="agregarComentario()">
+      <ion-icon name="chatbubble-outline"></ion-icon>
+    </ion-fab-button>
+   
+  </ion-fab>
   
   
 
 </ion-content>
-<ion-footer class="ion-no-border ion-padding" *ngIf="seccionActiva == 'seguimiento'">
-  <ion-toolbar> 
-    <ion-button slot="end" (click)="agregarComentario()">Agregar Comentario</ion-button>  
-  </ion-toolbar>
-</ion-footer>

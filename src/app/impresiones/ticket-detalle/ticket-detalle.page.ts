@@ -28,7 +28,7 @@ export class TicketDetallePage implements OnInit {
     private modalCtrl:ModalController,
     private navParams:NavParams,
     private platform:Platform,
-    private pedidoServices:PedidoService
+    private pedidosService:PedidoService,
   ) { }
 
   ngOnInit() {
@@ -51,12 +51,11 @@ export class TicketDetallePage implements OnInit {
   }
 
   printMobile(){
-    let texto="Esto es de prueba";
+
+    let texto="Esto \nY esta es segunda linea";
+    
     let options: PrintOptions = {
-      name: 'MyDocument',
-    /*  duplex: true,
-      orientation: 'landscape',
-      monochrome: true*/  
+      name: 'MyDocument'
     }
     this.printer.isAvailable().then(()=>{
       this.printer.print(texto, options).then(()=>{
@@ -72,7 +71,88 @@ export class TicketDetallePage implements OnInit {
   }
 
   getTotal(){
-    return this.pedidoServices.getTotal(this.pedido)
+    return this.pedidosService.getTotal(this.pedido)
+  }
+
+  getText(){
+
+    let largoDeLinea = 38
+    let text = this.comercio.nombre+"\n"
+    text += "Gracias por tu visita!\n"
+    if(this.pedido.mesaId){        
+      text += "\n"
+      text += "Mesa: "+ this.pedido.mesaNombre; //text to print        
+    }
+
+    this.pedido.productos.forEach(producto => {       
+      if(producto.suspendido == 0){
+        let cantidad = producto.cantidad+"x";
+        let nombre = producto.nombre;
+        let total = producto.precioTotal+"$";      
+  
+        text += cantidad+' '+nombre;
+        
+        producto.opcionesSeleccionadas.forEach(opcion =>{
+          text += '\n';
+          text += '  '+opcion.cantidad+'x '+' '+opcion.nombre        
+        })
+        text += '\n';
+        let  espaciosAlineacion = largoDeLinea - total.length
+        for(let i=0; i< espaciosAlineacion; i++){
+          text += ' '
+        }
+        text += total;
+        
+        text += '\n';
+      }
+      
+    });
+
+    if(this.pedido.descuentos.length > 0){
+
+      text += 'descuentos:';
+      text += '\n';
+      this.pedido.descuentos.forEach(descuento => {      
+       
+        let signo = "$"
+        if(descuento.tipo == EnumTipoDescuento.porcentaje){
+          signo = "%";
+        }
+        let monto = descuento.monto+signo;
+        let motivo = descuento.motivo;         
+        text += motivo+' '+monto;
+        text += '\n';          
+      });
+    }
+
+    if(this.pedido.recargos.length > 0){
+
+      text += 'Recargos:';
+      text += '\n';
+      this.pedido.recargos.forEach(recargo => {      
+       
+        let signo = "$"
+        if(recargo.tipo == EnumTipoRecargo.porcentaje){
+          signo = "%";
+        }
+        let monto = recargo.monto+signo;
+        let motivo = recargo.motivo;         
+        text += motivo+' '+monto;
+        text += '\n';          
+      });
+    }
+    
+    text += 'TOTAL'
+    let eAlineacion = largoDeLinea - 5 - this.pedidosService.getTotal(this.pedido).toString().length - 1
+    for(let i=0; i< eAlineacion; i++){
+      text += ' '
+    }
+    text += this.pedidosService.getTotal(this.pedido)+"$"
+
+    text += '\n' + '\n';
+
+    return text
+
   }
 
   

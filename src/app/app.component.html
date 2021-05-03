@@ -26,21 +26,21 @@
             </span>  
 
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
-              <ion-item  *ngIf="comercioSeleccionado.modulos.pedidos" [routerLink]="['/list-pedidos']" lines="none" detail="false">
+              <ion-item  [routerLink]="['/list-pedidos']" lines="none" detail="false">
                 <ion-icon slot="start" name="archive-outline"></ion-icon>
                 <ion-label>Pedidos</ion-label> 
               </ion-item> 
             </span>
 
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
-              <ion-item *ngIf="comercioSeleccionado.modulos.mesas" [routerLink]="['/list-mesas']" lines="none" detail="false">
+              <ion-item *ngIf="comercioSeleccionado.config.mesas" [routerLink]="['/list-mesas']" lines="none" detail="false">
                 <ion-icon slot="start" name="grid-outline"></ion-icon>
                 <ion-label>Mesas</ion-label>               
               </ion-item>
             </span> 
 
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cocinero'">
-              <ion-item *ngIf="comercioSeleccionado.modulos.comandas" [routerLink]="['/list-comandas-v2']" lines="none" detail="false">
+              <ion-item *ngIf="comercioSeleccionado.config.comandas" [routerLink]="['/list-comandas-v2']" lines="none" detail="false">
                 <ion-icon slot="start" name="receipt-outline"></ion-icon>
                 <ion-label>Comandas</ion-label>
                 <ion-badge color="primary" *ngIf="cantComandas != 0" slot="end">{{cantComandas}}</ion-badge>
@@ -48,14 +48,14 @@
             </span> 
 
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
-              <ion-item *ngIf="comercioSeleccionado.modulos.clientes" [routerLink]="['/list-clientes']" lines="none" detail="false">
+              <ion-item *ngIf="comercioSeleccionado.config.clientes" [routerLink]="['/list-clientes']" lines="none" detail="false">
                 <ion-icon slot="start" name="people-outline"></ion-icon>
                 <ion-label>Clientes</ion-label>
               </ion-item>
             </span>           
       
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
-              <ion-item *ngIf="comercioSeleccionado.modulos.clientes" [routerLink]="['/list-cta-corrientes']" lines="none" detail="false">
+              <ion-item *ngIf="comercioSeleccionado.config.clientes" [routerLink]="['/list-cta-corrientes']" lines="none" detail="false">
                 <ion-icon slot="start" name="wallet-outline"></ion-icon>
                 <ion-label>Ctas. Corrientes</ion-label>
               </ion-item>
@@ -66,21 +66,21 @@
               <ion-label>Calendarios</ion-label>
             </ion-item-->
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
-              <ion-item *ngIf="comercioSeleccionado.modulos.cajas" [routerLink]="['/list-cajas']" lines="none" detail="false">
+              <ion-item [routerLink]="['/list-cajas']" lines="none" detail="false">
                 <ion-icon slot="start" name="file-tray-full-outline"></ion-icon>
                 <ion-label>Cajas</ion-label> 
               </ion-item> 
             </span>
           
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
-              <ion-item *ngIf="comercioSeleccionado.modulos.servicios" [routerLink]="['/list-subscripciones']" lines="none" detail="false">
+              <ion-item *ngIf="comercioSeleccionado.config.servicios" [routerLink]="['/list-subscripciones']" lines="none" detail="false">
                 <ion-icon slot="start" name="clipboard-outline"></ion-icon>
                 <ion-label>Subscripciones</ion-label>
               </ion-item>
             </span>
 
             <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
-              <ion-item *ngIf="comercioSeleccionado.modulos.mesas" [routerLink]="['/list-personal']" lines="none" detail="false">
+              <ion-item *ngIf="comercioSeleccionado.config.mesas" [routerLink]="['/list-personal']" lines="none" detail="false">
                 <ion-icon slot="start" name="people-outline"></ion-icon>
                 <ion-label>Personal</ion-label>               
               </ion-item>

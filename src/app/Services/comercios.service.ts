@@ -3,8 +3,6 @@ import { AngularFirestore } from 'angularfire2/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
 import * as firebase from 'firebase';
-import { RolesService } from './roles.service';
-import { CajasService } from './cajas.service';
 import { Comercio } from '../models/comercio';
 import { map } from 'rxjs/operators';
 
@@ -18,9 +16,7 @@ export class ComerciosService {
   public comercio:Comercio;
   constructor(
     private firestore: AngularFirestore,
-    private auth:AuthenticationService,
-    private cajasService:CajasService,
-    private rolesService:RolesService
+    private auth:AuthenticationService
   ) {
     this.comercio = new Comercio();
     this.collection = 'comercios';
@@ -33,6 +29,10 @@ export class ComerciosService {
 
   getSelectedCommerce(): Observable<any>{
     return this.commerceSubject.asObservable();
+  }
+
+  getSelectedCommerceId(){
+    return this.commerceSubject.value.id
   }
 
   

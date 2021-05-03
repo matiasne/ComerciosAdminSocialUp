@@ -4,7 +4,6 @@ import { ModalController } from '@ionic/angular';
 import { ListClientesPage } from '../list-clientes/list-clientes.page';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ListServiciosPage } from '../list-servicios/list-servicios.page';
-import { DataService } from '../Services/data.service';
 import { SubscripcionesService } from '../Services/subscripciones.service';
 import { AuthenticationService } from '../Services/authentication.service';
 import { AddServicioSubscripcionPage } from '../add-servicio-subscripcion/add-servicio-subscripcion.page';
@@ -39,7 +38,6 @@ export class FormSubscripcionPage implements OnInit {
     private formBuilder: FormBuilder,
     public modalController: ModalController,
     public router:Router,
-    public dataService:DataService,
     public subscripcionService:SubscripcionesService,
     private clientesService:ClientesService,
     private servicioService:ServiciosService,

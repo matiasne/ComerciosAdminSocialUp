@@ -1,6 +1,7 @@
 <ion-card class="item-card ion-padding">    
-  <span *ngIf="pedido.statusCaja == cEstado.suspendido"> <b style="color: red;"> Suspendido!</b></span>
-  <span *ngIf="pedido.statusCaja == cEstado.cobrado"> <b style="color: green;"> Cobrado</b></span>
+  <span *ngIf="pedido.statusCobro == cEstado.suspendido"> <b style="color: red;"> Suspendido!</b></span>
+  <span *ngIf="pedido.statusCobro == cEstado.cobrado"> <b style="color: green;"> Cobrado</b></span>
+  <span *ngIf="pedido.statusCobro == cEstado.reembolsado"> <b style="color: green;"> Reembolsado</b></span>
   <span *ngIf="pedido.empleadoNombre">Realizado por: {{pedido.empleadoNombre}}</span><br>    
   <b>realizado: {{pedido.createdAt.toDate() | date:'hh:mm aaa - dd/MM'}}</b>
   
@@ -15,25 +16,24 @@
         <ion-item>            
           <ion-label>                
             <h2><b>{{item.cantidad}} X {{item.nombre}}</b> 
-              <span *ngIf="pedido.statusCaja == cEstado.suspendido"> <b style="color: red;"> Suspendido</b></span>
-            </h2>
-            
+              <span *ngIf="pedido.statusCobro == cEstado.suspendido"> <b style="color: red;"> Suspendido</b></span>
+            </h2>           
           
-              <span *ngFor="let opcion of item.opcionesSeleccionadas">
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="color-text-green">{{opcion.cantidad}}X </span>{{opcion.nombreGrupo}} {{opcion.nombre}} </p>
-              </span>   
+            <span *ngFor="let opcion of item.opcionesSeleccionadas">
+              <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="color-text-green">{{opcion.cantidad}}X </span>{{opcion.nombreGrupo}} {{opcion.nombre}} </p>
+            </span>   
            
             <p>
               {{item.descripcion_venta}}
             </p>         
             
           </ion-label>  
-          <ion-button *ngIf="pedido.statusCaja != cEstado.suspendido && pedido.statusComanda == pEstado.tomado" color="success" slot="end" (click)="productoListo(item)" >Listo</ion-button>   
+          <ion-button *ngIf="pedido.statusComanda != 'Listo'" color="success" slot="end" (click)="productoListo(item)" >Listo</ion-button>   
         </ion-item>
       </span>                     
     </ion-label>    
   </ion-item>
-  <ion-item *ngIf="pedido.statusCaja != cEstado.suspendido"> 
+  <ion-item *ngIf="pedido.statusCobro != cEstado.suspendido"> 
     <ion-button *ngIf="pedido.statusComanda ==  pEstado.solicitado" color="light" slot="start" (click)="rechazar()">Rechazar</ion-button>
     <ion-button *ngIf="pedido.statusComanda == pEstado.solicitado" slot="end" (click)="tomar()">Tomado</ion-button>  
 

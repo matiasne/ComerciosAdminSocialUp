@@ -1,0 +1,11 @@
+<ion-item (click)="seleccionar()" class="remove_inner_bottom">
+  <div slot="start">
+    <ion-icon name="cube-outline"></ion-icon>
+  </div>   
+  <ion-label style="color:black">    
+    <b>{{item.name}}</b> 
+    <p>
+      {{item.quantity}} X {{item.total | currency}}
+    </p>
+  </ion-label>
+</ion-item>

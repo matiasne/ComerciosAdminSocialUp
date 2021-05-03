@@ -5,39 +5,47 @@ import * as firebase from 'firebase';
 import { map } from 'rxjs/operators';
 import { Rol } from '../models/rol';
 import { ComerciosService } from './comercios.service';
+import { BaseService } from './base.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RolesService {
+export class RolesService extends BaseService {
 
-  private collection:string;
   private collectionGroup:string;
-  
+  private comercioId=""
   constructor(
     private firestore: AngularFirestore,
     private auth:AuthenticationService,
-  ) {
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
-    this.collection = 'comercios/'+comercio_seleccionadoId+'/roles';
-    this.collectionGroup = "roles";
+    private comerciosService:ComerciosService
+    ) {     
+      super(firestore); 
+      this.comerciosService.getSelectedCommerce().subscribe(data=>{
+        // let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+        if(data){
+          
+          this.setPath('comercios/'+data.id+'/roles')   
+         }
+        
+      })
+      this.collectionGroup = "roles";
   }
+   
+    
   
   public create(data) {    
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
-    this.collection = 'comercios/'+comercio_seleccionadoId+'/roles';
+   
 
-    return this.firestore.collection(this.collection).doc(data.id).set({...data,
+    return this.firestore.collection(this.path).doc(data.id).set({...data,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
-  }
+  } 
 
   public get(documentId: string) {
 
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
-    this.collection = 'comercios/'+comercio_seleccionadoId+'/roles';
+  
 
-    return this.firestore.collection(this.collection).doc(documentId).snapshotChanges();
+    return this.firestore.collection(this.path).doc(documentId).snapshotChanges();
   }
 
   public getAllTipos() {       
@@ -66,9 +74,8 @@ export class RolesService {
 
   
   getAllRolesbyComercio(comercioId){     
-    this.collection = 'comercios/'+comercioId+'/roles';
 
-    return this.firestore.collection(this.collection).get({ source: 'server' }).pipe(
+    return this.firestore.collection(this.path).get({ source: 'server' }).pipe(
       map(actions => {
         const data = [];       
         actions.forEach(a => {
@@ -91,26 +98,13 @@ export class RolesService {
     }
 
 
-    this.firestore.collection('comercios/'+comercioId+'/roles').add(Object.assign({}, params));       
+    this.firestore.collection(this.path).add(Object.assign({}, params));       
   } 
 
   public getAllOwnerId(){
     return this.firestore.collectionGroup(this.collectionGroup, ref=>ref.where("rol","==","owner")).snapshotChanges();
   }
 
-  public update(comercioId,documentId: string, data: any) {
-    const param = JSON.parse(JSON.stringify(data));
-    return this.firestore.collection('comercios/'+comercioId+'/roles').doc(documentId).set({...param,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });
-  }
-
-  public delete(comercioId,rolId) {
-
-    this.collection = 'comercios/'+comercioId+'/roles';
-
-    return this.firestore.collection(this.collection).doc(rolId).delete();
-  }
 
  
 }

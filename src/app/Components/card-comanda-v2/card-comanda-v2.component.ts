@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Comercio } from 'src/app/models/comercio';
-import { EnumEstadoEnCaja, Pedido } from 'src/app/models/pedido';
+import { EnumEstadoCobro, Pedido } from 'src/app/models/pedido';
 import { ComerciosService } from 'src/app/Services/comercios.service';
 import { PedidoService } from 'src/app/Services/pedido.service';
-import { EnumEstadoComanda } from 'src/app/models/pedido';
+import { EnumEstadoCocina } from 'src/app/models/pedido';
 import { AlertController, ModalController } from '@ionic/angular';
 import { FormComentarioPage } from 'src/app/form-comentario/form-comentario.page';
 import { ComentariosService } from 'src/app/Services/comentarios.service';
@@ -19,8 +19,8 @@ export class CardComandaV2Component implements OnInit {
   @Input() public pedido:any;
   @Input() showAvatar = true;
   public comercio:Comercio; 
-  public pEstado = EnumEstadoComanda;
-  public cEstado = EnumEstadoEnCaja;
+  public pEstado = EnumEstadoCocina;
+  public cEstado = EnumEstadoCobro;
   
   constructor(
     private comercioService:ComerciosService,
@@ -31,7 +31,7 @@ export class CardComandaV2Component implements OnInit {
   ) { 
     this.comercio = new Comercio();
     this.comercio.asignarValores(this.comercioService.getSelectedCommerceValue());
-    this.pedidosService.setearPath()
+
   }
 
   ngOnInit() {
@@ -57,7 +57,7 @@ export class CardComandaV2Component implements OnInit {
       .then((retorno) => {
         if(retorno.data)
          
-            this.pedido.statusComanda = EnumEstadoComanda.rechazado;
+            this.pedido.statusComanda = EnumEstadoCocina.rechazado;
             console.log(this.pedido.statusComanda)
             this.pedidosService.update(this.pedido).then(data=>{
               console.log("El pedido ha sido rechazado");
@@ -68,7 +68,7 @@ export class CardComandaV2Component implements OnInit {
   } 
 
   tomar(){
-    this.pedido.statusComanda = EnumEstadoComanda.tomado;
+    this.pedido.statusComanda = EnumEstadoCocina.tomado;
     console.log(this.pedido.statusComanda)
     this.pedidosService.update(this.pedido).then(data=>{
       console.log("El pedido ha sido rechazado");
@@ -85,7 +85,7 @@ export class CardComandaV2Component implements OnInit {
     });  
 
     if(todosListos){
-      this.pedido.statusComanda = EnumEstadoComanda.completo;      
+      this.pedido.statusComanda = EnumEstadoCocina.completo;      
     }
     
     this.pedidosService.update(this.pedido).then(data=>{
@@ -107,7 +107,7 @@ export class CardComandaV2Component implements OnInit {
         }, {
           text: 'Si',
           handler: () => {           
-            this.pedido.statusComanda = EnumEstadoComanda.solicitado;
+            this.pedido.statusComanda = EnumEstadoCocina.solicitado;
             this.pedidosService.update(this.pedido).then(data=>{
               console.log("El pedido ha sido suspendido");
             })              
@@ -131,7 +131,7 @@ export class CardComandaV2Component implements OnInit {
         }, {
           text: 'Si',
           handler: () => {           
-            this.pedido.statusComanda = EnumEstadoComanda.tomado;
+            this.pedido.statusComanda = EnumEstadoCocina.tomado;
             this.pedido.productos.forEach(element => {
               element.estadoComanda = "Pendiente"
             });
@@ -146,7 +146,7 @@ export class CardComandaV2Component implements OnInit {
   }
 
   finalizar(){
-    this.pedido.statusComanda = EnumEstadoComanda.finalizado;
+    this.pedido.statusComanda = EnumEstadoCocina.finalizado;
     this.pedidosService.update(this.pedido).then(data=>{
       console.log("El pedido ha finalizado");
     }) 

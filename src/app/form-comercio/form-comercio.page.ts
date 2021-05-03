@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NavController, ActionSheetController, ModalController, AlertController, LoadingController, Platform, NavParams } from '@ionic/angular';
 import { ComerciosService } from '../Services/comercios.service';
-import { DataService } from '../Services/data.service';
 import { CajasService } from '../Services/cajas.service';
 import { Subscription } from 'rxjs';
 import { Comercio } from '../models/comercio';
@@ -70,7 +69,6 @@ export class FormComercioPage implements OnInit {
     private comerciosService:ComerciosService,
     public actionSheetController: ActionSheetController,
     public modalController: ModalController,
-    public dataService:DataService,
     public cajasService:CajasService,
     public alertController: AlertController,
     public loadingService:LoadingService,

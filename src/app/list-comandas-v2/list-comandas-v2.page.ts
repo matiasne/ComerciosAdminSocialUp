@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { ComentariosService } from '../Services/comentarios.service';
 import { LoadingService } from '../Services/loading.service';
 import { PedidoService } from '../Services/pedido.service';
-import { EnumEstadoComanda } from 'src/app/models/pedido';
+import { EnumEstadoCocina } from 'src/app/models/pedido';
 import { CocinasService } from '../Services/cocinas.service';
 import { AlertController, Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
@@ -56,10 +56,8 @@ export class ListComandasV2Page implements OnInit {
 
   ngOnInit() {
 
-    this.pedidosService.setearPath()
     this.loadingService.presentLoadingText("Cargando Pedidos")
 
-    this.cocinasService.setearPath();
     this.cocinasService.list().subscribe((data) => {     
       this.cocinas = data;
       if(this.cocinas.length == 0){
@@ -75,7 +73,7 @@ export class ListComandasV2Page implements OnInit {
       this.obsPedidos.unsubscribe();
     } 
 
-    this.obsPedidos = this.pedidosService.listFechaDesde(this.fechaDesde).subscribe((pedidos:any)=>{  
+    this.obsPedidos = this.pedidosService.listFechaDesde(this.fechaDesde,new Date()).subscribe((pedidos:any)=>{  
       this.buscando = false;
       this.itemsPendientes = []; 
       this.itemsProceso = []; 
@@ -189,16 +187,16 @@ export class ListComandasV2Page implements OnInit {
          // this.itemsRechazados.push(item);
       //  } 
         //else{
-          if(item.statusComanda == EnumEstadoComanda.rechazado){
+          if(item.statusComanda == EnumEstadoCocina.rechazado){
             this.itemsRechazados.push(item);
           }
-          if(item.statusComanda == EnumEstadoComanda.solicitado){
+          if(item.statusComanda == EnumEstadoCocina.solicitado){
             this.itemsPendientes.push(item);
           }
-          if(item.statusComanda == EnumEstadoComanda.tomado){
+          if(item.statusComanda == EnumEstadoCocina.tomado){
             this.itemsProceso.push(item);
           }
-          if(item.statusComanda == EnumEstadoComanda.completo){
+          if(item.statusComanda == EnumEstadoCocina.completo){
             this.itemsListas.push(item);
           }
       //  }    
@@ -206,6 +204,10 @@ export class ListComandasV2Page implements OnInit {
         return true; 
       }
     });    
+  }
+
+  nuevoPedido(){
+    this.router.navigate(['list-productos-servicios'])
   }
 
 }

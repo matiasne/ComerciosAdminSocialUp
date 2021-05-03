@@ -24,7 +24,6 @@ export class ListGruposOpcionesPage implements OnInit {
 
   ngOnInit() { 
     this.loadingService.presentLoadingText("Cargando Grupos")
-    this.grupoOpcionesService.setearPath()
     this.grupoOpcionesService.list().subscribe(grupos=>{
       this.loadingService.dismissLoading()                
       this.grupos = grupos;

@@ -51,26 +51,33 @@ export class FotoService extends BaseService {
           this.borradoSubject.next(true);
           this.borradoSubject.next(false); 
       }); 
-
   }
 
 
-  cargarFotoAElemeto(item:string,id,blob,principal:boolean){
+  async cargarFotoAElemeto(item:string,id,blob,principal:boolean){
     this.setPathFoto(item,id)
 
     let nombre = Math.floor(Math.random() * 100000000000)+"_"+id; 
 
-    this.upload(blob, nombre.toString(),"jpg").then(url =>{
-      let file = new Archivo();   
+    let file = new Archivo();   
+
+    await this.upload(blob, nombre.toString(),"jpg").then(url =>{
+      
       file.url = url;
       file.name = nombre.toString();  
       file.format = "jpg"; 
       file.principal = principal
-      const item = JSON.parse(JSON.stringify(file)); 
-      this.add(item).then(data =>{
-        console.log(data);          
-      });
+     
+      
     });  
+
+    const f = JSON.parse(JSON.stringify(file)); 
+    await this.add(f).then(data =>{
+      console.log(data);          
+    });
+
+    return file
+    
   }
 
   upload(archivo,nombre,tipo){

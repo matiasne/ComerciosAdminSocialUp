@@ -7,6 +7,7 @@ import { CtaCorrientesService } from './cta-corrientes.service';
 import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';
 import { MaxLengthValidator } from '@angular/forms';
 import { BaseService } from './base.service';
+import { ComerciosService } from './comercios.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,22 +15,21 @@ import { BaseService } from './base.service';
 export class CajasService extends BaseService{
 
   constructor(
-    protected afs: AngularFirestore
+    protected afs: AngularFirestore,
+    private comerciosService:ComerciosService
   ) {     
     super(afs); 
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    console.log(comercioId);
-    if(comercioId)
-      this.setPath('comercios/'+comercioId+'/cajas')   
+    this.comerciosService.getSelectedCommerce().subscribe(data=>{
+      // let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+      if(data){
+       
+       this.setPath('comercios/'+data.id+'/cajas')   
+      }
+      
+     })
+     
   }
 
-  setearPath(){
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    console.log(comercioId);
-    if(comercioId)
-      this.setPath('comercios/'+comercioId+'/cajas')   
-  }
-  
 
 }
 

@@ -103,7 +103,6 @@ export class FormCocinaPage implements OnInit {
 
     this.cocina.nombre = this.datosForm.controls.nombre.value;
 
-    this.cocinasService.setearPath();
     if(this.updating){
       this.cocinasService.update(this.cocina);
     }
@@ -160,7 +159,7 @@ export class FormCocinaPage implements OnInit {
   eliminarC(index){  
     console.log("Eliminando Cocinero");
     
-    this.rolesServices.delete(localStorage.getItem('comercio_seleccionadoId'),this.cocina.cocineros[index]);    
+    this.rolesServices.delete(this.cocina.cocineros[index]);    
     this.cocina.cocineros.splice(index,1);
     this.cocineros.splice(index,1);
   }

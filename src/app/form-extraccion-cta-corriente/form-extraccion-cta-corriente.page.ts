@@ -10,7 +10,7 @@ import { CajasService } from '../Services/cajas.service';
 import { ActivatedRoute } from '@angular/router';
 import { Caja } from '../models/caja';
 import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';
-import { MovimientoCaja } from '../models/movimientoCaja';
+import { EnumTipoMovimientoCaja, MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientosService } from '../Services/movimientos.service';
 import { ToastService } from '../Services/toast.service';
 import { SelectClientePage } from '../select-cliente/select-cliente.page';
@@ -22,6 +22,8 @@ import { SelectClientePage } from '../select-cliente/select-cliente.page';
 })
 export class FormExtraccionCtaCorrientePage implements OnInit {
 
+  private enumTipoMovimientoCaja = EnumTipoMovimientoCaja
+  
   public monto = 0;
   private extraccion:MovimientoCtaCorriente;
   public cliente:Cliente;
@@ -145,24 +147,25 @@ export class FormExtraccionCtaCorrientePage implements OnInit {
 
     var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getNombre());      
     pago.id = this.firestore.createId();
+    pago.tipo = this.enumTipoMovimientoCaja.pago;
     pago.clienteId = this.cliente.id;
     pago.cajaId = this.caja.id;
     pago.metodoPago = this.metodoPagoSeleccionado;
     pago.ctaCorrienteId = this.extraccion.ctaCorrienteId;
     pago.extraccionId = this.extraccion.id;
     pago.monto = -this.extraccion.monto;
-    pago.motivo = this.datosForm.controls.motivo.value;
-    this.movimientosService.createMovimientoCaja(this.caja,pago);
+    pago.motivo="Extraccion de cuenta corriente, cliente:"+this.cliente.nombre;   
+    this.movimientosService.add(pago).then((data:any)=>{
+      this.extraccion.cajaId =this.caja.id;
+      this.extraccion.pagoId = data.id;
+      this.extraccion.monto = - this.extraccion.monto;
+      this.extraccion.motivo = pago.motivo;     
+      this.movimientosService.crearMovimientoCtaCorriente(this.extraccion);   
+    })
 
     //this.carritoService.setearCaja(this.datosForm.controls.cajaId.value); 
 
-    this.extraccion.cajaId =this.caja.id;
-    this.extraccion.pagoId = pago.id;
-    this.extraccion.monto = - this.extraccion.monto;
-    this.extraccion.motivo = pago.motivo;
-
-    
-    this.movimientosService.crearMovimientoCtaCorriente(this.extraccion);   
+ 
 
     this.navCtrl.back();
   }

@@ -5,6 +5,7 @@ import { ServiciosService } from './servicios.service';
 import * as firebase from 'firebase';
 import { BaseService } from './base.service';
 import { map } from 'rxjs/operators';
+import { ComerciosService } from './comercios.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,16 +15,19 @@ export class SubscripcionesService extends BaseService{
   constructor(
     protected afs: AngularFirestore,
     private firestore: AngularFirestore,
-  ) {     
-    super(afs);
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    console.log(comercioId)
-    this.setPath("comercios/"+comercioId+"/subscripciones");
+    private comerciosService:ComerciosService
+    ) {     
+      super(afs); 
+      this.comerciosService.getSelectedCommerce().subscribe(data=>{
+        if(data){
+          
+          this.setPath('comercios/'+data.id+'/subscripciones')   
+         }        
+      })
   }
 
   getByServicioId(id){
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    return this.firestore.collection("comercios/"+comercioId+"/subscripciones", ref => ref.where('servicioId', '==', id)).get(/*{ source: 'server' }*/)
+    return this.firestore.collection(this.path, ref => ref.where('servicioId', '==', id)).get(/*{ source: 'server' }*/)
     
     
   }

@@ -29,7 +29,6 @@ export class FormImpresoraConfigPage implements OnInit {
   }
 
   ngOnInit() {
-    this.cocinasService.setearPath();
     this.cocinasService.list().subscribe((data) => {     
       this.cocinas = data; 
       this.impresora = this.impresoraService.obtenerImpresora();
@@ -39,18 +38,15 @@ export class FormImpresoraConfigPage implements OnInit {
 
   guardar(){
 
-    if(this.impresora.bluetooth && this.impresora.mac == ""){
+    if(this.impresora.escposBluetooth && this.impresora.mac == ""){
       alert("Ingrese un valor de MAC ADDRESS");
       return;
     }
 
     this.impresoraService.guardarImpresora(this.impresora);
-    this.navCtrl.back();
+    
   }
 
-  cancelar(){
-    this.navCtrl.back()
-  }
 
   atras(){
     this.navCtrl.back()

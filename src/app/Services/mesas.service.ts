@@ -10,21 +10,20 @@ import { ComerciosService } from './comercios.service';
 export class MesasService extends BaseService {
 
   constructor(
-    protected afs: AngularFirestore
-  ) {     
-    super(afs); 
-    
-  
-   
-      
+    protected afs: AngularFirestore,
+    private comerciosService:ComerciosService
+    ) {     
+      super(afs); 
+      this.comerciosService.getSelectedCommerce().subscribe(data=>{
+        // let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+        if(data){
+          
+          this.setPath('comercios/'+data.id+'/mesas')   
+         }
+        
+      })
   }
 
-  setearPath(){
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    console.log(comercioId);
-    if(comercioId)
-      this.setPath('comercios/'+comercioId+'/mesas')   
-  }
 
  
 }

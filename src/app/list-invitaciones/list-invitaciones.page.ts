@@ -94,7 +94,7 @@ export class ListInvitacionesPage implements OnInit {
         
         if(rol.userEmail.trim() == item.email.trim() && rol.rol == item.rol){
           rol.estado = "rechazada";        
-          this.rolesServices.update(item.comercioId,rol.id,rol);
+          this.rolesServices.update(rol);
         }
            
       });
@@ -117,7 +117,7 @@ export class ListInvitacionesPage implements OnInit {
         if(rol.userEmail.trim() == item.email.trim() && rol.rol == item.rol){
           rol.estado = "aceptada"; 
           console.log(rol);  
-          this.rolesServices.update(item.comercioId,rol.id,rol);
+          this.rolesServices.update(rol);
         }
           
 

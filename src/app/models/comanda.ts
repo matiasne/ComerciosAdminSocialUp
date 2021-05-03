@@ -1,4 +1,4 @@
-import { Carrito } from './carrito'
+
 
 export class Comanda{
 	public id="";

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import * as firebase from 'firebase';
 import { Comercio } from 'src/app/models/comercio';
-import { EnumEstadoComanda, EnumEstadoEnCaja, Pedido } from 'src/app/models/pedido';
+import { EnumEstadoCocina, EnumEstadoCobro, Pedido } from 'src/app/models/pedido';
 import { ComerciosService } from 'src/app/Services/comercios.service';
 
 @Component({
@@ -13,8 +13,8 @@ export class CardPedidoComponent implements OnInit {
  
   @Input() item:Pedido;
   @Output() select = new EventEmitter<any>();
-  public pEstado = EnumEstadoComanda;
-  public cEstado = EnumEstadoEnCaja;
+  public pEstado = EnumEstadoCocina;
+  public cEstado = EnumEstadoCobro;
   public comercio:Comercio
   constructor(
     private comercioService:ComerciosService

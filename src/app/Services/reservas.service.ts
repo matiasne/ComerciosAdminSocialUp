@@ -5,6 +5,7 @@ import { ServiciosService } from './servicios.service';
 import * as firebase from 'firebase';
 import { Pagare } from '../models/pagare';
 import { BaseService } from './base.service';
+import { ComerciosService } from './comercios.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,20 +14,26 @@ export class ReservasService extends BaseService{
 
   private servicioId = "";
   private calendarioId = "";
-
+  private comercioId = "";
   constructor(
-    protected afs: AngularFirestore
-  ) {     
-    super(afs);
-    
+    protected afs: AngularFirestore,
+    private comerciosService:ComerciosService
+    ) {     
+      super(afs); 
+      this.comerciosService.getSelectedCommerce().subscribe(data=>{
+        // let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+        if(data){
+         this.comercioId = data.id
+         }
+        
+      })
   }
 
   setPathIds(servicioId,calendarioId){
     this.servicioId = servicioId;
     this.calendarioId = calendarioId;
-    let comercioId = localStorage.getItem('comercio_seleccionadoId');
-    console.log("comercios/"+comercioId+"/servicios/"+this.servicioId+"/calendarios/"+this.calendarioId+"/reservas/")
-    this.setPath("comercios/"+comercioId+"/servicios/"+this.servicioId+"/calendarios/"+this.calendarioId+"/reservas/");
+    console.log("comercios/"+this.comercioId+"/servicios/"+this.servicioId+"/calendarios/"+this.calendarioId+"/reservas/")
+    this.setPath("comercios/"+this.comercioId+"/servicios/"+this.servicioId+"/calendarios/"+this.calendarioId+"/reservas/");
   }
 }
 

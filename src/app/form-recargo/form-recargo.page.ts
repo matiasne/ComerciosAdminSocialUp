@@ -30,9 +30,11 @@ export class FormRecargoPage implements OnInit {
 
   agregar(){
     if(this.recargo.monto){
-      this.carritoService.agregarRecargo(this.recargo);  
+      this.modalCtrl.dismiss(this.recargo)
     }
-    this.modalCtrl.dismiss();
+    else{
+      this.modalCtrl.dismiss();
+    }
   }
 
 }

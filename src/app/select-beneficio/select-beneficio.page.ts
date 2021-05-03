@@ -17,7 +17,6 @@ export class SelectBeneficioPage implements OnInit {
     ) { }
 
   ngOnInit(){
-    this.beneficiosService.setearPath();
     this.beneficiosService.list().subscribe(data=>{
       this.beneficios = data;
     })

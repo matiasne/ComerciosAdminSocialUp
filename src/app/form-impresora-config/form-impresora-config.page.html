@@ -9,29 +9,40 @@
 
 <ion-content class="ion-padding">
 
-  <div class="form-card">
+  <ion-button class="button-rounded" color="primary" (click)="probar()">Imprimir Prueba</ion-button> 
+  
+  <div class="form-card">        
     <ion-item>
-      <ion-label>Impresora Bluetooth</ion-label>
-      <ion-toggle [(ngModel)]="impresora.bluetooth"  [ngModelOptions]="{standalone: true}"></ion-toggle>
+      <ion-label>Conectar ESCPOS Bluetooth</ion-label>
+      <ion-toggle [(ngModel)]="impresora.escposBluetooth" (ionChange)="guardar()" [ngModelOptions]="{standalone: true}"></ion-toggle>
     </ion-item> 
             
-    <ion-item *ngIf="impresora.bluetooth">
+    <ion-item *ngIf="impresora.escposBluetooth">
       <ion-label position="floating" >Mac *</ion-label>
-      <ion-input name="mac" type="text" [(ngModel)]="impresora.mac" required></ion-input>
+      <ion-input name="mac" type="text" (ionChange)="guardar()" [(ngModel)]="impresora.mac" required></ion-input>
     </ion-item>  
-    <ion-button *ngIf="impresora.bluetooth" class="button-rounded" color="primary" (click)="probar()">Imprimir Prueba</ion-button> 
+    
   </div>
 
-  <ion-item>
-    <ion-label>Comandas</ion-label>
-    <ion-toggle [(ngModel)]="impresora.comandas"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item> 
-  <ion-item>
-    <ion-label>Tickets</ion-label>
-    <ion-toggle [(ngModel)]="impresora.ticketConsumidor"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item>
 
-  <p>Para las siguientes configuraciones tener en cuenta que es necesario abrir la aplicación en un navegardor modo Kiosk</p>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="10">
+        <p>
+          <b>Imprimir Comandas</b><br>
+          Automáticamente se imprimirá una comanda cada vez que se genere un pedido.
+        </p>
+      </ion-col>
+      <ion-col size="2">
+        <ion-toggle [(ngModel)]="impresora.comandas" (ionChange)="guardar()" [ngModelOptions]="{standalone: true}"></ion-toggle>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  
+
+
+  <!--p>Para las siguientes configuraciones tener en cuenta que es necesario abrir la aplicación en un navegardor modo Kiosk</p>
 
   <ion-item>
     <ion-label>Subscripción Panel Comandas</ion-label>
@@ -41,13 +52,7 @@
   <ion-item>
     <ion-label>Subscripción Panel Pedidos</ion-label>
     <ion-toggle [(ngModel)]="impresora.subsPedido"  [ngModelOptions]="{standalone: true}"></ion-toggle>
-  </ion-item>
+  </ion-item-->
   
   
 </ion-content>
-<ion-footer>
-  <ion-toolbar>   
-    <ion-button class="button-rounded" slot="start"  color="danger" (click)="cancelar()">Cancelar</ion-button>
-    <ion-button class="button-rounded" slot="end"  color="success" (click)="guardar()">Guardar</ion-button>
-  </ion-toolbar> 
-</ion-footer>

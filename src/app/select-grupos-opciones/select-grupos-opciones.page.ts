@@ -23,7 +23,6 @@ export class SelectGruposOpcionesPage implements OnInit {
   ) { }
 
   ngOnInit() { 
-    this.grupoOpcionesService.setearPath()
     this.grupoOpcionesService.list().subscribe(data=>{
       this.itemsAll = data;
       this.buscar()

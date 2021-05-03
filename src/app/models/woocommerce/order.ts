@@ -38,7 +38,7 @@ export class WCOrder{
     public date_completed:string
     public date_completed_gmt:string
     public cart_hash:string
-    public meta_data:WCMetadata[]
+    public meta_data:any
     public line_items:any[]
     public tax_lines:any[]
     public shipping_lines:any[]
@@ -53,6 +53,21 @@ export class WCOrder{
         collection: [{
             href:string
         }]
+    }
+
+
+    public statusCobro:any //Algo agregado por socialup
+
+    constructor(){
+        this.shipping = new WCShipping()
+        this.billing = new WCBilling()
+        
+    }
+
+    public asignarValores(init?: Partial<WCOrder>) {
+        
+        Object.assign(this, init);
+        
     }
 
 }

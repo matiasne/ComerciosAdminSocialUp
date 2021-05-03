@@ -21,9 +21,6 @@ export class FormBeneficioPage implements OnInit {
   ) { 
 
     this.beneficio = new Beneficio();
-
-    this.beneficiosService.setearPath();
-    
     if(this.navParams.get('beneficio')){   
       this.beneficio.asignarValores(this.navParams.get('beneficio'))
       console.log(this.beneficio)

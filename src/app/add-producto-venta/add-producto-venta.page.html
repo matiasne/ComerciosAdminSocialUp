@@ -14,6 +14,30 @@
 
 <ion-content  class="ion-padding">     
 
+  <ion-item class="form-card item-producto-cantidad" lines="none">
+    <ion-button class="button-block" slot="start" (click)="restarCantidad()"><ion-icon name="remove"></ion-icon></ion-button>
+    <b>
+      <span *ngIf="producto.valorPor && (producto.valorPor * producto.cantidad)==1 && producto.unidad == 'unidades'">
+        {{producto.valorPor * producto.cantidad}} unidad 
+      </span>
+
+      <span *ngIf="producto.valorPor && (producto.valorPor * producto.cantidad)==1 && producto.unidad != 'unidades'">
+        {{producto.valorPor * producto.cantidad}}  {{producto.unidad}}
+      </span>
+
+      <span *ngIf="producto.valorPor && (producto.valorPor * producto.cantidad)!=1">
+        <span *ngIf="producto.valorPor">
+          {{producto.valorPor * producto.cantidad}}
+        </span>
+        <span *ngIf="producto.unidad">
+          {{producto.unidad}}
+        </span> 
+      </span>  
+    </b> 
+    <ion-button class="button-block"  slot="end" (click)="sumarCantidad()">
+      <ion-icon name="add"> </ion-icon>
+    </ion-button> 
+  </ion-item>
   
 
   <div *ngFor="let grupo of gruposOpciones; let grupoIndex=index" class="form-card">
@@ -24,7 +48,7 @@
       <p>Seleccione una opción</p>
       <ion-radio-group>        
        
-          <ion-item *ngFor="let opcion of grupo.opciones;let i=index">
+          <ion-item *ngFor="let opcion of grupo.opciones;let i=index" class="remove_inner_bottom">
             <ion-radio slot="start" (click)="seleccionarOpcion(grupo,opcion)"></ion-radio>                      
             <ion-label text-wrap>
               <b>{{opcion.nombre}}</b> 
@@ -39,7 +63,7 @@
 
     <div *ngIf="grupo.maximo > 1">
       <p>Seleccione de {{grupo.minimo}} a {{grupo.maximo}} opciones</p>
-      <ion-item *ngFor="let opcion of grupo.opciones; let i = index">
+      <ion-item *ngFor="let opcion of grupo.opciones; let i = index" class="remove_inner_bottom">
         <ion-label> 
           {{opcion.nombre}}
           <span *ngIf="opcion.precioVariacion != 0">
@@ -65,30 +89,14 @@
  
   </div>  
 
-  <ion-item class="form-card item-producto-cantidad" lines="none">
-    <ion-button class="button-block" slot="start" (click)="restarCantidad()"><ion-icon name="remove"></ion-icon></ion-button>
-    <b>
-      <span *ngIf="producto.valorPor && (producto.valorPor * producto.cantidad)==1 && producto.unidad == 'unidades'">
-        {{producto.valorPor * producto.cantidad}} unidad 
-      </span>
+  
 
-      <span *ngIf="producto.valorPor && (producto.valorPor * producto.cantidad)==1 && producto.unidad != 'unidades'">
-        {{producto.valorPor * producto.cantidad}}  {{producto.unidad}}
-      </span>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
 
-      <span *ngIf="producto.valorPor && (producto.valorPor * producto.cantidad)!=1">
-        <span *ngIf="producto.valorPor">
-          {{producto.valorPor * producto.cantidad}}
-        </span>
-        <span *ngIf="producto.unidad">
-          {{producto.unidad}}
-        </span> 
-      </span>  
-    </b> 
-    <ion-button class="button-block"  slot="end" (click)="sumarCantidad()">
-      <ion-icon name="add"> </ion-icon>
-    </ion-button> 
-  </ion-item>
+    <ion-fab-button (click)="editarProducto()">
+      <ion-icon name="create"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 
 </ion-content>
 <ion-footer class="ion-no-border ion-padding">

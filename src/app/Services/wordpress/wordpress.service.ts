@@ -1,7 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Producto } from 'src/app/models/producto';
-import { WCPorduct } from 'src/app/models/woocommerce/product';
+import { ComerciosService } from '../comercios.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,12 +13,44 @@ export class WordpressService {
   private tipoItem:string = "";
 
   constructor( 
-    public http:HttpClient 
+    public http:HttpClient,
+    private comercioService:ComerciosService 
   ) { }
 
   setPart(part:string){
     this.tipoItem = part;
     this.apiUrl = this.siteURL+this.woocommercePart+this.tipoItem;
+  }
+
+  async login(){   
+  
+    let comercio = this.comercioService.getSelectedCommerceValue()
+    let data = {
+      username:comercio.woocommerce.user,
+      password:comercio.woocommerce.password
+    }
+
+    let httpHeaders = new HttpHeaders({
+      'Content-Type' : 'application/json'
+    });     
+    let options = {
+      headers: httpHeaders
+    };    
+
+
+    this.apiUrl = comercio.woocommerce.url+"/wp-json/jwt-auth/v1/token"    
+    let response = this.http.post(this.apiUrl,data,options).toPromise();
+    return response;
+
+  }
+
+  async obtainToken(){    
+    let resp:any = await this.login()
+    localStorage.setItem('wordpress_token',resp.token)    
+  }
+
+  getToken(){
+    return localStorage.getItem('wordpress_token');
   }
 
   getAll(){

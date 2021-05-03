@@ -167,7 +167,7 @@ export class FormCtaCorrientePage implements OnInit {
         }, {
           text: 'Eliminar',
           handler: () => {
-            this.ctasCorreintesService.delete(this.ctaCorriente);
+            this.ctasCorreintesService.delete(this.ctaCorriente.id);
             this.navCtrl.back();
          
           }

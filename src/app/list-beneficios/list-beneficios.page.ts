@@ -17,7 +17,6 @@ export class ListBeneficiosPage implements OnInit {
     private beneficiosService:BeneficiosService,
     private modalController:ModalController
   ) { 
-    this.beneficiosService.setearPath();
     this.beneficiosService.list().subscribe(data=>{
       this.beneficios = data;
     })

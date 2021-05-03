@@ -1,9 +1,9 @@
 import { WCCategory } from "./category"
 import { WCImage } from "./image"
 
-export class WCPorduct{   
+export class WCProduct{   
 
-public id:number
+public id:string
 public name:string
 public slug:string
 public permalink:string
@@ -71,7 +71,9 @@ public default_attributes:any[]
 public variations:any[]
 public grouped_products:any[]
 public menu_order:number
-public meta_data: []
+public meta_data:any
+public quantity=0
+public total =0
 public _links: {
     self: [{
         href:string

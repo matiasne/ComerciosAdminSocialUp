@@ -1,9 +1,12 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button  (click)="atras()"></ion-back-button>
+      <ion-back-button  (click)="cancelar()"></ion-back-button>
     </ion-buttons>
     <ion-title>Detalle Carrito</ion-title>    
+    <ion-button fill="clear" (click)="preguntarVaciar()" color="danger" slot="end">
+      <ion-icon name="trash"></ion-icon>
+    </ion-button>
   </ion-toolbar>
 </ion-header>
 
@@ -11,9 +14,9 @@
  
   <ion-grid>
     <ion-row >
-      <ion-col size="6">
-        <ion-button class="button-rounded"  *ngIf="!carrito.cliente.id && comercio.modulos.clientes" (click)="seleccionarCliente()"  ><ion-icon name="add"></ion-icon>  Cliente</ion-button>
-        <ion-item-sliding *ngIf="carrito.cliente.id && comercio.modulos.clientes">
+      <ion-col size="6" *ngIf="comercio.config.clientes">
+        <ion-button class="button-rounded"  *ngIf="!carrito.clienteId" (click)="seleccionarCliente()"  ><ion-icon name="add"></ion-icon>  Cliente</ion-button>
+        <ion-item-sliding *ngIf="carrito.clienteId && comercio.config.clientes">
           <app-card-usuario
             [cliente]="carrito.cliente"
             (select)="seleccionarCliente()">
@@ -23,19 +26,18 @@
           </ion-item-options>
         </ion-item-sliding>
       </ion-col>
-      <ion-col size="6">
+      <ion-col size="6" *ngIf="comercio.config.mesas">
 
-        <ion-button *ngIf="!carrito.mesa.id && comercio.modulos.mesas" (click)="seleccionarMesa()" class="button-rounded" ><ion-icon name="add"></ion-icon>  Mesa</ion-button>
+        <ion-button *ngIf="!carrito.mesaId && comercio.config.mesas" (click)="seleccionarMesa()" class="button-rounded" ><ion-icon name="add"></ion-icon>  Mesa</ion-button>
 
-        <ion-item-sliding *ngIf="carrito.mesa.id && comercio.modulos.mesas">
+        <ion-item-sliding *ngIf="carrito.mesaId && comercio.config.mesas">
       
           <ion-item class="item-card">
             <ion-avatar slot="start" (click)="seleccionarMesa()">
-              <img src="{{carrito.mesa.foto}}" *ngIf="carrito.cliente.foto">
-              <ion-icon name="person" *ngIf="!carrito.mesa.foto"></ion-icon>
+              <ion-icon name="person"></ion-icon>
             </ion-avatar>
             <ion-label (click)="seleccionarMesa()">
-              <h2>{{carrito.mesa.nombre}}</h2>
+              <h2>{{carrito.mesaNombre}}</h2>
             </ion-label>      
           </ion-item>
       
@@ -120,41 +122,11 @@
     </ion-list>
     </div>
 
-    <div  class="form-card" *ngIf="carrito.servicios.length > 0">
-      <ion-text color="primary">
-        <h4>Servicios</h4>
-      </ion-text> 
-      
-      <ion-list>                   
-        <ion-item *ngFor="let servicio of carrito.servicios; let i = index">
-          <!--ion-avatar slot="start">
-            <img src="{{servicio.foto}}" *ngIf="servicio.foto">
-            <ion-icon name="document-attach-outline" *ngIf="!servicio.foto"></ion-icon>
-          </ion-avatar-->
-          <ion-label text-wrap>
-            <h2>{{servicio.nombre}}</h2>
-            <h3>{{servicio.plan.nombre}}, 
-              <span *ngIf="servicio.tipo == 'dias'">{{servicio.plan.dias}} días por </span>
-              <span *ngIf="servicio.tipo == 'mensual'">el mes por </span>
-              <span *ngIf="servicio.tipo == 'anual'">el año por </span>
-              {{servicio.plan.precio | currency}}
-            </h3>
-            <h3>{{servicio.descripcion_venta}}</h3>
-            <h3 *ngIf="servicio.pagoAdelantado == 'false'" style="color:red">El abono se pagará al finalizar el periodo</h3>
-          </ion-label>
-          <ion-button color="danger" slot="end" (click)="eliminarServicio(i)"><ion-icon name="trash"></ion-icon></ion-button>       
-        </ion-item>      
-      </ion-list>
-    </div>
-  
+   
  
     <div class="form-card">
-      <ion-text color="primary">
-        <h4>Comentario</h4>
-      </ion-text> 
-      
-      <ion-textarea [(ngModel)]="comentario"></ion-textarea>
-   
+      <h5>Comentario: </h5>      
+      <ion-textarea [(ngModel)]="comentario"></ion-textarea>   
     </div>
 
 </ion-content> 

@@ -9,12 +9,14 @@ import { ListClientesPage } from '../list-clientes/list-clientes.page';
 import { LoadingService } from '../Services/loading.service';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';
-import { MovimientoCaja } from '../models/movimientoCaja';
+import { EnumTipoMovimientoCaja, MovimientoCaja } from '../models/movimientoCaja';
 import { CajasService } from '../Services/cajas.service';
 import { MovimientosService } from '../Services/movimientos.service';
 import { Caja } from '../models/caja';
 import { ToastService } from '../Services/toast.service';
 import { SelectClientePage } from '../select-cliente/select-cliente.page';
+import { ComerciosService } from '../Services/comercios.service';
+import { Comercio } from '../models/comercio';
 
 @Component({
   selector: 'app-form-ingreso-caja',
@@ -23,6 +25,8 @@ import { SelectClientePage } from '../select-cliente/select-cliente.page';
 })
 export class FormIngresoCajaPage implements OnInit {
 
+  private enumTipoMovimientoCaja = EnumTipoMovimientoCaja
+  
   public datosForm: FormGroup;
   submitted = false;
   public totalActual=0;
@@ -33,7 +37,8 @@ export class FormIngresoCajaPage implements OnInit {
   
   private pago:MovimientoCaja;
   public caja:Caja;
-
+  public comercio:Comercio;
+  
   constructor(
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
@@ -46,10 +51,12 @@ export class FormIngresoCajaPage implements OnInit {
     private cajasService:CajasService,
     private movimientosService:MovimientosService,
     private toastServices:ToastService,
+    private comerciosService:ComerciosService,
   ) { 
 
     this.cliente = new Cliente();
     this.caja = new Caja();
+    this.comercio = new Comercio()
 
     this.datosForm = this.formBuilder.group({
       cajaId:[this.route.snapshot.params.cajaId,Validators.required],
@@ -70,6 +77,10 @@ export class FormIngresoCajaPage implements OnInit {
 
   }
 
+  ionViewDidEnter(){
+    this.comercio.asignarValores(this.comerciosService.getSelectedCommerceValue());
+  }
+
   setearCtaCorriente(){
     console.log(this.ctaCorrienteSelecccionadaId)
   }
@@ -88,19 +99,18 @@ export class FormIngresoCajaPage implements OnInit {
       alert("El monto de egreso no puede ser mayor al monto total de efectivo en caja");
       return;
     }
-
-    console.log
+    this.actualizarMontosCaja()
+    if(this.comercio.config.movimientosCajas){
     
-    var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getEmail());      
-    pago.id = this.firestore.createId();
-    pago.cajaId = this.caja.id;
-    pago.metodoPago = this.metodoPagoSeleccionado;
-    pago.monto= this.datosForm.controls.monto.value;
-    pago.motivo = this.datosForm.controls.motivo.value;
-    
-      
-    console.log(this.caja.id);
-    this.movimientosService.createMovimientoCaja(this.caja,pago)
+      var ingreso = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getEmail());      
+      ingreso.tipo = this.enumTipoMovimientoCaja.ingreso;
+      ingreso.cajaId = this.caja.id;
+      ingreso.metodoPago = this.metodoPagoSeleccionado;
+      ingreso.monto= this.datosForm.controls.monto.value;
+      ingreso.motivo = this.datosForm.controls.motivo.value;        
+      console.log(this.caja.id);    
+      this.movimientosService.add(ingreso)
+    }
 
 
     this.navCtrl.back();
@@ -144,6 +154,21 @@ export class FormIngresoCajaPage implements OnInit {
 
   cancelar(){
     this.navCtrl.back();
+  }
+
+  actualizarMontosCaja(){
+    if(this.metodoPagoSeleccionado == "efectivo"){
+      this.caja.totalEfectivo = Number(this.caja.totalEfectivo)+ Number(this.datosForm.controls.monto.value);
+    }
+    if(this.metodoPagoSeleccionado == "credito"){
+      this.caja.totalCredito = Number(this.caja.totalCredito)+ Number(this.datosForm.controls.monto.value);
+    }
+    if(this.metodoPagoSeleccionado == "debito"){
+      this.caja.totalDebito = Number(this.caja.totalDebito) + Number(this.datosForm.controls.monto.value);
+    }
+
+    const param1 = JSON.parse(JSON.stringify(this.caja));
+    this.cajasService.update(param1);
   }
 
 }

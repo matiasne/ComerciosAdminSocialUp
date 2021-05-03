@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ModalController, NavParams } from '@ionic/angular';
 
 @Component({
   selector: 'app-cambiar-plan',
@@ -8,10 +8,16 @@ import { ModalController } from '@ionic/angular';
 })
 export class CambiarPlanPage implements OnInit {
 
+  public text = "";
+  public plan = "";
 
   constructor( 
-    private modalCtrl:ModalController
+    private modalCtrl:ModalController,
+    private navParams:NavParams
   ) {
+
+    this.text = this.navParams.get('extraText');
+    this.plan = this.navParams.get('actualPlan');
    }
 
   ngOnInit() {

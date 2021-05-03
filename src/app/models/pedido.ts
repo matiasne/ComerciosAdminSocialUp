@@ -6,7 +6,8 @@ import { Pagare } from './pagare';
 import { Descuento } from './descuento';
 import { Recargo } from './recargo';
 
-export enum EnumEstadoComanda {
+
+export enum EnumEstadoCocina {
     rechazado = 1, 
     solicitado = 2, 
     tomado = 3,  
@@ -15,23 +16,19 @@ export enum EnumEstadoComanda {
     suspendido = 6
 }
 
-
-export enum EnumEstadoEnCaja {
+export enum EnumEstadoCobro {
     pendiente = 1, 
     suspendido = 2, 
     cobrado = 3,  
+    reembolsado = 4
 }
-
 
 export class Pedido{      
 
     public id="";
 
-    public statusComanda = EnumEstadoComanda.solicitado;
-    public statusCaja = EnumEstadoEnCaja.pendiente;
-
-
-    public metodoPago = "";
+    public statusComanda = EnumEstadoCocina.solicitado;
+    public statusCobro = EnumEstadoCobro.pendiente;    
 
     public personalId = "";
     public personalEmail="";
@@ -44,9 +41,6 @@ export class Pedido{
     
     public mesaId = "";
     public mesaNombre = "";
-
-    public totalProductos=0;
-    public totalServicios=0;
   
     public on=false;
  
@@ -60,6 +54,12 @@ export class Pedido{
     public createdAt:any
 
     public countListos = 0
+
+    public metodoPago = "";
+    public reembolso ="";
+    public cajaUtilizada ="";
+
+    public total = 0
     
 	constructor(){
 

@@ -6,7 +6,7 @@ import { ClienteEstado } from '../models/clienteEstado';
 import { Comercio } from '../models/comercio';
 import { EnumTipoDescuento } from '../models/descuento';
 import { Mesa } from '../models/mesa';
-import { EnumEstadoEnCaja, Pedido } from '../models/pedido';
+import { EnumEstadoCobro, Pedido } from '../models/pedido';
 import { Producto } from '../models/producto';
 import { ComentariosService } from '../Services/comentarios.service';
 import { ComerciosService } from '../Services/comercios.service';
@@ -29,7 +29,7 @@ export class DetailsMesaPage implements OnInit {
   public descuentos = []
   public recargos = []
 
-  public cEstado = EnumEstadoEnCaja;
+  public cEstado = EnumEstadoCobro;
 
   public enumTipo = EnumTipoDescuento
   
@@ -59,11 +59,10 @@ export class DetailsMesaPage implements OnInit {
 
     this.loadingService.presentLoading(); 
 
-    this.pedidosService.setearPath()
     this.pedidosService.getByMesa(this.route.snapshot.params.id).subscribe((pedidos:any)=>{                 
       this.pedidos = [];
       pedidos.forEach(element => {
-        if(element.statusCaja == this.cEstado.pendiente){
+        if(element.statusCobro == this.cEstado.pendiente){
           let objPedido = new Pedido()
           objPedido.asignarValores(element)
           this.pedidos.push(objPedido)

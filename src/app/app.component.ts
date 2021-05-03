@@ -19,6 +19,7 @@ import { UsuariosService } from './Services/usuarios.service';
 import { Network } from '@ionic-native/network/ngx';
 import { PedidoService } from './Services/pedido.service';
 import { Printer } from '@ionic-native/printer/ngx';
+import { ImpresoraService } from './Services/impresora.service';
 
 @Component({
   selector: 'app-root',
@@ -118,13 +119,13 @@ export class AppComponent implements OnInit {
     private fcm: FCM,
     public toastController: ToastController,
     private comerciosService:ComerciosService,
-    private notifiacionesDesktopService:NotificacionesDesktopService,
     private notificacionesAppService:NotifificacionesAppService,
     private invitacionesService:InvitacionesService,
     private toastService:ToastService,
     public presenceService:PresenceService,
     private usuariosService:UsuariosService,
     private usuarioService:UsuariosService,
+    private impresoraService:ImpresoraService
   ) {
     this.comercioSeleccionado = new Comercio();   
     this.initializeApp();  
@@ -152,7 +153,7 @@ export class AppComponent implements OnInit {
 
       } else {
         console.log(data);
-        this.toastService.mensaje(data.title,data.body);
+        this.toastService.mensajeVerde(data.title,data.body);
       };
     });
 
@@ -195,12 +196,8 @@ export class AppComponent implements OnInit {
             this.authService.setFCMToken(token);
           },error=>{
             console.log(error)
-          });     
-      
-         
-        }        
-        
-        
+          });             
+        }          
       }  
       else{
         this.router.navigate(['login']);
@@ -208,7 +205,7 @@ export class AppComponent implements OnInit {
     });  
 
 
-    this.platform.ready().then(() => {
+    this.platform.ready().then(async () => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
 
@@ -220,6 +217,11 @@ export class AppComponent implements OnInit {
         console.log("Salió del sistema");
       });
 
+     /* let impresora = this.impresoraService.obtenerImpresora()
+      if(impresora.bluetooth){
+        this.impresoraService.conectarBluetoothEImpresora()
+      }*/       
+
     });
   }
 
@@ -228,11 +230,8 @@ export class AppComponent implements OnInit {
     if (path !== undefined) {
       this.selectedIndex = this.appPages.findIndex(page => page.title.toLowerCase() === path.toLowerCase());
     }
-
-    this.comerciosService.getSelectedCommerce().subscribe(data=>{
- 
-      console.log(data) 
- 
+    this.comerciosService.getSelectedCommerce().subscribe(data=>{ 
+      console.log(data)  
       if(data)
         this.comercioSeleccionado.asignarValores(data);
       else{

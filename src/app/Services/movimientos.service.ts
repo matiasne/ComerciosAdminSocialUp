@@ -8,107 +8,69 @@ import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';
 import { Mock } from 'protractor/built/driverProviders';
 import { Caja } from '../models/caja';
 import { CtaCorriente } from '../models/ctacorriente';
+import { BaseService } from './base.service';
+import { ComerciosService } from './comercios.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class MovimientosService {
+export class MovimientosService extends BaseService {
 
+  private comercioId = "";
   constructor(
-    private firestore: AngularFirestore,
+    protected afs: AngularFirestore,
     private ctaCorrienteService:CtaCorrientesService,
-    private cajasService:CajasService
-  ) { 
+    private cajasService:CajasService,
+    private comerciosService:ComerciosService
+    ) {     
+      super(afs); 
+      this.comerciosService.getSelectedCommerce().subscribe(data=>{
+        // let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
+        if(data){
+          
+          this.comercioId = data.id
+         }
+        
+      })
+  }
 
 
+  setearPath(cajaId){
+      this.setPath('comercios/'+this.comercioId+'/cajas/'+cajaId+'/movimientos')   
   }
 
   getMovimientoCaja(cajaId,movId){
-    var comercioId = localStorage.getItem('comercio_seleccionadoId');
-    return this.firestore.collection('comercios/'+comercioId+'/cajas/'+cajaId+'/movimientos').doc(movId).snapshotChanges();
+    return this.afs.collection('comercios/'+this.comercioId+'/cajas/'+cajaId+'/movimientos').doc(movId).snapshotChanges();
   }
 
   getMovimientoCtaCorriente(ctaCorrienteId,movId,fechaDesde){
-    var comercioId = localStorage.getItem('comercio_seleccionadoId');
-    return this.firestore.collection('comercios/'+comercioId+'/ctascorrientes/'+ctaCorrienteId+'/movimientos',ref=>ref.where('createdAt', '>=', fechaDesde).orderBy('createdAt',"desc")).doc(movId).snapshotChanges();
+    return this.afs.collection('comercios/'+this.comercioId+'/ctascorrientes/'+ctaCorrienteId+'/movimientos',ref=>ref.where('createdAt', '>=', fechaDesde).orderBy('createdAt',"desc")).doc(movId).snapshotChanges();
   }
 
  
   public getMovimientosCaja(cajaId,fechaDesde){
-    var comercioId = localStorage.getItem('comercio_seleccionadoId');
-    return this.firestore.collection('comercios/'+comercioId+'/cajas/'+cajaId+'/movimientos',ref=>ref.where('createdAt', '>=', fechaDesde).orderBy('createdAt',"desc")).snapshotChanges();
+    return this.afs.collection('comercios/'+this.comercioId+'/cajas/'+cajaId+'/movimientos',ref=>ref.where('createdAt', '>=', fechaDesde).orderBy('createdAt',"desc")).snapshotChanges();
   }
 
 
-  public createMovimientoCaja(caja:Caja,mov:MovimientoCaja) {
-
-    var comercioId = localStorage.getItem('comercio_seleccionadoId');
-
-    //this.firestore.firestore.collection('comercios/'+caja.comercioId+'/cajas').doc(caja.id).get().then(doc=>{
-      
-      //let caja:Caja = new Caja();
-      //caja.asignarValores(doc.data())
-      //caja.id = doc.id;
-      mov.cajaId = caja.id
-      mov.fotoCaja = caja;
-
-      if(mov.metodoPago == "efectivo"){
-        caja.totalEfectivo = Number(caja.totalEfectivo)+ Number(mov.monto);
-      }
-      if(mov.metodoPago == "credito"){
-        caja.totalCredito = Number(caja.totalCredito)+ Number(mov.monto);
-      }
-      if(mov.metodoPago == "debito"){
-        caja.totalDebito = Number(caja.totalDebito) + Number(mov.monto);
-      }
-     
-      
-
-      console.log(mov)
-    
-      const param = JSON.parse(JSON.stringify(mov));
-
-      if(mov.cajaId != ""){
-        const param1 = JSON.parse(JSON.stringify(caja));
-        this.cajasService.update(param1);
-        this.firestore.collection('comercios/'+comercioId+'/cajas/'+mov.cajaId+'/movimientos').doc(mov.id).set(
-          {...param,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        })  
-      }
-      else{
-        console.log('comercios/'+comercioId+'/movimientos')
-        this.firestore.collection('comercios/'+comercioId+'/movimientos').doc(mov.id).set(
-          {...param,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        })  
-      }
-     
-
-    //})
-     
-
-    
-  }
+  
 
   eliminarMovimientoCaja(caja:Caja,data:MovimientoCaja){  
 
-    var comercioId = localStorage.getItem('comercio_seleccionadoId');   
-
-    this.firestore.collection('comercios/'+comercioId+'/cajas/'+data.cajaId+'/movimientos').doc(data.id).delete();
+    this.afs.collection('comercios/'+this.comercioId+'/cajas/'+data.cajaId+'/movimientos').doc(data.id).delete();
       
     this.restarTotalCaja(data.cajaId,data.metodoPago,data.monto);
 
     if(data.depositoId != ""){  
       console.log("Eliminando Deposito también "+data.ctaCorrienteId+" "+data.depositoId)
       this.restarTotalCtaCorriente(data.ctaCorrienteId,data.monto);       
-      this.firestore.collection('comercios/'+comercioId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.depositoId).delete();
+      this.afs.collection('comercios/'+this.comercioId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.depositoId).delete();
     }
 
     if(data.extraccionId != ""){  
       console.log("Eliminando Extracción también "+data.ctaCorrienteId+" "+data.extraccionId)
       this.restarTotalCtaCorriente(data.ctaCorrienteId,data.monto);       
-      this.firestore.collection('comercios/'+comercioId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.extraccionId).delete();
+      this.afs.collection('comercios/'+this.comercioId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.extraccionId).delete();
     }
 
   }
@@ -116,11 +78,10 @@ export class MovimientosService {
   
  
   public restarTotalCaja(cajaId,metodo,monto){       
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
       
-    const sfDocRef = this.firestore.firestore.collection('comercios/'+comercio_seleccionadoId+'/cajas').doc(cajaId);
+    const sfDocRef = this.afs.firestore.collection('comercios/'+this.comercioId+'/cajas').doc(cajaId);
     
-      this.firestore.firestore.runTransaction(transaction => 
+      this.afs.firestore.runTransaction(transaction => 
         // This code may get re-run multiple times if there are conflicts.
         transaction.get(sfDocRef)
         .then(sfDoc => {
@@ -143,17 +104,15 @@ export class MovimientosService {
     }
 
     public getMovimientosCtaCorriente(ctaCorrienteId){
-      let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-      return this.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes/'+ctaCorrienteId+'/movimientos/', ref=>ref.orderBy('createdAt',"desc").limit(10)).snapshotChanges();
+      return this.afs.collection('comercios/'+this.comercioId+'/ctascorrientes/'+ctaCorrienteId+'/movimientos/', ref=>ref.orderBy('createdAt',"desc").limit(10)).snapshotChanges();
     }  
     
   
     public restarTotalCtaCorriente(ctaCorrienteId,monto){
-        let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
         
-        const sfDocRef = this.firestore.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes').doc(ctaCorrienteId);
+        const sfDocRef = this.afs.firestore.collection('comercios/'+this.comercioId+'/ctascorrientes').doc(ctaCorrienteId);
       
-        this.firestore.firestore.runTransaction(transaction => 
+        this.afs.firestore.runTransaction(transaction => 
           // This code may get re-run multiple times if there are conflicts.
           transaction.get(sfDocRef)
           .then(sfDoc => {
@@ -166,11 +125,10 @@ export class MovimientosService {
     }
   
     crearMovimientoCtaCorriente(data:MovimientoCtaCorriente){
-      let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
 
       console.log(data.ctaCorrienteId)
      
-      this.firestore.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes').doc(data.ctaCorrienteId).get().then(doc=>{
+      this.afs.firestore.collection('comercios/'+this.comercioId+'/ctascorrientes').doc(data.ctaCorrienteId).get().then(doc=>{
       
        
         let cta:CtaCorriente = new CtaCorriente("","");
@@ -186,7 +144,7 @@ export class MovimientosService {
 
         
         const param2 = JSON.parse(JSON.stringify(data));
-        this.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.id).set({...param2,
+        this.afs.collection('comercios/'+this.comercioId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.id).set({...param2,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
   
@@ -196,7 +154,6 @@ export class MovimientosService {
   
     eliminarMovimientoCtaCorriente(data:MovimientoCtaCorriente){  
   
-      let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
 
       this.restarTotalCtaCorriente(data.ctaCorrienteId,data.monto);
       console.log(data)
@@ -204,17 +161,17 @@ export class MovimientosService {
       if(data.pagoId != ""){
         console.log("Eliminando Pago también"+data.cajaId+" "+data.pagoId);
 
-       /* this.cajasService.get(comercio_seleccionadoId,data.cajaId).subscribe(snap=>{
+       /* this.cajasService.get(this.comercioId,data.cajaId).subscribe(snap=>{
           var caja:Caja = new Caja();
           caja.asignarValores(snap.payload.data())
           caja.id = snap.payload.id;*/
           this.restarTotalCaja(data.cajaId,data.metodoPago,data.monto);
-          this.firestore.collection('comercios/'+comercio_seleccionadoId+'/cajas/'+data.cajaId+'/movimientos').doc(data.pagoId).delete();
+          this.afs.collection('comercios/'+this.comercioId+'/cajas/'+data.cajaId+'/movimientos').doc(data.pagoId).delete();
         //})        
       }
   
       const param = JSON.parse(JSON.stringify(data));
-      this.firestore.collection('comercios/'+comercio_seleccionadoId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.id).delete();
+      this.afs.collection('comercios/'+this.comercioId+'/ctascorrientes/'+data.ctaCorrienteId+'/movimientos').doc(data.id).delete();
     } 
     
 

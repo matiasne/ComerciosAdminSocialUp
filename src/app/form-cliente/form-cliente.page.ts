@@ -6,7 +6,6 @@ import { File } from '@ionic-native/file/ngx';
 import { ActionSheetController, ModalController, NavController, AlertController, LoadingController, NavParams } from '@ionic/angular';
 import { Camera, CameraOptions} from '@ionic-native/Camera/ngx';
 import { ClientesService } from '../Services/clientes.service';
-import { DataService } from '../Services/data.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ListClientesPage } from '../list-clientes/list-clientes.page';
 import { AuthenticationService } from '../Services/authentication.service';

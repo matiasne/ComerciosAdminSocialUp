@@ -7,8 +7,9 @@ import { VentasService } from '../Services/ventas.service';
 import { LoadingService } from '../Services/loading.service';
 import { AlertController } from '@ionic/angular';
 import { Caja } from '../models/caja';
-import { MovimientoCaja } from '../models/movimientoCaja';
+import { EnumTipoMovimientoCaja, MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientosService } from '../Services/movimientos.service';
+import { Comercio } from '../models/comercio';
 
 @Component({
   selector: 'app-details-caja',
@@ -17,15 +18,18 @@ import { MovimientosService } from '../Services/movimientos.service';
 })
 export class DetailsCajaPage implements OnInit {
 
+  public enumTipoMovimientoCaja = EnumTipoMovimientoCaja
+  
   public items:MovimientoCaja[] = [];
   public caja:Caja;
-  public movSubs:Subscription;
   
   public totalGeneral = 0;
 
   public optionCaja = "";
 
   public fechaDesde = new Date();
+
+  public comercio:Comercio
 
   public totales = {
     efectivo: 0,
@@ -44,7 +48,7 @@ export class DetailsCajaPage implements OnInit {
     private route:ActivatedRoute,
     private comercioService:ComerciosService
   ) { 
-
+    this.comercio = new Comercio()
     this.caja = new Caja();
     this.caja.id = this.route.snapshot.params.id;
     this.fechaDesde.setDate(this.fechaDesde.getDate() - 1);
@@ -60,37 +64,14 @@ export class DetailsCajaPage implements OnInit {
   }
 
   refrescar(){
-    let comercio = this.comercioService.getSelectedCommerceValue()
-    if(comercio.modulos.movimientosCajas){
-      this.movSubs = this.movimientosService.getMovimientosCaja(this.caja.id,this.fechaDesde).subscribe(snapshot =>{
+    this.comercio = this.comercioService.getSelectedCommerceValue()
+    if(this.comercio.config.movimientosCajas){
+      this.movimientosService.getMovimientosCaja(this.caja.id,this.fechaDesde).subscribe(snapshot =>{
       
         this.items = [];
         snapshot.forEach((snap: any) => {  
-  
           var mov = snap.payload.doc.data();
-          mov.id = snap.payload.doc.id;   
-          
-          if(mov.monto > 0)
-            mov.pago =true;   
-          else
-            mov.egreso = true; 
-            
-          if(mov.isCierre){
-            mov.pago = false;   
-            mov.egreso = false; 
-            mov.cierre = true;
-            mov.apertura = false;
-          }    
-  
-          if(mov.isApertura){
-            mov.pago = false;   
-            mov.egreso = false; 
-            mov.cierre = false;
-            mov.apertura = true;
-          }    
-  
-          
-          
+          mov.id = snap.payload.doc.id;            
           this.items.push(mov);  
         });    
         console.log(this.items)     
@@ -100,22 +81,18 @@ export class DetailsCajaPage implements OnInit {
   }
 
   ionViewDidEnter(){
-
-    let cajaSub = this.cajasService.get(this.caja.id).subscribe(data=>{
-      this.caja.asignarValores(data);
-      console.log()
-      //cajaSub.unsubscribe();
-    })
-    this.refrescar();
     
-         
+    this.cajasService.get(this.caja.id).subscribe(data=>{
+      this.caja.asignarValores(data);
+      console.log("Cambiando valores de caja!")
+    })
+    this.refrescar();        
           
   }
 
 
   ionViewDidLeave(){
-    console.log("!!!!!!!!!!!LEAVE")
-    this.movSubs.unsubscribe();
+    
   }
   
   irEgreso(){

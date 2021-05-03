@@ -36,6 +36,7 @@
     "@ionic-native/file-transfer": "^5.31.1",
     "@ionic-native/google-plus": "^5.26.0",
     "@ionic-native/image-picker": "^5.26.0",
+    "@ionic-native/native-page-transitions": "^5.32.1",
     "@ionic-native/network": "^5.29.0",
     "@ionic-native/printer": "^5.31.1",
     "@ionic-native/speech-recognition": "^5.26.0",
@@ -44,6 +45,7 @@
     "@ionic/angular": "^5.0.0",
     "angularfire2": "^5.4.2",
     "call-number": "^1.0.1",
+    "com.telerik.plugins.nativepagetransitions": "^0.7.0",
     "cordova-android": "8.1.0",
     "cordova-browser": "6.0.0",
     "cordova-plugin-androidx": "^2.0.0",
@@ -128,7 +130,8 @@
       "cordova-plugin-network-information": {},
       "cordova-plugin-printer": {},
       "cordova-plugin-bluetooth-serial": {},
-      "cordova-plugin-file-transfer": {}
+      "cordova-plugin-file-transfer": {},
+      "com.telerik.plugins.nativepagetransitions": {}
     },
     "platforms": [
       "android"
