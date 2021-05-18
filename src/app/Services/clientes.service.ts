@@ -23,8 +23,8 @@ export class ClientesService extends BaseService {
       super(afs); 
       this.comerciosService.getSelectedCommerce().subscribe(data=>{
         // let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
-        if(data){
-         
+        if(data){         
+          console.log(data.id)
          this.setPath('comercios/'+data.id+'/clientes')   
         }
         
@@ -42,10 +42,6 @@ export class ClientesService extends BaseService {
       createdAt: firebase.firestore.FieldValue.serverTimestamp()});
            
     
-  }
-
-  public get(documentId: string){
-    return this.afs.collection(this.path).doc(documentId).snapshotChanges();
   }
 
   getByEmail(email){
@@ -133,7 +129,6 @@ export class ClientesService extends BaseService {
         return data;
       })
     )
-
   }
 
 }

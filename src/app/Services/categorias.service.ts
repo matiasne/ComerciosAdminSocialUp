@@ -4,6 +4,7 @@ import { snapshotChanges } from 'angularfire2/database';
 import { Categoria } from '../models/categoria';
 import { BaseService } from './base.service';
 import { ComerciosService } from './comercios.service';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,19 @@ export class CategoriasService extends BaseService {
       
      })
   }
+
+  public getByName(name){
+    return this.afs.collection(this.path,ref=>ref.where("nombre","==",name)).snapshotChanges().pipe(
+      map(changes => {
+          return changes.map(a => {
+              const data:any = a.payload.doc.data();
+              data.id = a.payload.doc.id;
+              data.fromCache = a.payload.doc.metadata.fromCache;
+              return data;
+          });
+      })
+    );   
+  }
   
   public create(categoria:Categoria) {   
     const param = JSON.parse(JSON.stringify(categoria));
@@ -36,14 +50,7 @@ export class CategoriasService extends BaseService {
 
   public getAll() {   
     return this.afs.collection(this.path).snapshotChanges();
+
   }
 
-  public update(categoria:Categoria) {
-    const param = JSON.parse(JSON.stringify(categoria));
-    return this.afs.collection(this.path).doc(categoria.id).set(param);
-  }
-
-  public delete(categoria) {
-    return this.afs.collection(this.path).doc(categoria.id).delete();
-  }
 }

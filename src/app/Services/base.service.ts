@@ -27,6 +27,7 @@ export class BaseService {
   
     public setPath(path){
       this.path = path;
+      console.log(this.path)
       this.collection = this.afs.collection(path);
     }
 
@@ -39,8 +40,8 @@ export class BaseService {
    
   
     get(identifier: string) {
-      console.log('[BaseService] get: '+this.collection+identifier);
-  
+      console.log('[BaseService] get: '+this.path+"/"+identifier);
+      
       return this.collection
           .doc(identifier) 
           .get()

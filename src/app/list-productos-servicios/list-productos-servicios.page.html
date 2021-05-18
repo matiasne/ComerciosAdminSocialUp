@@ -3,7 +3,25 @@
     <ion-buttons slot="start">
       <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
-    <!--ion-title>Catálogo</ion-title-->   
+    <ion-title>Catálogo</ion-title>   
+    <ion-button *ngIf="connectionStatus == 'offline'" fill="clear" color="danger" slot="end">
+      <ion-icon name="cloud-offline"></ion-icon>
+    </ion-button>  
+    <ion-button *ngIf="connectionStatus == 'online'" fill="clear" color="success" slot="end">
+      <ion-icon name="cloud-done-outline"></ion-icon>
+    </ion-button>    
+    
+    <ion-button *ngIf="countNotificaciones == 0" fill="clear" color="primary" slot="end">
+      <ion-icon name="notifications-outline"></ion-icon>
+    </ion-button>  
+    <ion-button *ngIf="countNotificaciones != 0" fill="clear" color="primary" slot="end">
+      <ion-icon name="notifications"></ion-icon>
+    </ion-button> 
+  </ion-toolbar>
+</ion-header> 
+  
+<ion-content class="ion-padding">  
+ 
     <ion-searchbar animated *ngIf="itemsAllProductos.length > 0" class="FadeOut FadeIn"
       placeholder="Buscar por nombre o categoría"
       animated="true"
@@ -16,16 +34,7 @@
       debounce="50"
       value="{{palabraFiltro}}"
       (ionChange)="buscar($event)">
-    </ion-searchbar>        
-  </ion-toolbar>
-</ion-header> 
-  
-<ion-content class="ion-padding">  
- 
-    <!--ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
-      <ion-refresher-content></ion-refresher-content>
-    </ion-refresher-->
-
+    </ion-searchbar> 
     
     <ion-grid *ngIf="itemsAllProductos.length > 0">       
         <ion-row>          
@@ -49,7 +58,7 @@
             </ion-item>
           </ion-col>          
 
-          <ion-col size="12" size-xs="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let producto of itemsProductos">           
+          <ion-col size="12" size-xs="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let producto of itemsRenderProductos">           
 
             <ion-item-sliding class="item-card fivePhasesFadeIn" (ionDrag)="onDrag($event,producto)"> 
               <app-card-producto   
@@ -109,15 +118,19 @@
     <p >No existe un producto con ese nombre! Agrega uno nuevo.</p>
   </div>
 
-  <div class="space">
-    
-  </div> 
-
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="verMas()">
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Cargando más productos...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 
 </ion-content>
 
 <ion-footer class="ion-no-border ion-padding" *ngIf="carrito.on" style="padding: 0px;"> 
   <ion-toolbar>
-    <ion-button class="margin0 button-rounded" style="height: 60px;" color="success" (click)="siguiente()">{{carrito.productos.length}} Items = {{carritoService.getTotal() | currency}} <ion-icon name="arrow-forward"></ion-icon></ion-button>
+    <ion-button class="margin0 button-rounded" style="height: 60px;" color="success" (click)="siguiente()">
+      <ion-icon name="cart-outline"></ion-icon>{{carrito.productos.length}} = {{carritoService.getTotal() | currency}} <ion-icon name="arrow-forward"></ion-icon>
+    </ion-button>
   </ion-toolbar> 
 </ion-footer>

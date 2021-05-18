@@ -28,14 +28,19 @@
     <p>Cargando comandas, aguarde unos segundos por favor</p>
   </div>
 
-  <div *ngIf="!buscando && clientes.length == 0" class="mensaje FadeOut FadeIn">
+  <div *ngIf="!buscando && itemsAll.length == 0" class="mensaje FadeOut FadeIn">
     <img src="../../assets/img/clientes.fw.png" alt="">
     <p>Aún no tienes clientes</p>
   </div>
 
+  <div *ngIf="!buscandoProductos && itemsRenderizar.length == 0" class="mensaje FadeOut FadeIn">
+    <img src="../../assets/img/producto.png" alt="">
+    <p >No existe un cliente con ese nombre! Agrega uno nuevo.</p>
+  </div>
+
   <ion-list lines="none">   
     
-    <ion-item-sliding *ngFor="let item of clientes" class="item-card" >    
+    <ion-item-sliding *ngFor="let item of itemsRenderizar" class="item-card" >    
 
         <ion-item (click)="seleccionar(item)" >
           <div slot="start">
@@ -54,16 +59,16 @@
       
       </ion-item-sliding>
 
- 
+      <ion-infinite-scroll threshold="100px" (ionInfinite)="verMas()">
+        <ion-infinite-scroll-content
+          loadingSpinner="bubbles"
+          loadingText="Cargando más productos...">
+        </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+
   </ion-list>
 
-  <ion-infinite-scroll threshold="100px" (ionInfinite)="verMas()">
-    <ion-infinite-scroll-content
-      loadingSpinner="bubbles"
-      loadingText="Cargando más trabajos...">
-    </ion-infinite-scroll-content>
-  </ion-infinite-scroll>
-
+  
   <!-- fab placed to the bottom end -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" (click)="nuevo()">
     <ion-fab-button>
@@ -71,6 +76,13 @@
     </ion-fab-button>
   </ion-fab>
 
-  
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="verMas()">
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Cargando más clientes...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+
 </ion-content>
 

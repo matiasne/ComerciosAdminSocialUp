@@ -6,12 +6,13 @@
           <ion-list-header *ngIf="comercioSeleccionado.id">{{comercioSeleccionado.nombre}}</ion-list-header>
           <ion-note *ngIf="usuario">{{usuario.email}}</ion-note>
           <!--ion-buttons slot="primary"-->
-          <ion-button *ngIf="usuario.state == 'online'" class="button-rounded"  color="secondary">
-            Modo {{usuario.state}}
+          <ion-button *ngIf="connectionStatus == 'online'" class="button-rounded"  color="success">
+            <ion-icon name="cloud-done-outline"></ion-icon>
           </ion-button>
-          <ion-button  *ngIf="usuario.state == 'offline'" class="button-rounded"  color="danger">
-            Modo {{usuario.state}} 
+          <ion-button  *ngIf="connectionStatus == 'offline'" class="button-rounded"  color="danger">
+            <ion-icon name="cloud-offline-outline"></ion-icon>
           </ion-button>
+
           <!--/ion-buttons-->
         </ion-list>
         <ion-list id="inbox-list" *ngIf="comercioSeleccionado.id">          

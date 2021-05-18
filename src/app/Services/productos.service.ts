@@ -12,6 +12,7 @@ import { KeywordService } from './keyword.service';
 })
 export class ProductosService extends BaseService {
 
+  private woocommerceSyncPath =""
   constructor(
     protected afs: AngularFirestore,
     private comerciosService:ComerciosService
@@ -19,13 +20,34 @@ export class ProductosService extends BaseService {
     super(afs);   
     this.comerciosService.getSelectedCommerce().subscribe(data=>{
      // let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
-     if(data){
-      
-      this.setPath('comercios/'+data.id+'/productos') 
-     }
-     
+      if(data){      
+        this.setPath('comercios/'+data.id+'/productos') 
+      }     
     })
       
+  }
+
+  getWoocommerceValue(productoId){
+    this.woocommerceSyncPath = this.path+'/'+productoId+'/woocommerce'
+    return this.afs.collection(this.woocommerceSyncPath).doc("1").get()
+    .pipe(
+        map(doc => {
+            if (doc.exists) {
+        /* workaround until spread works with generic types */
+                const data = doc.data() as any;
+                const id = doc.id;
+                data.fromCache = doc.metadata.fromCache;
+                return { id, ...data };
+            }
+        })
+    ); 
+  }
+
+  updateWoocommerceValues(productoId,values){
+    this.woocommerceSyncPath = this.path+'/'+productoId+'/woocommerce'
+    this.afs.collection(this.woocommerceSyncPath).doc("1").set(values).then(data=>{
+      console.log("Actualizados los valores de woocommerce")
+    })
   }
 
 
@@ -34,8 +56,18 @@ export class ProductosService extends BaseService {
     return 'comercios/'+comercio_seleccionadoId+'/productos';
   }
 
-  getByWocoommerceId(id){
-    return this.afs.collection(this.path, ref =>  ref.where('woocommerce.id','==',id)).get().toPromise()
+  
+  public getByName(name){
+    return this.afs.collection(this.path,ref=>ref.where("nombre","==",name)).snapshotChanges().pipe(
+      map(changes => {
+          return changes.map(a => {
+              const data:any = a.payload.doc.data();
+              data.id = a.payload.doc.id;
+              data.fromCache = a.payload.doc.metadata.fromCache;
+              return data;
+          });
+      })
+    );   
   }
 
   

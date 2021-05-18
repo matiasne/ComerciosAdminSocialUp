@@ -51,25 +51,21 @@
       <ion-input type="text" [(ngModel)]="comercio.woocommerce.consumerSecret" (ionChange)="cambiado()"></ion-input>
     </ion-item>
 
-    <ion-grid>
+    <!--ion-button class="button-rounded" slot="end"  color="success" (click)="guardar()">Guardar</ion-button-->
+
+    <ion-button *ngIf="!conexionOk" class="button-rounded" color="primary" (click)="test()">Probar Conexión</ion-button>
+    <ion-button *ngIf="conexionOk" class="button-rounded" color="success" (click)="test()">Probar Conexión</ion-button>
+    <!--ion-grid>
       <ion-row>
         <ion-col>
-          <ion-button class="button-rounded" color="primary" (click)="probar()">Probar Conexión</ion-button>
+        
         </ion-col>
         
       </ion-row>
       <ion-row>
-        <ion-col>
-         Sincronizar Productos
-        </ion-col>
-        <!--ion-col>
-          <ion-button class="button-rounded" color="success" (click)="downloadData()" [disabled]="progresoReceived != 0" ><ion-icon name="cloud-download-outline"></ion-icon></ion-button>
-        </ion-col-->
-        <ion-col>
-          <ion-button class="button-rounded" color="success" (click)="uploadData()" [disabled]="progresoReceived != 0" ><ion-icon name="cloud-upload-outline"></ion-icon></ion-button>
-        </ion-col>
+          <ion-button class="button-rounded" color="success" (click)="sincronizar()" [disabled]="progresoReceived != 0" ><ion-icon name="sync-outline"></ion-icon> Sincronizar</ion-button>
       </ion-row>
-    </ion-grid>
+    </ion-grid-->
     
 </div>  
 <ion-progress-bar *ngIf="progresoSend != 0"  [value]="progresoReceived" [buffer]="progresoSend"></ion-progress-bar>
@@ -79,7 +75,7 @@
 </ion-content>
 <ion-footer>
   <ion-toolbar>   
-    <ion-button class="button-rounded" slot="start"  color="danger" (click)="cancelar()">Cancelar</ion-button>
-    <ion-button class="button-rounded" slot="end"  color="success" (click)="guardar()">Guardar</ion-button>
+    <ion-button class="button-rounded" slot="start"  color="light" (click)="cancelar()">Volver</ion-button>
+    <ion-button  class="button-rounded" slot="end" color="primary" (click)="guardar()">Guardar</ion-button>
   </ion-toolbar> 
 </ion-footer>

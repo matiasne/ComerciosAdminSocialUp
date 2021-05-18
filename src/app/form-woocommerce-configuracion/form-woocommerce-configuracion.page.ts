@@ -5,6 +5,9 @@ import { Comercio } from '../models/comercio';
 import { ComerciosService } from '../Services/comercios.service';
 import { LoadingService } from '../Services/loading.service';
 import { ProductosService } from '../Services/productos.service';
+import { ToastService } from '../Services/toast.service';
+import { CategoriesService } from '../Services/woocommerce/categories.service';
+import { WebhooksService } from '../Services/woocommerce/webhooks.service';
 import { WoocommerceService } from '../Services/woocommerce/woocommerce.service';
 import { WordpressService } from '../Services/wordpress/wordpress.service';
 
@@ -36,7 +39,10 @@ export class FormWoocommerceConfiguracionPage implements OnInit {
     private woocommerceService:WoocommerceService,
     private wordpressService:WordpressService,
     private alertController:AlertController,
-    private loadingService:LoadingService
+    private loadingService:LoadingService,
+    private WCCategoriesService:CategoriesService,
+    private webhooksService:WebhooksService,
+    private toastService:ToastService
   ) { 
     this.comercio = new Comercio()
 
@@ -61,25 +67,77 @@ export class FormWoocommerceConfiguracionPage implements OnInit {
     this.navCtrl.back()
   }
 
-  guardar(){
+  async guardar(){
+
+    
+    this.loadingService.presentLoadingText("Guardando")
     this.comerciosService.update(this.comercio).then(data=>{     
-      this.navCtrl.back()      
+      this.loadingService.dismissLoading()
+      this.navCtrl.back()
     });    
   }
 
-  probar(){
-    this.progresoSend = 0;
-    this.progresoReceived = 0; 
+  test(){
+    this.loadingService.presentLoadingText("Guardando")
+    this.comerciosService.update(this.comercio).then(data=>{     
+      this.loadingService.dismissLoading()
+      this.conectar()
+    }); 
   }
 
-  uploadData(){
-    alert("Falta sync webhooks")
+  async conectar(){
+
+    try{
+      await this.wordpressService.login()
+    }
+    catch(err){
+      console.log(err)
+      
+
+      if(err.status == 0){
+        this.toastService.alert("Error","No se puede conectar con la URL")
+      }
+      else{
+        this.toastService.alert("Error",err.error.message)
+      }
+      return false
+    }
+
+    
+    this.loadingService.presentLoadingText("Probando conexión...")
+    this.woocommerceService.getAll().then(data=>{
+      console.log(data)
+      this.conexionOk = true;
+      this.loadingService.dismissLoading();
+    },err=>{
+      console.log(err)
+      if(err.status == 0){
+        this.toastService.alert("Error","No se puede conectar con la URL")
+      }
+      else{
+        this.toastService.alert("Error",err.error.message)
+      }
+      this.conexionOk = false;
+      this.loadingService.dismissLoading();
+    })
+  }
+
+ /* async sincronizar(){
     this.actualizar = false;
     this.progresoReceived = 0;
-    this.progresoSend = 0;
-    console.log("!!!")    
-    this.woocommerceService.syncFirebaseToWC()    
-  }
+    this.progresoSend = 0; 
+    
+    await this.webhooksService.pause()
+    await this.webhooksService.sincronizar()
+
+    let resp = await this.WCCategoriesService.syncFirebaseToWC()   
+   // console.log(resp)
+    resp = await this.woocommerceService.syncFirebaseToWC()  
+  //  console.log(resp)
+    await this.webhooksService.enable()
+    
+  }*/
+
 
   downloadData(){
     
@@ -97,9 +155,7 @@ export class FormWoocommerceConfiguracionPage implements OnInit {
       buttons: [
         {
           text: 'Ok',
-          handler: () => {  
-            if(this.conexionOk)
-              this.preguntarSincronizar()                
+          handler: () => {                
           }
         }
       ]
@@ -112,24 +168,5 @@ export class FormWoocommerceConfiguracionPage implements OnInit {
   }
 
 
-  async preguntarSincronizar(){
-    const alert = await this.alertController.create({
-      header: 'Sincronizar',
-      message: 'Debe sincronizar sus productos con Woocommerce, este proceso puede demorar unos minutos. Desea realizarlo?',
-      buttons: [
-        { 
-          text: 'No',
-          handler: (blah) => {
-          }
-        }, {
-          text: 'Si',
-          handler: () => {           
-            this.uploadData()        
-          }
-        }
-      ]
-    });
-    await alert.present();    
-  }
   
 }

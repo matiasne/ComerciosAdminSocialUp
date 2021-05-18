@@ -12,6 +12,7 @@ import { NavegacionParametrosService } from '../Services/global/navegacion-param
 import { LoadingService } from '../Services/loading.service';
 import { PedidoService } from '../Services/pedido.service';
 import { PedidosWoocommerceService } from '../Services/pedidos-woocommerce.service';
+import { UsuariosService } from '../Services/usuarios.service';
 import { OrdersService } from '../Services/woocommerce/orders.service';
 
 @Component({
@@ -43,6 +44,8 @@ export class ListPedidosPage implements OnInit {
 
   public pedidosObs:any
 
+  public connectionStatus = "offline"
+
   constructor(
     private pedidosService:PedidoService,
     private alertController:AlertController,
@@ -53,14 +56,20 @@ export class ListPedidosPage implements OnInit {
     public authService:AuthenticationService,
     public changeRef:ChangeDetectorRef,
     public navParametrosService:NavegacionParametrosService,
-    public pedidosWoocommerceService:PedidosWoocommerceService
+    public pedidosWoocommerceService:PedidosWoocommerceService,
+    private usuariosServices:UsuariosService
   ) { }
 
   ngOnInit() {
     this.authService.userRol.subscribe(rol =>{
       this.userRol = rol; 
     })
-    this.fechaDesde.setDate(this.fechaDesde.getDate() - 2);     
+    this.fechaDesde.setDate(this.fechaDesde.getDate() - 2);    
+    
+    this.usuariosServices.getConnectionStatus().subscribe(data=>{
+      this.connectionStatus = data
+    })
+
   }
 
   ionViewDidEnter(){ 

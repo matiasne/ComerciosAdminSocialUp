@@ -63,7 +63,7 @@ public upsell_ids:number[]
 public cross_sell_ids:number[]
 public parent_id:number
 public purchase_note:string 
-public categories:WCCategory[]
+public categories:any[]
 public tags: []
 public images:any[] 
 public attributes:any[]

@@ -153,7 +153,7 @@ export class FormComercioPage implements OnInit {
       this.updating = true;
       this.titulo = "Editar Comercio";
 
-      this.croppedImageIcono = this.comercio.icono;        
+      this.croppedImageIcono = this.comercio.icono.url;        
       
       this.horarios = this.comercio.horarios;
 
@@ -197,7 +197,7 @@ export class FormComercioPage implements OnInit {
   
   get f() { return this.datosForm.controls; }
 
-  guardar(){
+  async guardar(){
 
     this.submitted = true;   
 
@@ -243,27 +243,29 @@ export class FormComercioPage implements OnInit {
    
     if(this.updating == false){ 
       this.comercio.id = this.firestore.createId();
-      this.comerciosService.create(this.comercio).then(data=>{
+      this.comerciosService.create(this.comercio).then(async data=>{
 
 
         if(this.iconChange){
-          let blob = this.imageService.getBlob(this.croppedImageIcono) 
-          console.log("subiendo archivo");          
-          this.fotosService.cargarFotoAElemeto("comercios",this.comercio.id,this.croppedImageIcono,true)
+          let blob = this.imageService.getBlob(this.croppedImageIcono)
+          let file = await this.fotosService.uploadImagen(this.comercio.id,blob)
+          let json = JSON.parse(JSON.stringify(file))
+          this.comercio.icono = json    
         }
         
       });
       //let user = this.authenticationService.getActualUser();
       this.rolesService.setUserAsAdmin(this.comercio.id);
     }
-    else{
+    else{ 
       
       this.comerciosService.update(this.comercio);
 
       if(this.iconChange){
-        let blob = this.imageService.getBlob(this.croppedImageIcono) 
-        console.log("subiendo archivo");          
-        this.fotosService.cargarFotoAElemeto("comercios",this.comercio.id,this.croppedImageIcono,true)
+        let blob = this.imageService.getBlob(this.croppedImageIcono)
+          let file = await this.fotosService.uploadImagen(this.comercio.id,blob)
+          let json = JSON.parse(JSON.stringify(file))
+          this.comercio.icono = json    
       }
 
       this.modalCtrl.dismiss();

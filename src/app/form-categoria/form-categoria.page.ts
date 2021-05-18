@@ -117,7 +117,7 @@ export class FormCategoriaPage implements OnInit {
         }, {
           text: 'Eliminar',
           handler: () => {
-            this.categoriasService.delete(this.categoria);
+            this.categoriasService.delete(this.categoria.id);
             this.modalCtrl.dismiss();
           }
         }

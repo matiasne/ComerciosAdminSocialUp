@@ -4,6 +4,9 @@
       <ion-back-button></ion-back-button>
     </ion-buttons>
     <ion-title>Detalle Pedido</ion-title>    
+    <ion-button fill="clear" (click)="preguntarVaciar()" color="danger" slot="end">
+      <ion-icon name="trash"></ion-icon>
+    </ion-button>
   </ion-toolbar>
 </ion-header>
 
@@ -23,7 +26,7 @@
       <ion-col size="6" *ngIf="comercio.config.clientes">
         <ion-button class="button-rounded"  *ngIf="!cliente.id" (click)="seleccionarCliente()"><ion-icon name="add"></ion-icon> Cliente</ion-button>
     
-        <ion-item-sliding *ngIf="pedido.clienteId">
+        <ion-item-sliding *ngIf="cliente.id">
           <app-card-usuario
             [cliente]="cliente"
             (select)="seleccionarCliente()">
@@ -85,6 +88,7 @@
           [item]="producto"  
           [showStock]="false" 
           [showImage]="false"
+          [showEnCarrito]="false"
           [multiplicador]="1" 
         ></app-card-producto>        
         <ion-item-options side="end" *ngIf="pedido.statusCobro == cEstado.pendiente">
@@ -149,6 +153,10 @@
       <br>
       <ion-fab-button (click)="imprimir()">
         <ion-icon name="print-outline"></ion-icon>
+      </ion-fab-button>
+      <br>
+      <ion-fab-button (click)="facturar()">
+        <ion-icon name="document-outline"></ion-icon>
       </ion-fab-button>
     </ion-fab>
    

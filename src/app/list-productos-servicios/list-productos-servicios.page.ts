@@ -1,5 +1,5 @@
-import { Component, OnInit} from '@angular/core';
-import { ModalController, LoadingController, AlertController, NavController, Platform } from '@ionic/angular';
+import { Component, OnInit, ViewChild} from '@angular/core';
+import { ModalController, LoadingController, AlertController, NavController, Platform, IonInfiniteScroll } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductosService } from '../Services/productos.service';
 import { Subscription } from 'rxjs';
@@ -33,6 +33,8 @@ import { NavegacionParametrosService } from '../Services/global/navegacion-param
 import { WoocommerceService } from '../Services/woocommerce/woocommerce.service';
 import { WordpressService } from '../Services/wordpress/wordpress.service';
 import { Producto } from '../models/producto';
+import { UsuariosService } from '../Services/usuarios.service';
+import { NotifificacionesAppService } from '../Services/notifificaciones-app.service';
 
 
 @Component({
@@ -42,16 +44,16 @@ import { Producto } from '../models/producto';
 })
 export class ListProductosServiciosPage implements OnInit {
 
-  /*slideOpts = {
-    slidesPerView: 3,
-    initialSlide: 2,
-    speed: 400
-  };*/
-
+  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
+  
   comercio:Comercio;
+
   itemsAllProductos:any=[];
   itemsProductos:any = [];
-  
+  itemsRenderProductos:any = [] 
+
+  itemsPerPage = 20
+  itemsRenderizados = 0;
 
   public carrito:any
 
@@ -84,6 +86,9 @@ export class ListProductosServiciosPage implements OnInit {
   public dragAgregar = false;
   public dragEvent:any
 
+  public connectionStatus = "offline"
+  public countNotificaciones = 0
+
   constructor(
     public loadingController: LoadingController,
     private router: Router,
@@ -106,11 +111,21 @@ export class ListProductosServiciosPage implements OnInit {
     private authenticationService:AuthenticationService,
     private navParametrosService:NavegacionParametrosService,
     private platform:Platform,
-    private wordpressService:WordpressService
+    private wordpressService:WordpressService,
+    private usuariosServices:UsuariosService,
+    private notificacionesAppService:NotifificacionesAppService
     
   ) { 
-
     
+    this.notificacionesAppService.getSinLeer(this.usuariosServices.usuarioLogueado).subscribe(snapshot =>{
+      console.log(snapshot.length)
+      this.countNotificaciones = snapshot.length;
+    }) 
+
+
+    this.usuariosServices.getConnectionStatus().subscribe(data=>{
+      this.connectionStatus = data
+    })
 
     this.AuthenticationService.observeRol().subscribe(data=>{
       if(data=="Administrador"){
@@ -136,6 +151,9 @@ export class ListProductosServiciosPage implements OnInit {
         event.target.complete();
       }, 500);
   }
+
+
+  
 
 
   ngOnInit() {
@@ -202,8 +220,46 @@ export class ListProductosServiciosPage implements OnInit {
     }) 
   }
 
+  verMas(){
+
+    console.log("!!!!! Lazy")
+    
+    if(this.itemsRenderizados < this.itemsPerPage){
+      console.log("No hay más!!!"+this.itemsRenderizados)
+      this.infiniteScroll.complete();
+      this.infiniteScroll.disabled = true;
+      return;
+    }
+
+    let start = this.itemsRenderizados;
+   
+    for(let i=start; i < start+this.itemsPerPage;i++){
+
+      if(this.itemsProductos[i] == undefined){
+        console.log("No hay más!!! fuera del array"+this.itemsRenderizados)
+        this.infiniteScroll.complete();
+        this.infiniteScroll.disabled = true;
+        return;
+      }
+      
+      if(this.itemsProductos[i].id){
+        this.itemsRenderProductos.push(this.itemsProductos[i])
+        this.itemsRenderizados +=1;
+        console.log("pushing to render") 
+      }
+     
+    }
+    this.infiniteScroll.complete();
+
+
+  }
+
 
   buscar(event){ 
+
+    this.itemsRenderProductos = []
+    this.itemsRenderizados = 0
+    this.infiniteScroll.disabled = false;
     
     if(event)
       this.palabraFiltro = event.target.value;     
@@ -215,7 +271,7 @@ export class ListProductosServiciosPage implements OnInit {
 
       this.itemsProductos = [];
       
-      this.itemsAllProductos.forEach(item => {      
+      this.itemsAllProductos.forEach((item) => {      
   
         var encontrado = false;
         if(item.nombre){
@@ -232,15 +288,18 @@ export class ListProductosServiciosPage implements OnInit {
 
         if(item.barcode){
           if(item.barcode.includes(palabra)){
-            //this.itemsProductos.push(item);
-            //return;
             encontrado = true;
           }            
-        }
-        
+        }       
   
         if(encontrado){
+          console.log("agregado a itemsProducto "+item.id)
           this.itemsProductos.push(item);
+          if(this.itemsRenderProductos.length < this.itemsPerPage){
+            console.log("Renderizando"+item.id)
+            this.itemsRenderProductos.push(item)
+            this.itemsRenderizados += 1
+          }
           return true;
         }
       });
@@ -265,6 +324,19 @@ export class ListProductosServiciosPage implements OnInit {
     }
     else{      
       this.itemsProductos = this.itemsAllProductos;
+      for(let i=0; i < this.itemsPerPage;i++){
+      
+        if(this.itemsProductos[i]){
+          this.itemsRenderProductos.push(this.itemsProductos[i])
+          this.itemsRenderizados +=1;
+        }
+        else{
+          console.log("No hay más!!! fuera del array"+this.itemsRenderizados)
+          this.infiniteScroll.complete();
+          this.infiniteScroll.disabled = true;
+          return;
+        }
+      }
     }    
    
     this.changeRef.detectChanges()    
@@ -326,10 +398,7 @@ export class ListProductosServiciosPage implements OnInit {
 
   onDrag(event,producto){
     event.target.getSlidingRatio().then(res=> {
-      console.log(res)
-
       if(res < -0.8){
-        console.log("agregar true")
         this.dragAgregar = true
         this.dragEvent = event.target   
 
@@ -353,7 +422,6 @@ export class ListProductosServiciosPage implements OnInit {
 
 
   onDrop2(producto){
-    console.log("DROP")
     if(this.dragAgregar){
      
       this.dragAgregar = false
@@ -408,6 +476,8 @@ export class ListProductosServiciosPage implements OnInit {
 
   async agregarProducto(producto:Producto){   
 
+    
+
     const modal = await this.modalCtrl.create({
       component: AddProductoVentaPage,
       componentProps:{
@@ -419,19 +489,12 @@ export class ListProductosServiciosPage implements OnInit {
     
     .then((retorno) => { 
 
-      this.palabraFiltro ="";    
-      this.loadingService.presentLoading()
-      setTimeout(()=>{ 
-        this.loadingService.dismissLoading()
-      }, 100);
-      
-   
-
       if(retorno.data){   
         producto.enCarrito += retorno.data.cantidad;
         delete retorno.data.keywords;
         //producto.cantidad = retorno.data.cantidad
         //producto.opcionesSeleccionadas = retorno.data.opcionesSeleccionadas
+        this.toastServices.mensaje("Producto "+producto.nombre+" Agregado al carrito","");
         this.carritoService.agregarProducto(retorno.data);    
         //this.marcarEnCarrito();         
       }else{
@@ -442,6 +505,8 @@ export class ListProductosServiciosPage implements OnInit {
     });
 
     await modal.present();
+
+    this.palabraFiltro ="";    
   }
 
   async agregarDescuento(){
@@ -481,7 +546,7 @@ export class ListProductosServiciosPage implements OnInit {
     if(this.comercio.config.cobrarDirectamente)
       this.cobrarDirectamente()
     else
-      this.verCarrito();
+      this.verCarrito(); 
   }
 
   async verCarrito(){

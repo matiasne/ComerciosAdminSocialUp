@@ -1,5 +1,5 @@
-import { Component, OnInit} from '@angular/core';
-import { ModalController, LoadingController, AlertController, NavController, Platform } from '@ionic/angular';
+import { Component, OnInit, ViewChild} from '@angular/core';
+import { ModalController, LoadingController, AlertController, NavController, Platform, IonInfiniteScroll } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductosService } from '../Services/productos.service';
 import { Subscription } from 'rxjs';
@@ -32,10 +32,18 @@ import { WoocommerceService } from '../Services/woocommerce/woocommerce.service'
 })
 export class SelectProductPage implements OnInit {
 
+  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
+  
   comercio:Comercio;
-  categorias = []
+
   itemsAllProductos:any=[];
   itemsProductos:any = [];
+  itemsRenderProductos:any = [] 
+
+  itemsPerPage = 20
+  itemsRenderizados = 0;
+  
+  categorias = []
   
   public subsItemsProd: Subscription;
   public subsComercio: Subscription;
@@ -100,9 +108,45 @@ export class SelectProductPage implements OnInit {
 
     this.obtenerTodo();      
   }
+
+  verMas(){
+
+    console.log("!!!!! Lazy")
+    
+    if(this.itemsRenderizados < this.itemsPerPage){
+      console.log("No hay más!!!"+this.itemsRenderizados)
+      this.infiniteScroll.complete();
+      this.infiniteScroll.disabled = true;
+      return;
+    }
+
+    let start = this.itemsRenderizados;
+   
+    for(let i=start; i < start+this.itemsPerPage;i++){
+
+      if(this.itemsProductos[i] == undefined){
+        console.log("No hay más!!! fuera del array"+this.itemsRenderizados)
+        this.infiniteScroll.complete();
+        this.infiniteScroll.disabled = true;
+        return;
+      }
+      
+      if(this.itemsProductos[i].id){
+        this.itemsRenderProductos.push(this.itemsProductos[i])
+        this.itemsRenderizados +=1;
+        console.log("pushing to render") 
+      }
+     
+    }
+    this.infiniteScroll.complete();
+  }
  
 
   buscar(event){ 
+
+    this.itemsRenderProductos = []
+    this.itemsRenderizados = 0
+    this.infiniteScroll.disabled = false;
     
     if(event)
       this.palabraFiltro = event.target.value;     
@@ -136,18 +180,37 @@ export class SelectProductPage implements OnInit {
             encontrado = true;
           }            
         }
-        
-  
+
         if(encontrado){
+          console.log("agregado a itemsProducto "+item.id)
           this.itemsProductos.push(item);
+          if(this.itemsRenderProductos.length < this.itemsPerPage){
+            console.log("Renderizando"+item.id)
+            this.itemsRenderProductos.push(item)
+            this.itemsRenderizados += 1
+          }
           return true;
         }
+        
       });
 
       
     }
     else{      
       this.itemsProductos = this.itemsAllProductos;
+      for(let i=0; i < this.itemsPerPage;i++){
+      
+        if(this.itemsProductos[i]){
+          this.itemsRenderProductos.push(this.itemsProductos[i])
+          this.itemsRenderizados +=1;
+        }
+        else{
+          console.log("No hay más!!! fuera del array"+this.itemsRenderizados)
+          this.infiniteScroll.complete();
+          this.infiniteScroll.disabled = true;
+          return;
+        }
+      }
     }    
    
     this.changeRef.detectChanges()    

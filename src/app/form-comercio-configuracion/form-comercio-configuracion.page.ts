@@ -39,9 +39,7 @@ export class FormComercioConfiguracionPage implements OnInit {
   ngOnInit() {
     this.comerciosService.getSelectedCommerce().subscribe(data=>{
       this.comercio.asignarValores(data);
-    });
-
-    
+    });    
   } 
 
   ionViewDidEnter(){

@@ -98,8 +98,7 @@ export class FormClientePage implements OnInit {
 
       this.clienteSubs = this.clientesService.get(this.navParams.get('id')).subscribe(data=>{
         
-        this.cliente.asignarValores(data.payload.data());
-        this.cliente.id = data.payload.id;
+        this.cliente = data;
         
         this.croppedImagepath = this.cliente.foto;
         

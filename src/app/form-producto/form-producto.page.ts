@@ -11,7 +11,6 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Producto } from '../models/producto';
 import { FormCategoriaPage } from '../form-categoria/form-categoria.page';
-import { LoadingService } from '../Services/loading.service';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { ToastService } from '../Services/toast.service';
 import { FormProductoGrupoOpcionesPage } from '../form-producto-grupo-opciones/form-producto-grupo-opciones.page';
@@ -22,9 +21,12 @@ import { FotoService } from '../Services/fotos.service';
 import { ComerciosService } from '../Services/comercios.service';
 import { ImagesService } from '../Services/images.service';
 import { Archivo } from '../models/foto';
-import { WoocommerceService } from '../Services/woocommerce/woocommerce.service';
 import { FormStockPage } from '../form-stock/form-stock.page';
 import { Comercio } from '../models/comercio';
+import { DetailsImagePage } from '../details-image/details-image.page';
+import { WoocommerceService } from '../Services/woocommerce/woocommerce.service';
+import { LoadingService } from '../Services/loading.service';
+import { WoocommerceSyncData } from '../models/woocommerceSyncData';
 
 @Component({
   selector: 'app-form-producto',
@@ -56,12 +58,15 @@ export class FormProductoPage implements OnInit {
   public updating:boolean = false;
   public titulo = "Nuevo Producto";
 
-  public producto:Producto;
+  public producto:Producto; 
   public croppedImageIcono ="";
 
-  public fotos = []
+  public imagenesNuevas = []
 
   public comercio:Comercio
+
+  public flagWoocommerce = false
+  public woocommerceSyncData:WoocommerceSyncData
   
   constructor(
     private formBuilder: FormBuilder,
@@ -77,7 +82,6 @@ export class FormProductoPage implements OnInit {
     private route: ActivatedRoute,
     public alertController: AlertController,
     private navCtrl: NavController, 
-    private loaadingService:LoadingService,
     private router:Router,
     private firestore: AngularFirestore,
     private toastServices:ToastService,
@@ -87,15 +91,14 @@ export class FormProductoPage implements OnInit {
     public fotosService:FotoService,
     public comercioService:ComerciosService,
     public imageService:ImagesService,
-    public woocommerceService:WoocommerceService,
-    private modalCtrl:ModalController
+    private modalCtrl:ModalController,
+    private loadingService:LoadingService
   ) { 
 
     this.comercio = new Comercio()
-
     this.comercio.asignarValores(this.comercioService.getSelectedCommerceValue())
-
     this.producto = new Producto();
+    this.woocommerceSyncData = new WoocommerceSyncData()
 
     this.datosForm = this.formBuilder.group({
       nombre: ['', Validators.required],
@@ -107,7 +110,7 @@ export class FormProductoPage implements OnInit {
       valorPor:[1],
       stock: [1, Validators.required],
       descripcion:[''],
-      cocinaId:['', Validators.required],
+      cocinaId:[''],
       categorias:[''],
       foto:[''],
       createdAt:[''],
@@ -120,30 +123,32 @@ export class FormProductoPage implements OnInit {
   ngOnInit() {
   }
 
-  ionViewDidEnter(){
+  async ionViewDidEnter(){
+
+    this.loadingService.dismissLoading()
 
     if(this.route.snapshot.params.id){
-      this.updating = true;
-      this.productosService.get(this.route.snapshot.params.id).subscribe(producto=>{           
-        this.loaadingService.dismissLoading();
-        
+      this.updating = true; 
+
+      this.productosService.get(this.route.snapshot.params.id).subscribe(producto=>{        
         this.titulo = "Editar Producto";
         this.datosForm.patchValue(producto);
         this.producto.asignarValores(producto)
-        this.croppedImageIcono = this.producto.fotoPrincipal;
 
         this.gruposOpciones = []; 
         this.producto.gruposOpcionesId.forEach(id =>{
           let sub = this.gruposOpcionesService.get(id).subscribe(data=>{
-            console.log(data)
             this.gruposOpciones.push(data);
             sub.unsubscribe()
           })
         })      
         this.changeRef.detectChanges()        
+      })    
+      
+      this.productosService.getWoocommerceValue(this.route.snapshot.params.id).subscribe(data=>{
+        this.woocommerceSyncData.asignarValores(data);
+        console.log(data)
       })
-      this.obtenerFotos(this.route.snapshot.params.id);
-      console.log(this.producto)
     } 
     else{
       this.producto.id = this.firestore.createId();
@@ -170,33 +175,23 @@ export class FormProductoPage implements OnInit {
 
   }
 
-  obtenerFotos(productoId){  
-    this.fotos = [];
-    let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
-    this.fotosService.setPathFoto("comercios/"+comercio_seleccionadoId+"/productos",productoId)
-    let obs = this.fotosService.list().subscribe(data=>{
-      this.fotos = data;
-      console.log(this.fotos) 
-      obs.unsubscribe();
-    })
-  }
 
   ionViewDidLeave(){   
 
   }
 
+  woocommerceCambiado(){
+    this.flagWoocommerce = true;
+  }
   
   addFoto(newValue : any){   
-    console.log(newValue);
     let archivo = new Archivo();
-    archivo.url = newValue;
-    
-    this.fotos.push(archivo);
-    this.producto.fotoPrincipal = this.fotos[0].url
+    archivo.url = newValue;    
+    this.imagenesNuevas.push(archivo);
   }
 
-  async agregarFoto(blob,principal){
-    return this.fotosService.cargarFotoAElemeto("comercios/"+this.comercioService.getSelectedCommerceValue().id+"/productos",this.producto.id,blob,principal)
+  async agregarFoto(blob){
+    return this.fotosService.uploadImagen(this.producto.id,blob)
   }
 
   async eliminarFoto(index){
@@ -213,11 +208,65 @@ export class FormProductoPage implements OnInit {
         }, {
           text: 'Si',
           handler: () => {           
-            if(this.fotos[index].id){
-              let foto = this.fotos[index]
-              this.fotosService.deleteArchivo(foto,foto.id)
-            }
-            this.fotos.splice(index,1)            
+           
+           
+           this.producto.imagenes.splice(index,1)      
+          }
+        }
+      ]
+    });
+    await alert.present();    
+
+  }
+
+  async verImagen(index,imagen){
+    const modal = await this.modalCtrl.create({
+      component: DetailsImagePage,
+      componentProps: {
+        url:imagen.url      
+      }
+    });
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data == "eliminar"){     
+        this.eliminarFoto(index)
+      }        
+    });
+    return await modal.present();
+  }
+
+  async verImagenNueva(index,imagen){
+    const modal = await this.modalCtrl.create({
+      component: DetailsImagePage,
+      componentProps: {
+        url:imagen.url      
+      }
+    });
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data == "eliminar"){     
+        this.eliminarFotoNueva(index)
+      }        
+    });
+    return await modal.present();
+  }
+
+  async eliminarFotoNueva(index){
+
+    const alert = await this.alertController.create({
+      header: 'Está seguro que desea eliminar esta imagen?',
+      message: '',
+      buttons: [
+        { 
+          text: 'No',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Si',
+          handler: () => {           
+           
+            this.imagenesNuevas.splice(index,1)            
           }
         }
       ]
@@ -247,7 +296,6 @@ export class FormProductoPage implements OnInit {
   
 
   async eliminarGrupoOpciones(index){
-    console.log(index)
     this.gruposOpciones.splice(index,1);
   }
 
@@ -261,7 +309,6 @@ export class FormProductoPage implements OnInit {
       return; 
     }  
 
-    this.loaadingService.presentLoadingText("Guardando Producto")
 
     this.producto.gruposOpcionesId =[]
     this.gruposOpciones.forEach(grupo =>{
@@ -269,8 +316,6 @@ export class FormProductoPage implements OnInit {
     })
 
     this.producto.asignarValores(this.datosForm.value);
-
-    console.log(this.producto)
 
     var palabras = [this.datosForm.controls.nombre.value,this.datosForm.controls.descripcion.value];
 
@@ -282,38 +327,33 @@ export class FormProductoPage implements OnInit {
       }
     } 
 
-    let files = []
-    for(let i=0;i<this.fotos.length;i++){
-      if(!this.fotos[i].id){
-        let blob = this.imageService.getBlob(this.fotos[i].url)
-        let file = await this.agregarFoto(blob,this.fotos[i].principal)
-        files.push(file)
-      }   
+    //Pasamos imagenes nuevas
+    for(let i=0;i<this.imagenesNuevas.length;i++){     
+      let blob = this.imageService.getBlob(this.imagenesNuevas[i].url)
+      let file = await this.agregarFoto(blob)
+      let json = JSON.parse(JSON.stringify(file))
+      this.producto.imagenes.push(json)     
     }
 
-    if(files.length > 0)
-      this.producto.fotoPrincipal = files[0].url
+    if(this.flagWoocommerce){
+      console.log(this.woocommerceSyncData)
+      this.woocommerceSyncData.changeDate = new Date()
+      let wSyncData = JSON.parse(JSON.stringify(this.woocommerceSyncData));
+      this.productosService.updateWoocommerceValues(this.producto.id,wSyncData);
+    }
+
    
     if(this.updating){
       this.productosService.update(this.producto).then((data:any)=>{
-        this.woocommerceService.setPart("products")
-        this.woocommerceService.actualizarProductoInWC(data)
+        
       })
      
-    }
+    } 
     else{
       this.productosService.add(this.producto).then((data:any)=>{
-        this.woocommerceService.setPart("products")
-        this.woocommerceService.crearProductoInWC(data)
       })
       
     }    
-
-    
-
-    console.log(files)
-    this.loaadingService.dismissLoading();
-    console.log(this.producto)
 
     this.navCtrl.back();
 
@@ -354,29 +394,11 @@ export class FormProductoPage implements OnInit {
     return await modal.present();
   }
 
-   imagenSeleccionadaIcono(newValue : any){
-    console.log(newValue);
-    this.producto.fotoPrincipal = newValue
-    this.datosForm.patchValue({
-      foto: newValue
-    })
-   } 
 
-   fotoPrincipal(index){
-     console.log(this.fotos[index].url)
-     this.producto.fotoPrincipal = this.fotos[index].url
-     this.datosForm.patchValue({
-      foto: this.fotos[index].url
-    }) 
-   }
 
  
   cancelar(){
-    if(this.updating == false){ //si se cancela entonces hay que borrar las fotos guardadas 
-      this.fotos.forEach(foto =>{
-        this.fotosService.deleteArchivo(foto,foto.id);
-      })
-    }
+   
     this.navCtrl.back();
   }
 
@@ -398,10 +420,7 @@ export class FormProductoPage implements OnInit {
           text: 'Eliminar',
           handler: () => {
             this.productosService.delete(this.route.snapshot.params.id);
-            this.woocommerceService.setPart("products")
-            this.woocommerceService.deleteOne(this.producto.woocommerce.id).subscribe(data=>{
-              console.log(data)
-            })
+            
             this.navCtrl.back();
           }
         }
@@ -426,6 +445,7 @@ export class FormProductoPage implements OnInit {
     });
     await alert.present();
   }
+
 
 
 }

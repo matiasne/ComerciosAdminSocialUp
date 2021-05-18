@@ -1,7 +1,7 @@
 import { WCImage } from "./image"
 
 export class WCCategory{    
-    id: number
+    id: string
     name: string
     slug: string
 

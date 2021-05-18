@@ -3,11 +3,13 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Producto } from 'src/app/models/producto';
 import { WCProduct } from 'src/app/models/woocommerce/product';
+import { WoocommerceSyncData } from 'src/app/models/woocommerceSyncData';
+import { CategoriasService } from '../categorias.service';
 import { ComerciosService } from '../comercios.service';
 import { FotoService } from '../fotos.service';
 import { ProductosService } from '../productos.service';
 import { WordpressService } from '../wordpress/wordpress.service';
-import { WebhooksService } from './webhooks.service';
+import { CategoriesService } from './categories.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +20,7 @@ export class WoocommerceService {
   private apiUrl:string = '';
   private siteURL:string  = ''
   private woocommercePart:string = '/wp-json/wc/v3/';
-  private tipoItem:string = "";
+  private tipoItem:string = "products";
 
   public progresoSend = new BehaviorSubject <any>(0);
   public progresoReceived = new BehaviorSubject <any>(0);
@@ -33,7 +35,7 @@ export class WoocommerceService {
     private productosServices:ProductosService,
     private wordpressService:WordpressService,
     private fotosService:FotoService,
-    private webhookService:WebhooksService
+    private categoriasService:CategoriasService
   ) {    
     
   }
@@ -102,9 +104,7 @@ export class WoocommerceService {
     return this.http.get(this.apiUrl,options); 
   }
 
-  postOne(data){
-
-    
+  postOne(data){    
     this.comercio = this.comerciosService.getSelectedCommerceValue()
     this.apiUrl = this.comercio.woocommerce.url+this.woocommercePart+this.tipoItem+"?consumer_key="+this.comercio.woocommerce.consumerKey+"&consumer_secret="+this.comercio.woocommerce.consumerSecret
 
@@ -120,7 +120,6 @@ export class WoocommerceService {
     };     
 
     return this.http.post(this.apiUrl,data,options); 
-
   }
 
   updateOne(id, data){
@@ -179,7 +178,7 @@ export class WoocommerceService {
 
   }
 
-  productoWCtoFirebase(productoWC){
+  convertWCtoFirebase(productoWC){
     this.comercio = this.comerciosService.getSelectedCommerceValue()
 
     let prod = new Producto()
@@ -193,16 +192,11 @@ export class WoocommerceService {
     
     if(productoWC.manage_stock)
       prod.stock = productoWC.stock_quantity   
-
-    prod.woocommerce.id = productoWC.id
-    prod.woocommerce.lastUpdate = new Date()
-    prod.woocommerce.sincronizado = true
-
     
     return prod;
   }
 
-  productoFirebasetoWC(producto:Producto,fotos){
+  async convertFirebasetoWC(producto:Producto){
 
     this.comercio = this.comerciosService.getSelectedCommerceValue()
 
@@ -211,8 +205,7 @@ export class WoocommerceService {
     wcProducto.regular_price = producto.precio.toString();
     wcProducto.description = producto.descripcion;
     wcProducto.price = producto.promocion.toString();
-    wcProducto.sku = producto.barcode;
-
+    wcProducto.sku = producto.barcode;   
     
     if(this.comercio.config.stock)
       wcProducto.manage_stock = true;
@@ -220,176 +213,196 @@ export class WoocommerceService {
       wcProducto.manage_stock = false;
       
     wcProducto.stock_quantity = producto.stock.toString();
-    wcProducto.images = [];    
-    //Falta agregar el tema de los atributos para que se vean las variaciones!!!
-    for(const foto of fotos){
-        wcProducto.images.push({"src":foto.url})
+    wcProducto.images = []; 
+
+    wcProducto.categories = []
+    for(let cat of producto.categorias){
+                
+      if(cat.woocommerce && cat.woocommerce.id){
+          let categorie = {
+              id:cat.woocommerce.id,
+              name:cat.nombre
+          }
+          wcProducto.categories.push(categorie)
+      }
+      else{
+          console.log("Categoria no sincronizada con woocommerce!!!");
+      }
+      
+        
     }
 
+    for(const img of producto.imagenes){
+        wcProducto.images.push({"src":img.url})
+    }
     return wcProducto;
 
   }
 
+
   
-  crearProductoInWC(p:Producto){
-  
-    this.fotosService.setPathFoto("productos",p.id)
-    this.fotosService.list().subscribe(f=>{
-      let fotos = f;
+  async crearProductoInWC(p:Producto){  
+   
+    
       let producto = new Producto()
       producto.asignarValores(p) //esto para que cargue las variables a los productos viejos aunque sea vacias
       console.log("creando en wc el producto id:"+producto.id)
-      let wcProducto = this.productoFirebasetoWC(producto,fotos);   
+      let wcProducto = await this.convertFirebasetoWC(producto);   
       
       wcProducto["meta_data"] = [{
 
       }]
-      const data = JSON.parse(JSON.stringify(wcProducto));
+      
 
       console.log("creando")
       this.incrementarEnvio();
 
-      this.postOne(data).subscribe((resp:any)=>{
+      
+
+      try{
+        const data = JSON.parse(JSON.stringify(wcProducto));
+        let resp:any = await this.postOne(data).toPromise()
         this.incrementarRespuesta();
-        producto.woocommerce.id = resp.id;
-        producto.woocommerce.lastUpdate = new Date();      
 
-        this.productosServices.update(producto).then(data=>{
+        p.woocommerce ={
+          id:resp.id,
+          lastUpdate:new Date(),
+          sincronizado:true
+        }     
+
+        this.productosServices.update(p).then(data=>{
           console.log("LastUpdate de Woocommerce guardado")
-          console.log(data)
         })
-      })  
-    }) 
-
-    
+      }
+      catch(err){
+        console.log(err)
+      }   
   }
 
-  actualizarProductoInWC(producto:Producto){
+  async actualizarProductoInWC(producto:Producto){
     //busco el producto por id de woocommerce elimino todas las imágenes del mismo, elimino el producto. cargo el producto de nuevo
-
-    this.fotosService.setPathFoto("productos",producto.id)
-    this.fotosService.list().subscribe(data=>{
-      let fotos = data;
+    
       this.incrementarEnvio();
-      console.log("actualizando id:"+producto.id)
-      this.getOne(producto.woocommerce.id).subscribe(data=>{
       
-        let wcProducto = this.productoFirebasetoWC(producto,fotos);
+     
+      console.log("actualizando id:"+producto.woocommerce.id)
+
+      try{
+        await this.getOne(producto.woocommerce.id).toPromise()
+        let wcProducto = await this.convertFirebasetoWC(producto);
         wcProducto.id = producto.woocommerce.id
-        this.updateOne(wcProducto.id,wcProducto).subscribe(data=>{
-          
+      
+        
+        try{
+          await this.updateOne(wcProducto.id,wcProducto).toPromise()
           console.log("Porducto actualizado en woocommerce");
           producto.woocommerce.lastUpdate = new Date();
 
-          this.productosServices.update(producto).then(data=>{
-            this.incrementarRespuesta();
-            console.log("LastUpdate de Woocommerce guardado")
-          })
-        },err=>{
+
+        }
+        catch(err){
           console.log(err)
-        })
-      },err=>{
+         
+        }
+      
+      }
+      catch(err){
         console.log(err)
         if(err.error.code == "woocommerce_rest_product_invalid_id"){
           console.log("El id del producto no se encuentra")
-          this.crearProductoInWC(producto)
+          await this.crearProductoInWC(producto)
         }
         if(err.error.code == "woocommerce_rest_cannot_edit"){
           console.log("No tienes permiso para editar")
         }
-      })
-    })   
-  }
-
-
-
-  public async syncWCToFirebase(){
-
-    this.webhookService.sincronizar();
+      }    
     
-    this.tipoItem = "products"
-    let productos:any = []
-    productos = await this.getAll()
-    console.log("Data: " + JSON.stringify(productos)); 
-    for(const prod of productos) {
-      
-      let prodsWithId:any = await this.productosServices.getByWocoommerceId(prod.id)
-
-      console.log(prodsWithId)
-
-      if(prodsWithId.docs.length == 0){
-        let prodFirebase = this.productoWCtoFirebase(prod)      
-        console.log(prodFirebase)
-        await this.productosServices.set(prod.id.toString(),prodFirebase)
-
-        for(const foto of prod.images){
-          let data = {"url":foto.src}
-          this.fotosService.setPathFoto("productos",prod.id.toString())
-          this.fotosService.add(data)
-        }
-        
-        //aca guardar las fotos
-      }      
-    }    
   }
-  
 
   public syncFirebaseToWC(){
+    this.productosServices.list().subscribe(productos =>{
+      productos.forEach(element => {
+        let values = new WoocommerceSyncData()
+        values.sincronizado = true;
+        values.changeDate = new Date()
+        this.productosServices.updateWoocommerceValues(element.id,values)
+      });
+    })
+  }
 
-    this.webhookService.sincronizar();
+  public syncFirebaseToWC_OLD():Promise<any>{
 
+    return new Promise((resolve,reject)=>{
 
-    this.psend = 0;
-    this.preceived = 0;
+      this.psend = 0;
+      this.preceived = 0;
 
-    console.log("sincronizando...")
+      console.log("sincronizando...")
 
-    let subsItemsProd = this.productosServices.list().subscribe(async productos => { 
+      let subsItemsProd = this.productosServices.list().subscribe(async productos => { 
+        subsItemsProd.unsubscribe();
+        this.total = productos.length;
 
-      this.total = productos.length;
-
-      productos.forEach((prod:Producto) => {    
-
-        if(!prod.woocommerce){       
-          this.crearProductoInWC(prod);        
-        }
-        else{ 
-  
-          if(prod.woocommerce.id != ""){ 
-  
-            let lastUpdteDate = new Date(prod.woocommerce.lastUpdate)
+        for(let p of productos){        
         
-            console.log(prod.updatedAt.toDate())
-            console.log(lastUpdteDate)
-            prod.updatedAt.toDate().setSeconds(prod.updatedAt.toDate().getSeconds() + 10);
-  
-            if(prod.updatedAt.toDate() > lastUpdteDate){                     
-                this.actualizarProductoInWC(prod);               
-            } 
-            else{
-              this.getOne(prod.woocommerce.id).subscribe(data=>{              
-                this.incrementarEnvio();
-                this.incrementarRespuesta();
-                console.log("Producto existe y está actualizado:")
-              },
-              err=>{
+          let prod = new Producto()
+          prod.asignarValores(p) //esto para que cargue las variables a los productos viejos aunque sea vacias
+
+          if(p.woocommerce.id == ""){       
+            await this.crearProductoInWC(prod);        
+          }
+          else{ 
+    
+            if(p.woocommerce.id){ 
+    
+              try{
+                console.log(prod.nombre)
+                let productos = await this.getOne(p.woocommerce.id).toPromise()
+
+                
+
+                prod.updatedAt = prod.updatedAt.toDate().setSeconds(prod.updatedAt.toDate().getSeconds());
+                p.woocommerce.lastUpdate = p.woocommerce.lastUpdate.toDate().setSeconds(p.woocommerce.lastUpdate.toDate().getSeconds() + 100);
+      
+                console.log(p.woocommerce.lastUpdate)
+                console.log(prod.updatedAt)
+
+                if(prod.updatedAt > p.woocommerce.lastUpdate){                     
+                  await this.actualizarProductoInWC(prod);               
+                } 
+                else{
+                  console.log("Producto existe y está actualizado:")                
+                }  
+              }
+              catch(err){
+                console.log(err)
+                if(err.error.code == "woocommerce_rest_term_invalid"){
+                  await this.crearProductoInWC(prod)  
+                }
                 if(err.error.code == "woocommerce_rest_product_invalid_id"){
-                  this.crearProductoInWC(prod)                    
+                  await this.crearProductoInWC(prod)                    
                 }
                 if(err.error.code == "woocommerce_rest_cannot_edit"){                  
                   console.log("No tienes permiso para editar")
                 }
-              })
-            }                 
-          }
-          else{          
-            this.crearProductoInWC(prod)
-          }
-        }            
-      });
-      subsItemsProd.unsubscribe();
+              }                            
+            }
+            else{          
+              await this.crearProductoInWC(prod)
+            }
+          }            
+        }
+        resolve(true)
+        
+      },err=>{
+        reject()
+      })
+
+
     })
 
+
+    
     
   }
 

@@ -1,9 +1,7 @@
 
 
 <input #fileInput  type="file" multiple="multiple" name="files[]" accept="image/*;" (change)="seleccionarImagenWeb($event)" style="display:none;" /> 
-  
 <ion-button *ngIf="!IsMobile" (click)="fileInput.click()" size="large" expand="block"> <ion-icon name="camera-outline" style="font-size: 20px;"></ion-icon> Agregar Imagen</ion-button>
-  
 <ion-button *ngIf="IsMobile" (click)="selectImage()" size="large" expand="block"> <ion-icon name="camera-outline" style="font-size: 20px;"></ion-icon> Agregar Imagen</ion-button>
  
 

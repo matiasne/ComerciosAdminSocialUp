@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ComerciosService } from '../Services/comercios.service';
 import { AuthenticationService } from '../Services/authentication.service';
-import { ModalController, AlertController } from '@ionic/angular';
+import { ModalController, AlertController, Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { RolesService } from '../Services/roles.service';
 import { Subscription } from 'rxjs';
@@ -54,9 +54,14 @@ export class HomePage implements OnInit {
     public AuthenticationService:AuthenticationService,
     public toastService:ToastService,
     private modalCtrl:ModalController,
+    private platform: Platform
   ) { 
      
     this.user = new User()
+
+    this.platform.backButton.subscribeWithPriority(10, () => {
+      console.log('Handler was called!');
+    });
 
   }
 

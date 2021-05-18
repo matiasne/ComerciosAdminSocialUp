@@ -54,27 +54,23 @@ export class FotoService extends BaseService {
   }
 
 
-  async cargarFotoAElemeto(item:string,id,blob,principal:boolean){
-    this.setPathFoto(item,id)
+  async uploadImagen(id,blob){
 
     let nombre = Math.floor(Math.random() * 100000000000)+"_"+id; 
 
     let file = new Archivo();   
 
-    await this.upload(blob, nombre.toString(),"jpg").then(url =>{
-      
+    await this.upload(blob, nombre.toString(),"jpg").then(url =>{      
       file.url = url;
       file.name = nombre.toString();  
-      file.format = "jpg"; 
-      file.principal = principal
-     
-      
+      file.format = "jpg";       
     });  
 
     const f = JSON.parse(JSON.stringify(file)); 
-    await this.add(f).then(data =>{
-      console.log(data);          
-    });
+    
+    
+    //Esto realmente debe encargarse otra parte no acá! productos no lo usa!!!!
+    
 
     return file
     

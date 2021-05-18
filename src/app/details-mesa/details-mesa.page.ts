@@ -61,6 +61,7 @@ export class DetailsMesaPage implements OnInit {
 
     this.pedidosService.getByMesa(this.route.snapshot.params.id).subscribe((pedidos:any)=>{                 
       this.pedidos = [];
+      this.productos = [];
       pedidos.forEach(element => {
         if(element.statusCobro == this.cEstado.pendiente){
           let objPedido = new Pedido()

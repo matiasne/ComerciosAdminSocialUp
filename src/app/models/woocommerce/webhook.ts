@@ -8,4 +8,8 @@ export class WebHook{
     public delivery_url:string
     public date_created:string
     public hooks = []
+
+    public asignarValores(init?: Partial<WebHook>) {
+        Object.assign(this, init);
+    }
 }

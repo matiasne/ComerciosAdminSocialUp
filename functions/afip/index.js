@@ -249,11 +249,16 @@ afipRouter.post("/createVoucher",isAuth,async (req, res) => {
   let impTrib = req.body.impTrib;
   let monId = req.body.monId;
   let monCotiz =req.body.monCotiz;
-  let iva = {
+  let iva = [{ 
     Id: req.body.ivaId,
     BaseImp: req.body.ivaBseImp,
     Importe: req.body.ivaImporte
-  }
+  }]
+  let tributos =[{
+    Id: req.body.ivaId,
+    BaseImp: req.body.ivaBseImp,
+    Importe: req.body.ivaImporte
+  }]
 
 
 
@@ -284,13 +289,14 @@ afipRouter.post("/createVoucher",isAuth,async (req, res) => {
           'ImpTrib' 	: impTrib, //0,   //Importe total de tributos
           'MonId' 	: monId,//'PES', //Tipo de moneda usada en el comprobante (ver tipos disponibles)('PES' para pesos argentinos) 
           'MonCotiz' 	: monCotiz, //1,     // Cotización de la moneda usada (1 para pesos argentinos)  
-          'Iva' 		: iva /*[ // (Opcional) Alícuotas asociadas al comprobante
+          'Iva' 		: iva, /*[ // (Opcional) Alícuotas asociadas al comprobante
               {
                   'Id' 		: 5, // Id del tipo de IVA (5 para 21%)(ver tipos disponibles) 
                   'BaseImp' 	: 100, // Base imponible
                   'Importe' 	: 21 //
               }
           ],*/
+          'Tributos':tributos
       };
 
       const respuesta = await afip.ElectronicBilling.createVoucher(data);

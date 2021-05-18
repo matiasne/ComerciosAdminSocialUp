@@ -1,20 +1,35 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const express = require('express');
+
 // This is the router which will be imported in our
 // api hub (the index.ts which will be sent to Firebase Functions).
 let woocommerceRouter = express.Router();
 const db = admin.firestore();
 
+
+
 woocommerceRouter.post("/NuevoProducto",async (req,res)=>{  
+
+    let regular_price = 0
+    if(req.body.regular_price)
+        regular_price = Number(req.body.regular_price.replace(/[^0-9.-]+/g,""))
+
+    let price = 0
+    if(req.body.price)
+        price = Number(req.body.price.replace(/[^0-9.-]+/g,""))
 
     var prod ={
         nombre:req.body.name,
-        precio:req.body.regular_price,
+        precio:regular_price,
         descripcion:req.body.description,
-        promocion:req.body.price,
+        promocion:price,
         barcode:req.body.sku,
         stock:req.body.stock_quantity,
+        createdAt:new Date(),
+        updatedAt:new Date(),
+        imagenes:[],
+        categorias:[],
         woocommerce:{
             id: req.body.id,
             lastUpdate:new Date(),
@@ -23,22 +38,32 @@ woocommerceRouter.post("/NuevoProducto",async (req,res)=>{
     }
     
     if(req.body.images){
-        req.body.images.forEach(foto => {
+        req.body.images.forEach(image => {
             let data = {
-                url:foto.src,
+                url:image.src,
                 createdAt:new Date()
             }
-            db.collection('comercios/'+req.query.comercioId+"/productos/"+req.body.id+"/fotos").add(data).then(resp =>{
-                console.log("url cargada")
-                return null;
+            prod.imagenes.push(data) 
+        });
+    }
+
+    if(req.body.categories){
+        req.body.categories.forEach(category => {
+            db.collection('comercios/'+req.query.comercioId+"/categorias").where("nombre","==",category.name).get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    console.log(doc.id)
+                    console.log(doc.data())
+                    prod.categorias.push(doc.data()) 
+                })
+                return null
             }).catch((err) => {
-                console.log(err)
-            });  
+                return  res.status(500).send(err);
+            });            
         });
     }
 
 
-    db.collection('comercios/'+req.query.comercioId+"/producto").doc(req.body.id.toString()).set(prod).then(data=>{
+    db.collection('comercios/'+req.query.comercioId+"/productos").doc(req.body.id.toString()).set(prod).then(data=>{
 
         console.log("producto guardado")
         db.collection("comercios/"+req.query.comercioId+"/roles").where("rol","==","Administrador").get().then((querySnapshot) => {
@@ -47,9 +72,6 @@ woocommerceRouter.post("/NuevoProducto",async (req,res)=>{
                 console.log(doc.id)
                 db.collection('users').doc(doc.id).get().then(doc => {
                    
-                    console.log(doc.data().notificationCelulartoken);
-
-                            
                     var message ={
                         "token" : doc.data().notificationCelulartoken,
                         "notification" : {
@@ -106,6 +128,10 @@ woocommerceRouter.post("/NuevoPedido",async (req,res)=>{
     db.collection('comercios/'+req.query.comercioId+"/pedidosWoocommerce").doc(req.body.id.toString()).set(req.body).then(data=>{
 
         console.log("pedidos guardado")
+
+        
+
+
         db.collection("comercios/"+req.query.comercioId+"/roles").where("rol","==","Administrador").get().then((querySnapshot) => {
             console.log("rol encontrado")
             querySnapshot.forEach((doc) => {
@@ -159,5 +185,7 @@ woocommerceRouter.post("/NuevoPedido",async (req,res)=>{
     
 
 })
+
+
 
 module.exports = woocommerceRouter

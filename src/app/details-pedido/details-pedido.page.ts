@@ -105,19 +105,13 @@ export class DetailsPedidoPage implements OnInit {
 
     this.pedido = new Pedido()
 
+    this.cliente = new Cliente()
+
     this.subPedidos = [];
 
     this.comercio.asignarValores(this.comerciosService.getSelectedCommerceValue());
     console.log(this.comercio)
 
-
-  }
-
-  ngOnInit() { 
-    
-  }
-
-  ionViewDidEnter(){    
     this.pedido = new Pedido()
 
     if(Array.isArray(this.navParamService.param)){ //si es un array de pedidos porque viene de cierre de mesa
@@ -173,11 +167,13 @@ export class DetailsPedidoPage implements OnInit {
     });
     
 
-    if(this.pedido.clienteId){
+    if(this.pedido.clienteId != ""){
 
+      console.log(this.pedido.clienteId)
       this.clientesService.get(this.pedido.clienteId).subscribe(resp=>{
-        this.cliente = resp.payload.data();
-        this.cliente.id = resp.payload.id;
+        console.log(resp)
+        if(resp)
+          this.cliente = resp;
       })
 
       this.ctasCorrientesService.getByCliente(this.pedido.clienteId).subscribe(snapshot =>{
@@ -203,7 +199,16 @@ export class DetailsPedidoPage implements OnInit {
         this.comentarios = data; 
         //obs.unsubscribe();
       })
-    }    
+    }  
+
+  }
+
+  ngOnInit() { 
+    
+  }
+
+  ionViewDidEnter(){    
+      
   }
 
   eliminarDescuento(i){
@@ -751,8 +756,13 @@ export class DetailsPedidoPage implements OnInit {
 
     console.log(this.pedido);
 
-    if(this.comercio.config.cobrarDirectamente)
-      this.imprimir()
+    if(this.comercio.config.cobrarDirectamente){
+      let impresora = this.impresoraService.obtenerImpresora();
+      if(impresora.pedidosFinalizar){
+        this.imprimir()
+      }
+    }
+      
 
     this.navCtrl.back()
   
@@ -842,6 +852,39 @@ export class DetailsPedidoPage implements OnInit {
     this.total =  this.pedidosService.getTotal(this.pedido) 
     console.log(this.total)
     return this.total
+  }
+
+  async preguntarVaciar(){
+    const alert = await this.alertController.create({
+      header: 'Está seguro que desea eliminar el pedido?',
+      message: '',
+      buttons: [
+        { 
+          text: 'No',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Si',
+          handler: () => {           
+            this.carritoService.vaciar() 
+
+            if(this.pedido.id){
+              this.pedidosService.delete(this.pedido.id).then(data=>{
+                console.log("Eliminado")
+              })  
+            }
+            
+            this.navCtrl.back()
+          }
+        }
+      ]
+    });
+    await alert.present();   
+  }
+
+  facturar(){
+    
   }
 
 

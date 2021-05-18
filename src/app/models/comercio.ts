@@ -3,7 +3,9 @@ export class Comercio {
     public id="";
     public nombre:"";
     public telefono:"";
-    public icono = "";
+    public icono = {
+        url:""
+    };
     public portada = "";
     public createdAt= "";
     public descripcion= "";
@@ -36,8 +38,11 @@ export class Comercio {
         productos:true,
         servicios:true,
         comandas: true,
+        cocinas:true,
         mesas:true,
         clientes:true,
+        woocommerce:true,
+        afip:true,
         cobrarDirectamente: false,
         movimientosCajas:true,
         ctasCorrientes:true,

@@ -110,6 +110,8 @@ export class AppComponent implements OnInit {
   public onlineOffline: boolean = navigator.onLine;
   public rolActual = ""; 
 
+  public connectionStatus = "offline"
+
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
@@ -139,83 +141,96 @@ export class AppComponent implements OnInit {
   }  
 
   initializeApp() {
-    console.log("NgOnInit")
-    /*this.notifiacionesDesktopService.requestPermission();
-    this.notifiacionesDesktopService.init().then(data=>{
-      console.log("OK")
-    },error=>{
-      console.log("ERROR"); 
-    });*/
-
-  
-    this.fcm.onNotification().subscribe(data => {      
-      if(data.wasTapped){
-
-      } else {
-        console.log(data);
-        this.toastService.mensajeVerde(data.title,data.body);
-      };
-    });
-
-    
-    
-   
-
-    this.authService.getActualUserIdObservable().subscribe(uid=>{
-       
-      if(uid){   
-        
-        console.log("Logueado!"+uid)
-        this.router.navigate(['home']);     
-
-        this.notificacionesAppService.getSinLeer(uid).subscribe(snapshot =>{
-          this.appActions[0].badge = snapshot.length;
-        }) 
-
-        this.invitacionesService.getSinLeer(uid).subscribe(snapshot =>{         
-          this.appActions[1].badge = snapshot.length;  
-        });
-
-        
-
-        this.usuarioService.get(uid).subscribe( (data:any)=>{
-          this.usuario = data.payload.data();
-        }) 
-       
-      
-        if (this.platform.is('cordova')) {
-          this.fcm.subscribeToTopic('gestion');
-      
-          this.fcm.getToken().then(token => {     
-            this.authService.setFCMToken(token);
-          },error=>{
-            console.log(error)
-          });
-      
-          this.fcm.onTokenRefresh().subscribe(token => {      
-            this.authService.setFCMToken(token);
-          },error=>{
-            console.log(error)
-          });             
-        }          
-      }  
-      else{
-        this.router.navigate(['login']);
-      }    
-    });  
-
 
     this.platform.ready().then(async () => {
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
+      console.log("NgOnInit")
 
-      this.platform.pause.subscribe(async () => {
-        console.log("Salió del sistema"); 
+      this.statusBar.styleDefault();
+      
+
+      setTimeout(() => {           
+        this.splashScreen.hide();
+      }, 1000);
+
+      /*this.notifiacionesDesktopService.requestPermission();
+      this.notifiacionesDesktopService.init().then(data=>{
+        console.log("OK")
+      },error=>{
+        console.log("ERROR"); 
+      });*/
+
+    
+      this.fcm.onNotification().subscribe(data => {      
+        if(data.wasTapped){
+          alert("wasTaped")
+        } else {
+          console.log(data);
+          this.toastService.mensajeVerde(data.title,data.body);
+        };
       });
-  
-      this.platform.resume.subscribe(async () => {
-        console.log("Salió del sistema");
-      });
+
+      this.impresoraService.bluetoothEnable();
+      
+    
+
+      this.authService.getActualUserIdObservable().subscribe(uid=>{
+        
+       
+
+          
+
+        if(uid){   
+
+          this.platform.pause.subscribe(async () => {
+            console.log("Salió del sistema"); 
+          });
+      
+          this.platform.resume.subscribe(async () => {
+            console.log("Salió del sistema");
+          });
+          
+          console.log("Logueado!"+uid)
+          this.router.navigate(['home']);     
+
+          this.notificacionesAppService.getSinLeer(uid).subscribe(snapshot =>{
+            this.appActions[0].badge = snapshot.length;
+          }) 
+
+          this.invitacionesService.getSinLeer(uid).subscribe(snapshot =>{         
+            this.appActions[1].badge = snapshot.length;  
+          });         
+
+          this.usuarioService.setForConnectionStatus(uid)
+
+          this.usuarioService.getConnectionStatus().subscribe(data=>{
+            this.connectionStatus = data
+          })
+
+          this.usuarioService.getUserData().subscribe(data=>{
+            this.usuario = data
+            console.log(this.usuario)
+          })
+        
+          if (this.platform.is('cordova')) {
+            this.fcm.subscribeToTopic('gestion');
+        
+            this.fcm.getToken().then(token => {     
+              this.authService.setFCMToken(token);
+            },error=>{
+              console.log(error)
+            });
+        
+            this.fcm.onTokenRefresh().subscribe(token => {      
+              this.authService.setFCMToken(token);
+            },error=>{
+              console.log(error)
+            });             
+          }          
+        }  
+        else{
+          this.router.navigate(['login']);
+        }    
+      });      
 
      /* let impresora = this.impresoraService.obtenerImpresora()
       if(impresora.bluetooth){
@@ -226,6 +241,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+
     const path = window.location.pathname.split('folder/')[1];
     if (path !== undefined) {
       this.selectedIndex = this.appPages.findIndex(page => page.title.toLowerCase() === path.toLowerCase());
@@ -239,7 +255,7 @@ export class AppComponent implements OnInit {
       } 
     });       
   }
-
+ 
   verComercios(){
 
     this.comerciosService.setSelectedCommerce("");

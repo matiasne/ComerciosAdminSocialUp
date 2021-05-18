@@ -4,6 +4,7 @@ export class Impresora{
     public mac="";
 
     public comandas = false;   
+    public pedidosFinalizar = false;
     
     public subsComanda = false;
     public subsPedido = false;

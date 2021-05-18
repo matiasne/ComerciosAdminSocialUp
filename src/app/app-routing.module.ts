@@ -398,6 +398,10 @@ const routes: Routes = [
   {
     path: 'form-filter-pedidos',
     loadChildren: () => import('./form-filter-pedidos/form-filter-pedidos.module').then( m => m.FormFilterPedidosPageModule)
+  },
+  {
+    path: 'details-image',
+    loadChildren: () => import('./details-image/details-image.module').then( m => m.DetailsImagePageModule)
   }
  
 ];

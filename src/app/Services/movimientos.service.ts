@@ -29,6 +29,7 @@ export class MovimientosService extends BaseService {
         if(data){
           
           this.comercioId = data.id
+           
          }
         
       })

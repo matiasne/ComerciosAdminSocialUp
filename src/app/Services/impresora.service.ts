@@ -227,10 +227,25 @@ export class ImpresoraService {
     }
   }
 
+  bluetoothEnable(){
+    this.bluetoothSerial.enable().then(data=>{
+      
+    },error=>{
+      this.toastServices.alert("Bluetooth no activado","")
+    })
+  }
+
 
   validateAndWrite(cmds){
     let impresora:any = this.obtenerImpresora();
+    this.bluetoothSerial.isEnabled().then(data=>{
+      this.imprimir(cmds)
+    },error=>{
+      this.toastServices.alert("Error al conectar","Por favor verifique si tiene activado bluetooth y dió los permisos a la aplicación")
+    })    
+  }
 
+  imprimir(cmds){
     this.bluetoothSerial.isConnected().then(() => {
       this.bluetoothSerial.write(cmds).then((success) => {
         console.log(success)
@@ -240,6 +255,7 @@ export class ImpresoraService {
       });
     }, (error) => {      
       console.log(error)
+      this.toastServices.alert("Error al conectar","Por favor verifique si tiene activado bluetooth")
       let impresora:any = this.obtenerImpresora();
 
       this.loadingService.presentLoadingText("Conectando con impresora...");
@@ -258,8 +274,10 @@ export class ImpresoraService {
         this.loadingService.dismissLoading();
       })    
     });
-    
-    
+  }
+
+  conectarBluetooth(){
+    let impresora:any = this.obtenerImpresora();
   }
 
 

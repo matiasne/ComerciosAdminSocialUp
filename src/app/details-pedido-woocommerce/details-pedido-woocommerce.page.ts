@@ -6,12 +6,14 @@ import { AngularFirestore } from 'angularfire2/firestore';
 import { Caja } from '../models/caja';
 import { EnumTipoMovimientoCaja, MovimientoCaja } from '../models/movimientoCaja';
 import { EnumEstadoCobro } from '../models/pedido';
+import { Producto } from '../models/producto';
 import { WCOrder } from '../models/woocommerce/order';
 import { AuthenticationService } from '../Services/authentication.service';
 import { CajasService } from '../Services/cajas.service';
 import { NavegacionParametrosService } from '../Services/global/navegacion-parametros.service';
 import { MovimientosService } from '../Services/movimientos.service';
 import { PedidosWoocommerceService } from '../Services/pedidos-woocommerce.service';
+import { ProductosService } from '../Services/productos.service';
 import { ToastService } from '../Services/toast.service';
 import { OrdersService } from '../Services/woocommerce/orders.service';
 
@@ -45,13 +47,17 @@ export class DetailsPedidoWoocommercePage implements OnInit {
     private authenticationService:AuthenticationService,
     private firestore:AngularFirestore,
     private movimientosService:MovimientosService,
-    private navCtrl:NavController
+    private navCtrl:NavController,
+    private productosService:ProductosService
   ) {
-    this.order = new WCOrder()   
+    this.order = new WCOrder()  
+    
+   
     
     if(this.navParamService.param instanceof WCOrder){ 
       this.order.asignarValores(this.navParamService.param)
       console.log(this.order)
+      
     }
 
     this.cajasService.list().subscribe((cajas:any)=>{      
@@ -143,7 +149,7 @@ export class DetailsPedidoWoocommercePage implements OnInit {
 
     })
     this.navCtrl.back();
-    //tiene que restar el stock en firebase
+    this.restarStock()
     //cargar en caja    
   }
 
@@ -170,12 +176,14 @@ export class DetailsPedidoWoocommercePage implements OnInit {
       //restar stock de productos 
     })
 
+    
     var reembolso = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getEmail());      
     reembolso.tipo = this.enumTipoMovimientoCaja.devolucion;
     reembolso.cajaId = this.cajaSeleccionada.id;
     reembolso.metodoPago = this.metodoPagoSeleccionado;
     reembolso.monto =  - Number(this.order.total);
-    reembolso.motivo = "Pago de pedido Web id:"+this.order.id      
+    reembolso.motivo = "Pago de pedido Web id:"+this.order.id  
+    this.movimientosService.setearPath(this.cajaSeleccionada.id)     
     this.movimientosService.add(reembolso)
     this.navCtrl.back();
   }
@@ -187,7 +195,7 @@ export class DetailsPedidoWoocommercePage implements OnInit {
       console.log("Actualizado en firebase")
      })
     this.ordersService.updateStatus(this.order).subscribe(data=>{
-      //restar stock de productos 
+      this.sumarStock()
     })
     this.navCtrl.back()
   }
@@ -198,17 +206,67 @@ export class DetailsPedidoWoocommercePage implements OnInit {
       console.log("Actualizado en firebase")
      })
     this.ordersService.updateStatus(this.order).subscribe(data=>{
-      //restar stock de productos 
+      
     })
 
+    
     var pago = new MovimientoCaja(this.authenticationService.getUID(), this.authenticationService.getEmail());      
     pago.tipo = this.enumTipoMovimientoCaja.pago;
     pago.cajaId = this.cajaSeleccionada.id;
     pago.metodoPago = this.metodoPagoSeleccionado;
     pago.monto= Number(this.order.total);
     pago.motivo = "Pago de pedido Web id:"+this.order.id      
+    this.movimientosService.setearPath(this.cajaSeleccionada.id) 
     this.movimientosService.add(pago)
     this.navCtrl.back()
+  }
+/*
+  mantenerStock(){ //esto se hace para asegurar que en woocommerce y en firebase existe el mismo stock
+    this.order.line_items.forEach(item =>{
+      console.log(item)
+      let obs = this.productosService.getByName(item.name).subscribe((data:any)=>{
+       obs.unsubscribe()
+        console.log(data)
+        let prod= new Producto()
+        prod.asignarValores(data[0])
+        prod.stock = Number(item.quantity)
+        this.productosService.update(prod).then(data=>{
+          console.log("Stock restado")
+        })
+      })
+    })
+  }*/
+
+  sumarStock(){
+    this.order.line_items.forEach(item =>{
+      console.log(item)
+      let obs = this.productosService.getByName(item.name).subscribe((data:any)=>{
+       obs.unsubscribe()
+        console.log(data)
+        let prod= new Producto()
+        prod.asignarValores(data[0])
+        prod.stock += Number(item.quantity)
+        this.productosService.update(prod).then(data=>{
+          console.log("Stock restado")
+        })
+      })
+    })
+  }
+
+  restarStock(){
+    this.order.line_items.forEach(item =>{
+      console.log(item)
+      let obs = this.productosService.getByName(item.name).subscribe((data:any)=>{
+       obs.unsubscribe()
+        console.log(data)
+        let prod= new Producto()
+        prod.asignarValores(data[0])
+        prod.stock -= Number(item.quantity)
+        this.productosService.update(prod).then(data=>{
+          console.log("Stock restado")
+        })
+      })
+    })
   }
 
 }

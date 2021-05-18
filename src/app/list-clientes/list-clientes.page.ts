@@ -17,19 +17,21 @@ import { Comercio } from '../models/comercio';
 })
 export class ListClientesPage implements OnInit {
 
-  items:any = [];
+  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
+
+  public itemsFiltrados:any = [];
   public itemsAll:any = [];
-  public subsItems: Subscription;
+  public itemsRenderizar = [];
+
+  itemsPerPage = 20
+  itemsCountRenderizados = 0;
+
   public palabraFiltro = "";
-  public loadingActive = false;
-  public clientesSubs:Subscription;
-  public ultimoCliente:Cliente;
-  public clientes = [];
-  public buscando = true;
+
 
   public comercio:Comercio
 
-  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
+ 
   
   constructor(
     public modalController: ModalController,
@@ -46,9 +48,12 @@ export class ListClientesPage implements OnInit {
   }
 
   ngOnInit() {      
-    this.ultimoCliente  =new Cliente();
-    this.clientes = [];
-    this.verMas();
+
+    this.clientesService.list().subscribe(clientes => {     
+      this.itemsAll = clientes;
+      this.buscar();
+    });   
+    
   }
 
   ionViewDidEnter(){    
@@ -62,39 +67,87 @@ export class ListClientesPage implements OnInit {
 
   onChange(event){
     this.palabraFiltro = event.target.value;
-    this.ultimoCliente = new Cliente();
-    this.clientes = [];
-    this.verMas();
+
+    this.buscar();
   }
 
   verMas(){
-    let limit = 5;
-    var palabra = this.palabraFiltro.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    this.clientesSubs = this.clientesService.search(limit,"nombre",palabra,this.ultimoCliente.nombre).subscribe((snapshot) => {
-     
-      this.buscando = false;
-      snapshot.forEach((snap: any) => {         
-        var cliente = snap.payload.doc.data();
-        cliente.id = snap.payload.doc.id; 
-        this.clientes.push(cliente);    
-        
-      });  
-
-      this.ultimoCliente = this.clientes[this.clientes.length-1];
-      
+    console.log("!!!!! Lazy")
+    
+    if(this.itemsCountRenderizados < this.itemsPerPage){
+      console.log("No hay más!!!"+this.itemsCountRenderizados)
       this.infiniteScroll.complete();
-      this.infiniteScroll.disabled = false;
+      this.infiniteScroll.disabled = true;
+      return;
+    }
 
-      if (this.clientes.length < limit) {
+    let start = this.itemsCountRenderizados;
+   
+    for(let i=start; i < start+this.itemsPerPage;i++){
+
+      if(this.itemsFiltrados[i] == undefined){
+        console.log("No hay más!!! fuera del array"+this.itemsCountRenderizados)
+        this.infiniteScroll.complete();
         this.infiniteScroll.disabled = true;
+        return;
       }
-
       
-      console.log(this.clientes);         
-      this.clientesSubs.unsubscribe();
-    });     
-  }  
+      if(this.itemsFiltrados[i].id){
+        this.itemsRenderizar.push(this.itemsFiltrados[i])
+        this.itemsCountRenderizados +=1;
+        console.log("pushing to render") 
+      }
+     
+    }
+    this.infiniteScroll.complete();
+
+
+  }
+
+  buscar(){
+    this.itemsFiltrados = [];
+    this.itemsRenderizar = [];
+    var palabra = this.palabraFiltro.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    var retorno = false;
+
+    if(this.palabraFiltro != ""){
+      this.itemsAll.forEach((item) => {      
+    
+        var encontrado = false;
+        if(item.nombre){
+          retorno =  (item.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(palabra.toLowerCase()) > -1);
+          if(retorno)
+            encontrado = true;
+        }
+
+        if(encontrado){
+          this.itemsFiltrados.push(item);
+          if(this.itemsRenderizar.length < this.itemsPerPage){
+            console.log("Renderizando"+item.id)
+            this.itemsRenderizar.push(item)
+            this.itemsCountRenderizados += 1
+          }
+        }
+      })  
+    }
+    else{
+      this.itemsFiltrados = this.itemsAll;
+      for(let i=0; i < this.itemsPerPage;i++){
+      
+        if(this.itemsFiltrados[i]){
+          this.itemsRenderizar.push(this.itemsFiltrados[i])
+          this.itemsCountRenderizados +=1;
+        }
+        else{
+          console.log("No hay más!!! fuera del array"+this.itemsCountRenderizados)
+       //   this.infiniteScroll.complete();
+         // this.infiniteScroll.disabled = true;
+          return;
+        }
+      }
+    }
+  }
 
   seleccionar(item){
     this.router.navigate(['details-cliente',{"id":item.id}]);
@@ -102,7 +155,7 @@ export class ListClientesPage implements OnInit {
   
   async nuevo(){
 
-    if(this.clientes.length > this.comercio.config.clientesMaxLength){
+    if(this.itemsAll.length > this.comercio.config.clientesMaxLength){
       let modal = await this.modalCtrl.create({
         component: CambiarPlanPage,
         componentProps: {
@@ -128,9 +181,8 @@ export class ListClientesPage implements OnInit {
               this.palabraFiltro = retorno.data.item.nombre;
               
           }   
-          this.ultimoCliente = new Cliente();
-          this.clientes = [];
-          this.verMas();               
+          
+          this.buscar();               
         });
         return await modal.present();
     }
@@ -159,9 +211,8 @@ export class ListClientesPage implements OnInit {
         if(retorno.data){        
             this.palabraFiltro = retorno.data.item.nombre;
         }   
-        this.ultimoCliente = new Cliente();
-        this.clientes = [];
-        this.verMas();            
+        
+        this.buscar();            
       });
       return await modal.present();
   }

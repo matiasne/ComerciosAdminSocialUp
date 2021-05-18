@@ -29,12 +29,26 @@
     <ion-row>
       <ion-col size="10">
         <p>
-          <b>Imprimir Comandas</b><br>
+          <b>Imprimir Comandas Automáticamente</b><br>
           Automáticamente se imprimirá una comanda cada vez que se genere un pedido.
         </p>
       </ion-col>
       <ion-col size="2">
         <ion-toggle [(ngModel)]="impresora.comandas" (ionChange)="guardar()" [ngModelOptions]="{standalone: true}"></ion-toggle>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col size="10">
+        <p>
+          <b>Imprimir Ticket Automáticamente </b><br>
+          Automáticamente se imprimirá un ticket al cobrar un pedido
+        </p>
+      </ion-col>
+      <ion-col size="2">
+        <ion-toggle [(ngModel)]="impresora.pedidosFinalizar" (ionChange)="guardar()" [ngModelOptions]="{standalone: true}"></ion-toggle>
       </ion-col>
     </ion-row>
   </ion-grid>

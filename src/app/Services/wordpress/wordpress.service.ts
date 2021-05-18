@@ -45,8 +45,14 @@ export class WordpressService {
   }
 
   async obtainToken(){    
-    let resp:any = await this.login()
-    localStorage.setItem('wordpress_token',resp.token)    
+    try{
+      let resp:any = await this.login()
+      localStorage.setItem('wordpress_token',resp.token)  
+    }
+    catch(err){
+      localStorage.setItem('wordpress_token',"") 
+    }
+      
   }
 
   getToken(){

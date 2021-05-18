@@ -4,7 +4,19 @@
       <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
 
-    <ion-searchbar animated   
+    <ion-button *ngIf="connectionStatus == 'offline'" fill="clear" color="danger" slot="end">
+      <ion-icon name="cloud-offline-outline"></ion-icon>
+    </ion-button>  
+    <ion-button *ngIf="connectionStatus == 'online'" fill="clear" color="success" slot="end">
+      <ion-icon name="cloud-done-outline"></ion-icon>
+    </ion-button>     
+    
+  </ion-toolbar>
+</ion-header>
+ 
+<ion-content class="ion-padding"> 
+
+  <ion-searchbar animated   
       placeholder="Buscar"
       animated="true"
       showCancelButton="never" 
@@ -18,11 +30,6 @@
       (ionChange)="onChange($event)">
     </ion-searchbar>
 
-    
-  </ion-toolbar>
-</ion-header>
- 
-<ion-content class="ion-padding"> 
   <ion-row>
     <ion-col size="6"> 
       <ion-item>  
@@ -74,6 +81,7 @@
       <app-card-pedido-woocommerce [item]="pedido" (click)="seleccionarPedidoWoocommerce(pedido)"></app-card-pedido-woocommerce>
     </span>  
   </ion-list>
+  
 
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" >

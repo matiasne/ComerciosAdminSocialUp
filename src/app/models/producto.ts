@@ -20,7 +20,6 @@ export class Producto {
     public stock = 0;
     public descripcion="";
     public categorias=[];
-    public fotoPrincipal="";
     public createdAt="";  
     public updatedAt:any;
     public cantidad =0;
@@ -34,14 +33,18 @@ export class Producto {
 
     public enCarrito = 0
 
+    public imagenes = []
+
     public woocommerce = {
-        sincronizado:false,
+        sincronizado:true,
         id:"",
-        lastUpdate:new Date()
+        lastUpdate:undefined
     }
+    
     
 
 	public constructor() {
+        this.woocommerce["lastUpdate"] = new Date()
         this.gruposOpciones = [];
         this.opcionesSeleccionadas =[];
     }
