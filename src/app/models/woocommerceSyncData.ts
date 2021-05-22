@@ -1,7 +1,7 @@
 export class WoocommerceSyncData{
     public id ="";
     public lastUpdate:any;
-    public sincronizado = false;
+    public sincronizado = true;
     public changeDate:any
     constructor(
         

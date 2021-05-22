@@ -158,12 +158,10 @@
       <ion-fab-button (click)="facturar()">
         <ion-icon name="document-outline"></ion-icon>
       </ion-fab-button>
-    </ion-fab>
-   
+    </ion-fab>   
 </ion-content> 
 
-<ion-footer class="ion-no-border ion-padding"> 
-  
+<ion-footer class="ion-no-border ion-padding">  
     
   <ion-grid>
     <ion-row>
@@ -199,13 +197,11 @@
     </ion-select>
   </ion-item> 
 
-  
   <ion-toolbar>   
     <ion-button *ngIf="pedido.statusCobro == cEstado.suspendido" class="button-rounded"  color="primary" (click)="reanudar()">Reanudar</ion-button>
     <ion-button *ngIf="pedido.statusCobro == cEstado.cobrado" class="button-rounded"  color="danger" (click)="devolverPedido()">Reembolsar: ${{total}}</ion-button>
-    <ion-button slot="start" *ngIf="pedido.statusCobro != cEstado.cobrado && pedido.statusCobro != cEstado.suspendido" class="button-rounded"  color="danger" (click)="suspender()">Suspender</ion-button>
+    <ion-button slot="start" *ngIf="!comercio.config.cobrarDirectamente && pedido.statusCobro != cEstado.cobrado && pedido.statusCobro != cEstado.suspendido" class="button-rounded"  color="danger" (click)="suspender()">Suspender</ion-button>
     <ion-button slot="end" *ngIf="pedido.statusCobro != cEstado.cobrado && pedido.statusCobro != cEstado.suspendido" class="button-rounded"  color="success" (click)="cobrar()">Cobrar: ${{total}}</ion-button>
   </ion-toolbar> 
 
- 
 </ion-footer>

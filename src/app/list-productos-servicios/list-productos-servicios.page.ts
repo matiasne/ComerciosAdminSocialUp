@@ -158,6 +158,7 @@ export class ListProductosServiciosPage implements OnInit {
 
   ngOnInit() {
     
+    this.loadingService.presentLoadingText("Cargnado Productos")
     this.itemsProductos = [];
     this.comercio = new Comercio();
 
@@ -166,6 +167,7 @@ export class ListProductosServiciosPage implements OnInit {
     })
 
     this.cargaPorVoz.getPermission();
+
     this.carritoSubs = this.carritoService.getActualCarritoSubs().subscribe(data=>{
       this.carrito = data;
     });
@@ -175,6 +177,7 @@ export class ListProductosServiciosPage implements OnInit {
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
     var catSub = this.categoriasService.getAll().subscribe(snapshot =>{
       this.categorias = [];
+      this.loadingService.dismissLoading()
       snapshot.forEach((snap: any) => {       
         var categoria = snap.payload.doc.data();
         categoria.id = snap.payload.doc.id; 
@@ -563,8 +566,7 @@ export class ListProductosServiciosPage implements OnInit {
 
     pedido.personalId = this.authenticationService.getUID();
     pedido.personalEmail = this.authenticationService.getEmail();
-    pedido.personalNombre = this.authenticationService.getNombre();
-    
+    pedido.personalNombre = this.authenticationService.getNombre();   
 
     let editarPedido = new Pedido();
     editarPedido.asignarValores(pedido);

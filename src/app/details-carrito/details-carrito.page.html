@@ -129,6 +129,15 @@
       <ion-textarea [(ngModel)]="comentario"></ion-textarea>   
     </div>
 
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
+   
+      <ion-fab-button (click)="imprimir()">
+        <ion-icon name="print-outline"></ion-icon>
+      </ion-fab-button>
+      <br>
+      
+    </ion-fab>   
+
 </ion-content> 
 
 <ion-footer class="ion-no-border ion-padding"> 

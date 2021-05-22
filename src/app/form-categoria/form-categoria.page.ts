@@ -5,6 +5,10 @@ import { CategoriasService } from '../Services/categorias.service';
 import { ActivatedRoute } from '@angular/router';
 import { Categoria } from '../models/categoria';
 import { ToastService } from '../Services/toast.service';
+import { WoocommerceSyncData } from '../models/woocommerceSyncData';
+import { ComerciosService } from '../Services/comercios.service';
+import { Comercio } from '../models/comercio';
+import { AngularFirestore } from 'angularfire2/firestore';
 
 @Component({
   selector: 'app-form-categoria',
@@ -20,6 +24,8 @@ export class FormCategoriaPage implements OnInit {
   public comercioId = "";
   public categoria:Categoria;
   public titulo = "";
+  public woocommerceSyncData:WoocommerceSyncData;
+  public comercio:Comercio
   
   constructor(
     private formBuilder: FormBuilder,
@@ -30,11 +36,16 @@ export class FormCategoriaPage implements OnInit {
     public alertController: AlertController,
     private navParams:NavParams,
     private toastServices:ToastService,
+    private comerciosService:ComerciosService,
+    private firestore: AngularFirestore,
   ) {
     this.datosForm = this.formBuilder.group({
       nombre: ['', Validators.required],
     });
-    
+
+    this.woocommerceSyncData = new WoocommerceSyncData()
+    this.comercio = new Comercio()
+    this.comercio.asignarValores(this.comerciosService.getSelectedCommerceValue())
    }
 
   ngOnInit() {
@@ -57,8 +68,9 @@ export class FormCategoriaPage implements OnInit {
       this.categoria.foto = categoria.foto;
     }   
     else{
-      this.titulo ="Nueva Categoria";
+      this.titulo ="Nueva Categoria";      
       this.categoria = new Categoria();
+      this.categoria.id = this.firestore.createId();
       this.categoria.comercioId = this.navParams.get('comercioId'); 
     }
 
@@ -82,10 +94,22 @@ export class FormCategoriaPage implements OnInit {
     this.categoria.nombre = this.datosForm.controls.nombre.value;
 
     if(this.updating){
-      this.categoriasService.update(this.categoria);
+      this.categoriasService.update(this.categoria).then(data=>{
+        console.log("categoria update")
+      })
     }
     else{
-      this.categoriasService.create(this.categoria);
+      this.categoriasService.set(this.categoria.id,this.categoria).then(data=>{
+        console.log("categoria creada")
+      });
+    }
+
+    if(this.comercio.config.woocommerce){
+      console.log(this.woocommerceSyncData)
+      this.woocommerceSyncData.changeDate = new Date()
+      this.woocommerceSyncData.sincronizado = true
+      let wSyncData = JSON.parse(JSON.stringify(this.woocommerceSyncData));
+      this.categoriasService.updateWoocommerceValues(this.categoria.id,wSyncData);
     }
 
     this.modalCtrl.dismiss();
@@ -118,6 +142,15 @@ export class FormCategoriaPage implements OnInit {
           text: 'Eliminar',
           handler: () => {
             this.categoriasService.delete(this.categoria.id);
+
+            if(this.comercio.config.woocommerce){
+              console.log(this.woocommerceSyncData)
+              this.woocommerceSyncData.changeDate = new Date()
+              this.woocommerceSyncData.sincronizado = false
+              let wSyncData = JSON.parse(JSON.stringify(this.woocommerceSyncData));
+              this.categoriasService.deleteWoocommerceValues(this.categoria.id);
+            }
+
             this.modalCtrl.dismiss();
           }
         }

@@ -5,22 +5,26 @@ import { AuthenticationService } from './authentication.service';
 import * as firebase from 'firebase';
 import { Comercio } from '../models/comercio';
 import { map } from 'rxjs/operators';
+import { BaseService } from './base.service';
+import { WoocommerceSyncData } from '../models/woocommerceSyncData';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ComerciosService {
+export class ComerciosService extends BaseService {
 
-  private collection:string;
   public commerceSubject = new BehaviorSubject <any>("");
   public comercio:Comercio;
+  public woocommerceSyncPath = "";
+
   constructor(
-    private firestore: AngularFirestore,
-    private auth:AuthenticationService
+    protected afs: AngularFirestore,
   ) {
+    super(afs);   
     this.comercio = new Comercio();
-    this.collection = 'comercios';
+    this.setPath('comercios')
     /*this.setSelectedCommerce(localStorage.getItem('comercio_seleccionadoId'));*/
+
   }
 
   getSelectedCommerceValue(){
@@ -37,56 +41,17 @@ export class ComerciosService {
 
   
 
-  public create(data:any) {
-
-   
-        
-    const param = JSON.parse(JSON.stringify(data));      
-
-    
-
-    return this.firestore.doc(this.collection+'/'+data.id).set({...param,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });
-     
-   
-  } 
 
   getByNombre(nombre){
-    return this.firestore.collection(this.collection, ref =>  ref.where('nombre','==',nombre)).valueChanges();    
+    return this.afs.collection(this.path, ref =>  ref.where('nombre','==',nombre)).valueChanges();    
   }
 
-  public get(documentId: string) { 
-    return this.firestore.collection(this.collection).doc(documentId).get().pipe(
-      map(a => {
-          let item:any; 
-          if(a){
-            item = a.data() ;
-          }
-          return item;
-      })
-    )
-  }
-
-  public getAll(){
-    return this.firestore.collection(this.collection).snapshotChanges();
-  }
 
   getRef(id){
-    return this.firestore.collection(this.collection).doc(id).ref;
+    return this.afs.collection(this.path).doc(id).ref;
   }
 
-  public update(data: any) { 
-    
-    const param = JSON.parse(JSON.stringify(data));
-   
-    return this.firestore.collection(this.collection).doc(data.id).set(param);
-  }
 
-  public delete(comercio,cajas) {
-
-    this.firestore.collection(this.collection).doc(comercio.id).delete();
-  }
 
   public setSelectedCommerce(comercioId){    
     localStorage.setItem('comercio_seleccionadoId',comercioId);
@@ -106,14 +71,14 @@ export class ComerciosService {
   public search(by,palabra,ultimo){      
     if(ultimo == ""){
       console.log("!!!!!! primero")     
-      return this.firestore.collection(this.collection, ref => 
+      return this.afs.collection(this.path, ref => 
         ref.where('keywords','array-contains',palabra)
             .where('recibirPedidos','==',true)
             .orderBy(by)
             .limit(5)).snapshotChanges();
     }
     else{
-      return this.firestore.collection(this.collection, ref => 
+      return this.afs.collection(this.path, ref => 
         ref.where('keywords','array-contains',palabra)
             .where('recibirPedidos','==',true)
             .orderBy(by)
@@ -121,5 +86,35 @@ export class ComerciosService {
             .limit(5)).snapshotChanges();    
     }    
   }  
+
+  
+  getWoocommerceValue(id){
+    this.woocommerceSyncPath = this.path+'/'+id+'/woocommerceSincData'
+    return this.afs.collection(this.woocommerceSyncPath).doc("1").get()
+    .pipe(
+        map(doc => {
+            if (doc.exists) {
+        /* workaround until spread works with generic types */
+                const data = doc.data() as any;
+                const id = doc.id;
+                data.fromCache = doc.metadata.fromCache;
+                return { id, ...data };
+            }
+        })
+    ); 
+  }
+
+  updateWoocommerceValues(id,values){
+    this.woocommerceSyncPath = this.path+'/'+id+'/woocommerceSincData'
+    return this.afs.collection(this.woocommerceSyncPath).doc("1").set(values)
+  }
+
+  
+  deleteWoocommerceValues(id){
+    this.woocommerceSyncPath = this.path+'/'+id+'/woocommerceSincData'
+    this.afs.collection(this.woocommerceSyncPath).doc("1").delete().then(data=>{
+      console.log("Actualizados los valores de woocommerce")
+    })
+  }
 
 }

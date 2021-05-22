@@ -28,7 +28,7 @@ export class ProductosService extends BaseService {
   }
 
   getWoocommerceValue(productoId){
-    this.woocommerceSyncPath = this.path+'/'+productoId+'/woocommerce'
+    this.woocommerceSyncPath = this.path+'/'+productoId+'/woocommerceSincData'
     return this.afs.collection(this.woocommerceSyncPath).doc("1").get()
     .pipe(
         map(doc => {
@@ -44,8 +44,16 @@ export class ProductosService extends BaseService {
   }
 
   updateWoocommerceValues(productoId,values){
-    this.woocommerceSyncPath = this.path+'/'+productoId+'/woocommerce'
+    this.woocommerceSyncPath = this.path+'/'+productoId+'/woocommerceSincData'
     this.afs.collection(this.woocommerceSyncPath).doc("1").set(values).then(data=>{
+      console.log("Actualizados los valores de woocommerce")
+    })
+  }
+
+  
+  deleteWoocommerceValues(id){
+    this.woocommerceSyncPath = this.path+'/'+id+'/woocommerceSincData'
+    this.afs.collection(this.woocommerceSyncPath).doc("1").delete().then(data=>{
       console.log("Actualizados los valores de woocommerce")
     })
   }

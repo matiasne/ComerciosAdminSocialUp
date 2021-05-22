@@ -24,6 +24,8 @@ const api = functions.https.onRequest(app);
 
 const db = admin.firestore();
 
+var tokenWordpress=""
+
 
 const getToken = functions.https.onRequest((req, res) => {
     const uid = 'some-uid';   
@@ -84,12 +86,16 @@ const onUserStatusChanged = functions.database.ref('/users/{uid}').onUpdate(
 });
   
 
-/*
-const syncProductoWithWC = functions.firestore.document('/comercios/{comercioId}/productos/{productoId}').onWrite((change, context) => {
 
-    db.collection('comercios').doc(context.params.comercioId).get().then(comercioDoc=>{
-        console.log(comercioDoc.data().woocommerce.url)
-        if(comercioDoc.data().woocommerce.url !== ""){
+const syncProductoWithWCCollection = functions.firestore.document('/comercios/{comercioId}/productos/{productoId}/woocommerceSincData/{id}').onWrite((change, context) => {
+
+    db.collection('comercios/'+context.params.comercioId+'/woocommerceSincData').doc("1").get().then(comercioSincDataDoc=>{
+        console.log(comercioSincDataDoc.data().url)
+
+        if(comercioSincDataDoc.data().isOk === "true"){
+
+            let comercioSincData = comercioSincDataDoc.data()
+
 
             let config = {
                 headers: {
@@ -102,598 +108,415 @@ const syncProductoWithWC = functions.firestore.document('/comercios/{comercioId}
                 password:"Eduardito02"
             }
 
-            axios.post(comercioDoc.data().woocommerce.url+"/wp-json/jwt-auth/v1/token",data,config)
+            axios.post(comercioSincDataDoc.data().url+"/wp-json/jwt-auth/v1/token",data,config)
             .then(response => {
-                    
-                
-                let comercio = comercioDoc.data()
-                console.log("Comercio sincronizado con woocommerce")
-                    
-                const document = change.after.exists ? change.after.data() : null; //si hay documento despues entonces no es un delete
 
                 if(change.after.exists){  //Nuevo o actualizacion
+               
+                    db.collection('comercios/'+context.params.comercioId+'/productos').doc(context.params.productoId).get().then(productoDoc=>{
                     
-                    const newValue = change.after.data()||{};
-                    // ...the previous value before this update
-                    const previousValue = change.before.data()||{};
-
-                    if(newValue.woocommerce.sincronizado){      
-                    
-                           
-                       let wcProducto ={
-                           name : newValue.nombre,
-                           regular_price : newValue.precio.toString(),
-                           description : newValue.descripcion,
-                           price : newValue.promocion.toString(),
-                           sku : newValue.barcode,
-                           stock_quantity : newValue.stock.toString(),
-                           manage_stock:true,
-                           categories:[],
-                           images:[]
-                       }    
-                       
-                       if(newValue.categorias.length > 0){
-                           for(let cat of newValue.categorias){
-                                   
-                               if(cat.woocommerce){
-                                   let categorie = {
-                                       id:cat.woocommerce.id,
-                                       name:cat.nombre
-                                   }
-                                   wcProducto.categories.push(categorie)
-                               }
-                               else{
-                                   console.log("Categoria no sincronizada con woocommerce!!!");
-                               }                       
-                           } 
-                       }
-   
-                       if(newValue.imagenes.length > 0){
-                           for(const img of newValue.imagenes){
-                               wcProducto.images.push({"src":img.url})
-                           } 
-                       }
-                     
-                    console.log(newValue.woocommerce.sincronizado+" "+previousValue.woocommerce.sincronizado)
-                                           
-   
-                    if(newValue.woocommerce.sincronizado){ 
-   
-                        if(previousValue.woocommerce.sincronizado){ //Actualizamos
-
-                            console.log("Actualizando en WC")
-                            config = {
-                                headers: {
-                                    'Content-Type' : 'application/json',
-                                    'Authorization' : 'Bearer '+response.data.token
-                                }
-                            }             
-            
-                            const productoJSON = JSON.parse(JSON.stringify(wcProducto));
-    
-                            let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/products/"+newValue.woocommerce.id+"?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-            
-                            axios.post(apiUrl,productoJSON,config).then(response=>{
-                                console.log(response.data.id)
-                                return null            
-                            }).catch(err => {
-                                console.log(err.response.data)
-                                if(err.response.data.code === "woocommerce_rest_product_invalid_id"){
-                                    console.log("Creando en WC")              
-                                    config = {
-                                        headers: {
-                                            'Content-Type' : 'application/json',
-                                            'Authorization' : 'Bearer '+response.data.token
-                                        }
-                                    }             
-                    
-                                    const productoJSON = JSON.parse(JSON.stringify(wcProducto));
-            
-                                    let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/products?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-                    
-                                    axios.post(apiUrl,productoJSON,config).then(response=>{
-                                        
-                                        change.after.ref.set({woocommerce:{id:response.data.id,sincronizado:true}}, {merge: true});
-                                        return null
-                    
-                                    }).catch(err => console.log(err));
-                                    
-                                }
-                                return null
-                                   
-                            });        
-                                
-                        }
-                        else{ //creamos 
-
-
-                            console.log("Creando en WC")              
-                            config = {
-                                headers: {
-                                    'Content-Type' : 'application/json',
-                                    'Authorization' : 'Bearer '+response.data.token
-                                }
-                            }             
-            
-                            const productoJSON = JSON.parse(JSON.stringify(wcProducto));
-    
-                            let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/products?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-            
-                            axios.post(apiUrl,productoJSON,config).then(response=>{
-                                
-                                change.after.ref.set({woocommerce:{id:response.data.id,sincronizado:true}}, {merge: true});
-                                return null
-            
-                            }).catch(err => console.log(err));
-                            console.log(err.data.data.code)
-                        }
-                           
-                           //}
-                    }
-                    else{ //newValue.woocommerce.id no existe
-
-                        if(previousValue.woocommerce.sincronizado){
-                            
-                            console.log("Borrando producto de woocommerce"+previousValue.woocommerce.id)
-                            config = {
-                                headers: {
-                                    'Content-Type' : 'application/json',
-                                    'Authorization' : 'Bearer '+response.data.token
-                                }
-                            }                                    
-        
-                            let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/products/"+previousValue.woocommerce.id+"?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-    
-                            axios.delete(apiUrl,config).then(response=>{
-                                console.log("producto borrado!")
-                                return null
-                            }).catch(err => console.log(err));
-                            return null
+                        let producto = productoDoc.data();
+                        producto.id = productoDoc.id
                         
-                        }
-                        else{
+                        tokenWordpress = response.data.token
+                        
+                        
+                        console.log("Comercio sincronizado con woocommerce")
+                        
+                    
                             
-                           console.log("Woocommerce sincronizado permanece en false")
-                           
-                       }    
-                    }
+                            const newValue = change.after.data()||{};
+                            // ...the previous value before this update
+                            const previousValue = change.before.data()||{};                  
+                                
+                            
+                            
+                            console.log(newValue.sincronizado+" "+previousValue.sincronizado)
+                                                
+        
+                            if(newValue.sincronizado){ 
+        
+                                if(previousValue.sincronizado){ //Actualizamos
+
+                                    WooUpdateProducto(comercioSincData,producto,newValue.id)  
+                                        
+                                }
+                                else{ //creamos 
+
+                                    WooCrearProducto(comercioSincData,producto,change)
+                                }                            
+                            }
+                            else{ //newValue.id no existe
+
+                                if(previousValue.sincronizado){
+                                    
+                                    WooDeleteProducto(comercioSincData,newValue.id)
+                                
+                                }
+                                else{                                
+                                    console.log("Woocommerce sincronizado permanece en false")                            
+                                }    
+                            }
+                            
+                        
+                            
+                        
+                    return null;
+                    }).catch((err) => {console.log(err)});
                 }
                 else{
-
-                    const previousValue = change.before.data()||{};
-
-                    if(previousValue.woocommerce.id){
-                   
-                        console.log("Borrando producto de woocommerce"+previousValue.woocommerce.id)
-                        config = {
-                            headers: {
-                                'Content-Type' : 'application/json',
-                                'Authorization' : 'Bearer '+response.data.token
-                            }
-                        }                                    
     
-                        let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/products/"+previousValue.woocommerce.id+"?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-
-                        axios.delete(apiUrl,config).then(response=>{
-                            console.log("producto borrado!")
-                            return null
-                        }).catch(err => console.log(err));
-                        return null
+                    const previousValue = change.before.data()||{};
+    
+                    if(previousValue.id){
+                
+                        WooDeleteProducto(comercioSincData,previousValue.id)
                     }     
                 }
-            }      
-               
-                
-            return null;
-            }).catch((err) => {
-                console.log(err)
-            });
+            return null
+            }).catch((err) => {console.log(err)});
+            
         } 
-            
+        else{
+            console.log("Conexión no establecida")   
+        }    
+             
         return null
-    }).catch((err) => {
+    }).catch((err) => {console.log(err)}); 
+
+    console.log("Sincronización en curso...");   
+    return "OK"
+})
+
+
+
+const syncCategoriasWithWC = functions.firestore.document('/comercios/{comercioId}/categorias/{categoriaId}/woocommerceSincData/{id}').onWrite((change, context) => {
+
+
+    db.collection('comercios/'+context.params.comercioId+'/woocommerceSincData').doc("1").get().then(comercioSincDataDoc=>{
+        console.log(comercioSincDataDoc.data().url)
+        if(comercioSincDataDoc.data().isOk === "true"){
+
+            let comercioSincData = comercioSincDataDoc.data()
+
+            console.log("Comercio sincronizado con woocommerce")
+            let config = {
+                headers: {
+                    'Content-Type' : 'application/json',
+                }
+            }             
+
+            const data = {
+                username:"matiasnegri85@gmail.com",
+                password:"Eduardito02"
+            }
+
+            axios.post(comercioSincDataDoc.data().url+"/wp-json/jwt-auth/v1/token",data,config)
+            .then(response => {
+                    
+                tokenWordpress = response.data.token
+                console.log(tokenWordpress)
+                
+                if(change.after.exists){  //Nuevo o actualizacion
+
+                    db.collection('comercios/'+context.params.comercioId+'/categorias').doc(context.params.categoriaId).get().then(categoriaDoc=>{
+                        console.log(categoriaDoc.data().nombre)
+                        let categoria = categoriaDoc.data();
+                        categoria.id = categoriaDoc.id    
+                    
+                                
+                        
+                        console.log("change after exists")
+                        const newValue = change.after.data()||{};
+                        // ...the previous value before this update
+                        const previousValue = change.before.data()||{};
+
+                        
+                                    
+                        console.log(newValue.sincronizado+" "+previousValue.sincronizado)                                               
+
+                        if(newValue.sincronizado){    
+                            console.log("newValue sincronizado")    
+                            if(previousValue.sincronizado){ //Actualizamos
+                                WooUpdateCategoria(comercioSincData,categoria,newValue.id)
+                            }
+                            else{ //creamos 
+                                console.log("!!!!!!")
+                                WooCrearCategoria(comercioSincData,categoria,change)                                
+                            }                            
+                        }
+                        else{ //newValue.id no existe
+                            if(previousValue.sincronizado){                                
+                                WooDeleteCategoria(comercioSincData,newValue.id)                            
+                            }
+                            else{                                
+                                console.log("Woocommerce sincronizado permanece en false")                            
+                            }    
+                        }
+                            
+                            
+                        
+                            
+                    return null
+                    }).catch((err) => {console.log(err)});
+                        
+                }
+                else{
+                    const previousValue = change.before.data()||{};
+                    if(previousValue.id){                    
+                        WooDeleteCategoria(comercioSincData,previousValue.id)
+                    }     
+                }  
+            return null;
+            }).catch((err) => {console.log(err)});
+        }    
+        else{
+            console.log("Conexión no establecida")   
+        }           
+        return null
+    }).catch((err) => {console.log(err)}); 
+
+    console.log("Sincronización en curso...");   
+    return "OK"
+
+})
+
+WooDeleteCategoria = (comercioSincData,wooId)=>{
+
+    console.log("Borrando categoria de woocommerce"+wooId)
+    config = {
+        headers: {
+            'Content-Type' : 'application/json',
+            'Authorization' : 'Bearer '+tokenWordpress
+        }
+    }                                    
+
+    let apiUrl = comercioSincData.url+"/wp-json/wc/v3/products/categories/"+wooId+"?force=true&consumer_key="+comercioSincData.consumerKey+"&consumer_secret="+comercioSincData.consumerSecret
+
+    axios.delete(apiUrl,config).then(response=>{
+        console.log("categoria borrado!")
+        return null
+    }).catch(err => console.log(err));
+}
+
+WooDeleteProducto = (comercioSincData,wooId) =>{
+
+    console.log("Borrando producto de woocommerce"+wooId)
+    config = {
+        headers: {
+            'Content-Type' : 'application/json',
+            'Authorization' : 'Bearer '+tokenWordpress
+        }
+    }                                    
+
+    let apiUrl = comercioSincData.url+"/wp-json/wc/v3/products/"+wooId+"?consumer_key="+comercioSincData.consumerKey+"&consumer_secret="+comercioSincData.consumerSecret
+
+    axios.delete(apiUrl,config).then(response=>{
+        console.log("producto borrado!")
+        return null
+    }).catch(err => console.log(err));
+}
+
+WooUpdateCategoria = (comercioSincData,categoria,wooId)=>{
+
+    let wcCategoria ={
+        name : categoria.nombre,
+        description : categoria.descripcion,
+        
+    }    
+
+    if(categoria.foto){
+        wcCategoria.image = {
+            src:categoria.foto.url                            
+        } 
+    }
+
+    console.log("Actualizando en WC: "+wooId)
+    config = {
+        headers: {
+            'Content-Type' : 'application/json',
+            'Authorization' : 'Bearer '+tokenWordpress
+        }
+    }             
+
+    const categoriaJSON = JSON.parse(JSON.stringify(wcCategoria));
+
+    let apiUrl = comercioSincData.url+"/wp-json/wc/v3/products/categories/"+wooId+"?consumer_key="+comercioSincData.consumerKey+"&consumer_secret="+comercioSincData.consumerSecret
+
+    axios.post(apiUrl,categoriaJSON,config).then(response=>{
+        console.log(response.data.id)
+        return null            
+    }).catch(err => {
+
+        console.log(err.response.data)
+        if(err.response.data.code === "woocommerce_rest_categorie_invalid_id"){
+            WooCreateCategoria(comercioSincData,newValue)
+            
+        }
+        return null
+        
+    });   
+}
+
+WooUpdateProducto = (comercioSincData,producto,wooId)=>{
+
+    let wcProducto ={
+        name : producto.nombre,
+        regular_price : producto.precio.toString(),
+        description : producto.descripcion,
+        price : producto.promocion.toString(),
+        sku : producto.barcode,
+        stock_quantity : producto.stock.toString(),
+        manage_stock:true,
+        categories:[],
+        images:[]
+    }    
+
+    if(producto.categorias.length > 0){
+        for(let cat of producto.categorias){
+            
+            if(cat.woocommerceId){
+                let categorie = {
+                    id:cat.woocommerceId,
+                    name:cat.nombre
+                }
+                wcProducto.categories.push(categorie)
+            }
+            else{
+                console.log("Categoria no sincronizada con woocommerce!!!");
+            }                       
+        } 
+    }
+
+    if(producto.imagenes.length > 0){
+        for(const img of producto.imagenes){
+            wcProducto.images.push({"src":img.url})
+        } 
+    }
+
+    console.log("Actualizando en WC: "+wooId)
+    config = {
+        headers: {
+            'Content-Type' : 'application/json',
+            'Authorization' : 'Bearer '+tokenWordpress
+        }
+    }             
+
+    const productoJSON = JSON.parse(JSON.stringify(wcProducto));
+
+    let apiUrl = comercioSincData.url+"/wp-json/wc/v3/products/"+wooId+"?consumer_key="+comercioSincData.consumerKey+"&consumer_secret="+comercioSincData.consumerSecret
+
+    axios.post(apiUrl,productoJSON,config).then(response=>{
+
+        db.collection('comercios/'+comercioSincData.comercioId+'/productos').doc(categoria.id).set({woocommerceId:response.data.id}, {merge: true}).then(data=>{
+            return null    
+        }).catch(err=>{
+            console.log(err)
+        })
+
+        return null            
+    }).catch(err => {
         console.log(err)
-    }); 
-    console.log("Sincronización en curso...");   
-    return "OK"
-})*/
-
-
-
-const syncProductoWithWCCollection = functions.firestore.document('/comercios/{comercioId}/productos/{productoId}/woocommerceSincData/1').onWrite((change, context) => {
-
-    db.collection('comercios').doc(context.params.comercioId).get().then(comercioDoc=>{
-        console.log(comercioDoc.data().nombre)
-        if(comercioDoc.data().woocommerce.url !== ""){
-
-            db.collection('comercios/'+context.params.comercioId+'/productos').doc(context.params.productoId).get().then(productoDoc=>{
-                console.log(productoDoc.data().nombre)
-                let producto = productoDoc.data();
-                producto.id = productoDoc.id
-
-                let config = {
-                    headers: {
-                        'Content-Type' : 'application/json',
-                    }
-                }             
-
-                const data = {
-                    username:"matiasnegri85@gmail.com",
-                    password:"Eduardito02"
-                }
-
-                axios.post(comercioDoc.data().woocommerce.url+"/wp-json/jwt-auth/v1/token",data,config)
-                .then(response => {
-                        
-                    
-                    let comercio = comercioDoc.data()
-                    console.log("Comercio sincronizado con woocommerce")
-                        
-                    const document = change.after.exists ? change.after.data() : null; //si hay documento despues entonces no es un delete
-
-                    if(change.after.exists){  //Nuevo o actualizacion
-                        
-                        const newValue = change.after.data()||{};
-                        // ...the previous value before this update
-                        const previousValue = change.before.data()||{};
-
-                        if(newValue.sincronizado){      
-                        
-                            
-                        let wcProducto ={
-                            name : producto.nombre,
-                            regular_price : producto.precio.toString(),
-                            description : producto.descripcion,
-                            price : producto.promocion.toString(),
-                            sku : producto.barcode,
-                            stock_quantity : producto.stock.toString(),
-                            manage_stock:true,
-                            categories:[],
-                            images:[]
-                        }    
-                        
-                        if(producto.categorias.length > 0){
-                            for(let cat of producto.categorias){
-                                
-                                if(cat.woocommerce){
-                                    let categorie = {
-                                        id:cat.woocommerceId,!!!! ver que se guarde
-                                        name:cat.nombre
-                                    }
-                                    wcProducto.categories.push(categorie)
-                                }
-                                else{
-                                    console.log("Categoria no sincronizada con woocommerce!!!");
-                                }                       
-                            } 
-                        }
-    
-                        if(producto.imagenes.length > 0){
-                            for(const img of producto.imagenes){
-                                wcProducto.images.push({"src":img.url})
-                            } 
-                        }
-                        
-                        console.log(newValue.sincronizado+" "+previousValue.sincronizado)
-                                            
-    
-                        if(newValue.sincronizado){ 
-    
-                            if(previousValue.sincronizado){ //Actualizamos
-
-                                console.log("Actualizando en WC: "+previousValue.id)
-                                config = {
-                                    headers: {
-                                        'Content-Type' : 'application/json',
-                                        'Authorization' : 'Bearer '+response.data.token
-                                    }
-                                }             
-                
-                                const productoJSON = JSON.parse(JSON.stringify(wcProducto));
-        
-                                let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/products/"+newValue.id+"?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-                
-                                axios.post(apiUrl,productoJSON,config).then(response=>{
-                                    console.log(response.data.id)
-                                    return null            
-                                }).catch(err => {
-
-                                    console.log(err.response.data)
-                                    if(err.response.data.code === "woocommerce_rest_product_invalid_id"){
-                                        console.log("Creando en WC")              
-                                        config = {
-                                            headers: {
-                                                'Content-Type' : 'application/json',
-                                                'Authorization' : 'Bearer '+response.data.token
-                                            }
-                                        }             
-                        
-                                        const productoJSON = JSON.parse(JSON.stringify(wcProducto));
-                
-                                        let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/products?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-                        
-                                        axios.post(apiUrl,productoJSON,config).then(response=>{
-                                            console.log(response.data.id)
-                                            change.after.ref.set({id:response.data.id,sincronizado:true,createdAt:new Date()}, {merge: true});
-
-                                            
-                                            return null
-                        
-                                        }).catch(err => console.log(err));
-                                        
-                                    }
-                                    return null
-                                    
-                                });        
-                                    
-                            }
-                            else{ //creamos 
-
-                                console.log("Creando en WC (no habia previous)")              
-                                config = {
-                                    headers: {
-                                        'Content-Type' : 'application/json',
-                                        'Authorization' : 'Bearer '+response.data.token
-                                    }
-                                }                             
-                                const productoJSON = JSON.parse(JSON.stringify(wcProducto));
-        
-                                let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/products?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-                
-                                axios.post(apiUrl,productoJSON,config).then(response=>{                                    
-                                    change.after.ref.set({id:response.data.id,sincronizado:true,createdAt:new Date()}, {merge: true});
-                                    return null                
-                                }).catch(err => console.log(err));
-                            }                            
-                        }
-                        else{ //newValue.id no existe
-
-                            if(previousValue.sincronizado){
-                                
-                                console.log("Borrando producto de woocommerce"+previousValue.id)
-                                config = {
-                                    headers: {
-                                        'Content-Type' : 'application/json',
-                                        'Authorization' : 'Bearer '+response.data.token
-                                    }
-                                }                                    
-            
-                                let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/products/"+previousValue.id+"?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-        
-                                axios.delete(apiUrl,config).then(response=>{
-                                    console.log("producto borrado!")
-                                    return null
-                                }).catch(err => console.log(err));
-                                return null
-                            
-                            }
-                            else{                                
-                                console.log("Woocommerce sincronizado permanece en false")                            
-                            }    
-                        }
-                    }
-                    else{
-
-                        const previousValue = change.before.data()||{};
-
-                        if(previousValue.id){
-                    
-                            console.log("Borrando producto de woocommerce"+previousValue.id)
-                            config = {
-                                headers: {
-                                    'Content-Type' : 'application/json',
-                                    'Authorization' : 'Bearer '+response.data.token
-                                }
-                            }                                    
-        
-                            let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/products/"+previousValue.id+"?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-
-                            axios.delete(apiUrl,config).then(response=>{
-                                console.log("producto borrado!")
-                                return null
-                            }).catch(err => console.log(err));
-                        }     
-                    }
-                }           
-                    
-                return null;
-                }).catch((err) => {console.log(err)});
-            return null
-            }).catch((err) => {console.log(err)});
-        }             
+    //    if(err.response.data.code === "woocommerce_rest_product_invalid_id"){            
+            WooCrearProducto(comercioSincData,producto)
+    //    }
         return null
-    }).catch((err) => {console.log(err)}); 
-
-    console.log("Sincronización en curso...");   
-    return "OK"
-})
+    });
 
 
+}
 
-const syncCategoriasWithWC = functions.firestore.document('/comercios/{comercioId}/categorias/{categoriaId}/woocommerceSincData/1').onWrite((change, context) => {
+WooCrearCategoria = (comercioSincData,categoria,change)=>{
+
+    let wcCategoria ={
+        name : categoria.nombre,
+        description : categoria.descripcion        
+    }    
+
+    if(categoria.foto){
+        wcCategoria.image = {
+            src:categoria.foto.url                            
+        } 
+    }
+
+    console.log("Creando en WC (no habia previous)")              
+    config = {
+        headers: {
+            'Content-Type' : 'application/json',
+            'Authorization' : 'Bearer '+tokenWordpress
+        }
+    }                             
+    const categoriaJSON = JSON.parse(JSON.stringify(wcCategoria));
 
 
-    db.collection('comercios').doc(context.params.comercioId).get().then(comercioDoc=>{
-        console.log(comercioDoc.data().nombre)
-        if(comercioDoc.data().woocommerce.url !== ""){
+    let apiUrl = comercioSincData.url+"/wp-json/wc/v3/products/categories?consumer_key="+comercioSincData.consumerKey+"&consumer_secret="+comercioSincData.consumerSecret
 
-            db.collection('comercios/'+context.params.comercioId+'/categorias').doc(context.params.categoriaId).get().then(categoriaDoc=>{
-                console.log(categoriaDoc.data().nombre)
-                let categoria = categoriaDoc.data();
-                categoria.id = categoriaDoc.id
+    axios.post(apiUrl,categoriaJSON,config).then(response=>{                                    
+        change.after.ref.set({id:response.data.id,sincronizado:true,createdAt:new Date()}, {merge: true});
+        db.collection('comercios/'+comercioSincData.comercioId+'/categorias').doc(categoria.id).set({woocommerceId:response.data.id}, {merge: true}).then(data=>{
+            return null    
+        }).catch(err=>{
+            console.log(err)
+        })
+        return null                
+    }).catch(err => console.log(err));
+}
 
-                let config = {
-                    headers: {
-                        'Content-Type' : 'application/json',
-                    }
-                }             
+WooCrearProducto = (comercioSincData,producto,change)=>{
 
-                const data = {
-                    username:"matiasnegri85@gmail.com",
-                    password:"Eduardito02"
-                }
+    let wcProducto ={
+        name : producto.nombre,
+        regular_price : producto.precio.toString(),
+        description : producto.descripcion,
+        price : producto.promocion.toString(),
+        sku : producto.barcode,
+        stock_quantity : producto.stock.toString(),
+        manage_stock:true,
+        categories:[],
+        images:[]
+    }    
 
-                axios.post(comercioDoc.data().woocommerce.url+"/wp-json/jwt-auth/v1/token",data,config)
-                .then(response => {
-                        
-                    
-                    let comercio = comercioDoc.data()
-                    console.log("Comercio sincronizado con woocommerce")
-                        
-                    const document = change.after.exists ? change.after.data() : null; //si hay documento despues entonces no es un delete
-
-                    if(change.after.exists){  //Nuevo o actualizacion
-                        
-                        const newValue = change.after.data()||{};
-                        // ...the previous value before this update
-                        const previousValue = change.before.data()||{};
-
-                        if(newValue.sincronizado){      
-                        
-                            
-                        let wcCategoria ={
-                            name : newValue.nombre,
-                            description : newValue.descripcion,
-                            image: {
-                                src:newValue.foto.url                            
-                            } 
-                        }    
-                        
-                        
-                        console.log(newValue.sincronizado+" "+previousValue.sincronizado)
-                                            
-    
-                        if(newValue.sincronizado){ 
-    
-                            if(previousValue.sincronizado){ //Actualizamos
-
-                                console.log("Actualizando en WC: "+previousValue.id)
-                                config = {
-                                    headers: {
-                                        'Content-Type' : 'application/json',
-                                        'Authorization' : 'Bearer '+response.data.token
-                                    }
-                                }             
-                
-                                const categoriaJSON = JSON.parse(JSON.stringify(wcCategoria));
-        
-                                let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/categories/"+newValue.id+"?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-                
-                                axios.post(apiUrl,categoriaJSON,config).then(response=>{
-                                    console.log(response.data.id)
-                                    return null            
-                                }).catch(err => {
-
-                                    console.log(err.response.data)
-                                    if(err.response.data.code === "woocommerce_rest_categorie_invalid_id"){
-                                        console.log("Creando en WC")              
-                                        config = {
-                                            headers: {
-                                                'Content-Type' : 'application/json',
-                                                'Authorization' : 'Bearer '+response.data.token
-                                            }
-                                        }             
-                        
-                                        const categoriaJSON = JSON.parse(JSON.stringify(wcCategoria));
-                
-                                        let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/categories?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-                        
-                                        axios.post(apiUrl,categoriaJSON,config).then(response=>{
-                                            console.log(response.data.id)
-                                            change.after.ref.set({id:response.data.id,sincronizado:true,createdAt:new Date()}, {merge: true});
-                                            
-                                            return null
-                        
-                                        }).catch(err => console.log(err));
-                                        
-                                    }
-                                    return null
-                                    
-                                });        
-                                    
-                            }
-                            else{ //creamos 
-
-                                console.log("Creando en WC (no habia previous)")              
-                                config = {
-                                    headers: {
-                                        'Content-Type' : 'application/json',
-                                        'Authorization' : 'Bearer '+response.data.token
-                                    }
-                                }                             
-                                const categoriaJSON = JSON.parse(JSON.stringify(wcCategoria));
-        
-                                let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/categories?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-                
-                                axios.post(apiUrl,categoriaJSON,config).then(response=>{                                    
-                                    change.after.ref.set({id:response.data.id,sincronizado:true,createdAt:new Date()}, {merge: true});
-                                    
-                                    return null                
-                                }).catch(err => console.log(err));
-                            }                            
-                        }
-                        else{ //newValue.id no existe
-
-                            if(previousValue.sincronizado){
-                                
-                                console.log("Borrando categoria de woocommerce"+previousValue.id)
-                                config = {
-                                    headers: {
-                                        'Content-Type' : 'application/json',
-                                        'Authorization' : 'Bearer '+response.data.token
-                                    }
-                                }                                    
+    if(producto.categorias.length > 0){
+        for(let cat of producto.categorias){
             
-                                let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/categories/"+previousValue.id+"?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
-        
-                                axios.delete(apiUrl,config).then(response=>{
-                                    console.log("categoria borrado!")
-                                    return null
-                                }).catch(err => console.log(err));
-                                return null
-                            
-                            }
-                            else{                                
-                                console.log("Woocommerce sincronizado permanece en false")                            
-                            }    
-                        }
-                    }
-                    else{
+            if(cat.woocommerceId){
+                let categorie = {
+                    id:cat.woocommerceId,
+                    name:cat.nombre
+                }
+                wcProducto.categories.push(categorie)
+            }
+            else{
+                console.log("Categoria no sincronizada con woocommerce!!!");
+            }                       
+        } 
+    }
 
-                        const previousValue = change.before.data()||{};
+    if(producto.imagenes.length > 0){
+        for(const img of producto.imagenes){
+            wcProducto.images.push({"src":img.url})
+        } 
+    }
 
-                        if(previousValue.id){
-                    
-                            console.log("Borrando categoria de woocommerce"+previousValue.id)
-                            config = {
-                                headers: {
-                                    'Content-Type' : 'application/json',
-                                    'Authorization' : 'Bearer '+response.data.token
-                                }
-                            }                                    
-        
-                            let apiUrl = comercioDoc.data().woocommerce.url+"/wp-json/wc/v3/categories/"+previousValue.id+"?consumer_key="+comercio.woocommerce.consumerKey+"&consumer_secret="+comercio.woocommerce.consumerSecret
 
-                            axios.delete(apiUrl,config).then(response=>{
-                                console.log("categoria borrado!")
-                                return null
-                            }).catch(err => console.log(err));
-                        }     
-                    }
-                }           
-                    
-                return null;
-                }).catch((err) => {console.log(err)});
-            return null
-            }).catch((err) => {console.log(err)});
-        }             
-        return null
-    }).catch((err) => {console.log(err)}); 
+    console.log("Creando en WC (no habia previous)")              
+    config = {
+        headers: {
+            'Content-Type' : 'application/json',
+            'Authorization' : 'Bearer '+tokenWordpress
+        }
+    }                             
+    const productoJSON = JSON.parse(JSON.stringify(wcProducto));
 
-    console.log("Sincronización en curso...");   
-    return "OK"
+    let apiUrl = comercioSincData.url+"/wp-json/wc/v3/products?consumer_key="+comercioSincData.consumerKey+"&consumer_secret="+comercioSincData.consumerSecret
 
-})
+    axios.post(apiUrl,productoJSON,config).then(response=>{                                    
+        change.after.ref.set({id:response.data.id,sincronizado:true,createdAt:new Date()}, {merge: true});
+        return null                
+    }).catch(err => console.log(err));
+}
+
+
 
 
     

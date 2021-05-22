@@ -243,7 +243,7 @@ export class FormComercioPage implements OnInit {
    
     if(this.updating == false){ 
       this.comercio.id = this.firestore.createId();
-      this.comerciosService.create(this.comercio).then(async data=>{
+      this.comerciosService.add(this.comercio).then(async data=>{
 
 
         if(this.iconChange){
@@ -293,7 +293,7 @@ export class FormComercioPage implements OnInit {
         }, {
           text: 'Eliminar',
           handler: () => {
-            this.comerciosService.delete(this.comercio,this.cajas);
+            this.comerciosService.delete(this.comercio.id);
             this.modalCtrl.dismiss();
           }
         }

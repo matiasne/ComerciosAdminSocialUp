@@ -134,8 +134,8 @@ export class BaseService {
     } 
 
     set(id,item) {  
-        delete item.id;  
-        console.log('[BaseService] adding item'+this.path);
+    //    delete item.id;  
+        console.log('[BaseService] adding item'+this.path+'/'+id);
         console.log(item);
 
         let time = new Date();

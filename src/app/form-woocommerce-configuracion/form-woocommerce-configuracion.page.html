@@ -10,18 +10,15 @@
 <ion-content class="ion-padding">
 
   <div class="form-card">
-    <ion-text color="primary"> 
-      <h4>Usuario</h4>         
-    </ion-text>   
+   
     <ion-item>
-      <ion-input type="text" [(ngModel)]="comercio.woocommerce.user" (ionChange)="cambiado()"></ion-input>
+      <ion-label position="floating" color="primary">Usuario</ion-label>
+      <ion-input type="text" [(ngModel)]="woocommerceConnection.user" (ionChange)="cambiado()"></ion-input>
     </ion-item>
 
-    <ion-text color="primary"> 
-      <h4>Contraseña</h4>         
-    </ion-text>   
     <ion-item>
-      <ion-input type="text" [(ngModel)]="comercio.woocommerce.password" (ionChange)="cambiado()"></ion-input>
+      <ion-label position="floating" color="primary">Contraseña</ion-label>
+      <ion-input type="text" [(ngModel)]="woocommerceConnection.password" (ionChange)="cambiado()"></ion-input>
     </ion-item>
   </div>
 
@@ -29,32 +26,25 @@
 
     
     
-    <ion-text color="primary"> 
-      <h4>URL del sitio web</h4>         
-    </ion-text>   
     <ion-item>
-      <ion-input type="text" [(ngModel)]="comercio.woocommerce.url" (ionChange)="cambiado()"></ion-input>
+      <ion-label position="floating" color="primary">URL del sitio web</ion-label>
+      <ion-input type="text" [(ngModel)]="woocommerceConnection.url" (ionChange)="cambiado()"></ion-input>
     </ion-item>
 
-    <ion-text color="primary"> 
-      <h4>Consumer Key</h4>         
-    </ion-text>   
     <ion-item>
-      <ion-input type="text" [(ngModel)]="comercio.woocommerce.consumerKey" (ionChange)="cambiado()"></ion-input>
+      <ion-label position="floating" color="primary">Consumer Key</ion-label>
+      <ion-input type="text" [(ngModel)]="woocommerceConnection.consumerKey" (ionChange)="cambiado()"></ion-input>
     </ion-item>
 
-    <ion-text color="primary"> 
-      <h4>Consumer Secret</h4>         
-    </ion-text>  
-
     <ion-item>
-      <ion-input type="text" [(ngModel)]="comercio.woocommerce.consumerSecret" (ionChange)="cambiado()"></ion-input>
+      <ion-label position="floating" color="primary">Consumer Secret</ion-label>
+      <ion-input type="text" [(ngModel)]="woocommerceConnection.consumerSecret" (ionChange)="cambiado()"></ion-input>
     </ion-item>
 
     <!--ion-button class="button-rounded" slot="end"  color="success" (click)="guardar()">Guardar</ion-button-->
 
-    <ion-button *ngIf="!conexionOk" class="button-rounded" color="primary" (click)="test()">Probar Conexión</ion-button>
-    <ion-button *ngIf="conexionOk" class="button-rounded" color="success" (click)="test()">Probar Conexión</ion-button>
+    <ion-button *ngIf="!woocommerceConnection.isOk" class="button-rounded" color="primary" (click)="test()">Conectar</ion-button>
+    <ion-button *ngIf="woocommerceConnection.isOk" class="button-rounded" color="success" (click)="test()">Conexion OK</ion-button>
     <!--ion-grid>
       <ion-row>
         <ion-col>

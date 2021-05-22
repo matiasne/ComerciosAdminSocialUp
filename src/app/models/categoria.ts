@@ -5,12 +5,6 @@ export class Categoria{
     public nombre:string;
     public descripcion ="";
     public updatedAt:any;
-
-    public woocommerce = {
-        sincronizado:false,
-        id:"",
-        lastUpdate:undefined
-    }
     
 	constructor(
 		

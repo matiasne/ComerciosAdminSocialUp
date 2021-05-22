@@ -1,7 +1,7 @@
 <ion-item (click)="seleccionar()" class="remove_inner_bottom">
-  <div slot="start" *ngIf="showImage">
-    <img class="producto-preview" src="{{item.fotoPrincipal}}" *ngIf="item.fotoPrincipal">
-    <ion-icon name="cube-outline" *ngIf="!item.fotoPrincipal"></ion-icon>
+  <div slot="start" *ngIf="showImage && item.imagenes">
+    <img class="producto-preview" *ngIf="item.imagenes[0]" src="{{item.imagenes[0].url}}" >
+    <ion-icon name="cube-outline" *ngIf="!item.imagenes[0]"></ion-icon>
   </div>      
   <ion-label style="color:black">                
     <h2><b>{{item.nombre}}</b> 

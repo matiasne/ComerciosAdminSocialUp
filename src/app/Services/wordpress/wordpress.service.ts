@@ -23,24 +23,35 @@ export class WordpressService {
   }
 
   async login(){   
-  
-    let comercio = this.comercioService.getSelectedCommerceValue()
-    let data = {
-      username:comercio.woocommerce.user,
-      password:comercio.woocommerce.password
-    }
-
-    let httpHeaders = new HttpHeaders({
-      'Content-Type' : 'application/json'
-    });     
-    let options = {
-      headers: httpHeaders
-    };    
-
-
-    this.apiUrl = comercio.woocommerce.url+"/wp-json/jwt-auth/v1/token"    
-    let response = this.http.post(this.apiUrl,data,options).toPromise();
-    return response;
+    return new Promise((resolve,reject) =>{
+      this.comercioService.getWoocommerceValue(this.comercioService.getSelectedCommerceValue().id).subscribe(values=>{
+        let data = {
+          username:values.user,
+          password:values.password
+        }
+    
+        let httpHeaders = new HttpHeaders({
+          'Content-Type' : 'application/json'
+        });     
+        let options = {
+          headers: httpHeaders
+        };       
+    
+        this.apiUrl = values.url+"/wp-json/jwt-auth/v1/token"  
+        try{
+          let response = this.http.post(this.apiUrl,data,options).toPromise();
+          resolve(response);
+        }  
+        catch(err){
+          reject(err)
+        }       
+        
+      },err=>{
+        reject(err)
+      })
+    })
+   
+   
 
   }
 

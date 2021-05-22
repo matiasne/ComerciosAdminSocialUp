@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AlertController, NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { Comercio } from '../models/comercio';
+import { CategoriasService } from '../Services/categorias.service';
 import { ComerciosService } from '../Services/comercios.service';
 import { LoadingService } from '../Services/loading.service';
 import { ProductosService } from '../Services/productos.service';
@@ -32,6 +33,16 @@ export class FormWoocommerceConfiguracionPage implements OnInit {
   public actualizar = false;
   public conexionOk = false;
 
+  public woocommerceConnection = {
+    comercioId:"",
+    user:"",
+    password:"",
+    url:"",
+    consumerKey:"",
+    consumerSecret:"",
+    isOk:"false"
+  }
+
   constructor(
     private comerciosService:ComerciosService,
     private navCtrl:NavController,
@@ -40,26 +51,21 @@ export class FormWoocommerceConfiguracionPage implements OnInit {
     private wordpressService:WordpressService,
     private alertController:AlertController,
     private loadingService:LoadingService,
-    private WCCategoriesService:CategoriesService,
+    private categoriasService:CategoriasService,
     private webhooksService:WebhooksService,
     private toastService:ToastService
   ) { 
     this.comercio = new Comercio()
 
-    this.woocommerceService.obsProgresoSend().subscribe(data=>{
-      this.progresoSend = data;
-      console.log(this.progresoSend)
-    })
-
-    this.woocommerceService.obsProgresoReceived().subscribe(data=>{
-      this.progresoReceived = data;
-      console.log(this.progresoReceived)
-    })
   }
 
   ngOnInit() {
     this.comercio = this.comerciosService.getSelectedCommerceValue()
-    
+    this.comerciosService.getWoocommerceValue(this.comercio.id).subscribe(data=>{
+      this.woocommerceConnection = data;
+      this.woocommerceConnection.comercioId = this.comercio.id
+      console.log(this.woocommerceConnection)
+    })
   }
 
 
@@ -68,21 +74,19 @@ export class FormWoocommerceConfiguracionPage implements OnInit {
   }
 
   async guardar(){
-
-    
-    this.loadingService.presentLoadingText("Guardando")
-    this.comerciosService.update(this.comercio).then(data=>{     
-      this.loadingService.dismissLoading()
-      this.navCtrl.back()
-    });    
+    this.comerciosService.updateWoocommerceValues(this.comercio.id,this.woocommerceConnection).then(data=>{
+      console.log("Guardados")
+    })
   }
 
   test(){
-    this.loadingService.presentLoadingText("Guardando")
-    this.comerciosService.update(this.comercio).then(data=>{     
-      this.loadingService.dismissLoading()
+    
+    this.comerciosService.updateWoocommerceValues(this.comercio.id,this.woocommerceConnection).then(data=>{
       this.conectar()
-    }); 
+    },err=>{
+      console.log("No se pudo guardar")
+    })
+   
   }
 
   async conectar(){
@@ -96,10 +100,17 @@ export class FormWoocommerceConfiguracionPage implements OnInit {
 
       if(err.status == 0){
         this.toastService.alert("Error","No se puede conectar con la URL")
+        
+        
       }
       else{
         this.toastService.alert("Error",err.error.message)
       }
+
+      this.woocommerceConnection.isOk = "false";
+      this.comerciosService.updateWoocommerceValues(this.comercio.id,this.woocommerceConnection).then(data=>{
+        console.log("Update")
+      })
       return false
     }
 
@@ -108,16 +119,38 @@ export class FormWoocommerceConfiguracionPage implements OnInit {
     this.woocommerceService.getAll().then(data=>{
       console.log(data)
       this.conexionOk = true;
+      this.woocommerceConnection.isOk = "true";
+      this.comerciosService.updateWoocommerceValues(this.comercio.id,this.woocommerceConnection).then(data=>{
+        console.log("Update")
+      })
       this.loadingService.dismissLoading();
+      let obs = this.categoriasService.list().subscribe(categorias =>{
+        obs.unsubscribe()
+        categorias.forEach(cat =>{
+          this.categoriasService.updateWoocommerceValues(cat.id,{sincronizado:true})
+        })        
+      })
     },err=>{
       console.log(err)
       if(err.status == 0){
         this.toastService.alert("Error","No se puede conectar con la URL")
+        this.woocommerceConnection.isOk = "false";
+        this.comerciosService.updateWoocommerceValues(this.comercio.id,this.woocommerceConnection).then(data=>{
+          console.log("Update")
+        })
       }
       else{
         this.toastService.alert("Error",err.error.message)
+        this.woocommerceConnection.isOk = "false";
+        this.comerciosService.updateWoocommerceValues(this.comercio.id,this.woocommerceConnection).then(data=>{
+          console.log("Update")
+        })
       }
       this.conexionOk = false;
+      this.woocommerceConnection.isOk = "false";
+      this.comerciosService.updateWoocommerceValues(this.comercio.id,this.woocommerceConnection).then(data=>{
+        console.log("Update")
+      })
       this.loadingService.dismissLoading();
     })
   }

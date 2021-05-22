@@ -31,7 +31,7 @@ export class ListClientesPage implements OnInit {
 
   public comercio:Comercio
 
- 
+  public buscando = false;
   
   constructor(
     public modalController: ModalController,

@@ -105,7 +105,7 @@ afipRouter.get("/status",isAuth,async (req,res)=>{
 
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs',ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert/certs',ta_folder:'./temp' });
       const serverStatus = await afip.ElectronicBilling.getServerStatus();
       console.log('Este es el estado del servidor:');
       res.status(200).send(serverStatus); 
@@ -129,7 +129,7 @@ afipRouter.get("/voucherInfo",isAuth,async (req, res) => {
 
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs',ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert/certs',ta_folder:'./temp' });
       const voucherInfo = await afip.ElectronicBilling.getVoucherInfo(1,1,6); //Devuelve la información del comprobante 1 para el punto de venta 1 y el tipo de comprobante 6 (Factura B)
       try{
           if(voucherInfo === null){
@@ -164,7 +164,7 @@ afipRouter.get("/getLastVoucherInfo",isAuth,async (req, res) => {
 
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs',ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert/certs',ta_folder:'./temp' });
       const numero = await afip.ElectronicBilling.getLastVoucher(1,6); //Devuelve la información del comprobante 1 para el punto de venta 1 y el tipo de comprobante 6 (Factura B)
       const voucherInfo = await afip.ElectronicBilling.getVoucherInfo(numero,1,6); //Devuelve la información del comprobante 1 para el punto de venta 1 y el tipo de comprobante 6 (Factura B)
       try{
@@ -199,8 +199,8 @@ afipRouter.get("/getLastVoucherNumber",isAuth,async (req, res) => {
   db.collection('afip').doc(req.user.comercioId).get().then(async doc=>{
 
     if(doc.exists){
-      console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs',ta_folder:'./temp' });
+      console.log(doc.data()) 
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert',ta_folder:'./temp' });
       const voucherInfo = await afip.ElectronicBilling.getLastVoucher(1,6); //Devuelve la información del comprobante 1 para el punto de venta 1 y el tipo de comprobante 6 (Factura B)
       try{
           if(voucherInfo === null){
@@ -222,9 +222,11 @@ afipRouter.get("/getLastVoucherNumber",isAuth,async (req, res) => {
     }     
     return null
   },err=>{
+    console.log(err)
     res.status(500).send(err);
     return null
   }).catch(err=>{
+    console.log(err)
     return  res.status(500).send(err);
   });   
 });
@@ -240,7 +242,7 @@ afipRouter.post("/createVoucher",isAuth,async (req, res) => {
   let concepto = req.body.concepto;
   let docTipo =req.body.docTipo;
   let docNro = req.body.docNro;
-  let cbteFecha =req.body.cbteFecha;
+  let cbteFecha = parseInt(req.body.cbteFecha.replace(/-/g, ''));
   let impTotal =req.body.impTotal;
   let impTotConc =req.body.impTotConc;
   let impNeto = req.body.impNeto;
@@ -249,24 +251,41 @@ afipRouter.post("/createVoucher",isAuth,async (req, res) => {
   let impTrib = req.body.impTrib;
   let monId = req.body.monId;
   let monCotiz =req.body.monCotiz;
-  let iva = [{ 
-    Id: req.body.ivaId,
-    BaseImp: req.body.ivaBseImp,
-    Importe: req.body.ivaImporte
-  }]
-  let tributos =[{
-    Id: req.body.ivaId,
-    BaseImp: req.body.ivaBseImp,
-    Importe: req.body.ivaImporte
-  }]
+
+  console.log(cbteFecha)
+
+  let iva = [] //opcional
+  if(req.body.iva){    
+    req.body.iva.forEach(element => {
+      console.log(element)
+      let item = { 
+        Id: element.ivaId,
+        BaseImp: element.BaseImp,
+        Importe: element.Importe
+      }
+      iva.push(item);
+    });
+  }
+  console.log(iva)
 
 
+  let tributos = [] //opcional
+  if(req.body.tributos){   
+    req.body.tributos.forEach(element => {
+      let item = { 
+        Id: element.ivaId,
+        BaseImp: element.BaseImp,
+        Importe: element.Importe
+      }
+      tributos.push(item);
+    });
+  }
 
   db.collection('afip').doc(req.user.comercioId).get().then(async doc=>{
 
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: './cert/'+req.user.comercioId+".pem",key: './cert/'+req.user.comercioId+".key", res_folder: 'afip/certs' ,ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert:req.user.comercioId+".pem", key:req.user.comercioId+".key", res_folder: 'afip/cert' ,ta_folder:'./temp' });
       const date = new Date(Date.now() - ((new Date()).getTimezoneOffset() * 60000)).toISOString().split('T')[0];
 
       //Aca debo obtener el último número de voucher getLastVoucher
@@ -289,15 +308,17 @@ afipRouter.post("/createVoucher",isAuth,async (req, res) => {
           'ImpTrib' 	: impTrib, //0,   //Importe total de tributos
           'MonId' 	: monId,//'PES', //Tipo de moneda usada en el comprobante (ver tipos disponibles)('PES' para pesos argentinos) 
           'MonCotiz' 	: monCotiz, //1,     // Cotización de la moneda usada (1 para pesos argentinos)  
-          'Iva' 		: iva, /*[ // (Opcional) Alícuotas asociadas al comprobante
-              {
-                  'Id' 		: 5, // Id del tipo de IVA (5 para 21%)(ver tipos disponibles) 
-                  'BaseImp' 	: 100, // Base imponible
-                  'Importe' 	: 21 //
-              }
-          ],*/
-          'Tributos':tributos
       };
+
+     
+
+      if(tributos.length > 0){
+        data.Tributos = tributos
+      }
+
+      if(iva.length > 0){
+        data.Iva = tributos
+      }
 
       const respuesta = await afip.ElectronicBilling.createVoucher(data);
 
@@ -309,8 +330,8 @@ afipRouter.post("/createVoucher",isAuth,async (req, res) => {
     }     
     return null
   }).catch(err=>{
-    console.log(err)
-    return  res.status(500).send({err:err});
+    console.log("!!!"+err)
+    return  res.status(400).send({err:""+err});
   });
   
    //CAE asignado el comprobante
@@ -323,7 +344,7 @@ afipRouter.get("/salesPoint",isAuth,async (req, res) => {
 
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs',ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert/certs',ta_folder:'./temp' });
       const salesPoints= await afip.ElectronicBilling.getSalesPoints();
       res.status(200).send({salesPoints:salesPoints});	     
     }
@@ -347,7 +368,7 @@ afipRouter.get("/voucherTypes",isAuth,async (req, res) => {
 
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs', ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert/certs', ta_folder:'./temp' });
       const voucherTypes = await afip.ElectronicBilling.getVoucherTypes();
       res.status(200).send({voucherTypes:voucherTypes});	     
     }
@@ -373,7 +394,7 @@ afipRouter.get("/conceptTypes",isAuth,async (req, res) => {
 
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs',ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert/certs',ta_folder:'./temp' });
       const conceptTypes = await afip.ElectronicBilling.getConceptTypes();
       res.status(200).send({conceptTypes:conceptTypes});   
     }
@@ -397,7 +418,7 @@ afipRouter.get("/documentTypes",isAuth,async (req, res) => {
 
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs',ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert/certs',ta_folder:'./temp' });
       const documentTypes  = await afip.ElectronicBilling.getDocumentTypes();
       res.status(200).send({documentTypes:documentTypes }); 	     
     }
@@ -420,7 +441,7 @@ afipRouter.get("/aloquotTypes",isAuth,async (req, res) => {
 
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs',ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert/certs',ta_folder:'./temp' });
       const aloquotTypes  = await afip.ElectronicBilling.getAliquotTypes();
       res.status(200).send({aloquotTypes :aloquotTypes  });   	     
     }
@@ -443,7 +464,7 @@ afipRouter.get("/currenciesTypes",isAuth,async (req, res) => {
 
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs',ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert/certs',ta_folder:'./temp' });
       const currenciesTypes = await afip.ElectronicBilling.getCurrenciesTypes();
       res.status(200).send({currenciesTypes :currenciesTypes  });        
     }
@@ -466,7 +487,7 @@ afipRouter.get("/optionTypes",isAuth,async (req, res) => {
 
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs',ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert/certs',ta_folder:'./temp' });
       const optionTypes  = await afip.ElectronicBilling.getOptionsTypes();
       res.status(200).send({optionTypes  :optionTypes   });   
     }
@@ -488,7 +509,7 @@ afipRouter.get("/taxTypes",isAuth,async (req, res) => {
   db.collection('afip').doc(req.user.comercioId).get().then(async doc=>{
     if(doc.exists){
       console.log(doc.data().cuit) 
-      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/certs',ta_folder:'./temp' });
+      const afip = new Afip({ CUIT: req.user.cuit, cert: req.user.comercioId+".pem",key: req.user.comercioId+".key", res_folder: 'afip/cert/certs',ta_folder:'./temp' });
       const taxTypes = await afip.ElectronicBilling.getTaxTypes();
       res.status(200).send({taxTypes :taxTypes});  
     }

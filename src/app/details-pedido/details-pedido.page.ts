@@ -621,6 +621,7 @@ export class DetailsPedidoPage implements OnInit {
 
   async cobrar(){
 
+   
     if(this.cajas.length == 0){
       this.toastServices.alert("Debe abrir una caja antes de continuar","De este modo podrá tener un registro de los pagos");
       return;
@@ -642,6 +643,9 @@ export class DetailsPedidoPage implements OnInit {
         return;
       }
     }  
+
+    this.carritoService.vaciar() 
+
    
     this.cajaSeleccionada = this.cajas[this.cajaSeleccionadaIndex];
     console.log(this.cajaSeleccionada)

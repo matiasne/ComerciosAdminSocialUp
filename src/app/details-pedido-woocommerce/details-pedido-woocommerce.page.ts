@@ -4,12 +4,14 @@ import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Caja } from '../models/caja';
+import { Comercio } from '../models/comercio';
 import { EnumTipoMovimientoCaja, MovimientoCaja } from '../models/movimientoCaja';
 import { EnumEstadoCobro } from '../models/pedido';
 import { Producto } from '../models/producto';
 import { WCOrder } from '../models/woocommerce/order';
 import { AuthenticationService } from '../Services/authentication.service';
 import { CajasService } from '../Services/cajas.service';
+import { ComerciosService } from '../Services/comercios.service';
 import { NavegacionParametrosService } from '../Services/global/navegacion-parametros.service';
 import { MovimientosService } from '../Services/movimientos.service';
 import { PedidosWoocommerceService } from '../Services/pedidos-woocommerce.service';
@@ -37,6 +39,8 @@ export class DetailsPedidoWoocommercePage implements OnInit {
 
   public cEstado = EnumEstadoCobro
 
+  public comercio:Comercio
+
   constructor(
     private navParamService:NavegacionParametrosService,
     public cajasService:CajasService,
@@ -48,10 +52,13 @@ export class DetailsPedidoWoocommercePage implements OnInit {
     private firestore:AngularFirestore,
     private movimientosService:MovimientosService,
     private navCtrl:NavController,
-    private productosService:ProductosService
+    private productosService:ProductosService,
+    private comerciosService:ComerciosService
   ) {
     this.order = new WCOrder()  
     
+    this.comercio = new Comercio()
+    this.comercio.asignarValores(this.comerciosService.getSelectedCommerceValue())
    
     
     if(this.navParamService.param instanceof WCOrder){ 
@@ -238,35 +245,41 @@ export class DetailsPedidoWoocommercePage implements OnInit {
   }*/
 
   sumarStock(){
-    this.order.line_items.forEach(item =>{
-      console.log(item)
-      let obs = this.productosService.getByName(item.name).subscribe((data:any)=>{
-       obs.unsubscribe()
-        console.log(data)
-        let prod= new Producto()
-        prod.asignarValores(data[0])
-        prod.stock += Number(item.quantity)
-        this.productosService.update(prod).then(data=>{
-          console.log("Stock restado")
+    if(this.comercio.config.stock){
+      this.order.line_items.forEach(item =>{
+        console.log(item)
+        let obs = this.productosService.getByName(item.name).subscribe((data:any)=>{
+         obs.unsubscribe()
+          console.log(data)
+          let prod= new Producto()
+          prod.asignarValores(data[0])
+          prod.stock += Number(item.quantity)
+          this.productosService.update(prod).then(data=>{
+            console.log("Stock restado")
+          })
         })
       })
-    })
+    }
+    
   }
 
   restarStock(){
-    this.order.line_items.forEach(item =>{
-      console.log(item)
-      let obs = this.productosService.getByName(item.name).subscribe((data:any)=>{
-       obs.unsubscribe()
-        console.log(data)
-        let prod= new Producto()
-        prod.asignarValores(data[0])
-        prod.stock -= Number(item.quantity)
-        this.productosService.update(prod).then(data=>{
-          console.log("Stock restado")
+    if(this.comercio.config.stock){
+      this.order.line_items.forEach(item =>{
+        console.log(item)
+        let obs = this.productosService.getByName(item.name).subscribe((data:any)=>{
+         obs.unsubscribe()
+          console.log(data)
+          let prod= new Producto()
+          prod.asignarValores(data[0])
+          prod.stock -= Number(item.quantity)
+          this.productosService.update(prod).then(data=>{
+            console.log("Stock restado")
+          })
         })
       })
-    })
+    }
+    
   }
 
 }

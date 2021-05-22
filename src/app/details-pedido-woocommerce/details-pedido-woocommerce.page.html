@@ -19,16 +19,16 @@
   ></app-card-producto-woocommerce>
   <h5>Datos de envío:</h5>
   <p>
-    {{order.shipping.first_name}} {{order.shipping.last_name}}<br>
-    dirección: {{order.shipping.address_1}}
-    <span *ngIf="order.shipping.address_2">
-      dirección 2: {{order.shipping.address_2}}
+    {{order.billing.first_name}} {{order.billing.last_name}}<br>
+    dirección: {{order.billing.address_1}}
+    <span *ngIf="order.billing.address_2">
+      dirección 2: {{order.billing.address_2}}
     </span><br>
-    ciudad:{{order.shipping.city}}<br>
-    provincia:{{order.shipping.state}}<br>
-    código postal:{{order.shipping.postcode}}<br>
-    <ion-icon name="mail-outline"></ion-icon><span (click)="enviarMail()">email:{{order.shipping.email}}</span> <br>
-    <ion-icon name="call-outline"></ion-icon><span (click)="llamar()" >phone:{{order.shipping.phone}} </span>
+    ciudad:{{order.billing.city}}<br>
+    provincia:{{order.billing.state}}<br>
+    código postal:{{order.billing.postcode}}<br>
+    <ion-icon name="mail-outline"></ion-icon><span (click)="enviarMail()">email:{{order.billing.email}}</span> <br>
+    <ion-icon name="call-outline"></ion-icon><span (click)="llamar()" >phone:{{order.billing.phone}} </span>
   </p>
 
   <h5>Método de pago:</h5>

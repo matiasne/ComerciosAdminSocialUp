@@ -98,7 +98,7 @@ export class FormProductoPage implements OnInit {
     this.comercio = new Comercio()
     this.comercio.asignarValores(this.comercioService.getSelectedCommerceValue())
     this.producto = new Producto();
-    this.woocommerceSyncData = new WoocommerceSyncData()
+    this.woocommerceSyncData = new WoocommerceSyncData()  
 
     this.datosForm = this.formBuilder.group({
       nombre: ['', Validators.required],
@@ -180,9 +180,6 @@ export class FormProductoPage implements OnInit {
 
   }
 
-  woocommerceCambiado(){
-    this.flagWoocommerce = true;
-  }
   
   addFoto(newValue : any){   
     let archivo = new Archivo();
@@ -335,7 +332,8 @@ export class FormProductoPage implements OnInit {
       this.producto.imagenes.push(json)     
     }
 
-    if(this.flagWoocommerce){
+    if(this.comercio.config.woocommerce){
+      
       console.log(this.woocommerceSyncData)
       this.woocommerceSyncData.changeDate = new Date()
       let wSyncData = JSON.parse(JSON.stringify(this.woocommerceSyncData));
@@ -350,7 +348,7 @@ export class FormProductoPage implements OnInit {
      
     } 
     else{
-      this.productosService.add(this.producto).then((data:any)=>{
+      this.productosService.set(this.producto.id,this.producto).then((data:any)=>{
       })
       
     }    
@@ -420,7 +418,7 @@ export class FormProductoPage implements OnInit {
           text: 'Eliminar',
           handler: () => {
             this.productosService.delete(this.route.snapshot.params.id);
-            
+            this.productosService.deleteWoocommerceValues(this.route.snapshot.params.id)
             this.navCtrl.back();
           }
         }

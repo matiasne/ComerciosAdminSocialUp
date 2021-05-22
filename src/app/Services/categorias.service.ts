@@ -11,6 +11,7 @@ import { map } from 'rxjs/operators';
 })
 export class CategoriasService extends BaseService { 
   
+  private woocommerceSyncPath = "";
   constructor(
     protected afs: AngularFirestore,
     private comerciosService:ComerciosService
@@ -50,7 +51,37 @@ export class CategoriasService extends BaseService {
 
   public getAll() {   
     return this.afs.collection(this.path).snapshotChanges();
+  }
 
+  
+  getWoocommerceValue(id){
+    this.woocommerceSyncPath = this.path+'/'+id+'/woocommerceSincData'
+    return this.afs.collection(this.woocommerceSyncPath).doc("1").get()
+    .pipe(
+        map(doc => {
+            if (doc.exists) {
+        /* workaround until spread works with generic types */
+                const data = doc.data() as any;
+                const id = doc.id;
+                data.fromCache = doc.metadata.fromCache;
+                return { id, ...data };
+            }
+        })
+    ); 
+  }
+
+  updateWoocommerceValues(id,values){
+    this.woocommerceSyncPath = this.path+'/'+id+'/woocommerceSincData'
+    this.afs.collection(this.woocommerceSyncPath).doc("1").set(values).then(data=>{
+      console.log("Actualizados los valores de woocommerce")
+    })
+  }
+
+  deleteWoocommerceValues(id){
+    this.woocommerceSyncPath = this.path+'/'+id+'/woocommerceSincData'
+    this.afs.collection(this.woocommerceSyncPath).doc("1").delete().then(data=>{
+      console.log("Actualizados los valores de woocommerce")
+    })
   }
 
 }
