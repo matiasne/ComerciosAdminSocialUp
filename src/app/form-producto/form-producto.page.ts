@@ -4,7 +4,7 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { Crop } from '@ionic-native/crop/ngx';
 import { ActionSheetController, ModalController, AlertController, NavController } from '@ionic/angular';
 import { File } from '@ionic-native/file/ngx';
-import { Camera} from '@ionic-native/Camera/ngx';
+import { Camera} from '@ionic-native/camera/ngx';
 import { CategoriasService } from '../Services/categorias.service';
 import { ProductosService } from '../Services/productos.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
