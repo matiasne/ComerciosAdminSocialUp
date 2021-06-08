@@ -27,7 +27,7 @@
     "@ionic-native/barcode-scanner": "^5.26.0",
     "@ionic-native/bluetooth-serial": "^5.31.1",
     "@ionic-native/call-number": "^5.26.0",
-    "@ionic-native/camera": "^5.26.0",
+    "@ionic-native/camera": "^5.33.1",
     "@ionic-native/core": "^5.33.1",
     "@ionic-native/crop": "^5.26.0",
     "@ionic-native/email-composer": "^5.26.0",
@@ -53,7 +53,6 @@
     "cordova-plugin-androidx": "^2.0.0",
     "cordova-plugin-androidx-adapter": "^1.1.1",
     "cordova-plugin-bluetooth-serial": "^0.4.7",
-    "cordova-plugin-camera": "^4.1.0",
     "cordova-plugin-crop": "^0.4.0",
     "cordova-plugin-email-composer": "^0.9.2",
     "cordova-plugin-fcm-with-dependecy-updated": "^6.4.3",
@@ -84,6 +83,7 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^12.11.1",
     "codelyzer": "^5.1.2",
+    "cordova-plugin-camera": "^4.1.0",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-file-transfer": "^1.7.1",
     "cordova-plugin-ionic-keyboard": "^2.2.0",
@@ -110,7 +110,6 @@
         "REVERSED_CLIENT_ID": "apps.googleusercontent.com381639582302-k0k3kbed5i99aa9465vbbl0mlmicur4f",
         "WEB_APPLICATION_CLIENT_ID": "381639582302-k0k3kbed5i99aa9465vbbl0mlmicur4f.apps.googleusercontent.com"
       },
-      "cordova-plugin-camera": {},
       "cordova-plugin-crop": {},
       "cordova-plugin-file": {},
       "cordova-plugin-telerik-imagepicker": {},
@@ -133,7 +132,10 @@
       "cordova-plugin-printer": {},
       "cordova-plugin-bluetooth-serial": {},
       "cordova-plugin-file-transfer": {},
-      "com.telerik.plugins.nativepagetransitions": {}
+      "com.telerik.plugins.nativepagetransitions": {},
+      "cordova-plugin-camera": {
+        "ANDROID_SUPPORT_V4_VERSION": "27.+"
+      }
     },
     "platforms": [
       "android"
