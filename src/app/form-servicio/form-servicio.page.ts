@@ -4,7 +4,7 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { Crop } from '@ionic-native/crop/ngx';
 import { ActionSheetController, ModalController, AlertController, NavController } from '@ionic/angular';
 import { File } from '@ionic-native/file/ngx';
-import { Camera, CameraOptions} from '@ionic-native/Camera/ngx';
+import { Camera, CameraOptions} from '@ionic-native/Camera';
 import { FormPlanPage } from '../form-plan/form-plan.page';
 import { ServiciosService } from '../Services/servicios.service';
 import { CategoriasService } from '../Services/categorias.service';

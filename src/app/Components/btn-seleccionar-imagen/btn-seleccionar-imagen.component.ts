@@ -4,7 +4,7 @@ import { ImagesService } from 'src/app/Services/images.service';
 import { LoadingService } from 'src/app/Services/loading.service';
 import { Crop } from '@ionic-native/crop/ngx';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
-import { Camera, CameraOptions} from '@ionic-native/Camera/ngx';
+import { Camera, CameraOptions} from '@ionic-native/Camera';
 import { File } from '@ionic-native/file/ngx';
 import { RecortarImagenPage } from 'src/app/recortar-imagen/recortar-imagen.page';
 
