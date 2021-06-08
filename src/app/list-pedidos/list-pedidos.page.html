@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
-
+    <ion-title>Pedidos</ion-title>   
     <ion-button *ngIf="connectionStatus == 'offline'" fill="clear" color="danger" slot="end">
       <ion-icon name="cloud-offline-outline"></ion-icon>
     </ion-button>  
@@ -16,7 +16,7 @@
  
 <ion-content class="ion-padding"> 
 
-  <ion-searchbar animated   
+  <ion-searchbar animated *ngIf="showSearchBar"  
       placeholder="Buscar"
       animated="true"
       showCancelButton="never" 
@@ -85,6 +85,9 @@
 
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
+    <ion-fab-button *ngIf="palabraFiltro == ''"  color="success" (click)="focusBuscar()">
+      <ion-icon name="search"></ion-icon>
+    </ion-fab-button><br>
     <ion-fab-button (click)="nuevoPedido()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>

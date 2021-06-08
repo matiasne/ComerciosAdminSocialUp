@@ -15,10 +15,6 @@ app.use(cors({origin: true}))
 app.use("/afip", afipApi);
 app.use("/woocommerce", woocommerceApi);
 
-app.get('/prueba', (request, response) => {
-    response.send('Hello from prueba');
-});
-
 // HTTP Cloud Functions
 const api = functions.https.onRequest(app);
 
@@ -51,8 +47,7 @@ const validarToken = functions.https.onRequest((req, res) => {
         if(err){
             res.status(404).send("No valido");
         }
-    }) 
-    
+    })     
 });
 
 

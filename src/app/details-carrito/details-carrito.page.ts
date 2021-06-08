@@ -28,6 +28,10 @@ import { DetailsPedidoPage } from '../details-pedido/details-pedido.page';
 import { ComandaPage } from '../impresiones/comanda/comanda.page';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { AnimationOptions } from '@ionic/angular/providers/nav-controller';
+import { ModalNotificacionService } from '../Services/modal-notificacion.service';
+import { ModalInputDireccionPage } from '../modal-input-direccion/modal-input-direccion.page';
+import { Localizacion } from '../models/localizacion';
+import { FormMesaPage } from '../form-mesa/form-mesa.page';
 
 @Component({
   selector: 'app-details-carrito',
@@ -37,10 +41,11 @@ import { AnimationOptions } from '@ionic/angular/providers/nav-controller';
 export class DetailsCarritoPage implements OnInit {
 
   public carrito = new Pedido();
+  public cliente = new Cliente();
   public comercio:Comercio;
   public subsComercio: Subscription;
   public subsCarrio:Subscription;
-  public comentario = "";
+  
   public impresora
   public enumTipo = EnumTipoDescuento
 
@@ -54,26 +59,32 @@ export class DetailsCarritoPage implements OnInit {
     public comerciosService:ComerciosService,
     private loadingService:LoadingService,
     private toastServices:ToastService,
-    private pedidoServices: PedidoService,
     private impresoraService:ImpresoraService,
-    private comentariosService:ComentariosService,
+    
     private route:ActivatedRoute,
     private router:Router,
-    private firestore: AngularFirestore,
-    private alertController:AlertController
+    
+    private alertController:AlertController,
+    private modalNotificacion:ModalNotificacionService
   ) {
     this.impresora = this.impresoraService.obtenerImpresora()
     this.comercio = new Comercio();
     this.carrito = new Pedido(); 
 
     this.loadingService.presentLoading()
-    this.comercio.asignarValores(this.comerciosService.getSelectedCommerceValue());
+
+    this.comerciosService.getSelectedCommerce().subscribe(data=>{
+      this.comercio.asignarValores(data)
+      console.log(this.comercio)    
+    })
+   
 
     this.back = this.route.snapshot.params.carritoIntended;
 
-    console.log(this.comercio)    
+   
     this.subsCarrio = this.carritoService.getActualCarritoSubs().subscribe(data=>{
-      this.carrito = data;      
+      this.carrito = data;  
+      
       this.loadingService.dismissLoading()
     })    
   }  
@@ -118,12 +129,7 @@ export class DetailsCarritoPage implements OnInit {
     if(this.comercio.config.servicios && this.carrito.servicios.length == 0 && this.carrito.productos.length == 0){
       this.toastServices.alert("Debes ingresar al menos un producto o servicio","");      
       return;
-    }    
-        
-    if(this.comercio.config.mesas && this.carrito.mesaId == ""){
-        this.toastServices.alert("Debes seleccionar al menos una mesa!","");
-        return;
-    }            
+    }        
     
     this.crearPedido();       
   }
@@ -131,35 +137,9 @@ export class DetailsCarritoPage implements OnInit {
  
 
   crearPedido(){
+    this.carritoService.crearPedido()
 
-    this.carrito.id = this.firestore.createId();
-    this.carrito.personalId = this.authenticationService.getUID();
-    this.carrito.personalEmail = this.authenticationService.getEmail();
-    this.carrito.personalNombre = this.authenticationService.getNombre();
-    
-    
-    this.impresoraService.impresionComanda(this.carrito)
-    
-    
-    
-    if(this.comentario != ""){ 
-      this.comentariosService.setearPath("pedidos",this.carrito.id);      
-      let comentario = new Comentario();
-      comentario.text =this.comentario;
-      comentario.senderId=this.authenticationService.getUID();
-      comentario.senderEmail =this.authenticationService.getEmail();
-      this.comentariosService.add(comentario).then(data=>{
-        console.log("comentario agregado")
-      })
-    }  
-
-    let c:any = new Pedido()  //NO borrar!!! importante para cuando está en modo offline!!!
-    Object.assign(c, this.carrito);
-    this.carritoService.vaciar();  
-
-    this.pedidoServices.add(c).then((data:any)=>{       
-      console.log("!!!!!!"+data.fromCache)      
-    });  
+   
     this.atras()
 
   }  
@@ -170,22 +150,30 @@ export class DetailsCarritoPage implements OnInit {
 
   eliminarDescuento(i){
     this.carritoService.eliminarDescuento(i);
+    this.toastServices.mensaje("Descuento eliminado!","");
   }
 
   eliminarRecargo(i){
     this.carritoService.eliminarRecargo(i);
+    this.toastServices.mensaje("Recargo eliminado!","");
   }
 
   eliminarProducto(i){
-    this.carritoService.eliminarProducto(i);    
+    this.carritoService.eliminarProducto(i); 
+    if(this.carrito.productos.length == 0 && this.carrito.descuentos.length == 0 && this.carrito.recargos.length == 0){
+      this.navCtrl.back()
+    }
+    this.modalNotificacion.trash("Eliminado del pedido","El producto "+i.nombre+" ha sido eliminado del pedido") 
   }
 
   eliminarCliente(){
     this.carritoService.setearCliente(new Cliente());
+    this.toastServices.mensaje("Cliente desasignado!","");
   }
 
   eliminarMesa(){
     this.carritoService.setearMesa(new Mesa());
+    this.toastServices.mensaje("Mesa desasiganada!","");
   }
 
   
@@ -193,7 +181,8 @@ export class DetailsCarritoPage implements OnInit {
   async seleccionarCliente(){
     this.loadingService.presentLoading();
     const modal = await this.modalController.create({
-      component: SelectClientePage      
+      component: SelectClientePage,
+      cssClass:'modal-custom-wrapper',      
     });
     
     modal.present().then(()=>{
@@ -208,6 +197,7 @@ export class DetailsCarritoPage implements OnInit {
           this.abrirNuevoCliente();
         }
         if(retorno.data != "nuevo"){
+          this.toastServices.mensaje("Cliente Agregado!","");
           this.carritoService.setearCliente(retorno.data.item);
         }   
       }
@@ -217,17 +207,18 @@ export class DetailsCarritoPage implements OnInit {
   }
 
   async abrirNuevoCliente(){
-    this.loadingService.presentLoading();
     const modal = await this.modalController.create({
-      component: FormClientePage      
+      component: FormClientePage,
+      cssClass:'modal-custom-wrapper',      
     });    
     modal.present().then(()=>{
     })
 
     modal.onDidDismiss()
     .then((retorno) => {
-      if(retorno.data){        
-          this.carritoService.setearCliente(retorno.data.item);
+      if(retorno.data){    
+        this.cliente = retorno.data.item;    
+        this.carritoService.setearCliente(retorno.data.item);
       }           
     });
     return await modal.present();
@@ -236,7 +227,8 @@ export class DetailsCarritoPage implements OnInit {
   async seleccionarMesa(){
     this.loadingService.presentLoading();
     const modal = await this.modalController.create({
-      component: SelectMesaPage      
+      component: SelectMesaPage,
+      cssClass:'modal-custom-wrapper',      
     });
 
     modal.present().then(()=>{
@@ -245,13 +237,37 @@ export class DetailsCarritoPage implements OnInit {
 
     modal.onDidDismiss()
     .then((retorno) => {
-      if(retorno.data){
+      if(retorno.data == "nuevo"){
+        this.abrirNuevaMesa()
+      }
+      else{
         this.carritoService.setearMesa(retorno.data.item);
       }        
     });
     return await modal.present();
   }
 
+  async abrirNuevaMesa(){
+    const modal = await this.modalController.create({
+      component: FormMesaPage,     
+      cssClass:'modal-custom-wrapper' 
+    });    
+    modal.present().then(()=>{
+    
+
+    })
+
+    modal.onDidDismiss()
+    .then((retorno) => {
+      console.log(retorno.data.item)
+      if(retorno.data){
+        this.carritoService.setearMesa(retorno.data.item);
+      }
+     
+    });
+    return await modal.present();
+  }
+  
   async preguntarVaciar(){
     const alert = await this.alertController.create({
       header: 'Está seguro que desea vaciar todo el carrito?',
@@ -266,12 +282,34 @@ export class DetailsCarritoPage implements OnInit {
           text: 'Si',
           handler: () => {           
             this.carritoService.vaciar()   
+            this.modalNotificacion.trash("Vaciado","El carrito ahora se encuentra completamente vacío.")
             this.atras()          
           }
         }
       ]
     });
     await alert.present();   
+  }
+
+  async seleccionarUbicacion(){
+    const modal = await this.modalController.create({
+      component: ModalInputDireccionPage,
+      componentProps:{localizacion:this.carrito.direccion},
+      cssClass:'modal-map' 
+    });
+    modal.onDidDismiss()
+    .then((retorno) => {
+      
+      if(retorno.data){
+        this.carrito.direccion = retorno.data;
+      }
+      console.log(this.carrito)
+    });
+    modal.present()
+  }
+
+  eliminarDireccion(){
+    this.carrito.direccion = new Localizacion();
   }
 
 }

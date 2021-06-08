@@ -41,13 +41,12 @@ export class ListPersonalPage implements OnInit {
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId'); 
 
     this.loadingService.presentLoadingText("Cargando Personal")
-    var rolSub = this.rolesService.getAllRolesbyComercio(comercio_seleccionadoId).subscribe(data =>{       
+    this.rolesService.getAllRolesbyComercio(comercio_seleccionadoId).subscribe(data =>{       
      this.loadingService.dismissLoading()
       this.itemsAll = data;
-      
+      console.log(this.itemsAll)
       this.buscar();
       this.buscando = false;
-      //rolSub.unsubscribe();
     });
 
     /*var rolSub = this.rolesService.getAllRolesbyComercio().subscribe(snapshot =>{       

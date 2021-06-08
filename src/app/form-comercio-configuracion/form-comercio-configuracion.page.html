@@ -20,12 +20,12 @@
   </ion-item-->
 
 
-  <ion-button *ngIf="rolActual == 'Administrador'" class="button-rounded"  (click)="editarComercio()">Datos Comercio</ion-button>
+  <ion-button *ngIf="rolActual.rol == 'Administrador'" class="button-rounded"  (click)="editarComercio()">Datos Comercio</ion-button>
 
 
-  <ion-button *ngIf="rolActual != 'Administrador'" class="button-rounded"  color="danger" (click)="desvincular()"><ion-icon name="trash" ></ion-icon>Desvincular</ion-button>
+  <ion-button *ngIf="rolActual.rol != 'Administrador'" class="button-rounded"  color="danger" (click)="desvincular()"><ion-icon name="trash" ></ion-icon>Desvincular</ion-button>
 
-  <ion-grid *ngIf="rolActual == 'Administrador'">
+  <ion-grid *ngIf="rolActual.rol == 'Administrador'">
     <ion-row>
       <ion-col size="10">
         <p>
@@ -39,7 +39,7 @@
     </ion-row>
   </ion-grid>
   
-  <ion-grid *ngIf="rolActual == 'Administrador'">
+  <ion-grid *ngIf="rolActual.rol == 'Administrador'">
     <ion-row>
       <ion-col size="10">
         <p>
@@ -52,10 +52,10 @@
         <ion-toggle [(ngModel)]="comercio.config.mesas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
       </ion-col>
     </ion-row>
-    <ion-button *ngIf="comercio.config.mesas  && rolActual == 'Administrador'" class="button-rounded"    (click)="openEditMesas()">Editar Mesas</ion-button>
+    <ion-button *ngIf="comercio.config.mesas  && rolActual.rol == 'Administrador'" class="button-rounded"    (click)="openEditMesas()">Editar Mesas</ion-button>
   </ion-grid>
 
-  <ion-grid *ngIf="rolActual == 'Administrador'">
+  <ion-grid *ngIf="rolActual.rol == 'Administrador'">
     <ion-row>
       <ion-col size="10">
         <p>
@@ -68,10 +68,10 @@
         <ion-toggle [(ngModel)]="comercio.config.comandas" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
       </ion-col>
     </ion-row>
-    <ion-button *ngIf="comercio.config.comandas && rolActual == 'Administrador'" class="button-rounded"    (click)="openEditCocinas()">Editar Cocinas</ion-button>
+    <ion-button *ngIf="comercio.config.comandas && rolActual.rol == 'Administrador'" class="button-rounded"    (click)="openEditCocinas()">Editar Cocinas</ion-button>
   </ion-grid>
 
-  <ion-grid *ngIf="rolActual == 'Administrador'">
+  <ion-grid *ngIf="rolActual.rol == 'Administrador'">
     <ion-row>
       <ion-col size="10">
         <p>
@@ -85,7 +85,7 @@
     </ion-row>
   </ion-grid>
 
-  <ion-grid *ngIf="rolActual == 'Administrador'">
+  <ion-grid *ngIf="rolActual.rol == 'Administrador'">
     <ion-row>
       <ion-col size="10">
         <p>
@@ -101,7 +101,7 @@
  
  
 
-  <ion-grid *ngIf="rolActual == 'Administrador' && comercio.config.clientes">
+  <ion-grid *ngIf="rolActual.rol == 'Administrador' && comercio.config.clientes">
     <ion-row>
       <ion-col size="10">
         <p>
@@ -114,10 +114,10 @@
         <ion-toggle [(ngModel)]="comercio.config.beneficiosClientes" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
       </ion-col>
     </ion-row>
-    <ion-button *ngIf="comercio.config.beneficiosClientes  && rolActual == 'Administrador'" class="button-rounded"    (click)="openBeneficiosClientes()">Editar Beneficios</ion-button>
+    <ion-button *ngIf="comercio.config.beneficiosClientes  && rolActual.rol == 'Administrador'" class="button-rounded"    (click)="openBeneficiosClientes()">Editar Beneficios</ion-button>
   </ion-grid>
 
-  <ion-grid *ngIf="rolActual == 'Administrador' && comercio.config.clientes">
+  <ion-grid *ngIf="rolActual.rol == 'Administrador' && comercio.config.clientes">
     <ion-row>
       <ion-col size="10">
         <p>
@@ -130,11 +130,11 @@
         <ion-toggle [(ngModel)]="comercio.config.beneficiosPorPuntaje" (ionChange)="update()"  [ngModelOptions]="{standalone: true}"></ion-toggle>
       </ion-col>
     </ion-row>
-    <ion-button *ngIf="comercio.config.beneficiosPorPuntaje  && rolActual == 'Administrador'" class="button-rounded"    (click)="openBeneficiosPuntaje()">Editar Puntaje y Beneficios</ion-button>
+    <ion-button *ngIf="comercio.config.beneficiosPorPuntaje  && rolActual.rol == 'Administrador'" class="button-rounded"    (click)="openBeneficiosPuntaje()">Editar Puntaje y Beneficios</ion-button>
   </ion-grid>
 
  
-  <ion-grid *ngIf="rolActual == 'Administrador'">
+  <ion-grid *ngIf="rolActual.rol == 'Administrador'">
     <ion-row>
       <ion-col size="10">
         <p>
@@ -149,7 +149,7 @@
   </ion-grid>
 
 
-  <ion-grid *ngIf="rolActual == 'Administrador'">
+  <ion-grid *ngIf="rolActual.rol == 'Administrador'">
     <ion-row>
       <ion-col size="10">
         <p>
@@ -164,7 +164,7 @@
   </ion-grid>
 
 
-  <ion-grid *ngIf="rolActual == 'Administrador'">
+  <ion-grid *ngIf="rolActual.rol == 'Administrador'">
     <ion-row>
       <ion-col size="10">
         <p>
@@ -182,15 +182,17 @@
 
 
 
-  <ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"    (click)="openEditOpciones()">Editar Grupo Opciones</ion-button>
-  <!--ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"    (click)="openEditPedidos()">Configurar Pedidos</ion-button-->
-  <ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"   (click)="openEditHorarios()">Editar Horarios</ion-button>
+  <ion-button class="button-rounded" *ngIf="rolActual.rol == 'Administrador'"    (click)="openEditOpciones()">Editar Grupo Opciones</ion-button>
+  <!--ion-button class="button-rounded" *ngIf="rolActual.rol == 'Administrador'"    (click)="openEditPedidos()">Configurar Pedidos</ion-button-->
+  <ion-button class="button-rounded" *ngIf="rolActual.rol == 'Administrador'"   (click)="openEditHorarios()">Editar Horarios</ion-button>
   
-  <ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"   (click)="linkWhatsapp()">Link Whatsapp</ion-button>
-  <ion-button class="button-rounded" *ngIf="rolActual == 'Administrador'"   (click)="openEditCategorias()">Editar Categorias</ion-button>
+  <ion-button class="button-rounded" *ngIf="rolActual.rol == 'Administrador'"   (click)="linkWhatsapp()">Link Whatsapp</ion-button>
+  <ion-button class="button-rounded" *ngIf="rolActual.rol == 'Administrador'"   (click)="openEditCategorias()">Editar Categorias</ion-button>
   
 
   <ion-button class="button-rounded"    (click)="verImpresora()">Impresora</ion-button>
   
+  <ion-button *ngIf="rolActual.rol == 'Administrador'"  class="button-rounded" color="danger" (click)="elimiar()">Eliminar Comercio</ion-button>
+
    
 </ion-content> 

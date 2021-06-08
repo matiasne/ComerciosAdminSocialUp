@@ -81,20 +81,7 @@ export class DetailsClientePage implements OnInit {
       this.cliente.id = resp.payload.id;
       console.log(this.cliente); 
       
-      if(this.cliente.latitud){
-        this.initMap("mapA",{
-          center:{
-            lat:this.cliente.latitud, //Aca localizar por gps
-            lng:this.cliente.longitud
-          },
-          zoom:5 ,
-          options: {
-            disableDefaultUI: true,
-            scrollwheel: true,
-            streetViewControl: false, 
-          },    
-        });
-      }
+      
 
       this.comentarioService.setearPath("clientes",this.route.snapshot.params.id);
 
@@ -139,34 +126,6 @@ export class DetailsClientePage implements OnInit {
   }
  
 
-  initMap(el, options) {
-    this.map = this.makeMap(el, options)
-
-    var markerOptions = {
-        draggable: true,
-        map: this.map,
-        posicion: options.center,
-        zoom:5 ,
-    }    
-
-    var posicion = {lat: this.cliente.latitud, lng: this.cliente.longitud};
-
-    var marker = new google.maps.Marker({
-      posicion: posicion,
-      map: this.map,
-      title: 'Hello World!',
-      draggable:true,
-    });
-  }
-
-  makeMap(el, options) {
-    if(google){
-      console.log(el);
-      let mapEle: HTMLElement = document.getElementById(el);
-      console.log(mapEle);
-      return new google.maps.Map(mapEle, options)
-    }
-  }
 
   async agregarBeneficio(){
     const modal = await this.modalController.create({

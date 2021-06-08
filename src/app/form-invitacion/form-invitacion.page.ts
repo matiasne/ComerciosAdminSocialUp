@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RolesService } from '../Services/roles.service';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
-import { InvitacionesService } from '../Services/invitaciones.service';
 import { AuthenticationService } from '../Services/authentication.service';
 import { ComerciosService } from '../Services/comercios.service';
 import { NavController, ModalController, NavParams } from '@ionic/angular';
@@ -33,7 +32,6 @@ export class FormInvitacionPage implements OnInit {
   
   public rolesTipos = [];
   constructor(
-    private invitacionService:InvitacionesService,
     private rolesService:RolesService,
     private formBuilder: FormBuilder,
     private authService:AuthenticationService,
@@ -72,17 +70,17 @@ export class FormInvitacionPage implements OnInit {
       return;
     }
   
-    let rol:Rol = new Rol(); 
-    rol.id = this.firestore.createId();    
-    rol.userEmail = this.email;
-    rol.rol = this.rol;
-    rol.estado = "pendiente";
-    rol.comercioId =this.comercioService.getSelectedCommerceValue().id;
+    let nuevoRol:Rol = new Rol(); 
+    nuevoRol.id = this.firestore.createId();    
+    nuevoRol.userEmail = this.email;
+    nuevoRol.adminEmail = this.authService.getEmail();
+    nuevoRol.comercioNombre = this.comercioService.getSelectedCommerceValue().nombre;
+    nuevoRol.rol = this.rol;
+    nuevoRol.estado = "pendiente";
+    nuevoRol.comercioId =this.comercioService.getSelectedCommerceValue().id;
 //    rol.comercioRef = this.comercioService.getRef(this.comercioService.getSelectedCommerceValue().id);
-    this.rolesService.create(rol);
+    this.rolesService.create(nuevoRol);
     
-    this.invitacionService.enviarInvitacion(this.email.trim(),this.rol); 
-
     this.modalCtrl.dismiss();
   }
 

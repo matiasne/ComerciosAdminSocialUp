@@ -10,11 +10,11 @@
 
 <ion-content style="margin-top: 50px;" class="ion-padding">  
   
-  <ion-row>    
+  <!--ion-row>    
     <ion-input placeholder="Buscar" style="border:1px solid rgb(206, 206, 206); border-radius: 5px;"
     [(ngModel)]="palabraFiltro" (ionChange)="buscar()"
     ></ion-input>
-  </ion-row>
+  </ion-row-->
 
   <div *ngIf="buscando" class="mensaje FadeOut FadeIn">
     <img src="../../assets/img/buscando.fw.png" alt="">
@@ -27,7 +27,7 @@
   </div>
 
   <ion-list lines="none">
-    <ion-item-sliding *ngFor="let item of items" class="item-card" >    
+    <ion-item-sliding *ngFor="let item of itemsAll" class="item-card" >    
     
       <ion-item>
         <div slot="start">

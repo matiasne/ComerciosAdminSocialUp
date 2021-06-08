@@ -10,7 +10,6 @@ import { ComerciosService } from './Services/comercios.service';
 import { NotificacionesDesktopService } from './Services/notificaciones-desktop.service';
 import { NotifificacionesAppService } from './Services/notifificaciones-app.service';
 import { Comercio } from './models/comercio';
-import { InvitacionesService } from './Services/invitaciones.service';
 import { ToastService } from './Services/toast.service';
 import { MesasService } from './Services/mesas.service';
 import * as firebase from 'firebase';
@@ -20,6 +19,8 @@ import { Network } from '@ionic-native/network/ngx';
 import { PedidoService } from './Services/pedido.service';
 import { Printer } from '@ionic-native/printer/ngx';
 import { ImpresoraService } from './Services/impresora.service';
+import { RolesService } from './Services/roles.service';
+import { Environment } from '@ionic-native/google-maps';
 
 @Component({
   selector: 'app-root',
@@ -122,12 +123,12 @@ export class AppComponent implements OnInit {
     public toastController: ToastController,
     private comerciosService:ComerciosService,
     private notificacionesAppService:NotifificacionesAppService,
-    private invitacionesService:InvitacionesService,
     private toastService:ToastService,
     public presenceService:PresenceService,
     private usuariosService:UsuariosService,
     private usuarioService:UsuariosService,
-    private impresoraService:ImpresoraService
+    private impresoraService:ImpresoraService,
+    private rolesService:RolesService
   ) {
     this.comercioSeleccionado = new Comercio();   
     this.initializeApp();  
@@ -143,6 +144,8 @@ export class AppComponent implements OnInit {
   initializeApp() {
 
     this.platform.ready().then(async () => {
+
+      
       console.log("NgOnInit")
 
       this.statusBar.styleDefault();
@@ -159,7 +162,6 @@ export class AppComponent implements OnInit {
         console.log("ERROR"); 
       });*/
 
-    
       this.fcm.onNotification().subscribe(data => {      
         if(data.wasTapped){
           alert("wasTaped")
@@ -169,15 +171,9 @@ export class AppComponent implements OnInit {
         };
       });
 
-      this.impresoraService.bluetoothEnable();
-      
-    
+      this.impresoraService.bluetoothEnable();  
 
-      this.authService.getActualUserIdObservable().subscribe(uid=>{
-        
-       
-
-          
+      this.authService.getActualUserIdObservable().subscribe(uid=>{       
 
         if(uid){   
 
@@ -196,9 +192,15 @@ export class AppComponent implements OnInit {
             this.appActions[0].badge = snapshot.length;
           }) 
 
-          this.invitacionesService.getSinLeer(uid).subscribe(snapshot =>{         
-            this.appActions[1].badge = snapshot.length;  
-          });         
+          this.rolesService.getAllRolesbyEmail(this.authService.getActualUser().email).subscribe(roles =>{  
+            let count = 0;
+            roles.forEach(rol =>{
+              if(rol.status == "pendiente")
+              count++;
+            })      
+            this.appActions[1].badge = count;
+          });    
+
 
           this.usuarioService.setForConnectionStatus(uid)
 

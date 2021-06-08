@@ -2,19 +2,24 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ModalController, NavController, NavParams } from '@ionic/angular';
 import { AngularFirestore } from 'angularfire2/firestore';
+import { type } from 'os';
 import { AddProductoVentaPage } from '../add-producto-venta/add-producto-venta.page';
 import { FormClientePage } from '../form-cliente/form-cliente.page';
 import { FormComentarioPage } from '../form-comentario/form-comentario.page';
+import { FormMesaPage } from '../form-mesa/form-mesa.page';
 import { TicketDetallePage } from '../impresiones/ticket-detalle/ticket-detalle.page';
+import { ModalInputDireccionPage } from '../modal-input-direccion/modal-input-direccion.page';
 import { Caja } from '../models/caja';
 import { Cliente } from '../models/cliente';
 import { Comercio } from '../models/comercio';
-import { EnumTipoDescuento } from '../models/descuento';
+import { Descuento, EnumTipoDescuento } from '../models/descuento';
+import { Localizacion } from '../models/localizacion';
 import { Mesa } from '../models/mesa';
 import { EnumTipoMovimientoCaja, MovimientoCaja } from '../models/movimientoCaja';
 import { MovimientoCtaCorriente } from '../models/movimientoCtaCorriente';
 import { EnumEstadoCocina, EnumEstadoCobro, Pedido } from '../models/pedido';
-import { EnumTipoRecargo } from '../models/recargo';
+import { Producto } from '../models/producto';
+import { EnumTipoRecargo, Recargo } from '../models/recargo';
 import { variacionStock } from '../models/variacionStock';
 import { Venta } from '../models/venta';
 import { SelectClientePage } from '../select-cliente/select-cliente.page';
@@ -30,6 +35,7 @@ import { CarritoService } from '../Services/global/carrito.service';
 import { NavegacionParametrosService } from '../Services/global/navegacion-parametros.service';
 import { ImpresoraService } from '../Services/impresora.service';
 import { MesasService } from '../Services/mesas.service';
+import { ModalNotificacionService } from '../Services/modal-notificacion.service';
 import { MovimientosService } from '../Services/movimientos.service';
 import { NotificacionesService } from '../Services/notificaciones.service';
 import { PedidoService } from '../Services/pedido.service';
@@ -96,7 +102,8 @@ export class DetailsPedidoPage implements OnInit {
     private mesasServices:MesasService,
     private navParamService:NavegacionParametrosService,
     private navCtrl:NavController,
-    private carritoService:CarritoService
+    private carritoService:CarritoService,
+    private modalNotificacion:ModalNotificacionService
   ) { 
 
     this.comercio = new Comercio()
@@ -121,7 +128,9 @@ export class DetailsPedidoPage implements OnInit {
        
         this.pedido.productos = [];
         this.pedido.mesaId = this.navParamService.param[0].mesaId
+        this.pedido.mesaNombre = this.navParamService.param[0].mesaNombre
         this.pedido.clienteId = this.navParamService.param[0].clienteId
+        this.pedido.clienteNombre = this.navParamService.param[0].clienteNombre
         
         this.navParamService.param.forEach(pedido => {
           this.subPedidos.push(pedido);
@@ -137,6 +146,8 @@ export class DetailsPedidoPage implements OnInit {
             this.pedido.recargos.push(element);
           });            
         }); 
+        this.getTotal();
+        console.log(this.pedido)
       }
     }
     else if(this.navParamService.param instanceof Pedido){   //si es un solo pedido 
@@ -213,16 +224,12 @@ export class DetailsPedidoPage implements OnInit {
 
   eliminarDescuento(i){
     this.pedido.descuentos.splice(i,1);
-    this.pedidosService.update(this.pedido).then(data=>{
-      console.log("Actualizado")
-    })
+    this.actualizarPedido()
   }
 
   eliminarRecargo(i){
     this.pedido.recargos.splice(i,1);
-    this.pedidosService.update(this.pedido).then(data=>{
-      console.log("Actualizado")
-    })
+    this.actualizarPedido()
   }
 
   eliminarCliente(){
@@ -230,9 +237,7 @@ export class DetailsPedidoPage implements OnInit {
     this.pedido.clienteId ="";
     this.pedido.clienteEmail ="";
     this.pedido.clienteNombre ="";
-    this.pedidosService.update(this.pedido).then(data=>{
-      console.log("Actualizado")
-    })
+    this.actualizarPedido()
   }
 
   async eliminarProducto(p,i){
@@ -250,9 +255,7 @@ export class DetailsPedidoPage implements OnInit {
           handler: () => {           
             this.pedido.productos.splice(i,1);
             if(this.pedido.productos.length > 0){
-              this.pedidosService.update(this.pedido).then(data=>{
-                console.log("Pedido actualizado")
-              }) 
+              this.actualizarPedido() 
             }
             else{
               this.pedidosService.delete(this.pedido.id).then(data=>{
@@ -271,7 +274,8 @@ export class DetailsPedidoPage implements OnInit {
 
   async seleccionarCliente(){
     const modal = await this.modalController.create({
-      component: SelectClientePage      
+      component: SelectClientePage,
+      cssClass:'modal-custom-wrapper'      
     });
     
     modal.present().then(()=>{
@@ -291,9 +295,7 @@ export class DetailsPedidoPage implements OnInit {
           this.pedido.clienteId = this.cliente.id;
           this.pedido.clienteNombre = this.cliente.nombre
           
-          this.pedidosService.update(this.pedido).then(data=>{
-            console.log("Actualizado")
-          })
+          this.actualizarPedido()
         }   
       }
            
@@ -303,7 +305,8 @@ export class DetailsPedidoPage implements OnInit {
 
   async abrirNuevoCliente(){
     const modal = await this.modalController.create({
-      component: FormClientePage      
+      component: FormClientePage,     
+      cssClass:'modal-custom-wrapper' 
     });    
     modal.present().then(()=>{
     
@@ -312,14 +315,13 @@ export class DetailsPedidoPage implements OnInit {
 
     modal.onDidDismiss()
     .then((retorno) => {
-      if(retorno.data){        
+      if(retorno.data){       
+         
         this.cliente = retorno.data.item;
         this.pedido.clienteEmail = this.cliente.email
         this.pedido.clienteId = this.cliente.id;
         this.pedido.clienteNombre = this.cliente.nombre
-        this.pedidosService.update(this.pedido).then(data=>{
-          console.log("Actualizado")
-        })
+        this.actualizarPedido()
       }           
     });
     return await modal.present();
@@ -327,7 +329,8 @@ export class DetailsPedidoPage implements OnInit {
 
   async seleccionarMesa(){
     const modal = await this.modalController.create({
-      component: SelectMesaPage      
+      component: SelectMesaPage,     
+      cssClass:'modal-custom-wrapper'
     });
 
     modal.present().then(()=>{
@@ -337,13 +340,40 @@ export class DetailsPedidoPage implements OnInit {
     modal.onDidDismiss()
     .then((retorno) => {
       if(retorno.data){
+        if(retorno.data == "nuevo"){
+
+        }
+        else{
+          this.mesa = retorno.data.item;
+          this.pedido.mesaId = this.mesa.id;
+          this.pedido.mesaNombre = this.mesa.nombre
+          this.actualizarPedido()
+        }
+       
+      }        
+    });
+    return await modal.present();
+  }
+
+  async abrirNuevaMesa(){
+    const modal = await this.modalController.create({
+      component: FormMesaPage,     
+      cssClass:'modal-custom-wrapper' 
+    });    
+    modal.present().then(()=>{
+    
+
+    })
+
+    modal.onDidDismiss()
+    .then((retorno) => {
+      if(retorno.data){
         this.mesa = retorno.data.item;
         this.pedido.mesaId = this.mesa.id;
         this.pedido.mesaNombre = this.mesa.nombre
-        this.pedidosService.update(this.pedido).then(data=>{
-          console.log("Actualizado")
-        })
-      }        
+        this.actualizarPedido()   
+      }
+     
     });
     return await modal.present();
   }
@@ -352,9 +382,7 @@ export class DetailsPedidoPage implements OnInit {
     this.mesa = new Mesa();
     this.pedido.mesaId = "";
     this.pedido.mesaNombre ="";
-    this.pedidosService.update(this.pedido).then(data=>{
-      console.log("Actualizado")
-    })
+    this.actualizarPedido()
   }
 
   setSavedCaja(){
@@ -439,30 +467,14 @@ export class DetailsPedidoPage implements OnInit {
         let productosId = [];
         this.pedido.productos.forEach(p =>{
 
-          
-
+          let deltaStock = 0;
           if(p.valorPor)
-            p.stock = Number(p.stock) + (Number(p.cantidad) * Number(p.valorPor));
+            deltaStock =  (Number(p.cantidad) * Number(p.valorPor));
           else
-            p.stock = Number(p.stock) + Number(p.cantidad);
-
+            deltaStock = Number(p.cantidad);
           
+          this.productosService.updateStock(deltaStock,p.id)  
           
-          let vStock:variacionStock = new variacionStock();
-          vStock.productoId = p.id; 
-          vStock.stock = p.stock;
-
-          this.variacionesStockService.setPathProducto(p.id);
-          this.variacionesStockService.add(vStock).then(resp =>{
-           
-            let data = {
-              "stock":p.stock
-            }
-            this.productosService.updateValues(p.id,data).then(data=>{
-              console.log("Actualizado")
-            })
-
-          }); 
           
           productosId.push(p.id);        
         })
@@ -509,17 +521,11 @@ export class DetailsPedidoPage implements OnInit {
           this.subPedidos.forEach(pedido => {       
             pedido.statusCobro = this.cEstado.pendiente;
             pedido.metodoPago = this.metodoPagoSeleccionado;  
-            this.pedidosService.update(pedido).then(data=>{
-              console.log("actualizado pedidos")
-              console.log(data)
-            })
+            this.actualizarPedido()
           });      
         }
         else{
-          this.pedidosService.update(this.pedido).then(data=>{
-            console.log("actualizado pedido")
-            console.log(data)
-          })
+          this.actualizarPedido()
         }        
       } 
     }      
@@ -539,9 +545,8 @@ export class DetailsPedidoPage implements OnInit {
           text: 'Si',
           handler: () => {           
             this.pedido.statusCobro = this.cEstado.suspendido
-            this.pedidosService.update(this.pedido).then(data=>{
-              console.log("El pedido ha sido suspendido");
-            })     
+            this.modalNotificacion.trash("Suspendido","El pedido ahora se encuentra en estado suspendido.")
+            this.actualizarPedido()   
             this.navCtrl.back()         
           }
         }
@@ -563,11 +568,11 @@ export class DetailsPedidoPage implements OnInit {
           }
         }, {
           text: 'Si',
-          handler: () => {           
+          handler: () => {   
+            
+            this.modalNotificacion.success("Reanudado","El pedido ahora se encuentra en estado pendiente.")       
             this.pedido.statusCobro = this.cEstado.pendiente
-            this.pedidosService.update(this.pedido).then(data=>{
-              console.log("El pedido ha sido suspendido");
-            })              
+            this.actualizarPedido()             
             this.navCtrl.back()
           }
         }
@@ -577,51 +582,64 @@ export class DetailsPedidoPage implements OnInit {
   }
   
 
-  async agregarProducto(){
+  async agregarItem(){
 
     const modal = await this.modalController.create({
-      component: SelectProductPage 
+      component: SelectProductPage,     
+      cssClass:'modal-custom-wrapper' 
     });
     modal.onDidDismiss()
     .then((retorno) => {
-      if(retorno.data)
-        this.seleccionarProducto(retorno.data)
+      if(retorno.data){
+
+        if(retorno.data instanceof  Producto){
+          const p = JSON.parse(JSON.stringify(retorno.data));
+
+          this.pedido.productos.push(p); 
+         
+          this.actualizarPedido()
+        }
+
+        if(retorno.data instanceof  Descuento){
+          const p = JSON.parse(JSON.stringify(retorno.data));
+
+          this.pedido.descuentos.push(p); 
+         
+          this.actualizarPedido()
+        }
+
+        if(retorno.data instanceof  Recargo){
+          const p = JSON.parse(JSON.stringify(retorno.data));
+
+          this.pedido.recargos.push(p); 
+         
+          this.actualizarPedido()
+        }
+
+        
+         //sumar total productos
+        this.total = this.getTotal()    
+      }
+      //  this.seleccionarProducto(retorno.data)
          
     });
     return await modal.present(); 
 
   }
 
-
-  async seleccionarProducto(producto){   
-
-    const modal = await this.modalController.create({
-      component: AddProductoVentaPage,
-      componentProps:{
-        producto:producto
-      }
-    });        
-
-    modal.onDidDismiss().then((retorno) => { 
-      if(retorno.data){   
-      
-        const p = JSON.parse(JSON.stringify(retorno.data));
-
-        this.pedido.productos.push(p); 
-       
-        this.pedidosService.update(this.pedido).then(data=>{
-          console.log(data)
-        })
-         //sumar total productos
-        this.total = this.getTotal()    
-      }
-    });
-    await modal.present();
+  actualizarPedido(){
+    if(this.pedido.id){
+      this.pedido.direccion = JSON.parse(JSON.stringify(this.pedido.direccion));
+      this.pedidosService.update(this.pedido).then(data=>{
+        console.log(data)
+      })
+    }
   }
+
+
 
   async cobrar(){
 
-   
     if(this.cajas.length == 0){
       this.toastServices.alert("Debe abrir una caja antes de continuar","De este modo podrá tener un registro de los pagos");
       return;
@@ -631,12 +649,7 @@ export class DetailsPedidoPage implements OnInit {
       this.toastServices.alert("Por favor seleccione un método de pago antes de continuar","De este modo podrá tener un registro de los pagos");
       return;
     }
-
-    if(this.cajaSeleccionada.nombre == ""){
-      this.toastServices.alert("Por favor seleccione una caja antes de continuar","De este modo podrá tener un registro de los pagos");
-      return;
-    }
-
+    
     if(this.metodoPagoSeleccionado == "ctaCorriente"){
       if(this.ctaCorrienteSelecccionadaId == ""){
         this.toastServices.alert("Por favor seleccione una cuenta corriente antes de continuar","");
@@ -657,36 +670,13 @@ export class DetailsPedidoPage implements OnInit {
  
         delete p.keywords;     
 
-        if(p.stock > 0){
-
-          if(p.valorPor)
-            p.stock = Number(p.stock) - (Number(p.cantidad) * Number(p.valorPor));
-          else
-            p.stock = Number(p.stock) - Number(p.cantidad);
-
-          if(p.stock < 0){
-            p.stock = 0;
-          }
-          
-          let vStock:variacionStock = new variacionStock();
-          vStock.productoId = p.id; 
-          vStock.stock = p.stock;
-
-          this.variacionesStockService.setPathProducto(p.id);
-          this.variacionesStockService.add(vStock).then(resp =>{
-            
-            let data = {
-              "stock":p.stock
-            }
-            this.productosService.updateValues(p.id,data).then(data=>{
-              console.log("Actualizado")
-            })  
-          }); 
-          let data = {
-            "stock":p.stock
-          }
-         
-        }  
+        let deltaStock = 0;
+        if(p.valorPor)
+          deltaStock =  - (Number(p.cantidad) * Number(p.valorPor));
+        else
+          deltaStock = - Number(p.cantidad);
+        
+        this.productosService.updateStock(deltaStock,p.id)
         productosId.push(p.id);        
       })
  
@@ -735,28 +725,23 @@ export class DetailsPedidoPage implements OnInit {
         this.subPedidos.forEach(pedido => {       
         pedido.statusCobro = this.cEstado.cobrado;
         pedido.metodoPago = this.metodoPagoSeleccionado;  
-        this.pedidosService.update(pedido).then(data=>{
-          console.log("actualizado pedido")
-          console.log(data)
-        })
+        this.actualizarPedido()
       });      
     }
     else if(this.pedido.id == ""){
+
+      this.pedido.direccion = JSON.parse(JSON.stringify(this.pedido.direccion));
+
       this.pedidosService.add(this.pedido).then(data=>{
         console.log("agregado pedido")
         console.log(data)
       })
     }
     else{
-      this.pedidosService.update(this.pedido).then(data=>{
-        console.log("actualizado pedido")
-        console.log(data)
-      })
+      
+      this.actualizarPedido()
     }
 
-    if(this.pedido.clienteEmail){
-      this.notificacionesService.enviarByMail(this.pedido.clienteEmail,"Mensaje a cliente","mensaje de compra");
-    }
 
     console.log(this.pedido);
 
@@ -767,7 +752,7 @@ export class DetailsPedidoPage implements OnInit {
       }
     }
       
-
+    this.modalNotificacion.success("Cobrado","El pedido ha sido cobrado.")
     this.navCtrl.back()
   
 
@@ -800,9 +785,7 @@ export class DetailsPedidoPage implements OnInit {
     }
 
     const param1 = JSON.parse(JSON.stringify(this.cajaSeleccionada));
-    this.cajasService.update(param1).then(data=>{
-      console.log(data)
-    });
+    this.actualizarPedido()
   }
 
 
@@ -812,9 +795,7 @@ export class DetailsPedidoPage implements OnInit {
     console.log(producto)
     
     if(this.pedido.id != ""){
-      this.pedidosService.update(this.pedido).then(data=>{
-        console.log("Actualizado")
-      })
+      this.actualizarPedido()
     }
     else{ //significa que es un cobro directo
       this.carritoService.eliminarProducto(index)
@@ -825,9 +806,7 @@ export class DetailsPedidoPage implements OnInit {
   reanudarProducto(producto){ 
     producto.suspendido = 0
     console.log(producto)
-    this.pedidosService.update(this.pedido).then(data=>{
-      console.log("Actualizado") 
-    })
+    this.actualizarPedido()
   } 
 
   async imprimir(){
@@ -836,7 +815,8 @@ export class DetailsPedidoPage implements OnInit {
 
   async agregarComentario(){
     const modal = await this.modalController.create({
-      component: FormComentarioPage,
+      component: FormComentarioPage,     
+      cssClass:'modal-custom-wrapper',
       componentProps:{
         comentableId:this.pedido.id,
         comentableTipo:"pedidos"
@@ -877,6 +857,7 @@ export class DetailsPedidoPage implements OnInit {
               this.pedidosService.delete(this.pedido.id).then(data=>{
                 console.log("Eliminado")
               })  
+              this.modalNotificacion.trash("Eliminado","El pedido se ha eliminado por completo")
             }
             
             this.navCtrl.back()
@@ -889,6 +870,29 @@ export class DetailsPedidoPage implements OnInit {
 
   facturar(){
     
+  }
+
+  async seleccionarUbicacion(){
+    const modal = await this.modalController.create({
+      component: ModalInputDireccionPage,
+      componentProps:{localizacion:this.pedido.direccion},
+      cssClass:'modal-map'      
+    });
+    modal.onDidDismiss()
+    .then((retorno) => {
+      
+      if(retorno.data){
+        this.pedido.direccion = retorno.data;
+        this.actualizarPedido()
+      }
+      console.log(this.pedido)
+    });
+    modal.present()
+  }
+
+  eliminarDireccion(){
+    this.pedido.direccion = new Localizacion();
+    this.actualizarPedido()
   }
 
 

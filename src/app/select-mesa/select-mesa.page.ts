@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoadingController, ModalController } from '@ionic/angular';
+import { IonInput, IonSearchbar, LoadingController, ModalController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { LoadingService } from '../Services/loading.service';
 import { MesasService } from '../Services/mesas.service';
@@ -18,6 +18,8 @@ export class SelectMesaPage implements OnInit {
   public palabraFiltro = "";
   public ultimoItem = "";
   public loadingActive = false;
+
+  @ViewChild(IonInput, { static: true }) input: IonInput;
   
   constructor(
     private router: Router,
@@ -36,6 +38,10 @@ export class SelectMesaPage implements OnInit {
     if(this.route.snapshot.params.filtro)
       this.palabraFiltro = this.route.snapshot.params.filtro;
     this.obtenerTodos();
+    setTimeout(() => {
+      // Set the focus to the input box of the ion-Searchbar component
+this.input.setFocus();
+},100);
   }
 
   ionViewDidLeave(){
@@ -81,10 +87,14 @@ export class SelectMesaPage implements OnInit {
     });
   }
   
+  nuevo(){    
+    this.modalCtrl.dismiss("nuevo");
+  }  
+  /*
   nuevo(){
     this.router.navigate(['form-mesa']);
     this.modalCtrl.dismiss();
-  }
+  }*/
 
   editar(item){
     this.router.navigate(['form-mesa',{id:item.id}]);

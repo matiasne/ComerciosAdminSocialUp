@@ -8,6 +8,8 @@ export class Rol{
     public userEmail="";
     public userId =""; 
     public rol="";
+    public comercioNombre="";
+    public adminEmail="";
 
 	constructor(
 		

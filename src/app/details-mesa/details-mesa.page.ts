@@ -123,7 +123,6 @@ export class DetailsMesaPage implements OnInit {
   }
 
   async cerrar(){     
-
     this.navParametrosService.param =  this.pedidos;
     this.router.navigate(['details-pedido'])
 

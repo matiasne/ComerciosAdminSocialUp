@@ -9,13 +9,6 @@
 
 <ion-content class="ion-padding">
 
-  <!--div class="portada-foto">
-    <app-seleccionar-imagen
-    [aspectRatio] = "2/1"
-    [croppedImage]="croppedImagePortada"
-    (onSelectValue)=imagenSeleccionadaPortada($event)>
-    </app-seleccionar-imagen>
-  </div-->
   <div class="icono-foto">
     <app-seleccionar-imagen
       [aspectRatio] = "1/1"
@@ -56,34 +49,24 @@
       <ion-toggle [(ngModel)]="comercio.recibirReservas"  [ngModelOptions]="{standalone: true}"></ion-toggle>
     </ion-item>   
 
-    <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.direccion.valid}">
-      <ion-text color="primary">
-        <h4>Dirección *</h4>
-      </ion-text>
+    <ion-button *ngIf="!comercio.direccion.street_name" (click)="seleccionarUbicacion()" class="button-rounded" color="light"><ion-icon name="add"></ion-icon><ion-icon name="location-outline"></ion-icon>Dirección</ion-button>
+    <ion-item-sliding class="item-card" *ngIf="comercio.direccion.street_name">  
       <ion-item>
-        <ion-input id="pac-input" formControlName="direccion" type="text"></ion-input>
+        <ion-avatar slot="start" (click)="seleccionarUbicacion()">
+          <ion-icon name="location-outline"></ion-icon>
+        </ion-avatar>
+        <ion-label (click)="seleccionarUbicacion()">
+          <h2>{{comercio.direccion.street_name}} {{comercio.direccion.street_number}},{{comercio.direccion.locality}},{{comercio.direccion.state}}. <br>
+            <span *ngIf="comercio.direccion.piso"> Piso: {{comercio.direccion.piso}}</span>
+            <span *ngIf="comercio.direccion.puerta"> Puerta: {{comercio.direccion.puerta}}</span>
+          </h2>
+        </ion-label>      
       </ion-item>
-      <ion-row>
-        <ion-col>
-          <h4 color="primary">Piso</h4>
-          <ion-item>
-            <ion-input name="piso" type="text" [(ngModel)]="comercio.piso" required [ngModelOptions]="{standalone: true}"></ion-input>
-          </ion-item>
-        </ion-col>
-        <ion-col>
-          <h4 color="primary">Puerta</h4>
-          <ion-item>
-            <ion-input name="puerta" type="text" [(ngModel)]="comercio.puerta" required [ngModelOptions]="{standalone: true}"></ion-input>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-      <div *ngIf="submitted && f.direccion.errors" class="invalid-feedback">
-        <div *ngIf="f.direccion.errors.required"><h5>Ingresa una dirección</h5></div>
-      </div>
-      <div class="map-container">
-        <div id="map2" class="map"></div>
-      </div>
-    </div>
+  
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="eliminarDireccion()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
 
     <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.telefono.valid}">
       <ion-text color="primary">
@@ -111,7 +94,7 @@
     </div>
 
    
-    <ion-button *ngIf="updating"  class="button-rounded" color="danger" (click)="elimiar()">Eliminar Comercio</ion-button>
+    
    
     
   </form>

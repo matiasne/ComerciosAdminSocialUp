@@ -27,9 +27,6 @@
     </ion-refresher>
 
     
-    <ion-grid *ngIf="itemsAllProductos.length > 0">       
-        <ion-row>          
-          <ion-col *ngIf="palabraFiltro == ''" size="6" size-xs="6" size-sm="6" size-md="4" size-lg="3">
             <ion-item (click)="agregarDescuento()" class="item-card">
                   
               <ion-label>                
@@ -38,9 +35,7 @@
                 </h2>
               </ion-label>  
             </ion-item>
-          </ion-col>
-
-          <ion-col *ngIf="palabraFiltro == ''" size="6" size-xs="6" size-sm="6" size-md="4" size-lg="3">
+        
             <ion-item (click)="agregarRecargo()" class="item-card">
                
               <ion-label>                
@@ -48,10 +43,9 @@
                   Recargo
                 </h2>
               </ion-label>  
-            </ion-item>
-          </ion-col>          
+            </ion-item> 
 
-          <ion-col size="12" size-xs="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let producto of itemsRenderProductos">           
+          <span *ngFor="let producto of itemsRenderProductos">           
 
            
               <app-card-producto   
@@ -62,13 +56,9 @@
                 (select)="seleccionarProducto(producto)"
               ></app-card-producto>    
             
-          </ion-col>
+          </span>
 
-          
-  
-        </ion-row>
-    </ion-grid>
- 
+         
 
   
   

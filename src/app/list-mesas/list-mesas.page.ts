@@ -3,6 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { MesasService } from '../Services/mesas.service';
 import { Router } from '@angular/router';
 import { LoadingService } from '../Services/loading.service';
+import { FormMesaPage } from '../form-mesa/form-mesa.page';
 
 @Component({
   selector: 'app-list-mesas',
@@ -36,11 +37,32 @@ export class ListMesasPage implements OnInit {
   }
   
   async openAddMesa(){
-    this.router.navigate(['form-mesa']);
+
+    const modal = await this.modalController.create({
+      component: FormMesaPage,  
+      cssClass:'modal-custom-wrapper' 
+    });    
+    modal.present().then(()=>{
+    
+
+    })
+
+    return await modal.present();
   }
 
   async openEditMesa(item){
-    this.router.navigate(['form-mesa',{id:item.id}]);
+    console.log(item)
+    const modal = await this.modalController.create({
+      component: FormMesaPage,  
+      componentProps:{mesa:item},
+      cssClass:'modal-custom-wrapper' 
+    });    
+    modal.present().then(()=>{
+    
+
+    })
+
+    return await modal.present();
   }
 
   verMesa(mesa){

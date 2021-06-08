@@ -22,7 +22,7 @@ export class FormComercioConfiguracionPage implements OnInit {
   public cajas =[];
   public horarios =[];
   public categorias = [];
-  public rolActual:any;
+  public rolActual:any ="";
 
   constructor(
     private comerciosService:ComerciosService,
@@ -34,17 +34,18 @@ export class FormComercioConfiguracionPage implements OnInit {
     private rolesService:RolesService
   ) { 
     this.comercio = new Comercio();
+    this.comerciosService.getSelectedCommerce().subscribe(data=>{
+      this.comercio.asignarValores(data);
+    });   
   }
 
   ngOnInit() {
-    this.comerciosService.getSelectedCommerce().subscribe(data=>{
-      this.comercio.asignarValores(data);
-    });    
+     
   } 
 
   ionViewDidEnter(){
     let obs = this.authService.observeRol().subscribe(data=>{
-      this.rolActual = data.rol;
+      this.rolActual = data;
       console.log(this.rolActual)
       //Aca setea todos los shows
       obs.unsubscribe();
@@ -71,7 +72,7 @@ export class FormComercioConfiguracionPage implements OnInit {
 
     const alert = await this.alertController.create({
       header: 'Eliminar',
-      message: 'Está seguro que desea eliminar el comercio?',
+      message: 'Está seguro que desea desvincularse del comercio?',
       buttons: [
         {
           text: 'Cancelar',
@@ -81,6 +82,7 @@ export class FormComercioConfiguracionPage implements OnInit {
         }, {
           text: 'Desvincular',
           handler: () => {
+            this.rolesService.setPath('comercios/'+this.comercio.id+'/roles')   
             this.rolesService.delete(this.rolActual.id);
             this.router.navigate(['home']);
           }
@@ -154,6 +156,34 @@ export class FormComercioConfiguracionPage implements OnInit {
       this.comercio.config.beneficiosPorPuntaje = false;
     }
     this.comerciosService.update(this.comercio);
+  }
+
+  
+  elimiar(){
+    this.presentAlertEliminar();
+  }
+
+  async presentAlertEliminar() {
+    const alert = await this.alertController.create({
+      header: 'Eliminar',
+      message: 'Está seguro que desea eliminar el comercio?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Eliminar',
+          handler: () => {
+            this.comerciosService.delete(this.comercio.id);
+            this.modalCtrl.dismiss();
+            this.router.navigate(['home']);
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   

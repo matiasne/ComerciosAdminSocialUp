@@ -52,6 +52,22 @@ export class DetailsCajaPage implements OnInit {
     this.caja = new Caja();
     this.caja.id = this.route.snapshot.params.id;
     this.fechaDesde.setDate(this.fechaDesde.getDate() - 1);
+
+    this.comercio = this.comercioService.getSelectedCommerceValue()
+    if(this.comercio.config.movimientosCajas){
+      this.movimientosService.setearPath(this.caja.id)
+      this.movimientosService.getMovimientosCaja(this.caja.id,this.fechaDesde).subscribe(snapshot =>{
+      
+        this.items = [];
+        snapshot.forEach((snap: any) => {  
+          var mov = snap.payload.doc.data();
+          mov.id = snap.payload.doc.id;            
+          this.items.push(mov);  
+        });    
+        console.log(this.items)     
+      }); 
+    }
+
   }
 
   ngOnInit() {
@@ -64,19 +80,8 @@ export class DetailsCajaPage implements OnInit {
   }
 
   refrescar(){
-    this.comercio = this.comercioService.getSelectedCommerceValue()
-    if(this.comercio.config.movimientosCajas){
-      this.movimientosService.getMovimientosCaja(this.caja.id,this.fechaDesde).subscribe(snapshot =>{
-      
-        this.items = [];
-        snapshot.forEach((snap: any) => {  
-          var mov = snap.payload.doc.data();
-          mov.id = snap.payload.doc.id;            
-          this.items.push(mov);  
-        });    
-        console.log(this.items)     
-      }); 
-    }
+    
+    
     
   }
 

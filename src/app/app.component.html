@@ -2,7 +2,7 @@
   <ion-split-pane when="(min-width: 3400px)" contentId="main-content">
     <ion-menu contentId="main-content" type="overlay">
       <ion-content>
-        <ion-list id="inbox-list" >
+        <ion-list id="inbox-list"  >
           <ion-list-header *ngIf="comercioSeleccionado.id">{{comercioSeleccionado.nombre}}</ion-list-header>
           <ion-note *ngIf="usuario">{{usuario.email}}</ion-note>
           <!--ion-buttons slot="primary"-->
@@ -26,7 +26,7 @@
               </ion-item>
             </span>  
 
-            <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero'">
+            <span *ngIf="rolActual == 'Administrador' || rolActual=='Cajero' || rolActual=='Mesero'">
               <ion-item  [routerLink]="['/list-pedidos']" lines="none" detail="false">
                 <ion-icon slot="start" name="archive-outline"></ion-icon>
                 <ion-label>Pedidos</ion-label> 

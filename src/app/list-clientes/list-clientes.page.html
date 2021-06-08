@@ -33,7 +33,7 @@
     <p>Aún no tienes clientes</p>
   </div>
 
-  <div *ngIf="!buscando && itemsRenderizar.length == 0" class="mensaje FadeOut FadeIn">
+  <div *ngIf="!buscando && itemsAll.length != 0 && itemsRenderizar.length == 0" class="mensaje FadeOut FadeIn">
     <img src="../../assets/img/producto.png" alt="">
     <p >No existe un cliente con ese nombre! Agrega uno nuevo.</p>
   </div>

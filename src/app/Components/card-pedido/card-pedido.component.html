@@ -2,7 +2,7 @@
     <div *ngIf="item.mesaNombre" class="encabezado-card-mesa">
       <ion-row> 
         <ion-col size="6" center text-center>            
-          Mesa: {{item.mesaNombre}}
+          <ion-icon name="person"></ion-icon> {{item.personalEmail}}
         </ion-col>     
         <ion-col size="6" >
           <div class="encabezado-time">
@@ -15,10 +15,10 @@
     
     <div *ngIf="!item.mesaNombre" class="encabezado-card-general">     
       <ion-row> 
-        <ion-col size="2" center text-center>            
-          Local
+        <ion-col size="6" center text-center>            
+          <ion-icon name="person"></ion-icon> {{item.personalEmail}}
         </ion-col>     
-        <ion-col size="10" >
+        <ion-col size="6" >
           <div class="encabezado-time">
             <ion-icon name="time-outline"></ion-icon>
             {{item.createdAt.toDate() | date:'hh:mm aaa dd/MM/yy'}}
@@ -28,17 +28,29 @@
     </div> 
         
     <div class="contenido-card-pedido">     
-      <b>
-        <span *ngIf="comercio.config.comandas && item.statusComanda == pEstado.rechazado" style="color: red;">Rechazado por Cocina</span>
-        <span *ngIf="comercio.config.comandas && item.statusComanda == pEstado.tomado" style="color: green;">En Curso</span>
-        <span *ngIf="comercio.config.comandas && item.statusComanda == pEstado.solicitado" style="color: blue;"> Solicitado</span>
-        <span *ngIf="item.statusCobro == cEstado.suspendido"> <b style="color: red;"> Suspendido </b></span>
-        <span *ngIf="item.statusCobro == cEstado.cobrado"> <b style="color: green;"> Cobrado ({{item.metodoPago}})</b></span> 
-        <span *ngIf="item.statusCobro == cEstado.reembolsado"> <b style="color: red;"> Reembolsado</b></span> <br>
-      </b>       
+      
+      <span *ngIf="comercio.config.comandas && item.statusComanda == pEstado.rechazado" style="color: red;">Rechazado por Cocina</span>
+      <span *ngIf="comercio.config.comandas && item.statusComanda == pEstado.tomado" style="color: green;">En Curso</span>
+      <span *ngIf="comercio.config.comandas && item.statusComanda == pEstado.solicitado" style="color: blue;"> Solicitado</span>
+      <span *ngIf="item.statusCobro == cEstado.suspendido"> <b style="color: red;"> Suspendido </b></span>
+      <span *ngIf="item.statusCobro == cEstado.cobrado"> <b style="color: green;"> Cobrado ({{item.metodoPago}})</b></span> 
+      <span *ngIf="item.statusCobro == cEstado.reembolsado"> <b style="color: red;"> Reembolsado</b></span> <br>
+         
       <ion-row> 
         <ion-col size="8" center text-center>
-          <ion-icon name="person-outline"></ion-icon> {{item.clienteNombre}}        
+          <span *ngIf="item.clienteNombre" >
+            <ion-icon name="person-outline"></ion-icon> {{item.clienteNombre}} <br>
+          </span>
+          <span *ngIf="item.mesaNombre" >
+            <ion-icon name="grid-outline"></ion-icon> {{item.mesaNombre}} <br>
+          </span>
+          <span *ngIf="item.direccion.street_name" >
+            <ion-icon name="location-outline"></ion-icon> 
+            {{item.direccion.street_name}} {{item.direccion.street_number}},{{item.direccion.locality}},{{item.direccion.state}}. <br>
+            <span *ngIf="item.direccion.piso"> Piso: {{item.direccion.piso}}</span>
+            <span *ngIf="item.direccion.puerta"> Puerta: {{item.direccion.puerta}}</span>
+            {{item.direccion.distanciaDelComercio}} Km.
+          </span>
         </ion-col>     
         <ion-col size="4" center text-center>        
           <ion-icon name="cube-outline"></ion-icon> {{item.productos.length}}

@@ -21,38 +21,7 @@
   <span *ngIf="pedido.statusCobro == cEstado.suspendido"> <b style="color: red;"> Suspendido </b></span>
   <span *ngIf="pedido.statusCobro == cEstado.cobrado"> <b style="color: green;"> Cobrado ({{pedido.metodoPago}})</b></span> 
   <span *ngIf="pedido.statusCobro == cEstado.reembolsado"> <b style="color: red;"> Reembolsado </b></span> <br>  
-  <ion-grid *ngIf="comercio.config.clientes || comercio.config.mesas">
-    <ion-row >
-      <ion-col size="6" *ngIf="comercio.config.clientes">
-        <ion-button class="button-rounded"  *ngIf="!cliente.id" (click)="seleccionarCliente()"><ion-icon name="add"></ion-icon> Cliente</ion-button>
-    
-        <ion-item-sliding *ngIf="cliente.id">
-          <app-card-usuario
-            [cliente]="cliente"
-            (select)="seleccionarCliente()">
-          </app-card-usuario>
-          <ion-item-options side="end">
-            <ion-item-option color="danger" (click)="eliminarCliente()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
-      </ion-col>
-      <ion-col size="6" *ngIf="comercio.config.mesas">
-        <ion-button class="button-rounded" *ngIf="!mesa.id" (click)="seleccionarMesa()" ><ion-icon name="add"></ion-icon> Mesa</ion-button>
-
-        <ion-item-sliding *ngIf="pedido.mesaId">
-          <ion-item class="item-card">
-            <ion-label (click)="seleccionarMesa()">
-              <h2>{{pedido.mesaNombre}}</h2>
-            </ion-label>      
-          </ion-item>
-
-          <ion-item-options side="end">
-            <ion-item-option color="danger" (click)="eliminarMesa()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
-      </ion-col>
-      </ion-row>
-    </ion-grid>   
+  
     
     
     <div  class="form-card" *ngIf="comentarios.length > 0">
@@ -100,50 +69,100 @@
           
         </ion-item-options> 
       </ion-item-sliding> 
-      <ion-button *ngIf="pedido.statusCobro == cEstado.pendiente" class="button-rounded" color="light" (click)="agregarProducto()"><ion-icon name="add"></ion-icon> Producto</ion-button>     
+
+      <ion-text color="primary" *ngIf="pedido.descuentos.length > 0">
+        <h4>Descuentos</h4>
+      </ion-text> 
+  
+      <span *ngFor="let descuento of pedido.descuentos; let i = index">
+        <ion-item-sliding>
+          <ion-item>
+            <ion-label>                
+              <h2>
+                <b><span *ngIf="descuento.tipo== enumTipo.porcentaje">%</span> <span *ngIf="descuento.tipo== enumTipo.monto">$</span> {{descuento.monto}}</b>  {{descuento.motivo}}             
+              </h2>
+            </ion-label>
+          </ion-item>
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="eliminarDescuento(i)"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+          </ion-item-options>
+    
+        </ion-item-sliding>
+      </span>
+  
+      <ion-text color="primary" *ngIf="pedido.recargos.length > 0">
+        <h4>Recargos</h4>
+      </ion-text> 
+  
+      <span *ngFor="let recargo of pedido.recargos; let i = index">
+        <ion-item-sliding>
+          <ion-item>
+            <ion-label>                
+              <h2>
+                <b><span *ngIf="recargo.tipo== enumTipo.porcentaje">%</span> <span *ngIf="recargo.tipo== enumTipo.monto">$</span> {{recargo.monto}}</b>  {{recargo.motivo}}             
+              </h2>
+            </ion-label>
+          </ion-item>
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="eliminarRecargo(i)"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+          </ion-item-options>
+    
+        </ion-item-sliding>
+      </span>
+
+      <ion-button *ngIf="pedido.statusCobro == cEstado.pendiente" class="button-rounded" color="light" (click)="agregarItem()"><ion-icon name="add"></ion-icon> Item</ion-button>     
     </ion-list>
 
-    <ion-text color="primary" *ngIf="pedido.descuentos.length > 0">
-      <h4>Descuentos</h4>
-    </ion-text> 
-
-    <span *ngFor="let descuento of pedido.descuentos; let i = index">
-      <ion-item-sliding>
-        <ion-item>
-          <ion-label>                
-            <h2>
-              <b><span *ngIf="descuento.tipo== enumTipo.porcentaje">%</span> <span *ngIf="descuento.tipo== enumTipo.monto">$</span> {{descuento.monto}}</b>  {{descuento.motivo}}             
-            </h2>
-          </ion-label>
-        </ion-item>
-        <ion-item-options side="end">
-          <ion-item-option color="danger" (click)="eliminarDescuento(i)"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
-        </ion-item-options>
-  
-      </ion-item-sliding>
-    </span>
-
-    <ion-text color="primary" *ngIf="pedido.recargos.length > 0">
-      <h4>Recargos</h4>
-    </ion-text> 
-
-    <span *ngFor="let recargo of pedido.recargos; let i = index">
-      <ion-item-sliding>
-        <ion-item>
-          <ion-label>                
-            <h2>
-              <b><span *ngIf="recargo.tipo== enumTipo.porcentaje">%</span> <span *ngIf="recargo.tipo== enumTipo.monto">$</span> {{recargo.monto}}</b>  {{recargo.motivo}}             
-            </h2>
-          </ion-label>
-        </ion-item>
-        <ion-item-options side="end">
-          <ion-item-option color="danger" (click)="eliminarRecargo(i)"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
-        </ion-item-options>
-  
-      </ion-item-sliding>
-    </span>
+    
 
     </div>
+
+    <ion-button class="button-rounded" color="light"  *ngIf="!cliente.id" (click)="seleccionarCliente()"><ion-icon name="add"></ion-icon> Cliente</ion-button>    
+    <ion-item-sliding class="item-card" *ngIf="cliente.id">
+      <app-card-usuario
+        [cliente]="cliente"
+        (select)="seleccionarCliente()">
+      </app-card-usuario>
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="eliminarCliente()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+
+    <ion-button class="button-rounded" color="light" *ngIf="!pedido.mesaId" (click)="seleccionarMesa()" ><ion-icon name="add"></ion-icon> Mesa</ion-button>
+    <ion-item-sliding class="item-card" *ngIf="pedido.mesaId">
+      <ion-item>
+        <ion-avatar slot="start" (click)="seleccionarMesa()">
+          <ion-icon name="grid-outline"></ion-icon>
+        </ion-avatar>
+        <ion-label (click)="seleccionarMesa()">
+          <h2>{{pedido.mesaNombre}}</h2>
+        </ion-label>      
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="eliminarMesa()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+
+    <ion-button *ngIf="!pedido.direccion.street_name" (click)="seleccionarUbicacion()" class="button-rounded" color="light"><ion-icon name="add"></ion-icon><ion-icon name="location-outline"></ion-icon>Dirección</ion-button>
+    <ion-item-sliding class="item-card" *ngIf="pedido.direccion.street_name">  
+      <ion-item>
+        <ion-avatar slot="start" (click)="seleccionarUbicacion()">
+          <ion-icon name="location-outline"></ion-icon>
+        </ion-avatar>
+        <ion-label (click)="seleccionarUbicacion()">
+          <h2>{{pedido.direccion.street_name}} {{pedido.direccion.street_number}},{{pedido.direccion.locality}},{{pedido.direccion.state}}. <br>
+            <span *ngIf="pedido.direccion.piso"> Piso: {{pedido.direccion.piso}}</span>
+            <span *ngIf="pedido.direccion.puerta"> Puerta: {{pedido.direccion.puerta}}</span>
+            {{pedido.direccion.distanciaDelComercio}} Km.
+          </h2>
+        </ion-label>      
+      </ion-item>
+  
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="eliminarDireccion()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
 
     <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
      

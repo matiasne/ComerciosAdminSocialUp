@@ -1,3 +1,5 @@
+import { Localizacion } from "./localizacion";
+
 export class Comercio {
 
     public id="";
@@ -10,22 +12,8 @@ export class Comercio {
     public createdAt= "";
     public descripcion= "";
     public horarios=[];
-    public direccion:"";    
-    public pais:"";
-    public localidad:"";
-    public calleNombre:"";
-    public calleNumero:"";
-    public piso="";
-    public puerta:"";
-    public numero:"";
-    public provincia:"";    
-    public posicion = {
-        geohash:"",
-        geopoint:{
-            Latitude:"",
-            Longitude:""
-        }
-    };
+    public direccion:Localizacion;    
+    public geopoint:any;
     public recibirPedidos = true;
     public recibirReservas = true;
     public rolComandatarios = [];
@@ -80,7 +68,7 @@ export class Comercio {
     public keywords = [];
 
 	public constructor() {
-       
+       this.direccion = new Localizacion()
     }
 
     public asignarValores(init?: Partial<Comercio>) {

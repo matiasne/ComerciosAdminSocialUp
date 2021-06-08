@@ -58,6 +58,7 @@ export class SelectProductPage implements OnInit {
   constructor(
     public productosService:ProductosService,
     public modalCtrl: ModalController,
+    public submodalCtrl: ModalController,
     public comerciosService:ComerciosService,
     public loadingService:LoadingService,
     public changeRef:ChangeDetectorRef,
@@ -233,20 +234,42 @@ export class SelectProductPage implements OnInit {
 
 
   async seleccionarProducto(producto){   
-    this.modalCtrl.dismiss(producto)      
+    //this.modalCtrl.dismiss(producto)      
+
+    const modal = await this.submodalCtrl.create({
+      component: AddProductoVentaPage,
+      id: '1',
+      componentProps:{
+        producto:producto
+      }
+    });        
+
+    modal.onDidDismiss().then(async (retorno) => { 
+
+      if(retorno.data){
+        await this.modalCtrl.dismiss(retorno.data,undefined,'1')  
+        this.modalCtrl.dismiss(retorno.data);     
+      }
+    });
+
+    return await modal.present();
+
   }
 
-  
+
 
   async agregarDescuento(){
     
-    const modal = await this.modalCtrl.create({
-      component: FormDescuentoPage
+    const modal = await this.submodalCtrl.create({
+      component: FormDescuentoPage,
+      id: '1'
     });  
 
-    modal.onDidDismiss().then((retorno) => {
+    modal.onDidDismiss().then(async (retorno) => {
       if(retorno.data){  
-        this.modalCtrl.dismiss(retorno.data)        
+        console.log(retorno.data)
+        await this.modalCtrl.dismiss(retorno.data,undefined,'1')  
+        this.modalCtrl.dismiss(retorno.data);     
       }        
     }); 
       
@@ -256,13 +279,15 @@ export class SelectProductPage implements OnInit {
   }
 
   async agregarRecargo(){
-    const modal = await this.modalCtrl.create({
-      component: FormRecargoPage
+    const modal = await this.submodalCtrl.create({
+      component: FormRecargoPage,
+      id: '1'
     });  
 
-    modal.onDidDismiss().then((retorno) => {
+    modal.onDidDismiss().then(async (retorno) => {
       if(retorno.data){  
-        this.modalCtrl.dismiss(retorno.data)        
+        await this.modalCtrl.dismiss(retorno.data,undefined,'1')  
+        this.modalCtrl.dismiss(retorno.data);     
       }        
     }); 
 

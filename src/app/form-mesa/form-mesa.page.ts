@@ -1,19 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NavController, ModalController, AlertController, NavParams } from '@ionic/angular';
 import { CategoriasService } from '../Services/categorias.service';
 import { ActivatedRoute } from '@angular/router';
-import { Categoria } from '../models/categoria';
 import { Mesa } from '../models/mesa';
 import { MesasService } from '../Services/mesas.service';
 import { AngularFirestore } from 'angularfire2/firestore';
-import { BarcodeScannerOptions, BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
-import { SelectEmpleadoPage } from '../select-empleado/select-empleado.page';
-import { RolesService } from '../Services/roles.service';
 import { FormInvitacionPage } from '../form-invitacion/form-invitacion.page';
-import { Rol } from '../models/rol';
 import { ToastService } from '../Services/toast.service';
-import { InvitacionesService } from '../Services/invitaciones.service';
 
 @Component({
   selector: 'app-form-mesa',
@@ -22,12 +16,13 @@ import { InvitacionesService } from '../Services/invitaciones.service';
 })
 export class FormMesaPage implements OnInit {
 
+  @Input() mesa:Mesa 
   datosForm: FormGroup;
   submitted = false;
 
   public updating:boolean = false;
   public comercioId = "";
-  public mesa:Mesa;
+  //public mesa:Mesa;
 
   public title = 'app';
   public elementType = 'url';
@@ -41,17 +36,12 @@ export class FormMesaPage implements OnInit {
   
   constructor(
     private formBuilder: FormBuilder,
-    private navCtrl: NavController,    
-    private categoriasService:CategoriasService,
     public modalCtrl: ModalController,
-    private route: ActivatedRoute,
     public alertController: AlertController,
     private mesasServices:MesasService,
     private firestore: AngularFirestore,
-    private barcodeScanner: BarcodeScanner,
-    private rolesServices:RolesService,
     private toastServices:ToastService,
-    public invitacionesService:InvitacionesService
+    private navParams:NavParams
     
     
   ) {
@@ -62,8 +52,7 @@ export class FormMesaPage implements OnInit {
 
   ngOnInit() {
 
-    this.mesa = new Mesa();
-   
+    this.mesa = new Mesa();  
 
     let comercio_seleccionadoId = localStorage.getItem('comercio_seleccionadoId');
     this.comercioId = comercio_seleccionadoId;
@@ -71,25 +60,19 @@ export class FormMesaPage implements OnInit {
       nombre: ['', Validators.required],
     });
 
-    if(this.route.snapshot.params.id){
+    if(this.navParams.get('mesa')){
+      this.mesa.asignarValores(this.navParams.get('mesa'))
+      console.log(this.mesa)
       
-      var sub = this.mesasServices.get(this.route.snapshot.params.id).subscribe(mesa =>{
-        
-        this.mesa.asignarValores(mesa);
-        console.log(this.mesa)
-        this.updating = true;
+      this.datosForm = this.formBuilder.group({
+        nombre: [this.mesa.nombre, Validators.required],
+      });       
+
+      this.updating = true;
         this.titulo = "Editar Mesa";
-        this.datosForm = this.formBuilder.group({
-          nombre: [this.mesa.nombre, Validators.required],
-        });       
 
-        this.url = "https://socialup.web.app/details-comercio;id="+comercio_seleccionadoId+";mesaId="+this.mesa.id;
-        this.create(this.url);
-
-        
-        sub.unsubscribe();
-
-      })
+      this.url = "https://socialup.web.app/details-comercio;id="+comercio_seleccionadoId+";mesaId="+this.mesa.id;
+      this.create(this.url);
       
     }   
     else{
@@ -117,14 +100,12 @@ export class FormMesaPage implements OnInit {
     modal.onDidDismiss()
     .then((retorno) => {
       if(retorno.data){   
-        this.invitacionesService.enviarInvitacion(retorno.data,"encargado");
       }        
     });
     return await modal.present();
   }
 
   eliminarEncargado(index){  
-
     
   }
 
@@ -145,22 +126,22 @@ export class FormMesaPage implements OnInit {
       return;
     }   
 
-    this.mesa.nombre = this.datosForm.controls.nombre.value;
-
-    
+    this.mesa.nombre = this.datosForm.controls.nombre.value;    
 
     if(this.updating){
       this.mesasServices.update(this.mesa);
     }
     else{
-      this.mesasServices.add(this.mesa);
+      this.mesasServices.set(this.mesa.id,this.mesa);
     }
 
-    this.navCtrl.back();
+    this.modalCtrl.dismiss({
+      'item': this.mesa
+    }); 
   }
 
   cancelar(){
-    this.navCtrl.back();
+    this.modalCtrl.dismiss();    
   }
 
   elimiar(){
@@ -181,7 +162,7 @@ export class FormMesaPage implements OnInit {
           text: 'Eliminar',
           handler: () => {
             this.mesasServices.delete(this.mesa.id);
-            this.navCtrl.back();
+            this.modalCtrl.dismiss();
           }
         }
       ]

@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, ModalController } from '@ionic/angular';
+import { AlertController, IonSearchbar, ModalController } from '@ionic/angular';
 import { Observable, Subscriber } from 'rxjs';
 import { DetailsPedidoPage } from '../details-pedido/details-pedido.page';
 import { FormFilterPedidosPage } from '../form-filter-pedidos/form-filter-pedidos.page';
@@ -22,6 +22,14 @@ import { OrdersService } from '../Services/woocommerce/orders.service';
 })
 export class ListPedidosPage implements OnInit {
 
+  @ViewChild(IonSearchbar, { static: false }) ionSearchbar: IonSearchbar;
+
+  @ViewChild(IonSearchbar) set content(content: IonSearchbar) {
+    if(content) { // initially setter gets called with undefined
+        this.ionSearchbar = content;
+    }
+ }
+ 
   public pedidosLocalesAll:any = []
   public pedidosLocales:any =[]
 
@@ -45,6 +53,8 @@ export class ListPedidosPage implements OnInit {
   public pedidosObs:any
 
   public connectionStatus = "offline"
+
+  public showSearchBar = false;
 
   constructor(
     private pedidosService:PedidoService,
@@ -316,6 +326,16 @@ export class ListPedidosPage implements OnInit {
     
     this.navParametrosService.param = o;
     this.router.navigate(['details-pedido-woocommerce'])
+  }
+
+  
+  focusBuscar(){
+    this.showSearchBar = true;
+    setTimeout(() => {
+          // Set the focus to the input box of the ion-Searchbar component
+    this.ionSearchbar.setFocus();
+    },100);
+  
   }
 
 

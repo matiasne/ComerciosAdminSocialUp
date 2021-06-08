@@ -1,6 +1,16 @@
 {
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "predeploy": "npm --prefix \"$RESOURCE_DIR\" run build"
+  },
   "hosting": {
-    "public": "platforms/browser/www",
+    "public": "public",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -9,18 +19,17 @@
     "rewrites": [
       {
         "source": "**",
-        "function": "app",
         "destination": "/index.html"
       }
     ]
   },
-  "functions": {
-    "predeploy": [
-      "npm --prefix \"$RESOURCE_DIR\" run lint"
-    ],
-    "source": "functions"
+  "storage": {
+    "rules": "storage.rules"
   },
   "emulators": {
+    "auth": {
+      "port": 9099
+    },
     "functions": {
       "port": 5001
     },
@@ -36,8 +45,14 @@
     "pubsub": {
       "port": 8085
     },
+    "storage": {
+      "port": 9199
+    },
     "ui": {
       "enabled": true
     }
+  },
+  "remoteconfig": {
+    "template": "remoteconfig.template.json"
   }
 }

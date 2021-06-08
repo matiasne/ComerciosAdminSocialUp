@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { FormAddProfesionalPage } from './form-add-profesional.page';
+import { ModalInputDireccionPage } from './modal-input-direccion.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: FormAddProfesionalPage
+    component: ModalInputDireccionPage
   }
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class FormAddProfesionalPageRoutingModule {}
+export class ModalInputDireccionPageRoutingModule {}

@@ -13,6 +13,7 @@ import { CocinasService } from '../Services/cocinas.service';
 import { GrupoOpcionesService } from '../Services/grupo-opciones.service';
 import { CarritoService } from '../Services/global/carrito.service';
 import { LoadingService } from '../Services/loading.service';
+import { ModalNotificacionService } from '../Services/modal-notificacion.service';
 
 @Component({
   selector: 'app-add-producto-venta',
@@ -46,7 +47,8 @@ export class AddProductoVentaPage implements OnInit {
     private navParams:NavParams,
     private cocinasService:CocinasService,
     private gruposOpcionesService:GrupoOpcionesService,
-    private loadingService:LoadingService
+    private loadingService:LoadingService,
+    private modalNotificacion:ModalNotificacionService
   ) { }
 
   ngOnInit() {
@@ -218,14 +220,17 @@ export class AddProductoVentaPage implements OnInit {
 
     console.log("!!!!!! isOK"+isOk)
     if(isOk){  
-      this.cocinasService.get(this.producto.cocinaId).subscribe(data=>{
-        this.producto.cocinaNombre = data.nombre;
-      }) 
+      if(this.producto.cocinaId){
+        this.cocinasService.get(this.producto.cocinaId).subscribe(data=>{
+          this.producto.cocinaNombre = data.nombre;
+        }) 
+      }
+      
       console.log(this.producto)
       this.modalCtrl.dismiss(this.producto); 
-       
+      
       //this.toastServices.mensaje('Agregado!', this.producto.cantidad+' '+this.producto.unidad+' de '+this.producto.nombre);     
-    }  
+    }   
    
   }
 

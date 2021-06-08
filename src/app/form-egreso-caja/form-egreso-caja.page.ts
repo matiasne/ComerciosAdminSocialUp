@@ -72,6 +72,7 @@ export class FormEgresoCajaPage implements OnInit {
 
     this.comercio.asignarValores(this.comerciosService.getSelectedCommerceValue());
     
+    this.cajas = [];
     this.cajasService.list().subscribe((cajas:any)=>{      
       for(let i=0;i <cajas.length;i++){
         if(cajas[i].estado == "abierta"){ 

@@ -11,50 +11,6 @@
 </ion-header>
 
 <ion-content class="ion-padding">   
- 
-  <ion-grid>
-    <ion-row >
-      <ion-col size="6" *ngIf="comercio.config.clientes">
-        <ion-button class="button-rounded"  *ngIf="!carrito.clienteId" (click)="seleccionarCliente()"  ><ion-icon name="add"></ion-icon>  Cliente</ion-button>
-        <ion-item-sliding *ngIf="carrito.clienteId && comercio.config.clientes">
-          <app-card-usuario
-            [cliente]="carrito.cliente"
-            (select)="seleccionarCliente()">
-          </app-card-usuario>
-          <ion-item-options side="end">
-            <ion-item-option color="danger" (click)="eliminarCliente()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
-      </ion-col>
-      <ion-col size="6" *ngIf="comercio.config.mesas">
-
-        <ion-button *ngIf="!carrito.mesaId && comercio.config.mesas" (click)="seleccionarMesa()" class="button-rounded" ><ion-icon name="add"></ion-icon>  Mesa</ion-button>
-
-        <ion-item-sliding *ngIf="carrito.mesaId && comercio.config.mesas">
-      
-          <ion-item class="item-card">
-            <ion-avatar slot="start" (click)="seleccionarMesa()">
-              <ion-icon name="person"></ion-icon>
-            </ion-avatar>
-            <ion-label (click)="seleccionarMesa()">
-              <h2>{{carrito.mesaNombre}}</h2>
-            </ion-label>      
-          </ion-item>
-      
-          <ion-item-options side="end">
-            <ion-item-option color="danger" (click)="eliminarMesa()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
-      </ion-col>
-    </ion-row >
-  </ion-grid>  
-  
-        
-     
-    
-
-      
-
    
     <div  class="form-card" *ngIf="carrito.productos.length > 0">
       <ion-text color="primary">
@@ -103,7 +59,7 @@
       </ion-text> 
 
       <span *ngFor="let item of carrito.recargos; let i = index">
-        <ion-item-sliding>
+        <ion-item-sliding >
           <ion-item>
             <ion-label>                
               <h2>
@@ -126,8 +82,58 @@
  
     <div class="form-card">
       <h5>Comentario: </h5>      
-      <ion-textarea [(ngModel)]="comentario"></ion-textarea>   
+      <ion-textarea [(ngModel)]="carritoService.comentario"></ion-textarea>   
     </div>
+
+    
+
+    <ion-button *ngIf="!carrito.mesaId && comercio.config.mesas" (click)="seleccionarMesa()" class="button-rounded" color="light" ><ion-icon name="add"></ion-icon><ion-icon name="grid-outline"></ion-icon>  Mesa</ion-button>
+    <ion-item-sliding class="item-card" *ngIf="carrito.mesaId && comercio.config.mesas">  
+      <ion-item>
+        <ion-avatar slot="start" (click)="seleccionarMesa()">
+          <ion-icon name="grid-outline"></ion-icon>
+        </ion-avatar>
+        <ion-label (click)="seleccionarMesa()">
+          <h2>{{carrito.mesaNombre}}</h2>
+        </ion-label>      
+      </ion-item>
+  
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="eliminarMesa()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+
+
+    <ion-button class="button-rounded" color="light"  *ngIf="!carrito.clienteId" (click)="seleccionarCliente()"><ion-icon name="add"></ion-icon><ion-icon name="person-outline"></ion-icon>  Cliente</ion-button>
+    <ion-item-sliding class="item-card" *ngIf="carrito.clienteId && comercio.config.clientes">
+      <app-card-usuario
+        [cliente]="carrito.cliente"
+        (select)="seleccionarCliente()">
+      </app-card-usuario>
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="eliminarCliente()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+
+    <ion-button *ngIf="!carrito.direccion.street_name" (click)="seleccionarUbicacion()" class="button-rounded" color="light"><ion-icon name="add"></ion-icon><ion-icon name="location-outline"></ion-icon>Dirección</ion-button>
+    <ion-item-sliding class="item-card" *ngIf="carrito.direccion.street_name">  
+      <ion-item>
+        <ion-avatar slot="start" (click)="seleccionarUbicacion()">
+          <ion-icon name="location-outline"></ion-icon>
+        </ion-avatar>
+        <ion-label (click)="seleccionarUbicacion()">
+          <h2>{{carrito.direccion.street_name}} {{carrito.direccion.street_number}},{{carrito.direccion.locality}},{{carrito.direccion.state}}. <br>
+            <span *ngIf="carrito.direccion.piso"> Piso: {{carrito.direccion.piso}}</span>
+            <span *ngIf="carrito.direccion.puerta"> Puerta: {{carrito.direccion.puerta}}</span>
+            {{carrito.direccion.distanciaDelComercio}} Km.
+          </h2>
+        </ion-label>      
+      </ion-item>
+  
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="eliminarDireccion()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
 
     <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
    

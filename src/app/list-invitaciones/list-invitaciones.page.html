@@ -20,14 +20,14 @@
   </div>
 
   <ion-list lines="none">     
-    <ion-item  class="item-card" *ngFor="let item of items" (click)="seleccionar(item)">
+    <ion-item  class="item-card" *ngFor="let item of items">
       <ion-avatar slot="start">
         <img src="{{item.foto}}" *ngIf="item.foto">
         <ion-icon name="people-circle-outline" *ngIf="!item.foto"></ion-icon>
       </ion-avatar>      
       <ion-label text-wrap> 
         <ion-text>
-          El usuario <b>{{item.remitente}}</b> quiere invitarte al comercio <b>{{item.comercio_nombre}}</b> como <b>{{item.rol}}</b>
+          El usuario <b>{{item.adminEmail}}</b> quiere invitarte al comercio <b>{{item.comercioNombre}}</b> como <b>{{item.rol}}</b>
         </ion-text>
         <ion-toolbar>
           <ion-button slot="start" color="danger" size="large" (click)="eliminarInvitacion(item)"  expand="block">Rechazar</ion-button>   

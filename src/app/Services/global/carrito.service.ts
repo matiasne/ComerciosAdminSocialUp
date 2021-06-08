@@ -8,6 +8,11 @@ import { PedidoService } from '../pedido.service';
 import { Pedido } from 'src/app/models/pedido';
 import { Mesa } from 'src/app/models/mesa';
 import { Cliente } from 'src/app/models/cliente';
+import { ModalNotificacionService } from '../modal-notificacion.service';
+import { ComentariosService } from '../comentarios.service';
+import { AngularFirestore } from 'angularfire2/firestore';
+import { Comentario } from 'src/app/models/comentario';
+import { ImpresoraService } from '../impresora.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,12 +20,18 @@ import { Cliente } from 'src/app/models/cliente';
 export class CarritoService {
 
   public carrito:Pedido;
+
+  public comentario = "";
   
   public actualCarritoSubject = new BehaviorSubject<any>("");
 
   constructor(
     private authenticationService:AuthenticationService,
-    private pedidoService:PedidoService
+    private pedidosService:PedidoService,
+    private modalNotificacion:ModalNotificacionService,
+    private comentariosService:ComentariosService,
+    private firestore: AngularFirestore,
+    private impresoraService:ImpresoraService,
   ) { 
     this.carrito = new Pedido();
     this.actualCarritoSubject.next(this.carrito);
@@ -37,6 +48,8 @@ export class CarritoService {
     p.gruposOpciones =[];
     this.carrito.productos.push(p);
     this.carrito.on = true;    
+
+    this.modalNotificacion.success("Agregado",producto.cantidad+' '+producto.unidad+' de '+producto.nombre)
     this.actualCarritoSubject.next(this.carrito);    
   }
 
@@ -98,6 +111,10 @@ export class CarritoService {
     this.actualCarritoSubject.next(this.carrito);
   }
 
+  agregarComentario(){
+
+  }
+
   
 
   vaciar(){ 
@@ -107,6 +124,41 @@ export class CarritoService {
   }
 
   getTotal(){
-    return this.pedidoService.getTotal(this.carrito)
+    return this.pedidosService.getTotal(this.carrito)
+  }
+
+  crearPedido(){
+    this.carrito.id = this.firestore.createId();
+    this.carrito.personalId = this.authenticationService.getUID();
+    this.carrito.personalEmail = this.authenticationService.getEmail();
+    this.carrito.personalNombre = this.authenticationService.getNombre();
+    
+    
+    this.impresoraService.impresionComanda(this.carrito)
+    
+    
+    
+    if(this.comentario != ""){ 
+      this.comentariosService.setearPath("pedidos",this.carrito.id);      
+      let comentario = new Comentario();
+      comentario.text =this.comentario;
+      comentario.senderId=this.authenticationService.getUID();
+      comentario.senderEmail =this.authenticationService.getEmail();
+      this.comentariosService.add(comentario).then(data=>{
+        console.log("comentario agregado")
+      })
+    }  
+
+    let c:any = new Pedido()  //NO borrar!!! importante para cuando está en modo offline!!!
+    Object.assign(c, this.carrito);
+    this.vaciar();  
+
+    c.direccion = JSON.parse(JSON.stringify(c.direccion));
+    
+
+    this.pedidosService.add(c).then((data:any)=>{       
+      console.log("!!!!!!"+data.fromCache)      
+    });  
+    this.modalNotificacion.success("Cargado","El pedido ha sido cargado a la lista.")
   }
 }

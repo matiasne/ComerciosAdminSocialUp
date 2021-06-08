@@ -1,7 +1,7 @@
 import { Route } from '@angular/compiler/src/core';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { AlertController, NavController } from '@ionic/angular';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Caja } from '../models/caja';
 import { Comercio } from '../models/comercio';
@@ -53,7 +53,8 @@ export class DetailsPedidoWoocommercePage implements OnInit {
     private movimientosService:MovimientosService,
     private navCtrl:NavController,
     private productosService:ProductosService,
-    private comerciosService:ComerciosService
+    private comerciosService:ComerciosService,
+    private alertController:AlertController
   ) {
     this.order = new WCOrder()  
     
@@ -195,17 +196,36 @@ export class DetailsPedidoWoocommercePage implements OnInit {
     this.navCtrl.back();
   }
 
-  suspender(){
-    this.order.statusCobro = this.cEstado.suspendido
-    this.order.status = "cancelled"
-    this.pedidosWoocommerceService.update(this.order).then(data=>{
-      console.log("Actualizado en firebase")
-     })
-    this.ordersService.updateStatus(this.order).subscribe(data=>{
-      this.sumarStock()
-    })
-    this.navCtrl.back()
+  async suspender(){
+    const alert = await this.alertController.create({
+      header: 'Está seguro que desea suspender el pedido?',
+      message: '',
+      buttons: [
+        { 
+          text: 'No',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Si',
+          handler: () => {           
+            this.order.statusCobro = this.cEstado.suspendido
+            this.order.status = "cancelled"
+            this.pedidosWoocommerceService.update(this.order).then(data=>{
+              console.log("Actualizado en firebase")
+            })
+            this.ordersService.updateStatus(this.order).subscribe(data=>{
+              this.sumarStock()
+            })
+            this.navCtrl.back()     
+          }
+        }
+      ]
+    });
+    await alert.present();    
   }
+
+
 
   completar(){
     this.order.status = "completed"
@@ -252,11 +272,15 @@ export class DetailsPedidoWoocommercePage implements OnInit {
          obs.unsubscribe()
           console.log(data)
           let prod= new Producto()
-          prod.asignarValores(data[0])
-          prod.stock += Number(item.quantity)
-          this.productosService.update(prod).then(data=>{
-            console.log("Stock restado")
-          })
+          prod.asignarValores(data[0])          
+
+          let deltaStock = 0;
+          if(prod.valorPor)
+            deltaStock =  (Number(item.quantity) * Number(prod.valorPor));
+          else
+            deltaStock = Number(item.quantity);
+          
+          this.productosService.updateStock(deltaStock,prod.id)
         })
       })
     }
@@ -268,14 +292,17 @@ export class DetailsPedidoWoocommercePage implements OnInit {
       this.order.line_items.forEach(item =>{
         console.log(item)
         let obs = this.productosService.getByName(item.name).subscribe((data:any)=>{
-         obs.unsubscribe()
+          obs.unsubscribe()
           console.log(data)
           let prod= new Producto()
           prod.asignarValores(data[0])
-          prod.stock -= Number(item.quantity)
-          this.productosService.update(prod).then(data=>{
-            console.log("Stock restado")
-          })
+          let deltaStock = 0;
+          if(prod.valorPor)
+            deltaStock =  -(Number(item.quantity) * Number(prod.valorPor));
+          else
+            deltaStock = -Number(item.quantity);
+        
+          this.productosService.updateStock(deltaStock,prod.id)
         })
       })
     }

@@ -67,9 +67,44 @@ export class HomePage implements OnInit {
 
 
   ngOnInit() {
-    this.comercios = [];
-    this.user.asignarValores(this.authService.getActualUser())
+
   } 
+
+  refrescar(){
+    this.comercios = [];
+  //  this.user.asignarValores(this.authService.getActualUser());
+
+    this.buscandoComercios = true;
+    this.comercios = [];
+    console.log("!entrando a home"); 
+    this.rolesService.getAllRolesbyEmailGET(this.authService.getActualUser().email).subscribe((roles:any) =>{        
+      this.comercios = []; 
+      console.log(roles)
+      if(roles.length == 0){
+        this.buscandoComercios = false
+      }
+      for(let i = 0;i < roles.length; i++){
+        
+        if(roles[i].comercioId){
+          if(roles[i].estado != "pendiente" && roles[i].estado != "rechazada"){
+            let obs =this.comerciosService.get(roles[i].comercioId).subscribe(data=>{
+              if(data){
+                this.buscandoComercios = false
+                let comercio:any = data;
+                comercio.rol = roles[i];
+                console.log(comercio)
+                this.comercios.push(comercio)
+                obs.unsubscribe()
+              }
+              
+            });            
+          }
+        }
+      }
+      console.log(this.comercios) 
+      
+    });
+  }
  
   async getAfipStatus(){
     console.log('Este es el estado del servidor:');
@@ -78,47 +113,22 @@ export class HomePage implements OnInit {
 
   refresh(event) {
     console.log('Begin async operation');
-    this.ionViewDidLeave();
     setTimeout(() => {
-      this.ionViewDidEnter();
+      this.refrescar();
         event.target.complete();
       }, 500);
   }
 
   ionViewDidEnter(){    
-    this.buscandoComercios = true;
-    this.comercios = [];
-    console.log("!entrando a home"); 
-    this.rolesService.getAllRolesbyUser(this.authService.getActualUserId()).subscribe(roles =>{        
-      this.comercios = [];
-      console.log("!!!!!!")     
-      roles.forEach(rol =>{            
-        if(rol.comercioId){   
-          if(rol.estado != "pendiente" || rol.estado != "rechazada"){
-            
-            this.comerciosService.get(rol.comercioId).subscribe(data =>{ 
-              this.buscandoComercios = false;
-              if(data){
-                var comercio:any = data; 
-                comercio.rol = rol; 
-                this.comercios.push(comercio);
-              }              
-            }); 
-          }
-          
-        }        
-        
-      });
-      console.log(this.comercios)
-     // this.loadingService.dismissLoading();      
-      
-    });
-
+    this.refrescar();
   }
+
+
+  
 
   ionViewDidLeave(){
-    
   }
+    
 
   imprimir(){
     this.router.navigate(['prueba']); 
@@ -141,7 +151,7 @@ export class HomePage implements OnInit {
     });
     modal.onDidDismiss()
     .then((retorno) => {  
-        this.refresh(undefined);  
+      this.refrescar()
     });
     return await modal.present();      
   }
@@ -164,27 +174,6 @@ export class HomePage implements OnInit {
        
   }
 
-
-  async editar(item){
-   // this.seleccionar(item);
-
-    const modal = await this.modalCtrl.create({
-      component: FormComercioPage,
-      componentProps: {
-        comercio:item      
-      }
-    });
-    modal.onDidDismiss()
-    .then((retorno) => {
-      
-        this.refresh(undefined);  
-      
-    });
-    return await modal.present();
-    
-
-
-  }
 
   
 

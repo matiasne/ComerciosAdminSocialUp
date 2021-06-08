@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild} from '@angular/core';
-import { ModalController, LoadingController, AlertController, NavController, Platform, IonInfiniteScroll } from '@ionic/angular';
+import { ModalController, LoadingController, AlertController, NavController, Platform, IonInfiniteScroll, IonSearchbar } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductosService } from '../Services/productos.service';
 import { Subscription } from 'rxjs';
 import { ServiciosService } from '../Services/servicios.service';
 import { AddProductoVentaPage } from '../add-producto-venta/add-producto-venta.page';
-import { AddServicioSubscripcionPage } from '../add-servicio-subscripcion/add-servicio-subscripcion.page';
 import { CarritoService } from '../Services/global/carrito.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { ComerciosService } from '../Services/comercios.service';
@@ -14,23 +13,15 @@ import { CargaPorVozService } from '../Services/carga-por-voz.service';
 import { ChangeDetectorRef } from '@angular/core'
 import { ToastService } from '../Services/toast.service';
 import { CategoriasService } from '../Services/categorias.service';
-import { FormProductoPage } from '../form-producto/form-producto.page';
-import { FormStockPage } from '../form-stock/form-stock.page';
 import { Comercio } from '../models/comercio';
 import { AuthenticationService } from '../Services/authentication.service';
 import { VariacionesStocksService } from '../Services/variaciones-stocks.service';
-import { DetailsCarritoPage } from '../details-carrito/details-carrito.page';
 import { FormDescuentoPage } from '../form-descuento/form-descuento.page';
 import { FormRecargoPage } from '../form-recargo/form-recargo.page';
 import { Pedido } from '../models/pedido';
-import { DetailsPedidoPage } from '../details-pedido/details-pedido.page';
 import { ComandaPage } from '../impresiones/comanda/comanda.page';
-import { ImpresoraService } from '../Services/impresora.service';
-import { EnumPlanes, User } from '../models/user';
 import { CambiarPlanPage } from '../cambiar-plan/cambiar-plan.page';
-import { PedidoService } from '../Services/pedido.service';
 import { NavegacionParametrosService } from '../Services/global/navegacion-parametros.service';
-import { WoocommerceService } from '../Services/woocommerce/woocommerce.service';
 import { WordpressService } from '../Services/wordpress/wordpress.service';
 import { Producto } from '../models/producto';
 import { UsuariosService } from '../Services/usuarios.service';
@@ -46,13 +37,21 @@ export class ListProductosServiciosPage implements OnInit {
 
   @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
   
+  @ViewChild(IonSearchbar, { static: false }) ionSearchbar: IonSearchbar;
+
+  @ViewChild(IonSearchbar) set content(content: IonSearchbar) {
+    if(content) { // initially setter gets called with undefined
+        this.ionSearchbar = content;
+    }
+ }
+  
   comercio:Comercio;
 
   itemsAllProductos:any=[];
   itemsProductos:any = [];
   itemsRenderProductos:any = [] 
 
-  itemsPerPage = 20
+  itemsPerPage = 30
   itemsRenderizados = 0;
 
   public carrito:any
@@ -87,7 +86,9 @@ export class ListProductosServiciosPage implements OnInit {
   public dragEvent:any
 
   public connectionStatus = "offline"
-  public countNotificaciones = 0
+  public countNotificaciones = 0;
+
+  public showSearchBar = false;
 
   constructor(
     public loadingController: LoadingController,
@@ -117,6 +118,8 @@ export class ListProductosServiciosPage implements OnInit {
     
   ) { 
     
+
+    console.log(this.ionSearchbar)
     this.notificacionesAppService.getSinLeer(this.usuariosServices.usuarioLogueado).subscribe(snapshot =>{
       console.log(snapshot.length)
       this.countNotificaciones = snapshot.length;
@@ -418,7 +421,6 @@ export class ListProductosServiciosPage implements OnInit {
   }
 
   agregarACarrito(producto){
-    this.toastServices.mensaje("Producto "+producto.nombre+" Agregado al carrito","");
     producto.precioTotal = producto.precio
     this.carritoService.agregarProducto(producto);
   }
@@ -428,7 +430,6 @@ export class ListProductosServiciosPage implements OnInit {
     if(this.dragAgregar){
      
       this.dragAgregar = false
-      this.toastServices.mensaje("Producto "+producto.nombre+" Agregado al carrito","");
       producto.precioTotal = producto.precio
       this.carritoService.agregarProducto(producto);
       this.dragEvent.close().then(data=>{
@@ -482,7 +483,8 @@ export class ListProductosServiciosPage implements OnInit {
     
 
     const modal = await this.modalCtrl.create({
-      component: AddProductoVentaPage,
+      component: AddProductoVentaPage,     
+      cssClass:'modal-custom-wrapper',
       componentProps:{
         producto:producto
       }
@@ -497,7 +499,6 @@ export class ListProductosServiciosPage implements OnInit {
         delete retorno.data.keywords;
         //producto.cantidad = retorno.data.cantidad
         //producto.opcionesSeleccionadas = retorno.data.opcionesSeleccionadas
-        this.toastServices.mensaje("Producto "+producto.nombre+" Agregado al carrito","");
         this.carritoService.agregarProducto(retorno.data);    
         //this.marcarEnCarrito();         
       }else{
@@ -515,7 +516,8 @@ export class ListProductosServiciosPage implements OnInit {
   async agregarDescuento(){
     
     const modal = await this.modalCtrl.create({
-      component: FormDescuentoPage
+      component: FormDescuentoPage,     
+      cssClass:'modal-custom-wrapper'
     });  
 
     modal.onDidDismiss().then((retorno) => {
@@ -529,7 +531,8 @@ export class ListProductosServiciosPage implements OnInit {
 
   async agregarRecargo(){
     const modal = await this.modalCtrl.create({
-      component: FormRecargoPage
+      component: FormRecargoPage,     
+      cssClass:'modal-custom-wrapper'
     });  
 
     modal.onDidDismiss().then((retorno) => {
@@ -630,5 +633,14 @@ export class ListProductosServiciosPage implements OnInit {
       this.router.navigate(['form-producto']);
     }
     
+  }
+
+  focusBuscar(){
+    this.showSearchBar = true;
+    setTimeout(() => {
+          // Set the focus to the input box of the ion-Searchbar component
+    this.ionSearchbar.setFocus();
+    },100);
+  
   }
 }

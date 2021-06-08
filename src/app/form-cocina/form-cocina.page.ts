@@ -7,7 +7,7 @@ import { ToastService } from '../Services/toast.service';
 import { Cocina } from '../models/cocina';
 import { CocinasService } from '../Services/cocinas.service';
 import { FormInvitacionPage } from '../form-invitacion/form-invitacion.page';
-import { InvitacionesService } from '../Services/invitaciones.service';
+
 import { RolesService } from '../Services/roles.service';
 
 @Component({
@@ -35,7 +35,6 @@ export class FormCocinaPage implements OnInit {
     public alertController: AlertController,
     private navParams:NavParams,
     private toastServices:ToastService,
-    private invitacionService:InvitacionesService,
     private rolesServices:RolesService
   ) {
     this.datosForm = this.formBuilder.group({
@@ -125,8 +124,7 @@ export class FormCocinaPage implements OnInit {
     modal.onDidDismiss()
     .then((retorno) => {
       if(retorno.data){   
-        this.cocina.cocineros.push(retorno.data)  
-        this.invitacionService.enviarInvitacion(retorno.data,"cocinero");         
+        this.cocina.cocineros.push(retorno.data)     
       }        
     });
     return await modal.present();

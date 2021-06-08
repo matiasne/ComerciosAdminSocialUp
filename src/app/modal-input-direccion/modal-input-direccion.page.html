@@ -1,0 +1,36 @@
+<div class="ion-padding">
+  <ion-text>
+    <h5>Dirección</h5>
+  </ion-text>
+  <div>
+    <ion-item>
+      <ion-label position="floating">Direccion</ion-label>
+      <ion-input autocomplete="off" id="pac-input" [(ngModel)]="direccion"  type="text"></ion-input>
+    </ion-item>
+  </div>
+  <ion-row>
+    <ion-col>
+      <ion-item>
+        <ion-label position="floating">Piso</ion-label>
+        <ion-input name="piso" type="text" [(ngModel)]="localizacion.piso"></ion-input>
+      </ion-item>      
+    </ion-col>
+    <ion-col>
+      <ion-item>
+        <ion-label position="floating">Puerta</ion-label>
+        <ion-input name="piso" type="text" [(ngModel)]="localizacion.puerta"></ion-input>
+      </ion-item>   
+    </ion-col>
+  </ion-row>  
+  <div class="map-container">
+    <div id="mapDiv" class="map"></div>
+  </div>  
+  Distancia: {{localizacion.distanciaDelComercio}} Km.
+</div>
+<ion-footer>
+  <ion-toolbar>   
+    <ion-button slot="start" class="button-rounded"  color="light" (click)="cancelar()">Cancelar</ion-button>
+    <ion-button slot="end" class="button-rounded"  color="success" (click)="guardar()">Guardar</ion-button>
+  </ion-toolbar> 
+
+</ion-footer>

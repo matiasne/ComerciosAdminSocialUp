@@ -58,7 +58,9 @@ export class SeleccionarImagenComponent implements OnInit {
 
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log(this.croppedImage)
+  }
 
 
   seleccionarImagenWeb(event){

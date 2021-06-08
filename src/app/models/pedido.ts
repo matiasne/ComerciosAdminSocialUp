@@ -5,6 +5,7 @@ import { MovimientoCtaCorriente } from './movimientoCtaCorriente';
 import { Pagare } from './pagare';
 import { Descuento } from './descuento';
 import { Recargo } from './recargo';
+import { Localizacion } from './localizacion';
 
 
 export enum EnumEstadoCocina {
@@ -50,6 +51,7 @@ export class Pedido{
     public servicios:Servicio[] = [];
 	 
     public cantidadComentarios = 0;
+    
 
     public createdAt:any
 
@@ -59,10 +61,11 @@ export class Pedido{
     public reembolso ="";
     public cajaUtilizada ="";
 
+    public direccion:Localizacion;
     public total = 0
     
 	constructor(){
-
+        this.direccion = new Localizacion();
 
     }
 

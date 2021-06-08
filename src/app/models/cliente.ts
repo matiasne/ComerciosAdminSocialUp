@@ -1,3 +1,5 @@
+import { Localizacion } from "./localizacion";
+
 export class Cliente{
 
     public id="";
@@ -6,23 +8,21 @@ export class Cliente{
     public documento_tipo ="";  
     public documento ="";  
     public fecha_nacimiento="";
-    public direccion="";
     public telefono="";   
     public email="";   
     public descripcion="";   
-    public direccion_piso="";
-    public direccion_puerta="";
     public foto="";
-    public latitud="";
-    public longitud="";
     public createdAt:any;
     public vendedorId="";
     public estado="";
     public keywords = [];
 
+    public direccion:Localizacion;
+
 	constructor(
 		
 		){
+            this.direccion = new Localizacion();
     }
     
     public asignarValores(init?: Partial<Cliente>) {

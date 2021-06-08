@@ -249,10 +249,6 @@ const routes: Routes = [
     loadChildren: () => import('./list-notificaciones/list-notificaciones.module').then( m => m.ListNotificacionesPageModule)
   },
   {
-    path: 'form-add-profesional',
-    loadChildren: () => import('./form-add-profesional/form-add-profesional.module').then( m => m.FormAddProfesionalPageModule)
-  },
-  {
     path: 'details-whatsapp',
     loadChildren: () => import('./details-whatsapp/details-whatsapp.module').then( m => m.DetailsWhatsappPageModule)
   },
@@ -402,6 +398,14 @@ const routes: Routes = [
   {
     path: 'details-image',
     loadChildren: () => import('./details-image/details-image.module').then( m => m.DetailsImagePageModule)
+  },
+  {
+    path: 'modal-notificacion',
+    loadChildren: () => import('./modal-notificacion/modal-notificacion.module').then( m => m.ModalNotificacionPageModule)
+  },
+  {
+    path: 'modal-input-direccion',
+    loadChildren: () => import('./modal-input-direccion/modal-input-direccion.module').then( m => m.ModalInputDireccionPageModule)
   }
  
 ];

@@ -16,7 +16,6 @@ import { AngularFirestore } from 'angularfire2/firestore';
 import { Subscription, Subscribable } from 'rxjs';
 import { FormCategoriaPage } from '../form-categoria/form-categoria.page';
 import { LoadingService } from '../Services/loading.service';
-import { FormAddProfesionalPage } from '../form-add-profesional/form-add-profesional.page';
 import { ToastService } from '../Services/toast.service';
 import { FormCalendarioPage } from '../form-calendario/form-calendario.page';
 import { CalendariosService } from '../Services/calendarios.service';
@@ -295,45 +294,7 @@ export class FormServicioPage implements OnInit {
     });
     return await modal.present();
   }
-
   
-
-  async openAgregarProfesional(){
-    const modal = await this.modalController.create({
-      component: FormAddProfesionalPage,
-    });
-    await modal.present();
-
-    modal.onDidDismiss()
-    .then((retorno) => {
-      console.log(retorno.data)
-      if(retorno.data)
-        this.servicio.profesionales.push(retorno.data);        
-    });
-    return await modal.present();
-  }
-
-  async editarProfesional(index,profesional){
-    const modal = await this.modalController.create({
-      component: FormAddProfesionalPage,
-      componentProps: { profesional: profesional }
-    });
-    await modal.present();
-
-    modal.onDidDismiss()
-    .then((retorno) => {
-      if(retorno.data){
-        if(retorno.data == "eliminar"){
-          this.servicio.profesionales.splice(index,1);
-        }
-        this.servicio.profesionales[index] = retorno.data;    
-      }
-            
-    });
-    return await modal.present();
-
-  }
-
   cancelar(){
     this.navCtrl.back();
   }
@@ -352,7 +313,7 @@ export class FormServicioPage implements OnInit {
     return await modal.present();
   }
 
-  async presentAlertEliminar() {
+  async presentAlertEliminar() { 
     const alert = await this.alertController.create({
       header: 'Eliminar',
       message: 'Está seguro que desea eliminar el servicio?',

@@ -16,6 +16,8 @@ import { ToastService } from '../Services/toast.service';
 import { SelectClientePage } from '../select-cliente/select-cliente.page';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { BeneficiosService } from '../Services/beneficios.service';
+import { ModalInputDireccionPage } from '../modal-input-direccion/modal-input-direccion.page';
+import { Localizacion } from '../models/localizacion';
 
 declare var google: any;
 
@@ -54,6 +56,8 @@ export class FormClientePage implements OnInit {
 
   public updating:boolean = false;
   public titulo = "Nuevo Cliente"; 
+
+  public campoModificado = false;
   
   constructor(
     private formBuilder: FormBuilder,
@@ -65,7 +69,6 @@ export class FormClientePage implements OnInit {
     private authService:AuthenticationService,
     private navParams: NavParams,
     public alertController: AlertController,
-    public loadingService:LoadingService,
     private toastServices:ToastService,
     private firestore: AngularFirestore,
     private beneficiosService:BeneficiosService
@@ -78,90 +81,35 @@ export class FormClientePage implements OnInit {
       documento_tipo :[''],  
       documento :[''],  
       fecha_nacimiento : [''],
-      direccion : [''],
       telefono:[''],   
       email:  [''],   
-      descripcion :[''],       
-      direccion_piso:[''],
-      direccion_puerta:[''],
+      descripcion :[''],      
       foto:[''],
-      latitud:[''],
-      longitud:[''],
       createdAt:[''],
       vendedorId:['']
     });
 
-    if(this.navParams.get('id')){
+    this.datosForm.valueChanges.subscribe(val => {
+      this.campoModificado = true;
+      console.log("!!!!!!!!")
+    });
+
+    if(this.navParams.get('client')){
       this.updating = true;
-      this.titulo = "Editar Cliente"
-      
-
-      this.clienteSubs = this.clientesService.get(this.navParams.get('id')).subscribe(data=>{
-        
-        this.cliente = data;
-        
-        this.croppedImagepath = this.cliente.foto;
-        
-        console.log(this.cliente); 
-        
-        this.datosForm.patchValue(this.cliente);          
-
-        /*this.initMap("map3",{
-          center:{
-            lat:Number(this.cliente.latitud), 
-            lng:Number(this.cliente.longitud)
-          },
-          zoom:15 ,
-          options: {
-            disableDefaultUI: true,
-            scrollwheel: true,
-            streetViewControl: false,
-          },    
-        });*/
-
-        //this.posicion = {lat: this.cliente.latitud, lng: this.cliente.longitud};
-
-        /*var marker = new google.maps.Marker({
-          posicion: this.posicion,
-          map: this.map,
-          title: 'Hello World!',
-          draggable:true,
-        });*/
-
-      });
+      this.titulo = "Editar Cliente"      
+      this.cliente.asignarValores(this.navParams.get('client'));  
+      this.datosForm.patchValue(this.navParams.get('client'));     
+      this.croppedImagepath = this.cliente.foto;      
+      console.log(this.cliente);       
+             
     }
     else{
-
       this.cliente = new Cliente();
       this.cliente.id = this.firestore.createId();        
     }
-   
-
   }
 
   ngOnInit() {
-
-
-  /*  this.initMap("map3",{
-      center:{
-        lat:0, //Aca localizar por gps
-        lng:0
-      },
-      zoom:5 ,
-      options: {
-        disableDefaultUI: true,
-        scrollwheel: true,
-        streetViewControl: false,
-      },     
-    });
-
-    this.loadingService.presentLoading();
-    setTimeout(() => {           
-      this.initAutocomplete('pac-input');     
-      this.loadingService.dismissLoading();
-    }, 500);  
-    
-    this.geocoder = new google.maps.Geocoder();*/
 
   }
 
@@ -195,24 +143,12 @@ export class FormClientePage implements OnInit {
       vendedorId: this.authService.getUID() 
     });
 
-  
-    if(this.posicion){
-      this.datosForm.patchValue({
-        latitud: this.posicion.lat      
-      });
-  
-      this.datosForm.patchValue({
-        longitud: this.posicion.lng     
-      });
-    }    
-
-    this.cliente.asignarValores(this.datosForm.value);
-
-    console.log(this.cliente);
     if (this.datosForm.invalid) {
       this.toastServices.alert('Por favor completar todos los campos marcados con * antes de continuar',"");
       return;
     } 
+
+    this.cliente.asignarValores(this.datosForm.value);
 
     if(this.updating){
       this.clientesService.update(this.cliente);
@@ -231,7 +167,12 @@ export class FormClientePage implements OnInit {
   }
 
   cancelar(){
-    this.modalController.dismiss();    
+    if(this.campoModificado){
+      this.gaurdarCambios();
+    }
+    else{
+      this.modalController.dismiss()
+    }     
   }
 
   elimiar(){
@@ -261,131 +202,61 @@ export class FormClientePage implements OnInit {
     await alert.present();
   }
 
+
+  async gaurdarCambios() {
+    const alert = await this.alertController.create({
+      header: 'Eliminar',
+      message: 'Está seguro que desea salir sin guardar los cambios?',
+      buttons: [
+        {
+          text: 'No',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Si',
+          handler: () => {
+            this.modalController.dismiss();   
+         
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
   async abrirDireccion(){
     this.router.navigate(['form-direccion']);
   }
 
-  /*initMap(el, options) {
-    this.map = this.makeMap(el, options)
+  async seleccionarUbicacion(){
 
-    var markerOptions = {
-        draggable: true,
-        map: this.map,
-        posicion: options.center,
-        zoom:5 ,
-    }    
-  }*/
+    if(this.cliente.direccion instanceof Localizacion){
 
- /* makeMap(el, options) {
-    if(google){
-      console.log(el);
-      let mapEle: HTMLElement = document.getElementById(el);
-      console.log(mapEle);
-      return new google.maps.Map(mapEle, options)
     }
-  }*/
-
-  
- /* initAutocomplete(el = "autocomplete", options = { types: ["geocode"], componentRestrictions: { country: "ar" }}, fields = ["address_components", "geometry", "icon", "name"]) {
-    // Create the autocomplete object, restricting the search predictions to geographical location types.
-    this.autocomplete = new google.maps.places.Autocomplete(
-        document.getElementById(el).getElementsByTagName('input')[0], options
-    )
-    console.log(this.autocomplete);
-    // Avoid paying for data that you don't need by restricting the set of
-    // place fields that are returned to just the address components.
-    // Set the data fields to return when the user selects a place.
-    this.autocomplete.setFields(fields)
-
-    if (this.map) {
-        // Bind the map's bounds (viewport) property to the autocomplete object,
-        // so that the autocomplete requests use the current map bounds for the
-        // bounds option in the request.
-        this.autocomplete.bindTo("bounds", this.map)
+    else{
+      this.cliente.direccion = new Localizacion()
     }
 
-    this.autocomplete.addListener("place_changed",()=>{
-      console.log("place_changed");
-      this.place = this.autocomplete.getPlace()
-      console.log(this.place);
-
-      this.posicion = {lat: this.place.geometry.location.lat(), lng: this.place.geometry.location.lng()};
-
-      var marker = new google.maps.Marker({
-        posicion: this.posicion,
-        map: this.map,
-        title: 'Hello World!',
-        draggable:true,
-      });
-
-      var bounds = new google.maps.LatLngBounds();      
-      bounds.extend(marker.getposicion());
-      this.map.fitBounds(bounds);
-
-      var zoomChangeBoundsListener = google.maps.event.addListenerOnce(this.map, 'bounds_changed', function(event) {
-        if ( this.getZoom() ){   // or set a minimum
-            this.setZoom(16);  // set zoom here
-        }
-      });
-
-      setTimeout(function(){google.maps.event.removeListener(zoomChangeBoundsListener)}, 2000);
-      this.fillInAddressForm(this.place.address_components);
+    const modal = await this.modalController.create({
+      component: ModalInputDireccionPage,
+      componentProps:{localizacion:this.cliente.direccion},
+      cssClass:'modal-map'      
     });
-
-  }
-
-  fillInAddressForm(addressComponents = this.place.address_components) {
-  
-    var pickedAddress =  {
-      street_number: ["street_number", "short_name"],
-      route: ["street_name", "long_name"],
-      locality: ["locality", "long_name"],
-      administrative_area_level_1: ["state", "short_name"],
-      country: ["country", "long_name"],
-      postal_code: ["zip", "short_name"],
-      sublocality_level_1: ["sublocality", "long_name"],
-    }
-
-     
-
-
-      console.log(pickedAddress.street_number[1]);
-
-      var addressType
-
+    modal.onDidDismiss()
+    .then((retorno) => {
       
-
-      console.log(addressComponents)
-
-      // Get each component of the address from the place details,
-      // and then fill-in the corresponding field on the form.
-      var direccion_completa ="";
-      for (var i = 0; i < addressComponents.length; i++) {
-          addressType = addressComponents[i].types[0]
-
-          if (pickedAddress[addressType]) {
-              console.log(addressType)
-              direccion_completa = direccion_completa +" "+  addressComponents[i][pickedAddress[addressType][1]]+","
-             
-          }
+      if(retorno.data){
+        this.cliente.direccion = JSON.parse(JSON.stringify(retorno.data));
+        console.log("!!!!!!!!!!")
       }
-
-      this.datosForm.patchValue({
-        direccion: direccion_completa   
-      });
-      console.log(direccion_completa)
-
-      setTimeout(function () {
-        document.getElementById('pac-input').click();
-      }, 2500);
-      
-      
+      console.log(this.cliente)
+    });
+    modal.present()
   }
 
+  eliminarDireccion(){
+    this.cliente.direccion = new Localizacion();
+  }
 
-  makeMarker(options) {
-    var marker = new google.maps.Marker(options)
-    this.markers.push(marker)
-    return marker
-  }*/
 }

@@ -25,38 +25,45 @@ export class RolesService extends BaseService {
         if(data){
           
           this.setPath('comercios/'+data.id+'/roles')   
+          console.log(this.path)
          }
         
       })
-      this.collectionGroup = "roles";
+      
   }
-   
+
+  init(){
+    this.setPath('comercios/'+this.comerciosService.getSelectedCommerceId()+'/roles')   
+  }
+
     
   
   public create(data) {    
    
 
-    return this.firestore.collection(this.path).doc(data.id).set({...data,
+    return this.firestore.collection(this.path).doc(data.userEmail).set({...data,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
   } 
 
-  public get(documentId: string) {
-
-  
-
+  public get(documentId: string) {  
+    this.setPath('comercios/'+this.comerciosService.getSelectedCommerceId()+'/roles')   
     return this.firestore.collection(this.path).doc(documentId).snapshotChanges();
   }
 
   public getAllTipos() {       
+    this.setPath('comercios/'+this.comerciosService.getSelectedCommerceId()+'/roles')   
     return this.firestore.collection('roles_tipos').snapshotChanges();
   }
 
   public getAll() {   
+    this.collectionGroup = "roles";
     return this.firestore.collectionGroup(this.collectionGroup).snapshotChanges();
   }
 
   public getAllRolesbyUser(id) {  
+    
+    this.collectionGroup = "roles";
     return this.firestore.collectionGroup(this.collectionGroup, ref => ref.where('userId', '==', id)).get(/*{ source: 'server' }*/)
     .pipe(
       map(actions => {
@@ -64,6 +71,7 @@ export class RolesService extends BaseService {
         actions.forEach(a => {
           const item = a.data() ;
           item.id = a.id;
+          console.log(a.ref.parent.parent)
           data.push(item);
         });
         return data;
@@ -72,15 +80,54 @@ export class RolesService extends BaseService {
 
   }  
 
-  
-  getAllRolesbyComercio(comercioId){     
-
-    return this.firestore.collection(this.path).get({ source: 'server' }).pipe(
+  public getAllRolesbyEmail(email) {  
+    
+    this.collectionGroup = "roles";
+    return this.firestore.collectionGroup(this.collectionGroup, ref => ref.where('userEmail', '==', email)).snapshotChanges(/*{ source: 'server' }*/)
+    .pipe(
       map(actions => {
         const data = [];       
         actions.forEach(a => {
-          const item = a.data() ;
-          item.id = a.id;
+          const item:any = a.payload.doc.data() ;
+          item.id =  a.payload.doc.id;
+          data.push(item);
+        });
+        return data;
+      })
+    )
+
+  }  
+
+//La pantalla HOME necesita esta diferencia!!!!!!
+  public getAllRolesbyEmailGET(email) {  
+    
+    this.collectionGroup = "roles";
+    return this.firestore.collectionGroup(this.collectionGroup, ref => ref.where('userEmail', '==', email)).get(/*{ source: 'server' }*/)
+    .pipe(
+      map(actions => {
+        const data = [];       
+        actions.forEach(a => {
+          const item:any = a.data() ;
+          item.id =  a.id;
+          data.push(item);
+        });
+        return data;
+      })
+    )
+
+  }  
+  
+
+  
+  getAllRolesbyComercio(comercioId){     
+    this.setPath('comercios/'+comercioId+'/roles')   
+   
+    return this.firestore.collection(this.path).snapshotChanges().pipe(
+      map(actions => {
+        const data = [];       
+        actions.forEach(a => {
+          const item:any = a.payload.doc.data() ;
+          item.id = a.payload.doc.id;
           data.push(item);
         });
         return data;
@@ -88,7 +135,9 @@ export class RolesService extends BaseService {
     )
   }
 
-  public setUserAsAdmin(comercioId){   
+  public setUserAsAdmin(comercioId){ 
+    
+    this.setPath('comercios/'+comercioId+'/roles')   
  
     let params = {
       userEmail : this.auth.getEmail(),
@@ -102,6 +151,8 @@ export class RolesService extends BaseService {
   } 
 
   public getAllOwnerId(){
+    this.collectionGroup = "roles";
+    
     return this.firestore.collectionGroup(this.collectionGroup, ref=>ref.where("rol","==","owner")).snapshotChanges();
   }
 

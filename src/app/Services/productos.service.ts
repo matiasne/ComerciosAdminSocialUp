@@ -3,9 +3,11 @@ import { AngularFirestore } from 'angularfire2/firestore';
 import * as firebase from 'firebase';
 import { map } from 'rxjs/operators';
 import { Producto } from '../models/producto';
+import { variacionStock } from '../models/variacionStock';
 import { BaseService } from './base.service';
 import { ComerciosService } from './comercios.service';
 import { KeywordService } from './keyword.service';
+import { VariacionesStocksService } from './variaciones-stocks.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +17,8 @@ export class ProductosService extends BaseService {
   private woocommerceSyncPath =""
   constructor(
     protected afs: AngularFirestore,
-    private comerciosService:ComerciosService
+    private comerciosService:ComerciosService,
+    private variacionesStockService:VariacionesStocksService
   ) {
     super(afs);   
     this.comerciosService.getSelectedCommerce().subscribe(data=>{
@@ -78,7 +81,39 @@ export class ProductosService extends BaseService {
     );   
   }
 
-  
+  public updateStock(delta,productoId){ 
+
+    var sfDocRef = this.afs.firestore.collection(this.path).doc(productoId);
+
+    return this.afs.firestore.runTransaction((transaction) => {
+      // This code may get re-run multiple times if there are conflicts.
+      return transaction.get(sfDocRef).then((sfDoc) => {
+          if (!sfDoc.exists) {
+              throw "Document does not exist!";
+          }
+          
+          var newStock = sfDoc.data().stock + delta;
+          transaction.update(sfDocRef, { stock: newStock });
+
+          let vStock:variacionStock = new variacionStock();
+          vStock.productoId = productoId; 
+          vStock.stock = sfDoc.data().stock;
+          this.variacionesStockService.setPathProducto(productoId);
+          this.variacionesStockService.add(vStock).then(resp =>{           
+
+          }); 
+
+      });
+  }).then(() => {
+      
+          
+          
+    
+  }).catch((error) => {
+      console.log("Transaction failed: ", error);
+  });
+
+  }
 
   /*public create(data:Producto) {
 

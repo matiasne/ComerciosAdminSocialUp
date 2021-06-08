@@ -35,12 +35,10 @@ export class ListClientesPage implements OnInit {
   
   constructor(
     public modalController: ModalController,
-    public loadingController: LoadingController,
     private router: Router,
     private route: ActivatedRoute,
     public clientesService:ClientesService,
     public modalCtrl: ModalController,
-    public loadingService:LoadingService,
     public comercioService:ComerciosService
   ) { 
     this.comercio = new Comercio()
@@ -175,15 +173,6 @@ export class ListClientesPage implements OnInit {
           
         })
 
-        modal.onDidDismiss()
-        .then((retorno) => {
-          if(retorno.data){        
-              this.palabraFiltro = retorno.data.item.nombre;
-              
-          }   
-          
-          this.buscar();               
-        });
         return await modal.present();
     }
 
@@ -198,7 +187,7 @@ export class ListClientesPage implements OnInit {
       const modal = await this.modalController.create({
         component: FormClientePage,
         componentProps:{
-          id:item.id
+          client:item
         }      
       });
       
@@ -206,14 +195,6 @@ export class ListClientesPage implements OnInit {
         
       })
   
-      modal.onDidDismiss()
-      .then((retorno) => {
-        if(retorno.data){        
-            this.palabraFiltro = retorno.data.item.nombre;
-        }   
-        
-        this.buscar();            
-      });
       return await modal.present();
   }
 

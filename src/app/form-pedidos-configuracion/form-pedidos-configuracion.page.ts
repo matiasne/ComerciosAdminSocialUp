@@ -9,7 +9,6 @@ import { RolesService } from '../Services/roles.service';
 import { UsuariosService } from '../Services/usuarios.service';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Rol } from '../models/rol';
-import { InvitacionesService } from '../Services/invitaciones.service';
 
 @Component({
   selector: 'app-form-pedidos-configuracion',
@@ -30,7 +29,6 @@ export class FormPedidosConfiguracionPage implements OnInit {
     private rolesService:RolesService,
     private firestore: AngularFirestore,
     private alertController:AlertController,
-    private invitacionService:InvitacionesService
   ) { 
 
     this.comercio = new Comercio();
@@ -70,7 +68,7 @@ export class FormPedidosConfiguracionPage implements OnInit {
     modal.onDidDismiss()
     .then((retorno) => {
       if(retorno.data){     
-        this.invitacionService.enviarInvitacion(retorno.data,"cadete"); 
+        
         
       }        
     });

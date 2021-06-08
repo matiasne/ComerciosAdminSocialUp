@@ -346,19 +346,13 @@ producto-foto img{
 }
 
 .form-card-error{
-  border-bottom: none;
-  border-radius: 0;
-  border-top: none;
-  margin-bottom: 16px;
-  -webkit-box-shadow: 0px 2px 5px 1px #ee2711;
-  -moz-box-shadow: 0px 2px 5px 1px #ee2711;
-  box-shadow: 0px 2px 5px 1px #ee2711;
-  padding: 10px;
+  border: 5px solid #E91D62 !important;
+  border-radius: 10px !important;
 }
 
 .invalid-feedback h5{
   font-size: 12px;
-  color:#ee2711;
+  color:#E91D62;
 }
 
 .item-card{
@@ -522,6 +516,7 @@ ion-fab{
 }
 
 .mensaje{  
+  padding: 20px;
   text-align: center;
 }
 
@@ -583,14 +578,53 @@ ion-fab{
   height: 100vh;
 }
 
-.modal-wrapper{
+.modal-custom-wrapper .modal-wrapper{
   border: 5px solid #E91D62 !important;
   border-radius: 10px !important;
+  margin: 20px 20px 20px 20px !important;
+  height: 90vh;
 }
+
+.modal-notificacion-wrapper .modal-wrapper{  
+  width:300px;
+  height: 300px;
+  margin:auto;
+  padding-top:300px;
+}
+
+@media (max-width: 700px) {
+ 
+  .modal-notificacion-wrapper .modal-wrapper{
+    width: 250px;
+    height: 300px;
+    min-width: 200px;
+    padding-top:0px;
+    border-radius: 10px !important;
+    margin: auto !important;
+  }
+
+}
+
+.moda-succes-border .modal-wrapper{
+  border: 5px solid #1de994 !important;
+}
+
+.modal-error-border .modal-wrapper{
+  border: 5px solid #ee4a4a !important;
+}
+
+.modal-map .modal-wrapper{
+  border: 5px solid #E91D62 !important;
+  border-radius: 10px !important;
+  height: 450px;
+  margin: 20px;
+}
+
 
 .alert-wrapper{
   border: 5px solid #E91D62 !important;
   border-radius: 10px !important;
+  margin: 120px !important;
 }
 
 .item-inner{
@@ -608,3 +642,8 @@ ion-fab{
   max-height: 200px;
 }
 
+
+
+.footer-md{
+  padding: 0px;
+}

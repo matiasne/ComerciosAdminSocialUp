@@ -9,66 +9,46 @@
 
 <ion-content class="ion-padding">     
   
-  <div class="icono-foto-producto">
-    <app-seleccionar-imagen
-      [aspectRatio] = "1/1"
-      [croppedImage]="cliente.foto"
-      (onSelectValue)=imagenSeleccionadaIcono($event)>
-    </app-seleccionar-imagen>
-  </div> 
+    <div class="icono-foto-producto">
+      <app-seleccionar-imagen
+        [aspectRatio] = "1/1"
+        [croppedImage]="cliente.foto"
+        (onSelectValue)=imagenSeleccionadaIcono($event)>
+      </app-seleccionar-imagen>
+    </div> 
 
     <form [formGroup]="datosForm">
 
       <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.nombre.valid}">
-        <ion-text color="primary">
-          <h4>Nombre *</h4>         
-        </ion-text> 
-        
+      
         <ion-item>
+          <ion-label position="floating">Nombre *</ion-label>
           <ion-input name="nombre" type="text" formControlName="nombre"></ion-input>
         </ion-item>
         <div *ngIf="submitted && f.nombre.errors" class="invalid-feedback">
             <div *ngIf="f.nombre.errors.required"><h5>Ingresa un nombre</h5></div>
         </div>
-      </div>
-     
+      </div>         
       
-      
-      <div [ngClass]="{'form-card': true, 'form-card-error': submitted && !datosForm.controls.direccion.valid}">
-        <ion-text color="primary">
-          <h4>Direccion *</h4>
-        </ion-text>
-        
-        <ion-item >
-          <ion-input id="pac-input" formControlName="direccion" type="text"></ion-input>
+      <ion-button *ngIf="!cliente.direccion.street_name" (click)="seleccionarUbicacion()" class="button-rounded" color="light"><ion-icon name="add"></ion-icon><ion-icon name="location-outline"></ion-icon>Dirección</ion-button>
+      <ion-item-sliding class="item-card" *ngIf="cliente.direccion.street_name">  
+        <ion-item>
+          <ion-avatar slot="start" (click)="seleccionarUbicacion()">
+            <ion-icon name="location-outline"></ion-icon>
+          </ion-avatar>
+          <ion-label (click)="seleccionarUbicacion()">
+            <h2>{{cliente.direccion.street_name}} {{cliente.direccion.street_number}},{{cliente.direccion.locality}},{{cliente.direccion.state}}. <br>
+              <span *ngIf="cliente.direccion.piso"> Piso: {{cliente.direccion.piso}}</span>
+              <span *ngIf="cliente.direccion.puerta"> Puerta: {{cliente.direccion.puerta}}</span>
+              {{cliente.direccion.distanciaDelComercio}} Km.
+            </h2>
+          </ion-label>      
         </ion-item>
-        <div *ngIf="submitted && f.direccion.errors" class="invalid-feedback">
-          <div *ngIf="f.direccion.errors.required"><h5>Ingresa una dirección</h5></div>
-        </div>
-        <!--div class="map-container">
-          <div id="map3" class="map"></div>
-        </div-->
-        <ion-row>
-          <ion-col>
-            <ion-text color="primary">
-              <h4>Piso</h4>
-            </ion-text>
-           
-            <ion-item>
-              <ion-input name="piso" type="text" formControlName="direccion_piso"></ion-input>
-            </ion-item>
-          </ion-col>
-          <ion-col>
-            <ion-text color="primary">
-              <h4>Puerta</h4>
-            </ion-text>
-            
-            <ion-item>
-              <ion-input name="puerta" type="text" formControlName="direccion_puerta"></ion-input>
-            </ion-item>
-          </ion-col>
-        </ion-row>
-      </div>
+    
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="eliminarDireccion()"><ion-icon name="trash" ></ion-icon> Eliminar</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
 
       
 

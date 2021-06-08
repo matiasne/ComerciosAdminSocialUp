@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ModalController, LoadingController, IonInfiniteScroll } from '@ionic/angular';
+import { ModalController, LoadingController, IonInfiniteScroll, IonInput, IonSearchbar } from '@ionic/angular';
 import { ClientesService } from '../Services/clientes.service';
 import { Cliente } from '../models/cliente';
 import { LoadingService } from '../Services/loading.service';
@@ -15,6 +15,8 @@ import { FormClientePage } from '../form-cliente/form-cliente.page';
 export class SelectClientePage implements OnInit {
 
   @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
+
+  @ViewChild(IonSearchbar, { static: true }) ionSearchbar: IonSearchbar;
   
   items:any = [];
   public itemsAll:any = [];
@@ -46,6 +48,11 @@ export class SelectClientePage implements OnInit {
   ionViewDidEnter(){    
     if(this.route.snapshot.params.filtro)
       this.palabraFiltro = this.route.snapshot.params.filtro;   
+
+      setTimeout(() => {
+        // Set the focus to the input box of the ion-Searchbar component
+ this.ionSearchbar.setFocus();
+},100);
   }
 
   ionViewDidLeave(){
@@ -110,7 +117,7 @@ export class SelectClientePage implements OnInit {
     const modal = await this.modalController.create({
       component: FormClientePage,
       componentProps:{
-        id:item.id
+        cliente:item
       }      
     });
     
